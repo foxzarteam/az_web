@@ -196,3 +196,18 @@ body {
     transform: scale(1);
   }
 }
+
+/* Glowing floating line connecting step circles */
+.az-step-line {
+  stroke-dasharray: 20 16;
+  animation: az-step-line-flow 1.5s linear infinite;
+}
+
+@keyframes az-step-line-flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -72;
+  }
+}

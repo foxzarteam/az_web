@@ -168,58 +168,53 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why do thousands trust us? */}
+      {/* Key Features & Benefits */}
       <section className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-12 md:py-16 az-fade-up">
           <h2 className="text-center text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
-            Why do thousands trust us?
+            Key Features & Benefits
           </h2>
           <div className="mx-auto mt-2 h-1 w-16 rounded-full bg-violet-500" />
 
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              {
-                icon: "0↗",
-                title: "No Investment, Only Earnings",
-                desc: "You just need passion and basic skills— we'll help you earn!",
-              },
-              {
-                icon: "⊞",
-                title: "All Financial Services on One Platform",
-                desc: "From insurance to mutual funds to credit cards— everything you need to grow your business is here.",
-              },
-              {
-                icon: "💡",
-                title: "Ready-to-Use Marketing Creatives",
-                desc: "We provide you with easy-to-share creatives, allowing you to promote, pitch, and earn quickly.",
-              },
-              {
-                icon: "🕐",
-                title: "Timely Payouts, Always!",
-                desc: "You earn commissions on time, every time.",
-              },
-              {
-                icon: "🌐",
-                title: "Work anytime, from anywhere",
-                desc: "Work from home, a cafe, or even while traveling. Total freedom!",
-              },
-              {
-                icon: "📚",
-                title: "Guided learning & support",
-                desc: "Structured video lessons, FAQs and a support team to help you at every step.",
-              },
+              { iconKey: "lightning", iconColor: "text-amber-200", title: "Instant Approval & Quick Disbursal", desc: "" },
+              { iconKey: "shield", iconColor: "text-emerald-200", title: "No Collateral Required", desc: "" },
+              { iconKey: "calendar", iconColor: "text-sky-200", title: "Flexible Tenure (12-60 months)", desc: "" },
+              { iconKey: "chart", iconColor: "text-violet-200", title: "Attractive Interest Rates", desc: "" },
+              { iconKey: "globe", iconColor: "text-cyan-200", title: "100% Online Process", desc: "" },
+              { iconKey: "eye", iconColor: "text-rose-200", title: "Transparent Charges", desc: "" },
             ].map((item) => (
               <div
                 key={item.title}
                 className="rounded-2xl border border-slate-200 bg-slate-800 p-5 text-white shadow-lg az-card-hover"
               >
-                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500 text-xl font-bold text-white">
-                  {item.icon}
+                <div className={`mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500 ${item.iconColor}`}>
+                  {item.iconKey === "lightning" && (
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                  )}
+                  {item.iconKey === "shield" && (
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                  )}
+                  {item.iconKey === "calendar" && (
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  )}
+                  {item.iconKey === "chart" && (
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                  )}
+                  {item.iconKey === "globe" && (
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
+                  )}
+                  {item.iconKey === "eye" && (
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                  )}
                 </div>
                 <h3 className="text-sm font-bold md:text-base">{item.title}</h3>
-                <p className="mt-2 text-xs leading-relaxed text-slate-200 md:text-sm">
-                  {item.desc}
-                </p>
+                {item.desc ? (
+                  <p className="mt-2 text-xs leading-relaxed text-slate-200 md:text-sm">
+                    {item.desc}
+                  </p>
+                ) : null}
               </div>
             ))}
           </div>

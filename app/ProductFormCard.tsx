@@ -1,9 +1,5 @@
 "use client";
 
-import { Bebas_Neue } from "next/font/google";
-
-const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"] });
-
 const TABS = [
   { id: "personal-loan", display: "Personal Loan" },
   { id: "home-loan", display: "Home Loan" },
@@ -16,9 +12,9 @@ const DEFAULT_TAB_ID = "personal-loan";
 type Props = { selectedTabId?: string };
 
 export default function ProductFormCard({ selectedTabId = DEFAULT_TAB_ID }: Props) {
-  const current =
+  const _current =
     TABS.find((t) => t.id === selectedTabId) ?? TABS.find((t) => t.id === DEFAULT_TAB_ID)!;
-
+  void _current; // reserved for tab UI
   return (
     <div className="rounded-2xl border border-slate-200/80 bg-slate-50 p-4 shadow-[0_14px_30px_rgba(15,23,42,0.12)]">
         <form className="space-y-3">
