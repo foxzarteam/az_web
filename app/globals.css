@@ -1,213 +1,169 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+html {
+  scroll-behavior: smooth;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b1120;
-    --foreground: #e5e7eb;
-  }
-}
-
-body {
+* {
   margin: 0;
-  min-height: 100vh;
-  background: #ffffff;
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
-@layer utilities {
-  .az-fade-up {
-    animation: az-fade-up 0.7s ease-out both;
+@layer components {
+  body {
+    @apply text-base overflow-x-hidden font-normal min-w-0;
+    -webkit-text-size-adjust: 100%;
   }
-
-  .az-fade-up-delayed {
-    animation: az-fade-up 0.8s ease-out 0.12s both;
+  html {
+    @apply overflow-x-hidden;
   }
-
-  .az-fade-up-slow {
-    animation: az-fade-up 0.9s ease-out 0.22s both;
+  .container {
+    @apply min-w-0;
   }
-
-  .az-float-soft {
-    animation: az-float-soft 4.5s ease-in-out infinite;
+  textarea,
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="tel"],
+  select {
+    @apply block outline-none text-base font-normal text-midnight_text m-0 rounded-[0.375rem] w-full placeholder:text-gray;
   }
-
-  .az-card-spin-cw {
-    animation: az-card-spin-cw 6s ease-in-out infinite;
+  h1 {
+    @apply md:text-[51px] md:leading-[1.2] text-[28px] leading-[1.2] font-bold text-midnight_text dark:text-white;
   }
-
-  .az-card-spin-ccw {
-    animation: az-card-spin-ccw 6s ease-in-out infinite;
+  h2 {
+    @apply md:text-[40px] leading-[1.2] text-2xl font-bold text-midnight_text dark:text-white;
   }
-
-  .az-pulse-soft {
-    animation: az-pulse-soft 2.4s ease-in-out infinite;
+  h3 {
+    @apply md:text-[28px] leading-[1.2] text-lg font-bold text-white dark:text-primary;
   }
-
-  .az-float-steps {
-    animation: az-float-steps 4s ease-in-out infinite;
+  h4 {
+    @apply text-2xl font-bold text-midnight_text dark:text-primary;
   }
-
-  .az-step-float-1 {
-    animation: az-step-float 3.6s ease-in-out infinite;
+  h5 {
+    @apply text-[22px] leading-[1.2] font-medium text-midnight_text dark:text-primary;
   }
-  .az-step-float-2 {
-    animation: az-step-float 3.6s ease-in-out 0.4s infinite;
-  }
-  .az-step-float-3 {
-    animation: az-step-float 3.6s ease-in-out 0.8s infinite;
-  }
-
-  .az-card-hover {
-    transition:
-      transform 220ms ease-out,
-      box-shadow 220ms ease-out,
-      border-color 220ms ease-out,
-      background-color 220ms ease-out;
-  }
-
-  .az-card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.15);
+  section {
+    @apply lg:py-24 py-16;
   }
 }
 
-@keyframes az-fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(22px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+@media (min-width: 1024px) {
+  .lg\:w-\[26rem\] {
+    width: 28rem;
   }
 }
 
-@keyframes az-float-soft {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-14px);
+/* Home page specific (calculator, history) */
+.history-bg {
+  background: #f3f9fd;
+}
+@media (min-width: 1024px) {
+  .history-bg {
+    background: linear-gradient(to right, #f3f9fd 0%, #f3f9fd 64.3%, #bccfe1 64.3%, #bccfe1 100%);
   }
 }
 
-@keyframes az-card-spin-cw {
-  0%, 100% {
-    transform: rotate(-8deg);
-  }
-  50% {
-    transform: rotate(8deg);
+@media (min-width: 768px) {
+  .estate-summary-bg {
+    background: #2f73f2;
   }
 }
 
-@keyframes az-card-spin-ccw {
-  0%, 100% {
-    transform: rotate(8deg);
-  }
-  50% {
-    transform: rotate(-8deg);
+.dark .history-bg {
+  background: #0e1624;
+}
+@media (min-width: 1024px) {
+  .dark .history-bg {
+    background: linear-gradient(to right, #111827 0%, #0e1521 64.3%, #0c121e 64.3%, #0c121e 100%);
   }
 }
 
-@keyframes az-pulse-soft {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
-  }
-  50% {
-    transform: scale(1.03);
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.28);
+@media (min-width: 768px) {
+  .dark .estate-summary-bg {
+    background: #2f73f2;
   }
 }
 
-@keyframes az-float-steps {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
+.money-dot::before {
+  content: "";
+  position: absolute;
+  top: -34px;
+  background-color: #6bc1f9;
+  width: 12px;
+  height: 12px;
+  z-index: 1;
+  border-radius: 50%;
 }
 
-@keyframes az-step-float {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-12px) scale(1.02);
-  }
+.money-dot::after {
+  content: "";
+  position: absolute;
+  top: -39px;
+  left: -5px;
+  padding: 6px;
+  border-radius: 50%;
+  border: 2px solid #6bc1f9;
+  height: 22px;
+  width: 22px;
+  background: white;
 }
 
-@keyframes az-marquee {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+.dark .money-dot::after {
+  background: #1f2a37;
 }
 
-.az-hero-zoom {
-  animation: az-hero-zoom 4s ease-in-out infinite;
+.imageContainer {
+  position: relative;
+  overflow: hidden;
 }
 
-@keyframes az-hero-zoom {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.08);
-  }
+.main-div::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #6bc1f9;
 }
 
-.az-movie-text {
-  animation: az-movie-text 0.6s ease-out both;
-  letter-spacing: 0.08em;
+.relative-container {
+  position: relative;
 }
 
-@keyframes az-movie-text {
-  from {
-    opacity: 0;
-    letter-spacing: 0.2em;
-    transform: scale(0.98);
-  }
-  to {
-    opacity: 1;
-    letter-spacing: 0.08em;
-    transform: scale(1);
-  }
+.child-container {
+  position: relative;
 }
 
-/* Glowing floating line connecting step circles */
-.az-step-line {
-  stroke-dasharray: 20 16;
-  animation: az-step-line-flow 1.5s linear infinite;
+/* Step-by-step carousel: 1 card slides out, pause, next slides out, pause, ... then reset */
+@keyframes carousel-step {
+  0% { transform: translateX(0); }
+  5% { transform: translateX(-8.333%); }
+  17% { transform: translateX(-8.333%); }
+  22% { transform: translateX(-16.666%); }
+  34% { transform: translateX(-16.666%); }
+  39% { transform: translateX(-25%); }
+  51% { transform: translateX(-25%); }
+  56% { transform: translateX(-33.333%); }
+  68% { transform: translateX(-33.333%); }
+  73% { transform: translateX(-41.666%); }
+  85% { transform: translateX(-41.666%); }
+  90% { transform: translateX(-50%); }
+  95% { transform: translateX(-50%); }
+  97% { transform: translateX(0); }
+  100% { transform: translateX(0); }
 }
 
-@keyframes az-step-line-flow {
-  from {
-    stroke-dashoffset: 0;
-  }
-  to {
-    stroke-dashoffset: -72;
-  }
+.animate-infinite-scroll {
+  animation: carousel-step 42s linear infinite;
+}
+
+.animate-infinite-scroll:hover {
+  animation-play-state: paused;
 }
