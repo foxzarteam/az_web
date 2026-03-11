@@ -49,6 +49,8 @@ const extendedConfig = {
     darkgray: "#374151",
     skyBlue: "#35B4F6",
     accent: "#F59E0B",
+    gradientStart: "#ffa104",
+    gradientEnd: "#ff4512",
   },
   borderRadius: { lg: "0.625rem" },
   screens: { "5xl": "2100px" },

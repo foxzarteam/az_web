@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { LOAN_LIMITS, CONTACT, COLORS } from "@/app/config/constants";
+import { formatRupee } from "@/app/utils/format";
 
 function calculateEMI(principal: number, annualRate: number, years: number) {
   if (principal <= 0 || years <= 0) return { emi: 0, totalInterest: 0, totalAmount: 0 };
@@ -14,6 +16,10 @@ function calculateEMI(principal: number, annualRate: number, years: number) {
   return { emi, totalInterest, totalAmount };
 }
 
+function clampValue(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
 export default function Calculator() {
   const [principal, setPrincipal] = useState(500000);
   const [annualRate, setAnnualRate] = useState(10.5);
@@ -23,18 +29,6 @@ export default function Calculator() {
     () => calculateEMI(principal, annualRate, tenureYears),
     [principal, annualRate, tenureYears]
   );
-
-  function formatRupee(n: number) {
-    const str = Math.round(n).toString();
-    if (str.length <= 3) return "₹" + str;
-    let result = str.slice(-3);
-    let i = str.length - 3;
-    while (i > 0) {
-      result = str.slice(Math.max(0, i - 2), i) + "," + result;
-      i -= 2;
-    }
-    return "₹" + result;
-  }
 
   const total = totalAmount || 1;
   const principalShare = totalAmount ? principal / total : 1;
@@ -59,6 +53,12 @@ export default function Calculator() {
           <div className="w-full flex justify-center">
             <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80">
               <svg viewBox="0 0 200 200" className="w-full h-full -rotate-90">
+                <defs>
+                  <linearGradient id="principalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor={COLORS.GRADIENT_START} />
+                    <stop offset="100%" stopColor={COLORS.GRADIENT_END} />
+                  </linearGradient>
+                </defs>
                 <circle
                   cx="100"
                   cy="100"
@@ -73,7 +73,7 @@ export default function Calculator() {
                   cy="100"
                   r={r}
                   fill="none"
-                  stroke="#2F73F2"
+                  stroke="url(#principalGradient)"
                   strokeWidth="22"
                   strokeDasharray={`${principalDash} ${circumference}`}
                   strokeLinecap="round"
@@ -117,22 +117,22 @@ export default function Calculator() {
                 </label>
                 <input
                   type="number"
-                  min={10000}
-                  max={10000000}
-                  step={10000}
+                  min={LOAN_LIMITS.MIN_AMOUNT}
+                  max={LOAN_LIMITS.MAX_AMOUNT}
+                  step={LOAN_LIMITS.STEP_AMOUNT}
                   value={principal}
-                  onChange={(e) => setPrincipal(Math.max(10000, Number(e.target.value) || 0))}
+                  onChange={(e) => setPrincipal(clampValue(Number(e.target.value) || 0, LOAN_LIMITS.MIN_AMOUNT, LOAN_LIMITS.MAX_AMOUNT))}
                   className="w-full px-4 py-3 rounded-lg border border-border dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:ring-2 focus:ring-primary focus:border-primary"
                 />
                 <div className="flex justify-between text-xs text-gray mt-1">
-                  <span>₹10,000</span>
-                  <span>₹1 Cr</span>
+                  <span>{formatRupee(LOAN_LIMITS.MIN_AMOUNT)}</span>
+                  <span>{formatRupee(LOAN_LIMITS.MAX_AMOUNT)}</span>
                 </div>
                 <input
                   type="range"
-                  min={10000}
-                  max={10000000}
-                  step={10000}
+                  min={LOAN_LIMITS.MIN_AMOUNT}
+                  max={LOAN_LIMITS.MAX_AMOUNT}
+                  step={LOAN_LIMITS.STEP_AMOUNT}
                   value={principal}
                   onChange={(e) => setPrincipal(Number(e.target.value))}
                   className="w-full h-2 bg-primary/20 rounded-lg appearance-none cursor-pointer accent-primary mt-2"
@@ -145,18 +145,18 @@ export default function Calculator() {
                 </label>
                 <input
                   type="number"
-                  min={1}
-                  max={30}
-                  step={0.1}
+                  min={LOAN_LIMITS.MIN_RATE}
+                  max={LOAN_LIMITS.MAX_RATE}
+                  step={LOAN_LIMITS.STEP_RATE}
                   value={annualRate}
-                  onChange={(e) => setAnnualRate(Math.max(1, Math.min(30, Number(e.target.value) || 0)))}
+                  onChange={(e) => setAnnualRate(clampValue(Number(e.target.value) || 0, LOAN_LIMITS.MIN_RATE, LOAN_LIMITS.MAX_RATE))}
                   className="w-full px-4 py-3 rounded-lg border border-border dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:ring-2 focus:ring-primary focus:border-primary"
                 />
                 <input
                   type="range"
-                  min={1}
-                  max={30}
-                  step={0.1}
+                  min={LOAN_LIMITS.MIN_RATE}
+                  max={LOAN_LIMITS.MAX_RATE}
+                  step={LOAN_LIMITS.STEP_RATE}
                   value={annualRate}
                   onChange={(e) => setAnnualRate(Number(e.target.value))}
                   className="w-full h-2 bg-primary/20 rounded-lg appearance-none cursor-pointer accent-primary mt-2"
@@ -169,16 +169,16 @@ export default function Calculator() {
                 </label>
                 <input
                   type="number"
-                  min={1}
-                  max={30}
+                  min={LOAN_LIMITS.MIN_TENURE}
+                  max={LOAN_LIMITS.MAX_TENURE}
                   value={tenureYears}
-                  onChange={(e) => setTenureYears(Math.max(1, Math.min(30, Number(e.target.value) || 0)))}
+                  onChange={(e) => setTenureYears(clampValue(Number(e.target.value) || 0, LOAN_LIMITS.MIN_TENURE, LOAN_LIMITS.MAX_TENURE))}
                   className="w-full px-4 py-3 rounded-lg border border-border dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:ring-2 focus:ring-primary focus:border-primary"
                 />
                 <input
                   type="range"
-                  min={1}
-                  max={30}
+                  min={LOAN_LIMITS.MIN_TENURE}
+                  max={LOAN_LIMITS.MAX_TENURE}
                   value={tenureYears}
                   onChange={(e) => setTenureYears(Number(e.target.value))}
                   className="w-full h-2 bg-primary/20 rounded-lg appearance-none cursor-pointer accent-primary mt-2"
@@ -205,13 +205,6 @@ export default function Calculator() {
                   <p className="text-lg font-bold text-midnight_text dark:text-white">{formatRupee(totalAmount)}</p>
                 </div>
               </div>
-            </div>
-
-            <div className="px-6 py-4 bg-primary text-white rounded-b-2xl">
-              <p className="text-sm opacity-90">Need help choosing?</p>
-              <Link href="tel:+919098870980" className="font-semibold hover:underline">
-                Call us: +91 90988 70980
-              </Link>
             </div>
           </div>
         </div>

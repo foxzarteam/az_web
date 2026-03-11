@@ -1,7 +1,7 @@
 import { propertyData } from "@/app/types/property/propertyData";
 import { NextResponse } from "next/server";
 
-const property: propertyData[] = [
+const PROPERTY_DATA: propertyData[] = [
   { id: "1", property_img: "/images/properties/prop-1.jpg", property_title: "Modern Appartment", property_price: "$150,000", category: "apartment", category_img: "/images/property_option/apartment.svg", rooms: 2, bathrooms: 1, location: "California", livingArea: "85m²", tag: "Sell", check: true, status: "Buy", type: "Apartment", beds: 2, garages: 0, region: "south", name: "Property 1", slug: "modern-apartment" },
   { id: "2", property_img: "/images/properties/prop-2.jpg", property_title: "City Appartment", property_price: "$180,000", category: "apartment", category_img: "/images/property_option/apartment.svg", rooms: 3, bathrooms: 2, location: "Texas", livingArea: "110m²", tag: "Buy", check: true, status: "Buy", type: "Apartment", beds: 3, garages: 1, region: "north", name: "Property 2", slug: "city-apartment" },
   { id: "3", property_img: "/images/properties/prop-3.jpg", property_title: "Luxury Appartment", property_price: "$220,000", category: "apartment", category_img: "/images/property_option/apartment.svg", rooms: 4, bathrooms: 3, location: "New York", livingArea: "140m²", tag: "Sell", check: true, status: "Buy", type: "Apartment", beds: 4, garages: 1, region: "east", name: "Property 3", slug: "luxury-apartment" },
@@ -23,5 +23,10 @@ const property: propertyData[] = [
 ];
 
 export async function GET() {
-  return NextResponse.json(property);
+  try {
+    return NextResponse.json(PROPERTY_DATA);
+  } catch (error) {
+    console.error("Error fetching property data:", error);
+    return NextResponse.json({ error: "Failed to fetch property data" }, { status: 500 });
+  }
 }

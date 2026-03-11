@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { propertyData } from "@/app/types/property/propertyData";
+import { COLORS } from "@/app/config/constants";
+import { fetchData } from "@/app/utils/api";
 
 const FEATURES = [
   { id: 1, imgSrc: "/images/features/rating.svg", title: "Best Rates", description: "Compare interest rates from multiple banks and NBFCs. Get the best deal on loans, insurance, and credit cards." },
@@ -10,17 +12,17 @@ const FEATURES = [
   { id: 3, imgSrc: "/images/features/live-chat.svg", title: "24/7 Support", description: "Apply anytime, anywhere. Our team is here to help you with applications and queries round the clock." },
 ];
 
+function loadUncheckedProperty(): Promise<propertyData | null> {
+  return fetchData<propertyData[]>("/api/propertydata", []).then(
+    (data) => data.find((item) => !item.check) || null
+  );
+}
+
 export default function Features() {
   const [uncheckedProperty, setUncheckedProperty] = useState<propertyData | null>(null);
 
   useEffect(() => {
-    fetch("/api/propertydata")
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data: propertyData[]) => {
-        const found = data.find((item) => !item.check);
-        setUncheckedProperty(found || null);
-      })
-      .catch(() => {});
+    loadUncheckedProperty().then(setUncheckedProperty);
   }, []);
 
   return (
@@ -48,7 +50,7 @@ export default function Features() {
                         width={370}
                         style={{ width: "100%", height: "auto" }}
                       />
-                      <svg className="absolute top-[10px] right-[10px] bg-white p-2 rounded-lg" viewBox="0 0 24 24" width={38} height={38} fill="#2F73F2">
+                      <svg className="absolute top-[10px] right-[10px] bg-white p-2 rounded-lg" viewBox="0 0 24 24" width={38} height={38} fill={COLORS.PRIMARY}>
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                       </svg>
                     </div>

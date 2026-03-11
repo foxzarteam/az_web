@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { SCROLL_THRESHOLD } from "@/app/config/constants";
+import { scrollToTop as scrollToTopUtil } from "@/app/utils/scroll";
+
+function getScrollVisibility(): boolean {
+  return typeof window !== "undefined" && window.pageYOffset > SCROLL_THRESHOLD;
+}
 
 export default function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   useEffect(() => {
-    const toggleVisibility = () => setIsVisible(window.pageYOffset > 300);
+    const toggleVisibility = () => setIsVisible(getScrollVisibility());
     window.addEventListener("scroll", toggleVisibility);
     return () => window.removeEventListener("scroll", toggleVisibility);
   }, []);
@@ -20,7 +22,7 @@ export default function ScrollToTop() {
       {isVisible && (
         <button
           type="button"
-          onClick={scrollToTop}
+          onClick={() => scrollToTopUtil()}
           aria-label="Scroll to top"
           className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-md bg-[#102C46] text-white shadow-md transition hover:opacity-90"
         >

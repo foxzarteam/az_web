@@ -2,18 +2,26 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
+import Link from "next/link";
 import Logo from "./logo";
 import HeaderLink from "./navigation/HeaderLink";
 import MobileHeaderLink from "./navigation/MobileHeaderLink";
 import type { HeaderItem } from "@/app/types/layout/menu";
+import { fetchData } from "@/app/utils/api";
+import { COLORS } from "@/app/config/constants";
 
 const defaultHeaderData: HeaderItem[] = [
   { label: "Home", href: "/" },
-  { label: "Our Services", href: "/#featured", submenu: [{ label: "Loans", href: "/#featured" }, { label: "Insurance", href: "/#featured" }, { label: "Credit Cards", href: "/#featured" }] },
-  { label: "Blogs", href: "/#blog", submenu: [{ label: "Blog Grid", href: "/#blog" }, { label: "Blog Details", href: "/#blog" }] },
-  { label: "Contact", href: "/#contact" },
-  { label: "Documentation", href: "/#" },
+  { label: "Services", href: "/#featured" },
+  { label: "About", href: "/about" },
+  { label: "Contact Us", href: "/contact" },
 ];
+
+function loadHeaderData(): Promise<HeaderItem[]> {
+  return fetchData<{ headerData?: HeaderItem[] }>("/api/layoutdata", { headerData: defaultHeaderData }).then(
+    (response) => response.headerData?.length ? response.headerData : defaultHeaderData
+  );
+}
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -25,17 +33,7 @@ export default function Header() {
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("/api/layoutdata");
-        if (!res.ok) throw new Error("Failed to fetch");
-        const json = await res.json();
-        setData(json?.headerData?.length ? json.headerData : defaultHeaderData);
-      } catch {
-        setData([]);
-      }
-    };
-    fetchData();
+    loadHeaderData().then(setData);
   }, []);
 
   useEffect(() => {
@@ -60,6 +58,12 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-2 sm:gap-4">
+          <Link
+            href="/become-partner"
+            className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg transition-all duration-300 hover:bg-blue-700"
+          >
+            Become a Partner
+          </Link>
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-midnight_text dark:text-white">
             {mounted && (
               <button

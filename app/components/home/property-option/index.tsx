@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-
-const PRIMARY = "#2F73F2";
+import { COLORS } from "@/app/config/constants";
 
 const CARD_BGS = [
   "bg-blue-50 dark:bg-blue-900/20 border-blue-200/60 dark:border-blue-500/20",
@@ -18,8 +17,8 @@ const SERVICES = [
     badge: "Quick Sanction",
     icon: (
       <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12 shrink-0" aria-hidden>
-        <path d="M24 6L8 20v22h12V28h8v14h12V20L24 6z" stroke={PRIMARY} strokeWidth="2" fill="none" strokeLinejoin="round" />
-        <text x="24" y="26" fontSize="12" fill={PRIMARY} textAnchor="middle" fontWeight="700">%</text>
+        <path d="M24 6L8 20v22h12V28h8v14h12V20L24 6z" stroke={COLORS.PRIMARY} strokeWidth="2" fill="none" strokeLinejoin="round" />
+        <text x="24" y="26" fontSize="12" fill={COLORS.PRIMARY} textAnchor="middle" fontWeight="700">%</text>
       </svg>
     ),
     primary: true,
@@ -30,9 +29,9 @@ const SERVICES = [
     badge: "Quick Disbursal",
     icon: (
       <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12 shrink-0" aria-hidden>
-        <path d="M28 12H14a4 4 0 00-4 4v20a4 4 0 004 4h20a4 4 0 004-4V22" stroke={PRIMARY} strokeWidth="2" fill="none" strokeLinecap="round" />
-        <path d="M28 12v8h8l6-6-6-6h-8z" stroke={PRIMARY} strokeWidth="2" fill="none" strokeLinejoin="round" />
-        <circle cx="20" cy="32" r="3" stroke={PRIMARY} strokeWidth="2" fill="none" />
+        <path d="M28 12H14a4 4 0 00-4 4v20a4 4 0 004 4h20a4 4 0 004-4V22" stroke={COLORS.PRIMARY} strokeWidth="2" fill="none" strokeLinecap="round" />
+        <path d="M28 12v8h8l6-6-6-6h-8z" stroke={COLORS.PRIMARY} strokeWidth="2" fill="none" strokeLinejoin="round" />
+        <circle cx="20" cy="32" r="3" stroke={COLORS.PRIMARY} strokeWidth="2" fill="none" />
       </svg>
     ),
     primary: false,
@@ -43,9 +42,9 @@ const SERVICES = [
     badge: "Flexible Repayment",
     icon: (
       <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12 shrink-0" aria-hidden>
-        <rect x="10" y="12" width="28" height="26" rx="2" stroke={PRIMARY} strokeWidth="2" fill="none" />
-        <path d="M10 22h28M18 12V8a2 2 0 014 0v4M26 12V8a2 2 0 014 0v4" stroke={PRIMARY} strokeWidth="2" fill="none" strokeLinecap="round" />
-        <path d="M16 30h4v6h-4zM28 30h4v6h-4z" fill={PRIMARY} />
+        <rect x="10" y="12" width="28" height="26" rx="2" stroke={COLORS.PRIMARY} strokeWidth="2" fill="none" />
+        <path d="M10 22h28M18 12V8a2 2 0 014 0v4M26 12V8a2 2 0 014 0v4" stroke={COLORS.PRIMARY} strokeWidth="2" fill="none" strokeLinecap="round" />
+        <path d="M16 30h4v6h-4zM28 30h4v6h-4z" fill={COLORS.PRIMARY} />
       </svg>
     ),
     primary: false,
@@ -56,10 +55,10 @@ const SERVICES = [
     badge: "Rewards Unlimited",
     icon: (
       <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12 shrink-0" aria-hidden>
-        <rect x="4" y="14" width="40" height="28" rx="3" stroke={PRIMARY} strokeWidth="2" fill="none" />
-        <rect x="4" y="14" width="40" height="12" rx="2" fill={PRIMARY} fillOpacity="0.25" />
-        <circle cx="14" cy="20" r="3" fill={PRIMARY} />
-        <path d="M8 32h32M8 38h18" stroke={PRIMARY} strokeWidth="2" strokeLinecap="round" />
+        <rect x="4" y="14" width="40" height="28" rx="3" stroke={COLORS.PRIMARY} strokeWidth="2" fill="none" />
+        <rect x="4" y="14" width="40" height="12" rx="2" fill={COLORS.PRIMARY} fillOpacity="0.25" />
+        <circle cx="14" cy="20" r="3" fill={COLORS.PRIMARY} />
+        <path d="M8 32h32M8 38h18" stroke={COLORS.PRIMARY} strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
     primary: false,

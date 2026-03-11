@@ -2,31 +2,27 @@
 
 import { useEffect, useState } from "react";
 import FeaturedCard from "./featured-card";
+import { FEATURED_SERVICES, DEFAULT_IMAGES } from "@/app/config/constants";
+import { fetchData } from "@/app/utils/api";
 
-const FEATURED = [
-  { title: "Home Loan", description: "Instant approval at lowest interest rates", badge: "Quick Sanction" },
-  { title: "Personal Loan", description: "Paperless process at low rate", badge: "Quick Disbursal" },
-  { title: "Business Loan", description: "Fund your business with flexible tenure", badge: "Flexible Repayment" },
-  { title: "Credit Card", description: "Choose cards from all top banks", badge: "Rewards Unlimited" },
-];
+const MAX_IMAGES = 4;
 
-const DEFAULT_IMAGE = "/images/hero/hero.png";
+function loadPropertyImages(): Promise<string[]> {
+  return fetchData<{ property_img: string }[]>("/api/propertydata", []).then(
+    (data) => data.slice(0, MAX_IMAGES).map((p) => p.property_img)
+  );
+}
 
 export default function Listing() {
   const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
-    fetch("/api/propertydata")
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data: { property_img: string }[]) => {
-        setImages(data.slice(0, 4).map((p) => p.property_img));
-      })
-      .catch(() => {});
+    loadPropertyImages().then(setImages);
   }, []);
 
-  const cards = FEATURED.map((item, i) => ({
+  const cards = FEATURED_SERVICES.map((item, i) => ({
     ...item,
-    image: images[i] || DEFAULT_IMAGE,
+    image: images[i] || DEFAULT_IMAGES.HERO,
   }));
   const duplicated = [...cards, ...cards];
 
@@ -34,7 +30,7 @@ export default function Listing() {
     <section id="featured" className="bg-light dark:bg-semidark flex justify-center items-center overflow-hidden">
       <div className="w-full mx-auto px-4 max-w-full">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-12 text-midnight_text dark:text-white text-center" data-aos="fade-up">
-          Featured Products & Offers
+          Our Services
         </h1>
         <div className="relative">
           <div className="overflow-hidden">
