@@ -118,6 +118,13 @@ export default function Header() {
           {data.map((item, index) => (
             <MobileHeaderLink key={index} item={item} onClose={() => setNavbarOpen(false)} />
           ))}
+          <Link
+            href="/become-partner"
+            onClick={() => setNavbarOpen(false)}
+            className="w-full mt-2 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg transition-all duration-300 hover:bg-blue-700 text-center"
+          >
+            Become a Partner
+          </Link>
         </nav>
       </div>
     </header>

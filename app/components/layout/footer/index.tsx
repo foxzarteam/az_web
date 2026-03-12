@@ -49,7 +49,7 @@ export default function Footer() {
                 </a>
               </div>
             </div>
-            <div className="lg:col-span-4 col-span-12">
+            <div className="lg:col-span-4 col-span-6">
               <h4 className="mb-4 text-lg text-white">Quick Links</h4>
               <ul>
                 <li><Link href="/contact" className="mb-3 inline-block text-base text-gray hover:text-white">Contact</Link></li>
@@ -57,7 +57,7 @@ export default function Footer() {
                 <li><Link href="/about" className="mb-3 inline-block text-base text-gray hover:text-white">About</Link></li>
               </ul>
             </div>
-            <div className="lg:col-span-4 col-span-12">
+            <div className="lg:col-span-4 col-span-6">
               <h4 className="mb-4 text-lg text-white">Popular</h4>
               <ul>
                 <li><Link href="/#featured" className="mb-3 inline-block text-base text-gray hover:text-white">Personal Loan</Link></li>
