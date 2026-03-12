@@ -42,12 +42,12 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="relative pt-24 sm:pt-28 pb-6 sm:pb-0 overflow-x-hidden min-h-0 lg:min-h-[380px]"
+      className="relative pt-24 sm:pt-28 pb-0 overflow-x-hidden min-h-0 lg:min-h-[380px]"
       style={{ backgroundColor: COLORS.PRIMARY }}
     >
-      <div className="container mx-auto px-4 sm:px-4 lg:max-w-screen-xl md:max-w-screen-md relative z-10 h-full max-w-full">
+      <div className="container mx-auto px-0 sm:px-4 lg:max-w-screen-xl md:max-w-screen-md relative z-10 h-full max-w-full">
         <div className="grid lg:grid-cols-12 grid-cols-1 lg:items-end gap-6 lg:gap-0 min-h-0 lg:min-h-[300px]">
-          <div className="flex flex-col col-span-1 lg:col-span-6 justify-center items-start mb-4 lg:mb-[60px]" data-aos="fade-right">
+          <div className="flex flex-col col-span-1 lg:col-span-6 justify-center items-start mb-4 lg:mb-[60px] px-4 sm:px-0" data-aos="fade-right">
             <div className="mb-4 sm:mb-6">
               <h1 className="text-2xl sm:text-3xl md:text-[40px] leading-[1.3] text-white font-bold flex flex-wrap items-center gap-2">
                 <span>Get an instant</span>
@@ -88,15 +88,15 @@ export default function Hero() {
               </div>
             </div>
           </div>
-          <div className="flex col-span-1 lg:col-span-6 justify-center lg:justify-end items-center lg:items-end self-center lg:self-end">
-            <div className="relative w-full max-w-[280px] sm:max-w-[340px] md:max-w-[400px] lg:max-w-[480px] xl:max-w-[520px] mt-2 lg:mt-12">
+          <div className="flex col-span-1 lg:col-span-6 justify-center lg:justify-end items-end lg:items-end self-end lg:self-end">
+            <div className="relative w-full lg:max-w-[480px] xl:max-w-[520px] lg:mt-12">
               <Image
                 src={DEFAULT_IMAGES.HERO}
                 alt="hero"
                 width={520}
                 height={400}
-                className="w-full h-auto object-contain object-center lg:object-bottom block"
-                sizes="(max-width: 640px) 280px, (max-width: 768px) 340px, (max-width: 1024px) 400px, 520px"
+                className="w-full h-auto object-contain object-bottom block"
+                sizes="100vw"
                 priority
               />
             </div>
