@@ -8,7 +8,6 @@ interface FeaturedCardProps {
   image: string;
   title: string;
   description: string;
-  badge?: string;
 }
 
 export default function FeaturedCard({ image, title, description }: FeaturedCardProps) {
@@ -46,8 +45,8 @@ export default function FeaturedCard({ image, title, description }: FeaturedCard
         </svg>
       </div>
       <div className="p-5 sm:p-6 flex flex-col flex-1 min-h-0">
-        <p className="text-sm text-gray dark:text-gray-400 mb-1">{title}</p>
-        <p className="text-midnight_text dark:text-white font-medium text-base mb-4 flex-1">
+        <p className="text-lg sm:text-xl font-semibold text-midnight_text dark:text-white mb-1">{title}</p>
+        <p className="text-midnight_text dark:text-white font-normal text-sm mb-4 flex-1">
           {description}
         </p>
         <div className="border-t border-border dark:border-dark_border pt-4 mt-auto">

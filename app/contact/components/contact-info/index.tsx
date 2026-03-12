@@ -17,7 +17,7 @@ export default function ContactInfo() {
                   Email Us
                 </span>
                 <p className="text-midnight_text/70 font-normal text-xl max-w-80 pt-3 pb-7 dark:text-gray">
-                  Feel free to contact us at {CONTACT.EMAIL} we&apos;ll respond promptly
+                  Feel free to contact us at {CONTACT.EMAIL}
                 </p>
               </div>
             </div>

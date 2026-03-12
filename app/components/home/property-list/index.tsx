@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import FeaturedCard from "./featured-card";
-import { FEATURED_SERVICES, DEFAULT_IMAGES } from "@/app/config/constants";
+import { FEATURED_SERVICES } from "@/app/config/constants";
 import { fetchData } from "@/app/utils/api";
 
 const MAX_IMAGES = 4;
@@ -15,14 +15,22 @@ function loadPropertyImages(): Promise<string[]> {
 
 export default function Listing() {
   const [images, setImages] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadPropertyImages().then(setImages);
+    loadPropertyImages().then((loadedImages) => {
+      setImages(loadedImages);
+      setIsLoading(false);
+    });
   }, []);
+
+  if (isLoading || images.length === 0) {
+    return null;
+  }
 
   const cards = FEATURED_SERVICES.map((item, i) => ({
     ...item,
-    image: images[i] || DEFAULT_IMAGES.HERO,
+    image: images[i] || "",
   }));
   const duplicated = [...cards, ...cards];
 
@@ -44,7 +52,6 @@ export default function Listing() {
                     image={card.image}
                     title={card.title}
                     description={card.description}
-                    badge={card.badge}
                   />
                 </div>
               ))}

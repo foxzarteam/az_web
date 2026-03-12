@@ -12,6 +12,11 @@ const dmSans = DM_Sans({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Apni Zaroorat | Loans, Insurance & Credit Cards Online",
   description: "Apni Zaroorat – Compare and apply for personal loans, insurance, and credit cards online. Quick approval, best rates, 100% digital.",
+  icons: {
+    icon: "/images/logo/app_icon.png",
+    shortcut: "/images/logo/app_icon.png",
+    apple: "/images/logo/app_icon.png",
+  },
 };
 
 export default function RootLayout({

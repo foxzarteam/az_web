@@ -1,9 +1,7 @@
 export const COLORS = {
   PRIMARY: "#2F73F2",
-  PRIMARY_DARK: "#1e5fd9",
   GRADIENT_START: "#ffa104",
   GRADIENT_END: "#ff4512",
-  GRADIENT: "linear-gradient(135deg, #ffa104 0%, #ff4512 100%)",
 } as const;
 
 export const CONTACT = {
@@ -31,14 +29,13 @@ export const SCROLL_THRESHOLD = 300;
 
 export const DEFAULT_IMAGES = {
   HERO: "/images/hero/hero.png",
-  LOGO_WHITE: "/images/logo/logo-white.svg",
 } as const;
 
 export const FEATURED_SERVICES = [
-  { title: "Home Loan", description: "Instant approval at lowest interest rates", badge: "Quick Sanction" },
-  { title: "Personal Loan", description: "Paperless process at low rate", badge: "Quick Disbursal" },
-  { title: "Business Loan", description: "Fund your business with flexible tenure", badge: "Flexible Repayment" },
-  { title: "Credit Card", description: "Choose cards from all top banks", badge: "Rewards Unlimited" },
+  { title: "Home Loan", description: "Instant approval at lowest interest rates" },
+  { title: "Personal Loan", description: "Paperless process at low rate" },
+  { title: "Business Loan", description: "Fund your business with flexible tenure" },
+  { title: "Credit Card", description: "Choose cards from all top banks" },
 ] as const;
 
 export const COMPANY_STATS = [

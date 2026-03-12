@@ -8,7 +8,6 @@ import HeaderLink from "./navigation/HeaderLink";
 import MobileHeaderLink from "./navigation/MobileHeaderLink";
 import type { HeaderItem } from "@/app/types/layout/menu";
 import { fetchData } from "@/app/utils/api";
-import { COLORS } from "@/app/config/constants";
 
 const defaultHeaderData: HeaderItem[] = [
   { label: "Home", href: "/" },
