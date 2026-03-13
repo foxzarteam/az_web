@@ -50,6 +50,25 @@ html {
   section {
     @apply lg:py-24 py-16;
   }
+  .btn-shine {
+    @apply relative overflow-hidden;
+  }
+  .btn-shine::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.4) 40%,
+      rgba(255, 255, 255, 0.8) 50%,
+      rgba(255, 255, 255, 0.4) 60%,
+      transparent 100%
+    );
+    transform: translateX(-120%);
+    animation: shine-sweep 2.2s linear infinite;
+    pointer-events: none;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -178,4 +197,16 @@ html {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
+}
+
+@keyframes shine-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  60% {
+    transform: translateX(130%);
+  }
+  100% {
+    transform: translateX(130%);
+  }
 }

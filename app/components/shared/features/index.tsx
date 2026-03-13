@@ -55,11 +55,12 @@ export default function Features() {
                       </svg>
                     </div>
                     <div className="p-4 dark:bg-[#111929]">
-                      <div className="flex dark:text-gray justify-between items-center">
-                        <div className="font-bold text-2xl">{uncheckedProperty.property_price}</div>
-                        <div className="text-xs bg-herobg dark:bg-white dark:text-blue-500 py-4 px-8 rounded-lg font-bold">{uncheckedProperty.location}</div>
+                      <div className="flex flex-col gap-1 dark:text-gray">
+                        <p className="text-sm font-semibold text-primary">Apni Zaroorat</p>
+                        <p className="font-bold text-base text-midnight_text dark:text-white">
+                          Fulfilling all your financial needs
+                        </p>
                       </div>
-                      <p className="text-base text-gray">{uncheckedProperty.property_title}</p>
                     </div>
                   </div>
                 </div>

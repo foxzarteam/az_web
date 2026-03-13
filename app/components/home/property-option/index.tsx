@@ -22,6 +22,7 @@ const SERVICES = [
       </svg>
     ),
     primary: true,
+    href: "/services/home-loan",
   },
   {
     title: "Personal Loan",
@@ -35,6 +36,7 @@ const SERVICES = [
       </svg>
     ),
     primary: false,
+    href: "/services/personal-loan",
   },
   {
     title: "Business Loan",
@@ -48,6 +50,7 @@ const SERVICES = [
       </svg>
     ),
     primary: false,
+    href: "/services/business-loan",
   },
   {
     title: "Credit Card",
@@ -62,6 +65,7 @@ const SERVICES = [
       </svg>
     ),
     primary: false,
+    href: "/services/credit-card",
   },
 ];
 
@@ -87,7 +91,7 @@ export default function DiscoverProperties() {
               </div>
               <p className="text-gray dark:text-gray-400 text-sm mb-3 flex-1">{item.description}</p>
               <Link
-                href="/#featured"
+                href={item.href}
                 className={`inline-flex items-center justify-center gap-1 rounded-lg py-2.5 px-4 text-sm font-semibold transition-colors ${
                   item.primary
                     ? "bg-primary text-white hover:bg-blue-700"

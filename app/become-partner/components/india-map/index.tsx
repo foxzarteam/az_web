@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 
 interface Pin {
   id: number;
@@ -70,11 +71,37 @@ export default function IndiaMap() {
             Agents Across India Are Earning Daily
           </h2>
 
-          <p className="text-white/90 text-center text-base sm:text-lg max-w-3xl mx-auto mb-8 leading-relaxed">
+          <p className="text-white/90 text-center text-base sm:text-lg max-w-3xl mx-auto mb-6 leading-relaxed">
             Multiple agents are working with us every day and earning real money.
             <br />
             Join India&apos;s fast-growing financial partner platform.
           </p>
+
+          <div className="flex justify-center mb-10">
+            <form
+              onSubmit={(e) => e.preventDefault()}
+              className="flex w-full max-w-md items-stretch rounded-full bg-white/95 shadow-lg overflow-hidden border border-blue-100"
+            >
+              <div className="flex items-center gap-2 pl-4 pr-3 bg-blue-50">
+                <IndiaFlag />
+                <span className="text-xs sm:text-sm font-semibold text-blue-700 border-l border-blue-200 pl-2">
+                  +91
+                </span>
+              </div>
+              <input
+                type="tel"
+                placeholder="Enter your mobile number"
+                className="flex-1 px-3 sm:px-4 py-2.5 text-sm sm:text-base text-midnight_text placeholder:text-gray-400 focus:outline-none"
+                maxLength={10}
+              />
+              <button
+                type="submit"
+                className="px-5 sm:px-8 py-2.5 text-sm sm:text-base font-semibold bg-[#ff7a1a] text-white hover:bg-[#ff6700] transition-colors whitespace-nowrap"
+              >
+                Submit
+              </button>
+            </form>
+          </div>
 
           <div className="relative bg-blue-950/30 rounded-2xl p-6 sm:p-8 md:p-12 border border-blue-700/30 shadow-2xl backdrop-blur-sm">
             <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] overflow-visible bg-blue-900/20">

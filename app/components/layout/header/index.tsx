@@ -9,16 +9,36 @@ import MobileHeaderLink from "./navigation/MobileHeaderLink";
 import type { HeaderItem } from "@/app/types/layout/menu";
 import { fetchData } from "@/app/utils/api";
 
+const SERVICES_SUBMENU = [
+  { label: "Personal Loan", href: "/services/personal-loan" },
+  { label: "Business Loan", href: "/services/business-loan" },
+  { label: "Home Loan", href: "/services/home-loan" },
+  { label: "Credit Card", href: "/services/credit-card" },
+  { label: "Insurance", href: "/services/insurance" },
+];
+
 const defaultHeaderData: HeaderItem[] = [
   { label: "Home", href: "/" },
-  { label: "Services", href: "/#featured" },
+  {
+    label: "Services",
+    href: "/services",
+    submenu: SERVICES_SUBMENU,
+  },
   { label: "About", href: "/about" },
   { label: "Contact Us", href: "/contact" },
 ];
 
 function loadHeaderData(): Promise<HeaderItem[]> {
   return fetchData<{ headerData?: HeaderItem[] }>("/api/layoutdata", { headerData: defaultHeaderData }).then(
-    (response) => response.headerData?.length ? response.headerData : defaultHeaderData
+    (response) => {
+      const items = response.headerData?.length ? response.headerData : defaultHeaderData;
+      // Ensure Services always has our submenu, even if API data misses it
+      return items.map((item) =>
+        item.label === "Services"
+          ? { ...item, submenu: SERVICES_SUBMENU }
+          : item
+      );
+    }
   );
 }
 
@@ -59,7 +79,7 @@ export default function Header() {
         <div className="flex items-center gap-2 sm:gap-4">
           <Link
             href="/become-partner"
-            className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg transition-all duration-300 hover:bg-blue-700"
+            className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg transition-all duration-300 hover:bg-blue-700 btn-shine"
           >
             Become a Partner
           </Link>
@@ -121,7 +141,7 @@ export default function Header() {
           <Link
             href="/become-partner"
             onClick={() => setNavbarOpen(false)}
-            className="w-full mt-2 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg transition-all duration-300 hover:bg-blue-700 text-center"
+            className="w-full mt-2 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg transition-all duration-300 hover:bg-blue-700 text-center btn-shine"
           >
             Become a Partner
           </Link>

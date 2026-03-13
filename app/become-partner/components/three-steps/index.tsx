@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 export default function ThreeSteps() {
   const steps = [
     {
@@ -38,7 +40,7 @@ export default function ThreeSteps() {
                   {/* Circle with Number */}
                   <div className={`relative flex items-center justify-center ${index === 2 ? 'mb-10 md:mb-12' : 'mb-6'}`}>
                     {/* Small Circle */}
-                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-primary via-blue-500 to-blue-600 flex items-center justify-center shadow-lg relative z-20 border-2 border-white dark:border-darkmode">
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-[#ffa104] to-[#ff4512] flex items-center justify-center shadow-lg relative z-20 border-2 border-white dark:border-darkmode">
                       <span className="text-2xl sm:text-3xl md:text-3xl font-bold text-white">{step.number}</span>
                       
                       {/* Amplifier Animation - Sound Waves */}
@@ -61,6 +63,31 @@ export default function ThreeSteps() {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="flex justify-center mt-12" data-aos="fade-up">
+            <a
+              href="#"
+              className="inline-flex items-center gap-3 rounded-xl bg-black px-4 sm:px-5 py-2 sm:py-2.5 shadow-lg border border-white/10"
+            >
+              <span className="relative flex h-7 w-7 items-center justify-center">
+                <Image
+                  src="/images/plays.png"
+                  alt="Google Play"
+                  width={28}
+                  height={28}
+                  className="h-7 w-7"
+                />
+              </span>
+              <div className="flex flex-col leading-tight">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70">
+                  Get it on
+                </span>
+                <span className="text-sm sm:text-base font-semibold text-white">
+                  Google Play
+                </span>
+              </div>
+            </a>
           </div>
         </div>
       </section>

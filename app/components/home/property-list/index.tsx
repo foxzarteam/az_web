@@ -1,36 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import FeaturedCard from "./featured-card";
 import { FEATURED_SERVICES } from "@/app/config/constants";
-import { fetchData } from "@/app/utils/api";
 
-const MAX_IMAGES = 4;
+// Image files should exist in public/images/service
+// Order must match FEATURED_SERVICES:
+// [Home Loan, Personal Loan, Business Loan, Credit Card]
+const SERVICE_IMAGES: string[] = [
+  "/images/service/home.png",      // Home Loan
+  "/images/service/personal.png",  // Personal Loan
+  "/images/service/business.png",  // Business Loan
+  "/images/service/credit.png",    // Credit Card
+];
 
-function loadPropertyImages(): Promise<string[]> {
-  return fetchData<{ property_img: string }[]>("/api/propertydata", []).then(
-    (data) => data.slice(0, MAX_IMAGES).map((p) => p.property_img)
-  );
-}
+const SERVICE_LINKS: string[] = [
+  "/services/home-loan",
+  "/services/personal-loan",
+  "/services/business-loan",
+  "/services/credit-card",
+];
 
 export default function Listing() {
-  const [images, setImages] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    loadPropertyImages().then((loadedImages) => {
-      setImages(loadedImages);
-      setIsLoading(false);
-    });
-  }, []);
-
-  if (isLoading || images.length === 0) {
-    return null;
-  }
-
   const cards = FEATURED_SERVICES.map((item, i) => ({
     ...item,
-    image: images[i] || "",
+    image: SERVICE_IMAGES[i] || "",
+    href: SERVICE_LINKS[i] || "/#featured",
   }));
   const duplicated = [...cards, ...cards];
 
@@ -52,6 +46,7 @@ export default function Listing() {
                     image={card.image}
                     title={card.title}
                     description={card.description}
+                    href={card.href}
                   />
                 </div>
               ))}
