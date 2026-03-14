@@ -40,7 +40,7 @@ export default function ThreeSteps() {
                   {/* Circle with Number */}
                   <div className={`relative flex items-center justify-center ${index === 2 ? 'mb-10 md:mb-12' : 'mb-6'}`}>
                     {/* Small Circle */}
-                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-[#ffa104] to-[#ff4512] flex items-center justify-center shadow-lg relative z-20 border-2 border-white dark:border-darkmode">
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-20 md:h-20 rounded-full bg-primary flex items-center justify-center shadow-lg relative z-20 border-2 border-white dark:border-darkmode">
                       <span className="text-2xl sm:text-3xl md:text-3xl font-bold text-white">{step.number}</span>
                       
                       {/* Amplifier Animation - Sound Waves */}

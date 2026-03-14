@@ -188,15 +188,11 @@ html {
 }
 
 .gradient-bg {
-  background: linear-gradient(135deg, #ffa104 0%, #ff4512 100%);
+  background: var(--color-primary, #2F73F2);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #ffa104 0%, #ff4512 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
+  color: var(--color-primary, #2F73F2);
 }
 
 @keyframes shine-sweep {

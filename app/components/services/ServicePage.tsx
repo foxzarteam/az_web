@@ -33,8 +33,8 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
               </>
             )}
 
-            <div className="bg-gradient-to-r from-primary to-[#ff7a1a] p-[1px] rounded-3xl shadow-xl max-w-lg w-full">
-              <div className="bg-white dark:bg-darklight rounded-3xl p-5 sm:p-7">
+            <div className="border-2 border-primary rounded-3xl shadow-xl max-w-lg w-full">
+              <div className="bg-white dark:bg-darklight rounded-[14px] p-5 sm:p-7">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h2 className="text-lg sm:text-xl font-semibold text-midnight_text dark:text-white">
@@ -90,7 +90,7 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
                 </div>
                 <button
                   type="submit"
-                  className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-[#ff7a1a] hover:from-[#265fd1] hover:to-[#ff6700] text-white text-sm sm:text-base font-semibold py-2.5 px-4 transition-colors shadow-md"
+                  className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-primary hover:bg-blue-700 text-white text-sm sm:text-base font-semibold py-2.5 px-4 transition-colors shadow-md"
                 >
                   Submit Details
                   <span className="text-xs">&gt;</span>

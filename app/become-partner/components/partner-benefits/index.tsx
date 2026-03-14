@@ -39,10 +39,10 @@ export default function PartnerBenefits() {
               <div className="mb-4">
                 <span className="text-3xl sm:text-4xl">{benefit.emoji}</span>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-midnight_text dark:text-white mb-3 leading-tight">
+              <h3 className="text-base sm:text-lg font-bold text-midnight_text dark:text-white mb-2 leading-tight">
                 {benefit.title}
               </h3>
-              <p className="text-gray dark:text-gray-400 text-sm sm:text-base leading-relaxed">
+              <p className="text-gray dark:text-gray-400 text-xs sm:text-sm leading-snug">
                 {benefit.description}
               </p>
             </div>
