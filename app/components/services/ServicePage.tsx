@@ -33,8 +33,8 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
               </>
             )}
 
-            <div className="bg-gradient-to-r from-primary to-[#ff7a1a] p-[1px] rounded-3xl shadow-xl max-w-lg w-full">
-              <div className="bg-white dark:bg-darklight rounded-3xl p-5 sm:p-7">
+            <div className="bg-gradient-to-r from-primary to-[#ff7a1a] p-[1px] rounded-3xl shadow-xl  w-full">
+              <div className="bg-white dark:bg-darklight rounded-3xl py-10 sm:py-14 px-5 sm:px-7">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h2 className="text-lg sm:text-xl font-semibold text-midnight_text dark:text-white">

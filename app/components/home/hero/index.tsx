@@ -57,7 +57,7 @@ export default function Hero() {
                 Compare Best Rates | Quick Approval | 100% Online
               </p>
             </div>
-            <div className="w-full max-w-xl">
+            <div className="w-full">
               <div className="bg-white dark:bg-darkmode rounded-xl shadow-lg p-5 sm:p-6 md:p-8">
                 <h2 className="text-xl font-bold text-midnight_text dark:text-white mb-4">Let&apos;s Get Started</h2>
                 <label className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-2">Mobile Number</label>

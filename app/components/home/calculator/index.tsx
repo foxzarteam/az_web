@@ -41,9 +41,9 @@ export default function Calculator() {
   return (
     <section className="dark:bg-darkmode">
       <div className="container px-4 lg:max-w-screen-xl md:max-w-screen-md mx-auto flex flex-col lg:flex-row gap-8 lg:gap-10 justify-between items-stretch max-w-full" data-aos="fade-left">
-        <div className="w-full max-w-full lg:max-w-md lg:w-[26rem] flex flex-col gap-8 flex-shrink-0" data-aos="fade-right">
+        <div className="w-full max-w-full lg:max-w-md  flex flex-col gap-5 flex-shrink-0" data-aos="fade-right">
           <div className="w-full">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl mb-4 font-bold text-midnight_text dark:text-white">
+            <h2 className="text-xl sm:text-2xl md:text-3xl mb-4 font-bold text-midnight_text dark:text-white">
               Plan Your Loan
             </h2>
             <p className="text-base sm:text-lg text-gray">
