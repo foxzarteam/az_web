@@ -26,7 +26,7 @@ const extendedConfig = {
     31.25: "31.25rem",
     43.75: "43.75rem",
   },
-  maxWidth: { "screen-xl": "75rem", "screen-2xl": "83.75rem" },
+  maxWidth: { "screen-xl": "90rem", "screen-2xl": "83.75rem" },
   height: { 150: "750px", 6.25: "6.25rem" },
   lineHeight: { "extra-loose": "2.5", "2.5": "2.5rem" },
   inset: { "5%": "5%", "35%": "35%" },
