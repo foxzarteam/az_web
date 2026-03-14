@@ -61,7 +61,7 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
       {submenuOpen && isServices && (
         <div className="absolute top-10 left-1/2 -translate-x-1/2 mt-1 bg-white dark:bg-darkmode shadow-xl dark:shadow-darkmd rounded-2xl z-50 border border-gray-100/80 dark:border-white/10 min-w-[640px] max-w-[760px] px-5 py-4">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {item.submenu.map((subItem, index) => {
+            {item.submenu?.map((subItem, index) => {
               const gradient = SERVICES_COLORS[subItem.label] ?? "from-primary/10 to-primary/30";
               return (
                 <Link
