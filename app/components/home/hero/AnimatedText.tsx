@@ -50,7 +50,7 @@ export default function AnimatedText() {
   }, [displayText, isDeleting, currentIndex, typingSpeed]);
 
   return (
-    <span className="inline-block min-w-[180px] sm:min-w-[200px] text-left">
+    <span className="inline-block min-w-[6ch] xs:min-w-[8ch] sm:min-w-[10ch] md:min-w-[180px] text-left shrink-0">
       <span 
         className="inline-block font-bold"
         style={{ 

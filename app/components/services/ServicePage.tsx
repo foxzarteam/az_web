@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
+import SuccessPopup from "@/app/components/shared/SuccessPopup";
 
 type ServicePageProps = {
   title: string;
@@ -10,92 +12,170 @@ type ServicePageProps = {
   hideHeader?: boolean;
 };
 
+function getSuccessMessage(title: string): string {
+  const t = title.toLowerCase();
+  if (t.includes("personal")) return "Your Personal Loan application has been received. We'll contact you shortly.";
+  if (t.includes("home")) return "Your Home Loan application has been received. We'll contact you shortly.";
+  if (t.includes("business")) return "Your Business Loan application has been received. We'll contact you shortly.";
+  if (t.includes("credit")) return "Your Credit Card application has been received. We'll contact you shortly.";
+  if (t.includes("insurance")) return "Your Insurance request has been received. We'll contact you shortly.";
+  return `Your ${title} application has been received. We'll contact you shortly.`;
+}
+
+// PAN: 5 letters + 4 digits + 1 letter (e.g. ABCDE1234F)
+const PAN_REGEX = /^[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}$/;
+// Name: only letters, spaces, dots – no special characters
+const NAME_REGEX = /^[a-zA-Z\s.]*$/;
+
 export default function ServicePage({ title, subtitle, imageSrc, badge, hideHeader }: ServicePageProps) {
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [pan, setPan] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [errors, setErrors] = useState<{ pan?: string; mobile?: string; fullName?: string }>({});
+
+  const validate = (): boolean => {
+    const next: typeof errors = {};
+    const panTrim = pan.trim().toUpperCase();
+    if (!panTrim) {
+      next.pan = "PAN is required";
+    } else if (!PAN_REGEX.test(panTrim)) {
+      next.pan = "Invalid PAN (e.g. ABCDE1234F – 5 letters, 4 digits, 1 letter)";
+    }
+    const mobileTrim = mobile.replace(/\D/g, "");
+    if (!mobileTrim) {
+      next.mobile = "Mobile number is required";
+    } else if (mobileTrim.length < 10) {
+      next.mobile = "Enter valid 10 digit mobile number";
+    } else if (mobileTrim.length > 10) {
+      next.mobile = "Mobile number should be 10 digits only";
+    }
+    const nameTrim = fullName.trim();
+    if (!nameTrim) {
+      next.fullName = "Full name is required";
+    } else if (!NAME_REGEX.test(nameTrim)) {
+      next.fullName = "Name should not contain special characters or numbers";
+    }
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!validate()) return;
+    setShowSuccess(true);
+  };
+
+  const handlePanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10);
+    setPan(v.toUpperCase());
+    if (errors.pan) setErrors((prev) => ({ ...prev, pan: undefined }));
+  };
+
+  const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value.replace(/\D/g, "").slice(0, 10);
+    setMobile(v);
+    if (errors.mobile) setErrors((prev) => ({ ...prev, mobile: undefined }));
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFullName(e.target.value.replace(/[^a-zA-Z\s.]/g, ""));
+    if (errors.fullName) setErrors((prev) => ({ ...prev, fullName: undefined }));
+  };
+
   return (
-    <section className="pt-28 pb-16 bg-gradient-to-b from-light to-white dark:from-darkmode dark:to-semidark">
-      <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4 max-w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-          <div data-aos="fade-right">
+    <section className="pt-16 sm:pt-20 md:pt-24 lg:pt-28 pb-12 sm:pb-16 bg-gradient-to-b from-light to-white dark:from-darkmode dark:to-semidark">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md max-w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 items-stretch">
+          <div className="min-w-0 flex flex-col w-full lg:h-full order-1 lg:order-1" data-aos="fade-right">
             {!hideHeader && (
               <>
                 {badge && (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-4 py-1 text-xs font-semibold mb-4">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 sm:px-4 py-1 text-[10px] sm:text-xs font-semibold mb-3 sm:mb-4">
                     <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                     {badge}
                   </span>
                 )}
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-midnight_text dark:text-white mb-4">
+                <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-bold text-midnight_text dark:text-white mb-3 sm:mb-4">
                   {title}
                 </h1>
-                <p className="text-base sm:text-lg text-gray dark:text-gray-300 mb-8 max-w-xl">
+                <p className="text-sm sm:text-base md:text-lg text-gray dark:text-gray-300 mb-6 sm:mb-8 max-w-xl leading-relaxed">
                   {subtitle}
                 </p>
               </>
             )}
 
-            <div className="bg-gradient-to-r from-primary to-[#ff7a1a] p-[1px] rounded-3xl shadow-xl  w-full">
-              <div className="bg-white dark:bg-darklight rounded-3xl py-10 sm:py-14 px-5 sm:px-7">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-semibold text-midnight_text dark:text-white">
-                      Start your application
-                    </h2>
-                    <p className="text-[11px] sm:text-xs text-gray dark:text-gray-400 mt-1">
-                      Just 3 quick details – no documents needed right now.
-                    </p>
-                  </div>
-                  <div className="hidden sm:flex flex-col items-end text-right text-[10px] uppercase tracking-[0.18em] text-primary/80">
-                    <span className="px-2 py-1 rounded-full bg-primary/10 text-primary font-semibold">
-                      Step 1 of 2
-                    </span>
-                  </div>
+            <div className="bg-gradient-to-r from-primary to-[#ff7a1a] p-[1px] rounded-2xl sm:rounded-3xl shadow-xl w-full min-w-0 flex-1 flex flex-col min-h-0 lg:min-h-[420px]">
+              <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-6 sm:py-10 lg:py-14 px-4 sm:px-5 md:px-7 flex-1 flex flex-col min-h-0">
+                <div className="mb-3 sm:mb-4">
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-midnight_text dark:text-white">
+                    Start your application
+                  </h2>
                 </div>
 
-                <form className="space-y-3">
+                {showSuccess && (
+                  <SuccessPopup
+                    message={getSuccessMessage(title)}
+                    onClose={() => setShowSuccess(false)}
+                    autoCloseMs={3000}
+                  />
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
+                  <label className="block text-[10px] sm:text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
                     PAN <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
+                    value={pan}
+                    onChange={handlePanChange}
+                    maxLength={10}
                     placeholder="Enter PAN (e.g. ABCDE1234F)"
-                    required
-                    className="w-full rounded-xl border border-border/80 dark:border-dark_border/70 bg-white dark:bg-darkmode/80 px-3.5 py-2.5 text-sm text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-primary shadow-sm"
+                    className={`w-full rounded-lg sm:rounded-xl border bg-white dark:bg-darkmode/80 px-3 sm:px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-primary shadow-sm ${errors.pan ? "border-red-500 dark:border-red-500" : "border-border/80 dark:border-dark_border/70"}`}
                   />
+                  {errors.pan && <p className="mt-1 text-[10px] sm:text-xs text-red-600 dark:text-red-400">{errors.pan}</p>}
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
+                    <label className="block text-[10px] sm:text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
                       Mobile as per Aadhaar <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      value={mobile}
+                      onChange={handleMobileChange}
                       maxLength={10}
                       placeholder="10 digit mobile number"
-                      required
-                      className="w-full rounded-xl border border-border/80 dark:border-dark_border/70 bg-white dark:bg-darkmode/80 px-3.5 py-2.5 text-sm text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-primary shadow-sm"
+                      pattern="[0-9]*"
+                      className={`w-full rounded-lg sm:rounded-xl border bg-white dark:bg-darkmode/80 px-3 sm:px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-primary shadow-sm ${errors.mobile ? "border-red-500 dark:border-red-500" : "border-border/80 dark:border-dark_border/70"}`}
                     />
+                    {errors.mobile && <p className="mt-1 text-[10px] sm:text-xs text-red-600 dark:text-red-400">{errors.mobile}</p>}
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
+                    <label className="block text-[10px] sm:text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
                       Full Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
+                      value={fullName}
+                      onChange={handleNameChange}
                       placeholder="As per PAN / Aadhaar"
-                      required
-                      className="w-full rounded-xl border border-border/80 dark:border-dark_border/70 bg-white dark:bg-darkmode/80 px-3.5 py-2.5 text-sm text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-primary shadow-sm"
+                      className={`w-full rounded-lg sm:rounded-xl border bg-white dark:bg-darkmode/80 px-3 sm:px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-primary shadow-sm ${errors.fullName ? "border-red-500 dark:border-red-500" : "border-border/80 dark:border-dark_border/70"}`}
                     />
+                    {errors.fullName && <p className="mt-1 text-[10px] sm:text-xs text-red-600 dark:text-red-400">{errors.fullName}</p>}
                   </div>
                 </div>
                 <button
                   type="submit"
-                  className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-primary hover:bg-blue-700 text-white text-sm sm:text-base font-semibold py-2.5 px-4 transition-colors shadow-md"
+                  className="mt-4 sm:mt-6 w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-primary hover:bg-blue-700 text-white text-xs sm:text-sm md:text-base font-semibold py-2.5 sm:py-3 px-4 transition-colors shadow-md min-h-[44px]"
                 >
                   Submit Details
                   <span className="text-xs">&gt;</span>
                 </button>
-                <p className="text-[11px] text-gray-500 dark:text-gray-500 mt-2">
+                <p className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-500 mt-1.5 sm:mt-2">
                   By submitting, you agree to be contacted by Apni Zaroorat and its lending partners.
                 </p>
                 </form>
@@ -103,17 +183,17 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
             </div>
           </div>
 
-          <div className="relative" data-aos="fade-left">
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-primary/10 bg-gradient-to-br from-primary/10 via-transparent to-accent/10">
-              <div className="absolute -top-10 -left-10 h-32 w-32 rounded-full bg-primary/20 blur-3xl" />
-              <div className="absolute -bottom-12 -right-12 h-40 w-40 rounded-full bg-accent/30 blur-3xl" />
-              <div className="relative z-10">
+          <div className="relative min-w-0 order-2 lg:order-2 w-full h-full min-h-[280px] lg:min-h-[420px]" data-aos="fade-left">
+            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-primary/10 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 h-full min-h-[280px] lg:min-h-[420px]">
+              <div className="absolute -top-10 -left-10 h-24 w-24 sm:h-32 sm:w-32 rounded-full bg-primary/20 blur-3xl" />
+              <div className="absolute -bottom-8 -right-8 sm:-bottom-12 sm:-right-12 h-28 w-28 sm:h-40 sm:w-40 rounded-full bg-accent/30 blur-3xl" />
+              <div className="relative z-10 w-full h-full min-h-[280px] lg:min-h-[420px]">
                 <Image
                   src={imageSrc}
                   alt={title}
                   width={640}
                   height={480}
-                  className="w-full h-full max-h-[420px] object-cover object-top"
+                  className="w-full h-full min-h-[280px] lg:min-h-[420px] object-cover object-center"
                 />
               </div>
             </div>

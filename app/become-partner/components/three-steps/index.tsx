@@ -1,48 +1,52 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
+import SuccessPopup from "@/app/components/shared/SuccessPopup";
+
+const STEP_IMAGES = ["/images/mobile/m1.png", "/images/mobile/m2.png", "/images/mobile/m3.png"];
 
 export default function ThreeSteps() {
+  const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
+  const [showAppPopup, setShowAppPopup] = useState(false);
+
   const steps = [
-    {
-      number: "1",
-      title: "Install Apni Zaroorat app and register",
-      description: "Download the app and create your account to get started.",
-    },
-    {
-      number: "2",
-      title: "Share financial product links and add customer",
-      description: "Learn about products and share links with your network.",
-    },
-    {
-      number: "3",
-      title: "Start earning money more than ₹1 Lakh every month",
-      description: "Earn commissions on every successful application.",
-    },
+    { title: "Install Apni Zaroorat app and register" },
+    { title: "Share financial product links and add customer" },
+    { title: "Start earning money more than ₹1 Lakh every month" },
   ];
 
   return (
     <>
-      <section className="bg-gradient-to-b from-white to-gray-50 dark:from-darkmode dark:to-semidark py-20 px-4">
+      <section className="bg-gradient-to-b from-white to-gray-50 dark:from-darkmode dark:to-semidark py-12 sm:py-16 md:py-20 px-4 sm:px-6">
         <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-midnight_text dark:text-white text-center mb-16">
+          <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold text-midnight_text dark:text-white text-center mb-10 sm:mb-12 md:mb-16">
             Start earning with 3 easy steps
           </h2>
           
           <div className="relative">
             {/* Steps Container */}
-            <div className="relative flex flex-col md:flex-row items-center justify-center md:justify-between gap-8 md:gap-4">
+            <div className="relative flex flex-col md:flex-row items-center justify-center md:justify-between gap-6 sm:gap-8 md:gap-4">
               {steps.map((step, index) => (
                 <div
                   key={index}
-                  className="relative flex flex-col items-center w-full md:w-1/3 z-10"
+                  className="relative flex flex-col items-center w-full md:w-1/3 z-10 min-w-0"
                 >
-                  {/* Circle with Number */}
-                  <div className={`relative flex items-center justify-center ${index === 2 ? 'mb-10 md:mb-12' : 'mb-6'}`}>
-                    {/* Small Circle */}
-                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-20 md:h-20 rounded-full bg-primary flex items-center justify-center shadow-lg relative z-20 border-2 border-white dark:border-darkmode">
-                      <span className="text-2xl sm:text-3xl md:text-3xl font-bold text-white">{step.number}</span>
-                      
+                  {/* Circle with Image or fallback number */}
+                  <div className="relative flex items-center justify-center">
+                    <div className="relative w-32 h-32 xs:w-36 xs:h-36 sm:w-40 sm:h-40 md:w-40 md:h-40 rounded-full bg-primary flex items-center justify-center shadow-lg border-2 border-white dark:border-darkmode overflow-hidden">
+                      {imageErrors[index] ? (
+                        <span className="text-2xl xs:text-3xl sm:text-4xl font-bold text-white relative z-10">{index + 1}</span>
+                      ) : (
+                        <Image
+                          src={STEP_IMAGES[index]}
+                          alt=""
+                          fill
+                          className="object-contain p-1.5 relative z-10"
+                          sizes="(max-width: 480px) 128px, (max-width: 640px) 144px, 160px"
+                          onError={() => setImageErrors((prev) => ({ ...prev, [index]: true }))}
+                        />
+                      )}
                       {/* Amplifier Animation - Sound Waves */}
                       <div className="absolute inset-0 rounded-full pointer-events-none overflow-visible">
                         <div className={`amplifier-wave amplifier-wave-1 step-${index + 1}`}></div>
@@ -51,43 +55,52 @@ export default function ThreeSteps() {
                     </div>
                   </div>
 
+                  {/* Vertical space between circle and text */}
+                  <div className="h-4 sm:h-5 md:h-6 shrink-0" />
+
                   {/* Step Content */}
-                  <div className="text-center max-w-xs mx-auto">
-                    <h3 className="text-lg sm:text-xl md:text-xl font-bold text-midnight_text dark:text-white mb-2 leading-tight">
+                  <div className="text-center max-w-[280px] xs:max-w-xs mx-auto px-2">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-midnight_text dark:text-white leading-tight">
                       {step.title}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-                      {step.description}
-                    </p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="flex justify-center mt-12" data-aos="fade-up">
-            <a
-              href="#"
-              className="inline-flex items-center gap-3 rounded-xl bg-black px-4 sm:px-5 py-2 sm:py-2.5 shadow-lg border border-white/10"
+          <div className="flex justify-center mt-8 sm:mt-12" data-aos="fade-up">
+            {showAppPopup && (
+              <SuccessPopup
+                variant="warning"
+                message="Mobile application is under construction. We will launch soon. Please wait."
+                onClose={() => setShowAppPopup(false)}
+                autoCloseMs={4000}
+              />
+            )}
+            <button
+              type="button"
+              onClick={() => setShowAppPopup(true)}
+              className="inline-flex items-center gap-2 sm:gap-3 rounded-xl bg-black px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 shadow-lg border border-white/10 min-h-[44px] hover:opacity-90 transition-opacity cursor-pointer"
             >
-              <span className="relative flex h-7 w-7 items-center justify-center">
+              <span className="relative flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center shrink-0">
                 <Image
                   src="/images/plays.png"
                   alt="Google Play"
                   width={28}
                   height={28}
-                  className="h-7 w-7"
+                  className="h-6 w-6 sm:h-7 sm:w-7"
                 />
               </span>
-              <div className="flex flex-col leading-tight">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70">
+              <div className="flex flex-col leading-tight text-left">
+                <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70">
                   Get it on
                 </span>
-                <span className="text-sm sm:text-base font-semibold text-white">
+                <span className="text-xs sm:text-sm md:text-base font-semibold text-white">
                   Google Play
                 </span>
               </div>
-            </a>
+            </button>
           </div>
         </div>
       </section>

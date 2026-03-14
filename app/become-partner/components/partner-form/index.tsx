@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CONTACT } from "@/app/config/constants";
+import SuccessPopup from "@/app/components/shared/SuccessPopup";
 
 export default function PartnerForm() {
   const [formData, setFormData] = useState({
@@ -11,7 +12,7 @@ export default function PartnerForm() {
     company: "",
     message: "",
   });
-  const [submitted, setSubmitted] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -38,9 +39,8 @@ export default function PartnerForm() {
 
       const data = await response.json();
       if (data.success) {
-        setSubmitted(true);
         setFormData({ name: "", email: "", phone: "", company: "", message: "" });
-        setTimeout(() => setSubmitted(false), 5000);
+        setShowSuccess(true);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -54,10 +54,12 @@ export default function PartnerForm() {
       <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md">
         <div className="max-w-2xl mx-auto">
           <div className="bg-white dark:bg-darklight border border-border dark:border-dark_border rounded-xl shadow-lg p-6 sm:p-8 md:p-10" data-aos="fade-up">
-            {submitted && (
-              <div className="mb-6 p-4 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-lg">
-                Thank you! We&apos;ll contact you soon to discuss partnership opportunities.
-              </div>
+            {showSuccess && (
+              <SuccessPopup
+                message="Thank you! We'll contact you soon to discuss partnership opportunities."
+                onClose={() => setShowSuccess(false)}
+                autoCloseMs={3000}
+              />
             )}
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div>
@@ -95,10 +97,14 @@ export default function PartnerForm() {
                 <input
                   id="phone"
                   type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
                   required
+                  maxLength={10}
+                  pattern="[0-9]*"
                   className="w-full text-base px-4 py-2.5 rounded-lg border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>

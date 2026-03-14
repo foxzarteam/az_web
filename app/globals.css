@@ -48,7 +48,10 @@ html {
     @apply text-[22px] leading-[1.2] font-medium text-midnight_text dark:text-primary;
   }
   section {
-    @apply lg:py-24 py-16;
+    @apply py-12 sm:py-16 lg:py-24;
+  }
+  .container-padding {
+    @apply px-4 sm:px-6 md:px-6 lg:px-8 max-w-full;
   }
   .btn-shine {
     @apply relative overflow-hidden;
@@ -160,14 +163,16 @@ html {
   position: relative;
 }
 
-/* Infinite carousel: smooth continuous scroll, loops forever (content duplicated so -50% = same as 0%) */
-@keyframes carousel-step {
+/* Never-ending carousel: 4x duplicated content, scroll -25% so loop reset is invisible */
+@keyframes carousel-infinite {
   0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  100% { transform: translateX(-25%); }
 }
 
 .animate-infinite-scroll {
-  animation: carousel-step 40s linear infinite;
+  animation: carousel-infinite 80s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .animate-infinite-scroll:hover {
@@ -192,4 +197,64 @@ html {
   100% {
     transform: translateX(130%);
   }
+}
+
+/* Success modal – smooth professional overlay + pop */
+@keyframes success-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes success-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes success-icon-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes success-progress-shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.success-modal-overlay {
+  animation: success-overlay-in 0.25s ease-out forwards;
+}
+
+.success-modal-box {
+  animation: success-modal-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.success-modal-icon {
+  animation: success-icon-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s forwards;
 }

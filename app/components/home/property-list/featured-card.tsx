@@ -18,11 +18,11 @@ export default function FeaturedCard({ image, title, description, href }: Featur
   };
 
   return (
-    <div className="bg-white shadow-property dark:bg-darklight rounded-lg overflow-hidden flex flex-col h-[420px]">
+    <div className="bg-white shadow-property dark:bg-darklight rounded-lg overflow-hidden flex flex-col min-h-[320px] sm:min-h-[380px] md:h-[400px] lg:h-[420px]">
       {image && (
         <Link href={href ?? "/#featured"}>
           <div className="relative shrink-0 cursor-pointer">
-            <div className="imageContainer h-[200px] w-full relative shrink-0">
+            <div className="imageContainer h-[140px] xs:h-[160px] sm:h-[180px] md:h-[200px] w-full relative shrink-0">
               <Image
                 src={image}
                 alt={title}
@@ -33,7 +33,7 @@ export default function FeaturedCard({ image, title, description, href }: Featur
             </div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="absolute top-[10px] right-[10px] bg-white p-2 rounded-lg"
+              className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 md:top-[10px] md:right-[10px] bg-white p-1.5 sm:p-2 rounded-lg w-8 h-8 sm:w-9 sm:h-9 md:w-[38px] md:h-[38px]"
               viewBox="0 0 24 24"
               width={38}
               height={38}
@@ -50,16 +50,16 @@ export default function FeaturedCard({ image, title, description, href }: Featur
           </div>
         </Link>
       )}
-        <div className="p-5 sm:p-6 flex flex-col flex-1 min-h-0">
-        <p className="text-lg sm:text-xl font-semibold text-midnight_text dark:text-white mb-1">{title}</p>
-        <p className="text-midnight_text dark:text-white font-normal text-sm mb-4 flex-1">
+        <div className="p-3 sm:p-4 md:p-5 lg:p-6 flex flex-col flex-1 min-h-0">
+        <p className="text-base sm:text-lg md:text-xl font-semibold text-midnight_text dark:text-white mb-1 line-clamp-2">{title}</p>
+        <p className="text-midnight_text dark:text-white font-normal text-xs sm:text-sm mb-3 sm:mb-4 flex-1 line-clamp-2 sm:line-clamp-3">
           {description}
         </p>
-        <div className="border-t border-border dark:border-dark_border pt-4 mt-auto">
+        <div className="border-t border-border dark:border-dark_border pt-3 sm:pt-4 mt-auto">
           <Link
             href={href ?? "/#featured"}
             onClick={href ? undefined : handleApply}
-            className="w-full py-2.5 px-4 text-white font-semibold rounded-lg bg-primary hover:bg-blue-700 transition-colors inline-flex items-center justify-center gap-1"
+            className="w-full py-2 sm:py-2.5 px-3 sm:px-4 text-sm sm:text-base text-white font-semibold rounded-lg bg-primary hover:bg-blue-700 transition-colors inline-flex items-center justify-center gap-1"
           >
             Apply Now <span>&gt;</span>
           </Link>

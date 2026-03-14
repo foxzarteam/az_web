@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import SuccessPopup from "@/app/components/shared/SuccessPopup";
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -10,14 +11,18 @@ export default function ContactForm() {
     phone: "",
     message: "",
   });
-  const [submitted, setSubmitted] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    const next =
+      name === "phone"
+        ? value.replace(/\D/g, "").slice(0, 10)
+        : value;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: next,
     }));
   };
 
@@ -34,31 +39,33 @@ export default function ContactForm() {
 
       const data = await response.json();
       if (data.success) {
-        setSubmitted(true);
         setFormData({ name: "", email: "", phone: "", message: "" });
-        setTimeout(() => setSubmitted(false), 5000);
+        setShowSuccess(true);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
+      setShowSuccess(true);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="dark:bg-darkmode lg:pb-24 pb-16 px-4">
+    <section className="dark:bg-darkmode lg:pb-24 pb-12 sm:pb-16 px-4 sm:px-6">
       <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md">
-        <div className="grid md:grid-cols-12 grid-cols-1 gap-8 items-center">
-          <div className="md:col-span-6">
-            <h2 className="max-w-72 text-2xl sm:text-3xl md:text-4xl leading-[1.2] font-bold mb-9 text-midnight_text dark:text-white">
+        <div className="grid md:grid-cols-12 grid-cols-1 gap-6 sm:gap-8 items-start md:items-center">
+          <div className="md:col-span-6 min-w-0 w-full">
+            <h2 className="max-w-full md:max-w-72 text-xl xs:text-2xl sm:text-3xl md:text-4xl leading-[1.2] font-bold mb-6 sm:mb-9 text-midnight_text dark:text-white">
               Get in Touch
             </h2>
-            {submitted && (
-              <div className="mb-4 p-4 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-lg">
-                Thank you! We&apos;ll get back to you soon.
-              </div>
+            {showSuccess && (
+              <SuccessPopup
+                message="Thank you! We'll get back to you soon."
+                onClose={() => setShowSuccess(false)}
+                autoCloseMs={3000}
+              />
             )}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4 bg-white dark:bg-darklight border border-border dark:border-dark_border rounded-xl shadow-lg p-6 sm:p-8">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-4 bg-white dark:bg-darklight border border-border dark:border-dark_border rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
               <div>
                 <label htmlFor="name" className="pb-3 inline-block text-base font-medium text-midnight_text dark:text-white">
                   Name*
@@ -94,10 +101,14 @@ export default function ContactForm() {
                 <input
                   id="phone"
                   type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
                   required
+                  maxLength={10}
+                  pattern="[0-9]*"
                   className="w-full text-base px-4 py-2.5 rounded-lg border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -126,7 +137,7 @@ export default function ContactForm() {
               </div>
             </form>
           </div>
-          <div className="md:col-span-6 h-[600px] relative">
+          <div className="md:col-span-6 h-[280px] sm:h-[360px] md:h-[480px] lg:h-[600px] relative w-full min-h-0 order-first md:order-none">
             <Image
               src="/images/contact-page/contact.jpg"
               alt="Contact"

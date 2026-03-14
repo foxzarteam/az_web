@@ -69,17 +69,17 @@ export default function Header() {
     <header
       className="fixed top-0 left-0 right-0 z-50 w-full bg-white dark:bg-semidark shadow-sm transition-all duration-200"
     >
-      <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between px-4 h-16 sm:h-20">
+      <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between px-4 sm:px-6 h-14 sm:h-16 md:h-20 gap-2 min-w-0">
         <Logo />
-        <nav className="hidden lg:flex flex-grow items-center justify-center space-x-6">
+        <nav className="hidden lg:flex flex-grow items-center justify-center space-x-4 xl:space-x-6 min-w-0">
           {data.map((item, index) => (
             <HeaderLink key={index} item={item} />
           ))}
         </nav>
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-1 sm:gap-3 md:gap-4 shrink-0">
           <Link
             href="/become-partner"
-            className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg transition-all duration-300 hover:bg-blue-700 btn-shine"
+            className="hidden sm:inline-flex items-center px-3 py-2 sm:px-4 text-xs sm:text-sm font-semibold text-white bg-primary rounded-lg transition-all duration-300 hover:bg-blue-700 btn-shine"
           >
             Become a Partner
           </Link>
@@ -117,12 +117,12 @@ export default function Header() {
       )}
       <div
         ref={mobileMenuRef}
-        className={`lg:hidden fixed top-0 z-50 right-0 h-full w-full bg-white dark:bg-darkmode shadow-lg transform transition-transform duration-300 max-w-xs ${
+        className={`lg:hidden fixed top-0 z-50 right-0 h-full w-full bg-white dark:bg-darkmode shadow-lg transform transition-transform duration-300 max-w-[min(320px,85vw)] sm:max-w-xs ${
           navbarOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between p-4">
-          <h2 className="text-lg font-bold text-midnight_text dark:text-white">Menu</h2>
+        <div className="flex items-center justify-between p-4 sm:p-5">
+          <h2 className="text-base sm:text-lg font-bold text-midnight_text dark:text-white">Menu</h2>
           <button
             type="button"
             onClick={() => setNavbarOpen(false)}
@@ -134,7 +134,7 @@ export default function Header() {
             </svg>
           </button>
         </div>
-        <nav className="flex flex-col items-start p-4 gap-1 w-full">
+        <nav className="flex flex-col items-start p-4 sm:p-5 gap-1 w-full overflow-y-auto max-h-[calc(100vh-80px)]">
           {data.map((item, index) => (
             <MobileHeaderLink key={index} item={item} onClose={() => setNavbarOpen(false)} />
           ))}

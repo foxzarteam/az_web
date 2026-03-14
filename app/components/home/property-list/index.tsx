@@ -26,21 +26,22 @@ export default function Listing() {
     image: SERVICE_IMAGES[i] || "",
     href: SERVICE_LINKS[i] || "/#featured",
   }));
-  const duplicated = [...cards, ...cards];
+  // 4 copies for seamless infinite loop (animation scrolls -25% so reset is invisible)
+  const infiniteCards = [...cards, ...cards, ...cards, ...cards];
 
   return (
-    <section id="featured" className="bg-light dark:bg-semidark flex justify-center items-center overflow-hidden">
-      <div className="w-full mx-auto px-4 max-w-full">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-12 text-midnight_text dark:text-white text-center" data-aos="fade-up">
+    <section id="featured" className="bg-light dark:bg-semidark flex justify-center items-center overflow-hidden py-12 sm:py-16 lg:py-20">
+      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 max-w-full">
+        <h1 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-10 md:mb-12 text-midnight_text dark:text-white text-center" data-aos="fade-up">
           Our Services
         </h1>
-        <div className="relative">
+        <div className="relative -mx-4 sm:mx-0">
           <div className="overflow-hidden">
-            <div className="flex gap-4 sm:gap-6 md:gap-8 animate-infinite-scroll w-max">
-              {duplicated.map((card, index) => (
+            <div className="flex gap-3 sm:gap-4 md:gap-6 lg:gap-8 animate-infinite-scroll w-max">
+              {infiniteCards.map((card, index) => (
                 <div
                   key={index}
-                  className="shrink-0 w-[280px] sm:w-[320px] md:w-[340px]"
+                  className="shrink-0 w-[260px] xs:w-[280px] sm:w-[300px] md:w-[320px] lg:w-[340px]"
                 >
                   <FeaturedCard
                     image={card.image}

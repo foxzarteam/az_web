@@ -26,7 +26,7 @@ const extendedConfig = {
     31.25: "31.25rem",
     43.75: "43.75rem",
   },
-  maxWidth: { "screen-xl": "85rem", "screen-2xl": "83.75rem", "md": "35rem" },
+  maxWidth: { "screen-xl": "75rem", "screen-2xl": "83.75rem", "md": "30rem" },
   height: { 150: "750px", 6.25: "6.25rem" },
   lineHeight: { "extra-loose": "2.5", "2.5": "2.5rem" },
   inset: { "5%": "5%", "35%": "35%" },
@@ -53,7 +53,15 @@ const extendedConfig = {
     gradientEnd: "#ff4512",
   },
   borderRadius: { lg: "0.625rem" },
-  screens: { "5xl": "2100px" },
+  screens: {
+    xs: "375px",
+    sm: "640px",
+    md: "768px",
+    lg: "1024px",
+    xl: "1280px",
+    "2xl": "1536px",
+    "5xl": "2100px",
+  },
 };
 
 const config: Config = {

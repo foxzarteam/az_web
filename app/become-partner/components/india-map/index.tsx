@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
+import SuccessPopup from "@/app/components/shared/SuccessPopup";
 
 interface Pin {
   id: number;
@@ -32,6 +33,12 @@ const pins: Pin[] = [
 
 export default function IndiaMap() {
   const [visiblePins, setVisiblePins] = useState<Set<number>>(new Set());
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [mobile, setMobile] = useState("");
+
+  const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMobile(e.target.value.replace(/\D/g, "").slice(0, 10));
+  };
 
   useEffect(() => {
     const showPin = (pinId: number) => {
@@ -63,48 +70,65 @@ export default function IndiaMap() {
 
   return (
     <>
-      <section className="bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 py-20 px-4 relative overflow-hidden">
+      <section className="bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 py-12 sm:py-16 md:py-20 px-4 sm:px-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-blue-900/50 to-blue-800/50"></div>
         
         <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md relative z-10">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-4">
+          <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-3 sm:mb-4">
             Agents Across India Are Earning Daily
           </h2>
 
-          <p className="text-white/90 text-center text-base sm:text-lg max-w-3xl mx-auto mb-6 leading-relaxed">
+          <p className="text-white/90 text-center text-sm sm:text-base md:text-lg max-w-3xl mx-auto mb-4 sm:mb-6 leading-relaxed">
             Multiple agents are working with us every day and earning real money.
-            <br />
-            Join India&apos;s fast-growing financial partner platform.
+            <br className="hidden sm:block" />
+            <span className="sm:inline">Join India&apos;s fast-growing financial partner platform.</span>
           </p>
 
-          <div className="flex justify-center mb-10">
+          <div className="flex justify-center mb-6 sm:mb-8 md:mb-10 px-0">
+            {showSuccess && (
+              <SuccessPopup
+                message="Thank you! Our team will contact you shortly to get you started as a partner."
+                onClose={() => setShowSuccess(false)}
+                autoCloseMs={3000}
+              />
+            )}
             <form
-              onSubmit={(e) => e.preventDefault()}
-              className="flex w-full max-w-md items-stretch rounded-full bg-white/95 shadow-lg overflow-hidden border border-blue-100"
+              onSubmit={(e) => {
+                e.preventDefault();
+                setShowSuccess(true);
+              }}
+              className="flex w-full max-w-md items-stretch rounded-full bg-white/95 shadow-lg overflow-hidden border border-blue-100 min-h-[44px]"
             >
-              <div className="flex items-center gap-2 pl-4 pr-3 bg-blue-50">
+              <div className="flex items-center gap-1.5 sm:gap-2 pl-3 sm:pl-4 pr-2 sm:pr-3 bg-blue-50 shrink-0">
                 <IndiaFlag />
-                <span className="text-xs sm:text-sm font-semibold text-blue-700 border-l border-blue-200 pl-2">
+                <span className="text-xs sm:text-sm font-semibold text-blue-700 border-l border-blue-200 pl-1.5 sm:pl-2">
                   +91
                 </span>
               </div>
               <input
                 type="tel"
-                placeholder="Enter your mobile number"
-                className="flex-1 px-3 sm:px-4 py-2.5 text-sm sm:text-base text-midnight_text placeholder:text-gray-400 focus:outline-none"
+                inputMode="numeric"
+                autoComplete="tel"
+                name="mobile"
+                placeholder="Enter mobile number"
+                required
+                value={mobile}
+                onChange={handleMobileChange}
+                className="flex-1 min-w-0 px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-midnight_text placeholder:text-gray-400 focus:outline-none"
                 maxLength={10}
+                pattern="[0-9]*"
               />
               <button
                 type="submit"
-                className="px-5 sm:px-8 py-2.5 text-sm sm:text-base font-semibold bg-[#ff7a1a] text-white hover:bg-[#ff6700] transition-colors whitespace-nowrap"
+                className="px-4 sm:px-5 md:px-8 py-2 sm:py-2.5 text-sm sm:text-base font-semibold bg-[#ff7a1a] text-white hover:bg-[#ff6700] transition-colors whitespace-nowrap shrink-0"
               >
                 Submit
               </button>
             </form>
           </div>
 
-          <div className="relative bg-blue-950/30 rounded-2xl p-6 sm:p-8 md:p-12 border border-blue-700/30 shadow-2xl backdrop-blur-sm">
-            <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] overflow-visible bg-blue-900/20">
+          <div className="relative bg-blue-950/30 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 lg:p-12 border border-blue-700/30 shadow-2xl backdrop-blur-sm">
+            <div className="relative w-full h-[340px] xs:h-[380px] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-visible bg-blue-900/20">
               <img
                 src="https://simplemaps.com/static/svg/country/in/admin1/in.svg"
                 alt="India Map"
@@ -145,10 +169,10 @@ export default function IndiaMap() {
                   </div>
 
                   {visiblePins.has(pin.id) && (
-                    <div className="pin-label absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 whitespace-nowrap z-20">
-                      <div className="bg-white text-blue-900 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-lg border border-blue-200">
+                    <div className="pin-label absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 sm:mb-2 z-20 max-w-[120px] xs:max-w-none">
+                      <div className="bg-white text-blue-900 text-[10px] xs:text-xs font-semibold px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg shadow-lg border border-blue-200 whitespace-nowrap">
                         <div className="font-bold">{pin.state}</div>
-                        <div className="text-[10px] mt-0.5">{pin.label}</div>
+                        <div className="text-[9px] xs:text-[10px] mt-0.5">{pin.label}</div>
                       </div>
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white"></div>
                     </div>
@@ -158,8 +182,8 @@ export default function IndiaMap() {
             </div>
           </div>
 
-          <div className="mt-8 text-center">
-            <p className="text-xl sm:text-2xl font-bold text-white inline-block px-6 py-3 bg-blue-800/50 rounded-lg border border-blue-600/50 backdrop-blur-sm">
+          <div className="mt-6 sm:mt-8 text-center px-2">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white inline-block px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-800/50 rounded-lg border border-blue-600/50 backdrop-blur-sm">
               India&apos;s Trusted Loan & Credit Card Partner Platform
             </p>
           </div>
