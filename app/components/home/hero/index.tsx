@@ -53,7 +53,7 @@ export default function Hero() {
           {/* Left: Heading + Form - on mobile: top (order-1); on laptop: left */}
           <div className="flex flex-col lg:col-span-6 justify-center items-start order-1 lg:order-1 min-w-0" data-aos="fade-right">
             <div className="w-full min-w-0 mb-4 sm:mb-5 lg:mb-6">
-              <h1 className="text-white font-bold flex flex-nowrap items-center gap-1.5 sm:gap-2 whitespace-nowrap leading-tight text-[20px] xs:text-[20px] sm:text-xl md:text-2xl lg:text-[2.15rem] xl:text-[2.625rem]">
+              <h1 className="text-white font-bold flex flex-nowrap items-center gap-1.5 sm:gap-2 whitespace-nowrap leading-tight text-[23px] xs:text-[23px] sm:text-xl md:text-2xl lg:text-[2.15rem] xl:text-[2.625rem]">
                 <span>Get an instant</span>
                 <AnimatedText />
               </h1>
