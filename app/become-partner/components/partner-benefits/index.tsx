@@ -28,11 +28,11 @@ export default function PartnerBenefits() {
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-midnight_text dark:text-white text-center mb-12" data-aos="fade-up">
           Why Partner With Us?
         </h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 grid-cols-1 gap-6 sm:gap-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 grid-cols-1 gap-4">
           {benefits.map((benefit, index) => (
             <div
               key={index}
-              className="bg-white dark:bg-darklight border border-border dark:border-dark_border rounded-xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              className="bg-white dark:bg-darklight border border-border dark:border-dark_border rounded-xl p-4 sm:p-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               data-aos="fade-up"
               data-aos-delay={index * 100}
             >
