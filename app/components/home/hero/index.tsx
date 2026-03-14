@@ -89,14 +89,14 @@ export default function Hero() {
             </div>
           </div>
           <div className="flex col-span-1 lg:col-span-6 justify-center lg:justify-end items-end lg:items-end self-end lg:self-end px-4 sm:px-0">
-            <div className="relative w-full max-w-[280px] sm:max-w-[340px] lg:max-w-[480px] xl:max-w-[520px] lg:mt-12 mx-auto lg:mx-0">
+            <div className="relative w-full max-w-[340px] sm:max-w-[340px] lg:max-w-[480px] xl:max-w-[520px] lg:mt-12 mx-auto lg:mx-0">
               <Image
                 src={DEFAULT_IMAGES.HERO}
                 alt="hero"
                 width={520}
                 height={400}
                 className="w-full h-auto object-contain object-bottom block"
-                sizes="(max-width: 640px) 280px, (max-width: 1024px) 340px, 520px"
+                sizes="(max-width: 640px) 340px, (max-width: 1024px) 340px, 520px"
                 priority
               />
             </div>
