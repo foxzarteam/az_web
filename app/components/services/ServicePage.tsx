@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
+import { createLead, mapServiceToCategory } from "@/app/utils/leadApi";
 
 type ServicePageProps = {
   title: string;
@@ -32,7 +33,8 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
   const [pan, setPan] = useState("");
   const [mobile, setMobile] = useState("");
   const [fullName, setFullName] = useState("");
-  const [errors, setErrors] = useState<{ pan?: string; mobile?: string; fullName?: string }>({});
+  const [errors, setErrors] = useState<{ pan?: string; mobile?: string; fullName?: string; api?: string }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validate = (): boolean => {
     const next: typeof errors = {};
@@ -45,10 +47,10 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
     const mobileTrim = mobile.replace(/\D/g, "");
     if (!mobileTrim) {
       next.mobile = "Mobile number is required";
-    } else if (mobileTrim.length < 10) {
+    } else if (mobileTrim.length !== 10) {
       next.mobile = "Enter valid 10 digit mobile number";
-    } else if (mobileTrim.length > 10) {
-      next.mobile = "Mobile number should be 10 digits only";
+    } else if (!/^[6-9]/.test(mobileTrim)) {
+      next.mobile = "Mobile number must start with 6, 7, 8, or 9";
     }
     const nameTrim = fullName.trim();
     if (!nameTrim) {
@@ -60,10 +62,50 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
     return Object.keys(next).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const getCategoryFromTitle = (): ReturnType<typeof mapServiceToCategory> => {
+    const t = title.toLowerCase();
+    if (t.includes("personal")) return mapServiceToCategory("personal-loan");
+    if (t.includes("home")) return mapServiceToCategory("home-loan");
+    if (t.includes("business")) return mapServiceToCategory("business-loan");
+    if (t.includes("credit")) return mapServiceToCategory("credit-card");
+    if (t.includes("insurance")) return mapServiceToCategory("insurance");
+    return mapServiceToCategory("personal-loan"); // default
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
-    setShowSuccess(true);
+
+    setIsSubmitting(true);
+    setErrors((prev) => ({ ...prev, api: undefined }));
+
+    try {
+      const panTrim = pan.trim().toUpperCase();
+      const mobileTrim = mobile.replace(/\D/g, "");
+      const nameTrim = fullName.trim();
+      const category = getCategoryFromTitle();
+
+      const response = await createLead({
+        pan: panTrim,
+        mobileNumber: mobileTrim,
+        fullName: nameTrim,
+        category,
+      });
+
+      if (response.success) {
+        setShowSuccess(true);
+        setPan("");
+        setMobile("");
+        setFullName("");
+        setErrors({});
+      } else {
+        setErrors((prev) => ({ ...prev, api: response.message || "Failed to submit. Please try again." }));
+      }
+    } catch (error) {
+      setErrors((prev) => ({ ...prev, api: "Network error. Please try again later." }));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handlePanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,6 +163,12 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
                   />
                 )}
 
+                {errors.api && (
+                  <div className="mb-3 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                    <p className="text-[10px] sm:text-xs text-red-600 dark:text-red-400">{errors.api}</p>
+                  </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3">
                 <div>
                   <label className="block text-[10px] sm:text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
@@ -170,10 +218,11 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
                 </div>
                 <button
                   type="submit"
-                  className="mt-4 sm:mt-6 w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-primary hover:bg-blue-700 text-white text-xs sm:text-sm md:text-base font-semibold py-2.5 sm:py-3 px-4 transition-colors shadow-md min-h-[44px]"
+                  disabled={isSubmitting}
+                  className="mt-4 sm:mt-6 w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-primary hover:bg-blue-700 text-white text-xs sm:text-sm md:text-base font-semibold py-2.5 sm:py-3 px-4 transition-colors shadow-md min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Submit Details
-                  <span className="text-xs">&gt;</span>
+                  {isSubmitting ? "Submitting..." : "Submit Details"}
+                  {!isSubmitting && <span className="text-xs">&gt;</span>}
                 </button>
                 <p className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-500 mt-1.5 sm:mt-2">
                   By submitting, you agree to be contacted by Apni Zaroorat and its lending partners.

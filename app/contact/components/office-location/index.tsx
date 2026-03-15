@@ -10,11 +10,6 @@ export default function Location() {
             <h2 className="text-white text-xl xs:text-2xl sm:text-3xl md:text-4xl leading-[1.2] font-bold">Apni Zaroorat</h2>
           </div>
           <div className="sm:col-span-2 md:col-span-3 min-w-0">
-            <p className="text-base sm:text-lg md:text-xl text-white text-opacity-80 font-normal max-w-full md:max-w-64">
-              Apni Zaroorat – Loans, Insurance & Credit Cards Online
-            </p>
-          </div>
-          <div className="sm:col-span-2 md:col-span-3 min-w-0">
             <Link href={`mailto:${CONTACT.EMAIL}`} className="text-base sm:text-lg md:text-xl text-white font-medium underline block mb-2 break-all">
               {CONTACT.EMAIL}
             </Link>

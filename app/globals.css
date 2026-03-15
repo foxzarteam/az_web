@@ -32,6 +32,16 @@ html {
   select {
     @apply block outline-none text-base font-normal text-midnight_text m-0 rounded-[0.375rem] w-full placeholder:text-gray;
   }
+  
+  .dark textarea,
+  .dark input[type="text"],
+  .dark input[type="number"],
+  .dark input[type="email"],
+  .dark input[type="tel"],
+  .dark select {
+    background-color: #fafafa !important;
+    color: #102D47 !important;
+  }
   h1 {
     @apply md:text-[51px] md:leading-[1.2] text-[28px] leading-[1.2] font-bold text-midnight_text dark:text-white;
   }
@@ -165,17 +175,14 @@ html {
 
 /* Never-ending carousel: 4x duplicated content, scroll -25% so loop reset is invisible */
 @keyframes carousel-infinite {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-25%, 0, 0); }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-25%); }
 }
 
 .animate-infinite-scroll {
   animation: carousel-infinite 80s linear infinite;
   will-change: transform;
   backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
 }
 
 .animate-infinite-scroll:hover {

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { COLORS, DEFAULT_IMAGES, MOBILE_VALIDATION } from "@/app/config/constants";
 import { validateMobileNumber, sanitizeMobileInput } from "@/app/utils/validation";
 import { scrollToElement } from "@/app/utils/scroll";
+import { createLead, mapServiceToCategory } from "@/app/utils/leadApi";
 import IndiaFlag from "./IndiaFlag";
 import AnimatedText from "./AnimatedText";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
@@ -42,7 +43,8 @@ export default function Hero() {
   const [fullName, setFullName] = useState("");
   const [service, setService] = useState("");
   const [pan, setPan] = useState("");
-  const [modalErrors, setModalErrors] = useState<{ fullName?: string; service?: string; pan?: string }>({});
+  const [modalErrors, setModalErrors] = useState<{ fullName?: string; service?: string; pan?: string; api?: string }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = () => {
     const validation = handleFormSubmit(mobile);
@@ -70,9 +72,9 @@ export default function Hero() {
     if (modalErrors.pan) setModalErrors((p) => ({ ...p, pan: undefined }));
   };
 
-  const handleServiceModalSubmit = (e: React.FormEvent) => {
+  const handleServiceModalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const next: { fullName?: string; service?: string; pan?: string } = {};
+    const next: { fullName?: string; service?: string; pan?: string; mobile?: string } = {};
     const nameTrim = fullName.trim();
     if (!nameTrim) next.fullName = "Full name is required";
     else if (!NAME_REGEX.test(nameTrim)) next.fullName = "Name should not contain special characters or numbers";
@@ -80,15 +82,44 @@ export default function Hero() {
     const panTrim = pan.trim().toUpperCase();
     if (!panTrim) next.pan = "PAN is required";
     else if (!PAN_REGEX.test(panTrim)) next.pan = "Invalid PAN (e.g. ABCDE1234F)";
+    
+    // Validate mobile number (10 digits, starting with 6-9)
+    const mobileTrim = mobile.replace(/\D/g, "");
+    if (!mobileTrim) next.mobile = "Mobile number is required";
+    else if (mobileTrim.length !== 10) next.mobile = "Mobile number must be 10 digits";
+    else if (!/^[6-9]/.test(mobileTrim)) next.mobile = "Mobile number must start with 6, 7, 8, or 9";
+    
     setModalErrors(next);
     if (Object.keys(next).length > 0) return;
-    setShowServiceModal(false);
-    setMobile("");
-    setFullName("");
-    setService("");
-    setPan("");
-    setModalErrors({});
-    setShowSuccess(true);
+
+    setIsSubmitting(true);
+    setModalErrors((p) => ({ ...p, api: undefined }));
+
+    try {
+      const category = mapServiceToCategory(service);
+      const response = await createLead({
+        pan: panTrim,
+        mobileNumber: mobileTrim,
+        fullName: nameTrim,
+        category,
+      });
+
+      if (response.success) {
+        setShowServiceModal(false);
+        setMobile("");
+        setFullName("");
+        setService("");
+        setPan("");
+        setModalErrors({});
+        setShowSuccess(true);
+      } else {
+        setModalErrors((p) => ({ ...p, api: response.message || "Failed to submit. Please try again." }));
+      }
+    } catch (error) {
+      setModalErrors((p) => ({ ...p, api: "Network error. Please try again later." }));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   useEffect(() => {
@@ -175,6 +206,11 @@ export default function Hero() {
                           </button>
                         </div>
                         <form onSubmit={handleServiceModalSubmit} className="p-6 sm:p-8 pt-4 sm:pt-6 space-y-4">
+                          {modalErrors.api && (
+                            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                              <p className="text-sm text-red-600 dark:text-red-400">{modalErrors.api}</p>
+                            </div>
+                          )}
                           <div>
                             <label htmlFor="hero-fullname" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               Full Name *
@@ -228,9 +264,10 @@ export default function Hero() {
                           <div className="pt-2">
                             <button
                               type="submit"
-                              className="w-full py-3 px-4 rounded-xl bg-primary text-white font-semibold hover:bg-blue-700 transition-colors"
+                              disabled={isSubmitting}
+                              className="w-full py-3 px-4 rounded-xl bg-primary text-white font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              Submit
+                              {isSubmitting ? "Submitting..." : "Submit"}
                             </button>
                           </div>
                         </form>
@@ -242,11 +279,11 @@ export default function Hero() {
               <div className="bg-white dark:bg-darkmode rounded-xl shadow-lg p-4 sm:p-5 md:p-6 lg:p-7">
                 <h2 className="text-base sm:text-lg md:text-xl font-bold text-midnight_text dark:text-white mb-3 sm:mb-4">Let&apos;s Get Started</h2>
                 <label className="block text-xs sm:text-sm font-medium text-midnight_text dark:text-gray-300 mb-2">Mobile Number</label>
-                <div className="flex items-center rounded-lg border border-gray-300 dark:border-dark_border overflow-hidden bg-white dark:bg-[#0c121e]">
+                <div className="flex items-center rounded-lg border border-gray-300 dark:border-dark_border overflow-hidden bg-white dark:bg-[#fafafa]">
                   <span className="pl-2.5 sm:pl-3 flex items-center shrink-0" aria-hidden>
                     <IndiaFlag />
                   </span>
-                  <span className="pl-1.5 sm:pl-2 pr-2 sm:pr-3 text-sm sm:text-base text-midnight_text dark:text-gray-400 font-medium">+91</span>
+                  <span className="pl-1.5 sm:pl-2 pr-2 sm:pr-3 text-sm sm:text-base text-midnight_text dark:text-midnight_text font-medium">+91</span>
                   <span className="h-5 sm:h-6 w-px bg-gray-300 dark:bg-dark_border" aria-hidden />
                   <input
                     type="tel"
@@ -257,7 +294,7 @@ export default function Hero() {
                     value={mobile}
                     onChange={handleMobileInputChange}
                     pattern="[0-9]*"
-                    className="flex-1 py-3 sm:py-3.5 px-2.5 sm:px-3 min-w-0 text-sm sm:text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none dark:bg-transparent"
+                    className="flex-1 py-3 sm:py-3.5 px-2.5 sm:px-3 min-w-0 text-sm sm:text-base text-midnight_text dark:text-midnight_text placeholder:text-gray-400 focus:outline-none dark:bg-transparent"
                   />
                 </div>
                 {error && <p className="text-red-600 text-xs sm:text-sm mt-2">{error}</p>}

@@ -25,17 +25,16 @@ export default function ContactInfo() {
           <div className="flex sm:flex-row flex-col items-start sm:gap-6 md:gap-8 gap-4 w-full min-w-0">
             <div className="bg-primary/20 w-12 h-12 sm:w-14 sm:h-14 md:w-15 md:h-15 flex items-center justify-center rounded-full shrink-0">
               <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
               </svg>
             </div>
             <div className="flex md:flex-col sm:flex-row flex-col md:items-start sm:items-center items-start h-full justify-between min-w-0">
               <div className="min-w-0">
                 <span className="text-midnight_text dark:text-white text-lg sm:text-xl font-bold">
-                  Address
+                  Phone Number
                 </span>
-                <p className="text-midnight_text/70 font-normal text-sm sm:text-base md:text-xl max-w-full md:max-w-80 pt-2 sm:pt-3 pb-4 sm:pb-7 dark:text-gray">
-                  Apni Zaroorat – Loans, Insurance & Credit Cards Online
+                <p className="text-midnight_text/70 font-normal text-sm sm:text-base md:text-xl max-w-full md:max-w-80 pt-2 sm:pt-3 pb-4 sm:pb-7 dark:text-gray break-words">
+                  Feel free to contact us at <a href="tel:9351283215" className="hover:text-primary transition-colors">9351283215</a>
                 </p>
               </div>
             </div>

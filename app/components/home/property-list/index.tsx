@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import FeaturedCard from "./featured-card";
 import { FEATURED_SERVICES } from "@/app/config/constants";
 
@@ -32,198 +32,221 @@ export default function Listing() {
   // 4 copies for seamless infinite loop (animation scrolls -25% so reset is invisible)
   const infiniteCards = [...cards, ...cards, ...cards, ...cards];
   
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState<number | null>(null);
-  const [dragOffset, setDragOffset] = useState(0);
-  const [hasMoved, setHasMoved] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
-  const rafRef = useRef<number | null>(null);
-  const dragThreshold = 5; // Minimum pixels to consider it a drag
-  const isDraggingRef = useRef(false);
+  const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const manualOffsetRef = useRef(0);
+  const isTransitioningRef = useRef(false);
 
-  // Smooth update using requestAnimationFrame
-  const updateTransform = useCallback((offset: number) => {
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-    }
+  // Calculate card width including gap
+  const getCardWidth = () => {
+    if (typeof window === 'undefined') return 300;
+    const isMobile = window.innerWidth < 640;
+    const isTablet = window.innerWidth < 1024;
+    const cardWidth = isMobile ? 280 : isTablet ? 320 : 340;
+    const gap = isMobile ? 12 : isTablet ? 24 : 32;
+    return cardWidth + gap;
+  };
+
+  // Calculate total width of one set of cards (25% of total)
+  const getOneSetWidth = () => {
+    const cardWidth = getCardWidth();
+    return cardWidth * cards.length; // One set = 5 cards
+  };
+
+  const slideLeft = () => {
+    if (!carouselRef.current || isTransitioningRef.current) return;
     
-    rafRef.current = requestAnimationFrame(() => {
-      if (carouselRef.current) {
-        carouselRef.current.style.transform = `translate3d(${offset}px, 0, 0)`;
+    isTransitioningRef.current = true;
+    
+    // Remove animation class to stop CSS animation
+    setIsPaused(true);
+    carouselRef.current.classList.remove('animate-infinite-scroll');
+    
+    // Get current transform
+    const computedStyle = window.getComputedStyle(carouselRef.current);
+    const currentTransform = computedStyle.transform;
+    let currentX = 0;
+    
+    // Parse current X position
+    if (currentTransform && currentTransform !== 'none') {
+      const matrixMatch = currentTransform.match(/matrix\(([^)]+)\)/);
+      if (matrixMatch) {
+        const values = matrixMatch[1].split(',');
+        if (values.length >= 5) {
+          currentX = parseFloat(values[4].trim()) || 0;
+        }
       }
-    });
-  }, []);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    // Don't prevent if clicking on a link or button
-    const target = e.target as HTMLElement;
-    if (target.closest('a') || target.closest('button')) {
-      return;
     }
     
-    setHasMoved(false);
-    isDraggingRef.current = false;
-    const offsetLeft = carouselRef.current?.getBoundingClientRect().left || 0;
-    setStartX(e.pageX - offsetLeft);
+    // Calculate new position
+    const cardWidth = getCardWidth();
+    const oneSetWidth = getOneSetWidth();
+    let newX = currentX - cardWidth;
     
-    // Pause animation smoothly
-    if (carouselRef.current) {
+    // Infinite loop: if we go beyond one set, reset seamlessly
+    if (newX <= -oneSetWidth) {
+      // Reset to equivalent position in the next set (seamless - no transition)
+      newX = newX + oneSetWidth;
       carouselRef.current.style.transition = 'none';
-      carouselRef.current.style.animationPlayState = 'paused';
-    }
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    // Don't prevent if clicking on a link or button
-    const target = e.target as HTMLElement;
-    if (target.closest('a') || target.closest('button')) {
-      return;
-    }
-    
-    setHasMoved(false);
-    isDraggingRef.current = false;
-    const touch = e.touches[0];
-    const offsetLeft = carouselRef.current?.getBoundingClientRect().left || 0;
-    setStartX(touch.pageX - offsetLeft);
-    
-    // Pause animation smoothly
-    if (carouselRef.current) {
-      carouselRef.current.style.transition = 'none';
-      carouselRef.current.style.animationPlayState = 'paused';
-    }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!carouselRef.current || startX === null) return;
-    const offsetLeft = carouselRef.current.getBoundingClientRect().left;
-    const x = e.pageX - offsetLeft;
-    const walk = (x - startX) * 1.2; // Reduced multiplier for smoother feel
-    const distance = Math.abs(x - startX);
-    
-    // Only consider it dragging if moved more than threshold
-    if (distance > dragThreshold) {
-      if (!isDraggingRef.current) {
-        isDraggingRef.current = true;
-        setIsDragging(true);
-      }
-      e.preventDefault();
-      setHasMoved(true);
-      setDragOffset(walk);
-      updateTransform(walk);
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!carouselRef.current || startX === null) return;
-    const touch = e.touches[0];
-    const offsetLeft = carouselRef.current.getBoundingClientRect().left;
-    const x = touch.pageX - offsetLeft;
-    const walk = (x - startX) * 1.2; // Reduced multiplier for smoother feel
-    const distance = Math.abs(x - startX);
-    
-    // Only consider it dragging if moved more than threshold
-    if (distance > dragThreshold) {
-      if (!isDraggingRef.current) {
-        isDraggingRef.current = true;
-        setIsDragging(true);
-      }
-      e.preventDefault(); // Prevent scrolling
-      setHasMoved(true);
-      setDragOffset(walk);
-      updateTransform(walk);
-    }
-  };
-
-  const handleMouseUp = (e: React.MouseEvent) => {
-    // If we didn't move much, allow click to proceed
-    if (!hasMoved && !isDraggingRef.current) {
-      if (carouselRef.current) {
-        carouselRef.current.style.transition = '';
-        carouselRef.current.style.animationPlayState = 'running';
-      }
-      setStartX(null);
-      return;
-    }
-    
-    isDraggingRef.current = false;
-    setIsDragging(false);
-    setDragOffset(0);
-    setHasMoved(false);
-    setStartX(null);
-    
-    // Resume animation smoothly
-    if (carouselRef.current) {
-      carouselRef.current.style.transition = 'transform 0.3s ease-out';
-      carouselRef.current.style.transform = 'translate3d(0, 0, 0)';
-      
-      // Resume animation after transition
+      carouselRef.current.style.transform = `translateX(${newX}px)`;
+      // Force reflow to apply the reset
+      void carouselRef.current.offsetHeight;
+      // Now continue with normal transition
       setTimeout(() => {
         if (carouselRef.current) {
-          carouselRef.current.style.transition = '';
-          carouselRef.current.style.animationPlayState = 'running';
-        }
-      }, 300);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    // If we didn't move much, allow click to proceed
-    if (!hasMoved && !isDraggingRef.current) {
-      if (carouselRef.current) {
-        carouselRef.current.style.transition = '';
-        carouselRef.current.style.animationPlayState = 'running';
-      }
-      setStartX(null);
-      return;
-    }
-    
-    isDraggingRef.current = false;
-    setIsDragging(false);
-    setDragOffset(0);
-    setHasMoved(false);
-    setStartX(null);
-    
-    // Resume animation smoothly
-    if (carouselRef.current) {
-      carouselRef.current.style.transition = 'transform 0.3s ease-out';
-      carouselRef.current.style.transform = 'translate3d(0, 0, 0)';
-      
-      // Resume animation after transition
-      setTimeout(() => {
-        if (carouselRef.current) {
-          carouselRef.current.style.transition = '';
-          carouselRef.current.style.animationPlayState = 'running';
-        }
-      }, 300);
-    }
-  };
-
-  // Handle mouse leave
-  const handleMouseLeave = () => {
-    if (isDraggingRef.current || hasMoved || startX !== null) {
-      isDraggingRef.current = false;
-      setIsDragging(false);
-      setDragOffset(0);
-      setHasMoved(false);
-      setStartX(null);
-      if (carouselRef.current) {
-        carouselRef.current.style.transition = 'transform 0.3s ease-out';
-        carouselRef.current.style.transform = 'translate3d(0, 0, 0)';
-        setTimeout(() => {
-          if (carouselRef.current) {
-            carouselRef.current.style.transition = '';
-            carouselRef.current.style.animationPlayState = 'running';
+          carouselRef.current.style.transition = 'transform 0.5s ease-in-out';
+          const finalX = newX - cardWidth;
+          carouselRef.current.style.transform = `translateX(${finalX}px)`;
+          manualOffsetRef.current = finalX;
+          
+          // Mark transition as complete after animation
+          setTimeout(() => {
+            isTransitioningRef.current = false;
+          }, 500);
+          
+          // Resume animation after 3 seconds of inactivity
+          if (animationTimeoutRef.current) {
+            clearTimeout(animationTimeoutRef.current);
           }
-        }, 300);
+          animationTimeoutRef.current = setTimeout(() => {
+            if (carouselRef.current && !isTransitioningRef.current) {
+              carouselRef.current.style.transition = '';
+              carouselRef.current.style.transform = '';
+              carouselRef.current.classList.add('animate-infinite-scroll');
+              setIsPaused(false);
+              manualOffsetRef.current = 0;
+            }
+          }, 3000);
+        }
+      }, 10);
+      return; // Early return, timeout handles the rest
+    }
+    
+    // Normal slide
+    carouselRef.current.style.transition = 'transform 0.5s ease-in-out';
+    carouselRef.current.style.transform = `translateX(${newX}px)`;
+    manualOffsetRef.current = newX;
+    
+    // Mark transition as complete after animation
+    setTimeout(() => {
+      isTransitioningRef.current = false;
+    }, 500);
+    
+    // Resume animation after 3 seconds of inactivity
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+    animationTimeoutRef.current = setTimeout(() => {
+      if (carouselRef.current && !isTransitioningRef.current) {
+        carouselRef.current.style.transition = '';
+        carouselRef.current.style.transform = '';
+        carouselRef.current.classList.add('animate-infinite-scroll');
+        setIsPaused(false);
+        manualOffsetRef.current = 0;
+      }
+    }, 3000);
+  };
+
+  const slideRight = () => {
+    if (!carouselRef.current || isTransitioningRef.current) return;
+    
+    isTransitioningRef.current = true;
+    
+    // Remove animation class to stop CSS animation
+    setIsPaused(true);
+    carouselRef.current.classList.remove('animate-infinite-scroll');
+    
+    // Get current transform
+    const computedStyle = window.getComputedStyle(carouselRef.current);
+    const currentTransform = computedStyle.transform;
+    let currentX = 0;
+    
+    // Parse current X position
+    if (currentTransform && currentTransform !== 'none') {
+      const matrixMatch = currentTransform.match(/matrix\(([^)]+)\)/);
+      if (matrixMatch) {
+        const values = matrixMatch[1].split(',');
+        if (values.length >= 5) {
+          currentX = parseFloat(values[4].trim()) || 0;
+        }
       }
     }
+    
+    // Calculate new position
+    const cardWidth = getCardWidth();
+    const oneSetWidth = getOneSetWidth();
+    let newX = currentX + cardWidth;
+    
+    // Infinite loop: if we go beyond start, reset seamlessly
+    if (newX >= 0) {
+      // Reset to equivalent position in the previous set (seamless - no transition)
+      newX = newX - oneSetWidth;
+      carouselRef.current.style.transition = 'none';
+      carouselRef.current.style.transform = `translateX(${newX}px)`;
+      // Force reflow to apply the reset
+      void carouselRef.current.offsetHeight;
+      // Now continue with normal transition
+      setTimeout(() => {
+        if (carouselRef.current) {
+          carouselRef.current.style.transition = 'transform 0.5s ease-in-out';
+          const finalX = newX + cardWidth;
+          carouselRef.current.style.transform = `translateX(${finalX}px)`;
+          manualOffsetRef.current = finalX;
+          
+          // Mark transition as complete after animation
+          setTimeout(() => {
+            isTransitioningRef.current = false;
+          }, 500);
+          
+          // Resume animation after 3 seconds of inactivity
+          if (animationTimeoutRef.current) {
+            clearTimeout(animationTimeoutRef.current);
+          }
+          animationTimeoutRef.current = setTimeout(() => {
+            if (carouselRef.current && !isTransitioningRef.current) {
+              carouselRef.current.style.transition = '';
+              carouselRef.current.style.transform = '';
+              carouselRef.current.classList.add('animate-infinite-scroll');
+              setIsPaused(false);
+              manualOffsetRef.current = 0;
+            }
+          }, 3000);
+        }
+      }, 10);
+      return; // Early return, timeout handles the rest
+    }
+    
+    // Normal slide
+    carouselRef.current.style.transition = 'transform 0.5s ease-in-out';
+    carouselRef.current.style.transform = `translateX(${newX}px)`;
+    manualOffsetRef.current = newX;
+    
+    // Mark transition as complete after animation
+    setTimeout(() => {
+      isTransitioningRef.current = false;
+    }, 500);
+    
+    // Resume animation after 3 seconds of inactivity
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+    animationTimeoutRef.current = setTimeout(() => {
+      if (carouselRef.current && !isTransitioningRef.current) {
+        carouselRef.current.style.transition = '';
+        carouselRef.current.style.transform = '';
+        carouselRef.current.classList.add('animate-infinite-scroll');
+        setIsPaused(false);
+        manualOffsetRef.current = 0;
+      }
+    }, 3000);
   };
 
   useEffect(() => {
-    // Cleanup on unmount
+    // Cleanup timeout on unmount
     return () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
       }
     };
   }, []);
@@ -235,27 +258,10 @@ export default function Listing() {
           Our Services
         </h1>
         <div className="relative -mx-4 sm:mx-0">
-          <div className="overflow-hidden cursor-grab active:cursor-grabbing">
+          <div className="overflow-hidden relative">
             <div
               ref={carouselRef}
-              className={`flex gap-3 sm:gap-4 md:gap-6 lg:gap-8 w-max ${!isDragging ? 'animate-infinite-scroll' : ''}`}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseLeave}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-              style={{
-                userSelect: 'none',
-                WebkitUserSelect: 'none',
-                WebkitTouchCallout: 'none',
-                touchAction: isDragging ? 'none' : 'pan-x',
-                willChange: 'transform',
-                backfaceVisibility: 'hidden',
-                WebkitBackfaceVisibility: 'hidden',
-                transform: 'translate3d(0, 0, 0)',
-              }}
+              className={`flex gap-3 sm:gap-4 md:gap-6 lg:gap-8 w-max ${!isPaused ? 'animate-infinite-scroll' : ''}`}
             >
               {infiniteCards.map((card, index) => (
                 <div
@@ -271,7 +277,80 @@ export default function Listing() {
                 </div>
               ))}
             </div>
+            
+            {/* Navigation Arrows - Desktop: Vertical Center at Corners */}
+            {/* Left Arrow - Desktop: Left Corner */}
+            <button
+              onClick={slideLeft}
+              aria-label="Previous"
+              className="hidden md:flex absolute left-2 lg:left-4 top-1/2 -translate-y-1/2 items-center justify-center w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-white dark:bg-darklight border border-gray-200 dark:border-gray-700 hover:bg-primary hover:border-primary hover:text-white text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl group z-10"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-6 h-6 lg:w-7 lg:h-7 group-hover:scale-110 transition-transform"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            
+            {/* Right Arrow - Desktop: Right Corner */}
+            <button
+              onClick={slideRight}
+              aria-label="Next"
+              className="hidden md:flex absolute right-2 lg:right-4 top-1/2 -translate-y-1/2 items-center justify-center w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-white dark:bg-darklight border border-gray-200 dark:border-gray-700 hover:bg-primary hover:border-primary hover:text-white text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl group z-10"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-6 h-6 lg:w-7 lg:h-7 group-hover:scale-110 transition-transform"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
+        </div>
+        
+        {/* Navigation Arrows - Mobile: Bottom */}
+        <div className="flex justify-center items-center gap-3 mt-6 sm:mt-8 md:hidden">
+          <button
+            onClick={slideLeft}
+            aria-label="Previous"
+            className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white dark:bg-darklight border border-gray-200 dark:border-gray-700 hover:bg-primary hover:border-primary hover:text-white text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm hover:shadow-md group"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={slideRight}
+            aria-label="Next"
+            className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white dark:bg-darklight border border-gray-200 dark:border-gray-700 hover:bg-primary hover:border-primary hover:text-white text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm hover:shadow-md group"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
       </div>
     </section>
