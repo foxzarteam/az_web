@@ -165,14 +165,17 @@ html {
 
 /* Never-ending carousel: 4x duplicated content, scroll -25% so loop reset is invisible */
 @keyframes carousel-infinite {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-25%); }
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-25%, 0, 0); }
 }
 
 .animate-infinite-scroll {
   animation: carousel-infinite 80s linear infinite;
   will-change: transform;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
 }
 
 .animate-infinite-scroll:hover {

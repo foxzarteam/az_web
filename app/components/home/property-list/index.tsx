@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import FeaturedCard from "./featured-card";
 import { FEATURED_SERVICES } from "@/app/config/constants";
 
@@ -34,22 +34,25 @@ export default function Listing() {
   
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState<number | null>(null);
-  const [scrollLeft, setScrollLeft] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [hasMoved, setHasMoved] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
-  const animationRef = useRef<number | null>(null);
+  const rafRef = useRef<number | null>(null);
   const dragThreshold = 5; // Minimum pixels to consider it a drag
+  const isDraggingRef = useRef(false);
 
-  // Calculate card width including gap
-  const getCardWidth = () => {
-    if (typeof window === 'undefined') return 300;
-    const isMobile = window.innerWidth < 640;
-    const isTablet = window.innerWidth < 1024;
-    const cardWidth = isMobile ? 280 : isTablet ? 320 : 340;
-    const gap = isMobile ? 12 : isTablet ? 24 : 32;
-    return cardWidth + gap;
-  };
+  // Smooth update using requestAnimationFrame
+  const updateTransform = useCallback((offset: number) => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+    }
+    
+    rafRef.current = requestAnimationFrame(() => {
+      if (carouselRef.current) {
+        carouselRef.current.style.transform = `translate3d(${offset}px, 0, 0)`;
+      }
+    });
+  }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     // Don't prevent if clicking on a link or button
@@ -59,11 +62,13 @@ export default function Listing() {
     }
     
     setHasMoved(false);
-    setStartX(e.pageX - (carouselRef.current?.offsetLeft || 0));
-    setScrollLeft(carouselRef.current?.scrollLeft || 0);
+    isDraggingRef.current = false;
+    const offsetLeft = carouselRef.current?.getBoundingClientRect().left || 0;
+    setStartX(e.pageX - offsetLeft);
     
-    // Pause animation
+    // Pause animation smoothly
     if (carouselRef.current) {
+      carouselRef.current.style.transition = 'none';
       carouselRef.current.style.animationPlayState = 'paused';
     }
   };
@@ -76,107 +81,140 @@ export default function Listing() {
     }
     
     setHasMoved(false);
+    isDraggingRef.current = false;
     const touch = e.touches[0];
-    setStartX(touch.pageX - (carouselRef.current?.offsetLeft || 0));
-    setScrollLeft(carouselRef.current?.scrollLeft || 0);
+    const offsetLeft = carouselRef.current?.getBoundingClientRect().left || 0;
+    setStartX(touch.pageX - offsetLeft);
     
-    // Pause animation
+    // Pause animation smoothly
     if (carouselRef.current) {
+      carouselRef.current.style.transition = 'none';
       carouselRef.current.style.animationPlayState = 'paused';
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!carouselRef.current || startX === null) return;
-    const x = e.pageX - (carouselRef.current.offsetLeft || 0);
-    const walk = (x - startX) * 1.5; // Scroll speed multiplier
+    const offsetLeft = carouselRef.current.getBoundingClientRect().left;
+    const x = e.pageX - offsetLeft;
+    const walk = (x - startX) * 1.2; // Reduced multiplier for smoother feel
     const distance = Math.abs(x - startX);
     
     // Only consider it dragging if moved more than threshold
     if (distance > dragThreshold) {
-      if (!isDragging) {
+      if (!isDraggingRef.current) {
+        isDraggingRef.current = true;
         setIsDragging(true);
       }
       e.preventDefault();
       setHasMoved(true);
       setDragOffset(walk);
-      carouselRef.current.style.transform = `translateX(${walk}px)`;
+      updateTransform(walk);
     }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!carouselRef.current || startX === null) return;
     const touch = e.touches[0];
-    const x = touch.pageX - (carouselRef.current.offsetLeft || 0);
-    const walk = (x - startX) * 1.5; // Scroll speed multiplier
+    const offsetLeft = carouselRef.current.getBoundingClientRect().left;
+    const x = touch.pageX - offsetLeft;
+    const walk = (x - startX) * 1.2; // Reduced multiplier for smoother feel
     const distance = Math.abs(x - startX);
     
     // Only consider it dragging if moved more than threshold
     if (distance > dragThreshold) {
-      if (!isDragging) {
+      if (!isDraggingRef.current) {
+        isDraggingRef.current = true;
         setIsDragging(true);
       }
       e.preventDefault(); // Prevent scrolling
       setHasMoved(true);
       setDragOffset(walk);
-      carouselRef.current.style.transform = `translateX(${walk}px)`;
+      updateTransform(walk);
     }
   };
 
   const handleMouseUp = (e: React.MouseEvent) => {
     // If we didn't move much, allow click to proceed
-    if (!hasMoved && !isDragging) {
+    if (!hasMoved && !isDraggingRef.current) {
       if (carouselRef.current) {
+        carouselRef.current.style.transition = '';
         carouselRef.current.style.animationPlayState = 'running';
       }
       setStartX(null);
       return;
     }
     
+    isDraggingRef.current = false;
     setIsDragging(false);
     setDragOffset(0);
     setHasMoved(false);
     setStartX(null);
     
-    // Resume animation
+    // Resume animation smoothly
     if (carouselRef.current) {
-      carouselRef.current.style.transform = '';
-      carouselRef.current.style.animationPlayState = 'running';
+      carouselRef.current.style.transition = 'transform 0.3s ease-out';
+      carouselRef.current.style.transform = 'translate3d(0, 0, 0)';
+      
+      // Resume animation after transition
+      setTimeout(() => {
+        if (carouselRef.current) {
+          carouselRef.current.style.transition = '';
+          carouselRef.current.style.animationPlayState = 'running';
+        }
+      }, 300);
     }
   };
 
   const handleTouchEnd = () => {
     // If we didn't move much, allow click to proceed
-    if (!hasMoved && !isDragging) {
+    if (!hasMoved && !isDraggingRef.current) {
       if (carouselRef.current) {
+        carouselRef.current.style.transition = '';
         carouselRef.current.style.animationPlayState = 'running';
       }
       setStartX(null);
       return;
     }
     
+    isDraggingRef.current = false;
     setIsDragging(false);
     setDragOffset(0);
     setHasMoved(false);
     setStartX(null);
     
-    // Resume animation
+    // Resume animation smoothly
     if (carouselRef.current) {
-      carouselRef.current.style.transform = '';
-      carouselRef.current.style.animationPlayState = 'running';
+      carouselRef.current.style.transition = 'transform 0.3s ease-out';
+      carouselRef.current.style.transform = 'translate3d(0, 0, 0)';
+      
+      // Resume animation after transition
+      setTimeout(() => {
+        if (carouselRef.current) {
+          carouselRef.current.style.transition = '';
+          carouselRef.current.style.animationPlayState = 'running';
+        }
+      }, 300);
     }
   };
 
   // Handle mouse leave
   const handleMouseLeave = () => {
-    if (isDragging || hasMoved || startX !== null) {
+    if (isDraggingRef.current || hasMoved || startX !== null) {
+      isDraggingRef.current = false;
       setIsDragging(false);
       setDragOffset(0);
       setHasMoved(false);
       setStartX(null);
       if (carouselRef.current) {
-        carouselRef.current.style.transform = '';
-        carouselRef.current.style.animationPlayState = 'running';
+        carouselRef.current.style.transition = 'transform 0.3s ease-out';
+        carouselRef.current.style.transform = 'translate3d(0, 0, 0)';
+        setTimeout(() => {
+          if (carouselRef.current) {
+            carouselRef.current.style.transition = '';
+            carouselRef.current.style.animationPlayState = 'running';
+          }
+        }, 300);
       }
     }
   };
@@ -184,8 +222,8 @@ export default function Listing() {
   useEffect(() => {
     // Cleanup on unmount
     return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
       }
     };
   }, []);
@@ -211,7 +249,12 @@ export default function Listing() {
               style={{
                 userSelect: 'none',
                 WebkitUserSelect: 'none',
+                WebkitTouchCallout: 'none',
                 touchAction: isDragging ? 'none' : 'pan-x',
+                willChange: 'transform',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                transform: 'translate3d(0, 0, 0)',
               }}
             >
               {infiniteCards.map((card, index) => (
