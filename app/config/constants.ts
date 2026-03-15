@@ -36,6 +36,7 @@ export const FEATURED_SERVICES = [
   { title: "Personal Loan", description: "Paperless process at low rate" },
   { title: "Business Loan", description: "Fund your business with flexible tenure" },
   { title: "Credit Card", description: "Choose cards from all top banks" },
+  { title: "Insurance", description: "Protect your life, health and assets" },
 ] as const;
 
 export const COMPANY_STATS = [
