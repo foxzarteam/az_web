@@ -36,7 +36,7 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
     >
       <Link
         href={item.href}
-        className={`text-base flex items-center gap-1 py-3 font-normal text-midnight_text hover:text-primary dark:text-white dark:hover:text-primary ${isActive ? "!text-primary" : ""}`}
+        className={`text-lg flex items-center gap-1 py-3 font-semibold text-midnight_text hover:text-primary dark:text-white dark:hover:text-primary ${isActive ? "!text-primary" : ""}`}
       >
         {item.label}
         {item.submenu && (
@@ -92,7 +92,7 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
                       <span className="text-base font-semibold">🛡️</span>
                     )}
                   </div>
-                  <span className="text-xs sm:text-[13px] font-semibold leading-snug whitespace-nowrap">
+                  <span className="text-sm sm:text-base font-bold leading-snug whitespace-nowrap">
                     {subItem.label}
                   </span>
                 </Link>

@@ -71,7 +71,7 @@ export default function Header() {
     >
       <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between px-4 sm:px-6 h-16 sm:h-16 md:h-20 gap-2 min-w-0">
         <Logo />
-        <nav className="hidden lg:flex flex-grow items-center justify-center space-x-4 xl:space-x-6 min-w-0">
+        <nav className="hidden lg:flex flex-grow items-center justify-center space-x-10 xl:space-x-12 min-w-0">
           {data.map((item, index) => (
             <HeaderLink key={index} item={item} />
           ))}
