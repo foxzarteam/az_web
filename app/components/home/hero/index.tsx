@@ -5,6 +5,11 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import { COLORS, DEFAULT_IMAGES, MOBILE_VALIDATION } from "@/app/config/constants";
 import { validateMobileNumber, sanitizeMobileInput } from "@/app/utils/validation";
+import {
+  sanitizeLeadNameInput,
+  sanitizeLeadPanInput,
+  validateLeadPanNameMobile,
+} from "@/app/utils/leadForm";
 import { scrollToElement } from "@/app/utils/scroll";
 import { createLead, mapServiceToCategory } from "@/app/utils/leadApi";
 import IndiaFlag from "./IndiaFlag";
@@ -19,9 +24,6 @@ const HERO_SERVICES = [
   { value: "credit-card", label: "Credit Card" },
   { value: "insurance", label: "Insurance" },
 ];
-
-const PAN_REGEX = /^[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}$/;
-const NAME_REGEX = /^[a-zA-Z\s.]*$/;
 
 function handleMobileChange(value: string): string {
   return sanitizeMobileInput(value);
@@ -43,7 +45,13 @@ export default function Hero() {
   const [fullName, setFullName] = useState("");
   const [service, setService] = useState("");
   const [pan, setPan] = useState("");
-  const [modalErrors, setModalErrors] = useState<{ fullName?: string; service?: string; pan?: string; api?: string }>({});
+  const [modalErrors, setModalErrors] = useState<{
+    pan?: string;
+    mobile?: string;
+    fullName?: string;
+    service?: string;
+    api?: string;
+  }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = () => {
@@ -63,32 +71,26 @@ export default function Hero() {
   };
 
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFullName(e.target.value.replace(/[^a-zA-Z\s.]/g, ""));
+    setFullName(sanitizeLeadNameInput(e.target.value));
     if (modalErrors.fullName) setModalErrors((p) => ({ ...p, fullName: undefined }));
   };
 
   const handlePanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPan(e.target.value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10).toUpperCase());
+    setPan(sanitizeLeadPanInput(e.target.value));
     if (modalErrors.pan) setModalErrors((p) => ({ ...p, pan: undefined }));
   };
 
   const handleServiceModalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const next: { fullName?: string; service?: string; pan?: string; mobile?: string } = {};
-    const nameTrim = fullName.trim();
-    if (!nameTrim) next.fullName = "Full name is required";
-    else if (!NAME_REGEX.test(nameTrim)) next.fullName = "Name should not contain special characters or numbers";
-    if (!service.trim()) next.service = "Please select a service";
-    const panTrim = pan.trim().toUpperCase();
-    if (!panTrim) next.pan = "PAN is required";
-    else if (!PAN_REGEX.test(panTrim)) next.pan = "Invalid PAN (e.g. ABCDE1234F)";
-    
-    // Validate mobile number (10 digits, starting with 6-9)
     const mobileTrim = mobile.replace(/\D/g, "");
-    if (!mobileTrim) next.mobile = "Mobile number is required";
-    else if (mobileTrim.length !== 10) next.mobile = "Mobile number must be 10 digits";
-    else if (!/^[6-9]/.test(mobileTrim)) next.mobile = "Mobile number must start with 6, 7, 8, or 9";
-    
+    const base = validateLeadPanNameMobile({
+      pan,
+      mobileDigits: mobileTrim,
+      fullName,
+    });
+    const next: typeof modalErrors = { ...base };
+    if (!service.trim()) next.service = "Please select a service";
+
     setModalErrors(next);
     if (Object.keys(next).length > 0) return;
 
@@ -96,6 +98,8 @@ export default function Hero() {
     setModalErrors((p) => ({ ...p, api: undefined }));
 
     try {
+      const panTrim = pan.trim().toUpperCase();
+      const nameTrim = fullName.trim();
       const category = mapServiceToCategory(service);
       const response = await createLead({
         pan: panTrim,
@@ -115,7 +119,7 @@ export default function Hero() {
       } else {
         setModalErrors((p) => ({ ...p, api: response.message || "Failed to submit. Please try again." }));
       }
-    } catch (error) {
+    } catch {
       setModalErrors((p) => ({ ...p, api: "Network error. Please try again later." }));
     } finally {
       setIsSubmitting(false);
@@ -206,9 +210,11 @@ export default function Hero() {
                           </button>
                         </div>
                         <form onSubmit={handleServiceModalSubmit} className="p-6 sm:p-8 pt-4 sm:pt-6 space-y-4">
-                          {modalErrors.api && (
+                          {(modalErrors.api || modalErrors.mobile) && (
                             <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                              <p className="text-sm text-red-600 dark:text-red-400">{modalErrors.api}</p>
+                              <p className="text-sm text-red-600 dark:text-red-400">
+                                {modalErrors.api ?? modalErrors.mobile}
+                              </p>
                             </div>
                           )}
                           <div>

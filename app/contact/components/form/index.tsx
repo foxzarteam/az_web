@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
+import { PUBLIC_FORM_SUBMIT_AJAX_URL } from "@/app/config/constants";
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -30,8 +31,14 @@ export default function ContactForm() {
     e.preventDefault();
     setLoading(true);
 
+    if (!PUBLIC_FORM_SUBMIT_AJAX_URL) {
+      console.error("Set NEXT_PUBLIC_CONTACT_EMAIL in .env.local for form submissions.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch("https://formsubmit.co/ajax/info@apnizaroorat.com", {
+      const response = await fetch(PUBLIC_FORM_SUBMIT_AJAX_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

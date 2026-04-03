@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CONTACT } from "@/app/config/constants";
+import { CONTACT, PUBLIC_FORM_SUBMIT_AJAX_URL } from "@/app/config/constants";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 
 export default function PartnerForm() {
@@ -27,8 +27,14 @@ export default function PartnerForm() {
     e.preventDefault();
     setLoading(true);
 
+    if (!PUBLIC_FORM_SUBMIT_AJAX_URL) {
+      console.error("Set NEXT_PUBLIC_CONTACT_EMAIL in .env.local for form submissions.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch("https://formsubmit.co/ajax/info@apnizaroorat.com", {
+      const response = await fetch(PUBLIC_FORM_SUBMIT_AJAX_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

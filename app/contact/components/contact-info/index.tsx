@@ -1,4 +1,4 @@
-import { CONTACT } from "@/app/config/constants";
+import { CONTACT, PUBLIC_GOOGLE_MAPS_EMBED_URL } from "@/app/config/constants";
 
 export default function ContactInfo() {
   return (
@@ -17,7 +17,14 @@ export default function ContactInfo() {
                   Email Us
                 </span>
                 <p className="text-midnight_text/70 font-normal text-sm sm:text-base md:text-xl max-w-full md:max-w-80 pt-2 sm:pt-3 pb-4 sm:pb-7 dark:text-gray break-words">
-                  Feel free to contact us at {CONTACT.EMAIL}
+                  Feel free to contact us at{" "}
+                  {CONTACT.EMAIL ? (
+                    <a href={`mailto:${CONTACT.EMAIL}`} className="hover:text-primary transition-colors break-all">
+                      {CONTACT.EMAIL}
+                    </a>
+                  ) : (
+                    <span className="text-midnight_text/50">—</span>
+                  )}
                 </p>
               </div>
             </div>
@@ -34,7 +41,14 @@ export default function ContactInfo() {
                   Phone Number
                 </span>
                 <p className="text-midnight_text/70 font-normal text-sm sm:text-base md:text-xl max-w-full md:max-w-80 pt-2 sm:pt-3 pb-4 sm:pb-7 dark:text-gray break-words">
-                  Feel free to contact us at <a href="tel:9351283215" className="hover:text-primary transition-colors">9351283215</a>
+                  Feel free to contact us at{" "}
+                  {CONTACT.PHONE ? (
+                    <a href={`tel:${CONTACT.PHONE}`} className="hover:text-primary transition-colors">
+                      {CONTACT.PHONE}
+                    </a>
+                  ) : (
+                    <span className="text-midnight_text/50">—</span>
+                  )}
                 </p>
               </div>
             </div>
@@ -43,16 +57,22 @@ export default function ContactInfo() {
       </div>
       <div className="md:pt-16 pt-8 sm:pt-11 md:pb-16 pb-8 px-4 sm:px-6">
         <div className="rounded-lg overflow-hidden w-full min-h-[220px] sm:min-h-[320px] md:min-h-[400px] lg:min-h-[477px]">
-          <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d938779.7831767448!2d71.05098621661072!3d23.20271516446136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e82dd003ff749%3A0x359e803f537cea25!2sGANESH%20GLORY%2C%20Gota%2C%20Ahmedabad%2C%20Gujarat%20382481!5e0!3m2!1sen!2sin!4v1715676641521!5m2!1sen!2sin" 
-            width="100%" 
-            height="100%"
-            style={{ minHeight: "220px" }}
-            loading="lazy" 
-            referrerPolicy="no-referrer-when-downgrade" 
-            className="rounded-lg w-full h-[220px] sm:h-[320px] md:h-[400px] lg:h-[477px] border-0"
-            title="Office Location"
-          />
+          {PUBLIC_GOOGLE_MAPS_EMBED_URL ? (
+            <iframe
+              src={PUBLIC_GOOGLE_MAPS_EMBED_URL}
+              width="100%"
+              height="100%"
+              style={{ minHeight: "220px" }}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="rounded-lg w-full h-[220px] sm:h-[320px] md:h-[400px] lg:h-[477px] border-0"
+              title="Office Location"
+            />
+          ) : (
+            <div className="flex h-[220px] sm:h-[320px] md:h-[400px] lg:h-[477px] items-center justify-center rounded-lg bg-midnight_text/5 text-midnight_text/60 dark:bg-white/5 dark:text-gray-400 text-sm px-4 text-center">
+              Set NEXT_PUBLIC_GOOGLE_MAPS_EMBED_URL in .env.local to show the map.
+            </div>
+          )}
         </div>
       </div>
       <div className="border-b border-solid border-border dark:border-dark_border"></div>

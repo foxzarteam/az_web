@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import History from "../components/home/history";
-import Features from "../components/shared/features";
-import Testimonials from "../components/home/testimonial";
-import CompanyInfo from "../components/home/info";
+import dynamic from "next/dynamic";
+
+const History = dynamic(() => import("../components/home/history"));
+const Features = dynamic(() => import("../components/shared/features"));
+const Testimonials = dynamic(() => import("../components/home/testimonial"));
+const CompanyInfo = dynamic(() => import("../components/home/info"));
 
 export const metadata: Metadata = {
   title: "About Us | Apni Zaroorat",

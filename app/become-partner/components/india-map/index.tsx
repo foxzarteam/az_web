@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
+import {
+  PUBLIC_INDIA_MAP_FALLBACK_SVG_URL,
+  PUBLIC_INDIA_MAP_SVG_URL,
+} from "@/app/config/constants";
 
 interface Pin {
   id: number;
@@ -129,18 +133,32 @@ export default function IndiaMap() {
 
           <div className="relative bg-blue-950/30 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 lg:p-12 border border-blue-700/30 shadow-2xl backdrop-blur-sm">
             <div className="relative w-full h-[340px] xs:h-[380px] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-visible bg-blue-900/20">
-              <img
-                src="https://simplemaps.com/static/svg/country/in/admin1/in.svg"
-                alt="India Map"
-                className="w-full h-full object-contain"
-                style={{
-                  filter: "brightness(0.95) contrast(1.2) saturate(1.3) hue-rotate(80deg)",
-                  opacity: 0.9,
-                }}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "https://upload.wikimedia.org/wikipedia/commons/4/41/India_states_and_union_territories_map.svg";
-                }}
-              />
+              {PUBLIC_INDIA_MAP_SVG_URL || PUBLIC_INDIA_MAP_FALLBACK_SVG_URL ? (
+                // External SVG URLs from env + runtime onError fallback
+                // eslint-disable-next-line @next/next/no-img-element -- remote SVG, dynamic src swap
+                <img
+                  src={PUBLIC_INDIA_MAP_SVG_URL || PUBLIC_INDIA_MAP_FALLBACK_SVG_URL}
+                  alt="India Map"
+                  className="w-full h-full object-contain"
+                  style={{
+                    filter: "brightness(0.95) contrast(1.2) saturate(1.3) hue-rotate(80deg)",
+                    opacity: 0.9,
+                  }}
+                  onError={(e) => {
+                    const el = e.target as HTMLImageElement;
+                    if (
+                      PUBLIC_INDIA_MAP_FALLBACK_SVG_URL &&
+                      el.src !== PUBLIC_INDIA_MAP_FALLBACK_SVG_URL
+                    ) {
+                      el.src = PUBLIC_INDIA_MAP_FALLBACK_SVG_URL;
+                    }
+                  }}
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center px-4 text-center text-sm text-white/70">
+                  Set NEXT_PUBLIC_INDIA_MAP_SVG_URL (and optional fallback) in .env.local for the map image.
+                </div>
+              )}
 
               {pins.map((pin) => (
                 <div

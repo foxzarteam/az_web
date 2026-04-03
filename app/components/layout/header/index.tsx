@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import Logo from "./logo";
 import HeaderLink from "./navigation/HeaderLink";
 import MobileHeaderLink from "./navigation/MobileHeaderLink";
 import type { HeaderItem } from "@/app/types/layout/menu";
-import { fetchData } from "@/app/utils/api";
 
 const SERVICES_SUBMENU = [
   { label: "Personal Loan", href: "/services/personal-loan" },
@@ -15,45 +14,27 @@ const SERVICES_SUBMENU = [
   { label: "Home Loan", href: "/services/home-loan" },
   { label: "Credit Card", href: "/services/credit-card" },
   { label: "Insurance", href: "/services/insurance" },
-];
+] as const;
 
-const defaultHeaderData: HeaderItem[] = [
+/** Main nav; Services row gets `SERVICES_SUBMENU` applied below. */
+const HEADER_BASE: HeaderItem[] = [
   { label: "Home", href: "/" },
-  {
-    label: "Services",
-    href: "/services",
-    submenu: SERVICES_SUBMENU,
-  },
+  { label: "Services", href: "/#featured" },
   { label: "About", href: "/about" },
   { label: "Contact Us", href: "/contact" },
 ];
 
-function loadHeaderData(): Promise<HeaderItem[]> {
-  return fetchData<{ headerData?: HeaderItem[] }>("/api/layoutdata", { headerData: defaultHeaderData }).then(
-    (response) => {
-      const items = response.headerData?.length ? response.headerData : defaultHeaderData;
-      // Ensure Services always has our submenu, even if API data misses it
-      return items.map((item) =>
-        item.label === "Services"
-          ? { ...item, submenu: SERVICES_SUBMENU }
-          : item
-      );
-    }
-  );
-}
+const HEADER_NAV_ITEMS: HeaderItem[] = HEADER_BASE.map((item) =>
+  item.label === "Services" ? { ...item, submenu: [...SERVICES_SUBMENU] } : item
+);
+
+const clientMountedSubscribe = () => () => {};
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
-  const [data, setData] = useState<HeaderItem[]>(defaultHeaderData);
   const [navbarOpen, setNavbarOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(clientMountedSubscribe, () => true, () => false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => setMounted(true), []);
-
-  useEffect(() => {
-    loadHeaderData().then(setData);
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -72,7 +53,7 @@ export default function Header() {
       <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between px-4 sm:px-6 h-16 sm:h-16 md:h-20 gap-2 min-w-0">
         <Logo />
         <nav className="hidden lg:flex flex-grow items-center justify-center space-x-10 xl:space-x-12 min-w-0">
-          {data.map((item, index) => (
+          {HEADER_NAV_ITEMS.map((item, index) => (
             <HeaderLink key={index} item={item} />
           ))}
         </nav>
@@ -135,7 +116,7 @@ export default function Header() {
           </button>
         </div>
         <nav className="flex flex-col items-start p-4 sm:p-5 gap-1 w-full overflow-y-auto max-h-[calc(100vh-80px)]">
-          {data.map((item, index) => (
+          {HEADER_NAV_ITEMS.map((item, index) => (
             <MobileHeaderLink key={index} item={item} onClose={() => setNavbarOpen(false)} />
           ))}
           <Link

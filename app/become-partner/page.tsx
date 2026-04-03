@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import PartnerBenefits from "./components/partner-benefits";
 import ThreeSteps from "./components/three-steps";
-import IndiaMap from "./components/india-map";
+
+const IndiaMap = dynamic(() => import("./components/india-map"));
 
 export const metadata: Metadata = {
   title: "Become a Partner | Apni Zaroorat",

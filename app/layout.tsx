@@ -3,19 +3,25 @@ import { DM_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import Aoscompo from "@/utils/aos";
+import { PUBLIC_SITE_URL } from "@/app/config/constants";
 import Header from "./components/layout/header";
 import Footer from "./components/layout/footer";
 import ScrollToTop from "./components/scroll-to-top";
 
-const dmSans = DM_Sans({ subsets: ["latin"] });
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+});
 
 export const metadata: Metadata = {
+  metadataBase: new URL(PUBLIC_SITE_URL),
   title: "Apni Zaroorat | Loans, Insurance & Credit Cards Online",
   description: "Apni Zaroorat – Compare and apply for personal loans, insurance, and credit cards online. Quick approval, best rates, 100% digital.",
   icons: {
-    icon: "/images/logo/app_icon.png",
-    shortcut: "/images/logo/app_icon.png",
-    apple: "/images/logo/app_icon.png",
+    icon: [{ url: "/favicon.png", type: "image/png" }],
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 

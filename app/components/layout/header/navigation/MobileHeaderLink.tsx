@@ -17,11 +17,6 @@ export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; 
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const path = usePathname();
 
-  const handleToggle = () => {
-    if (item.submenu) setSubmenuOpen((prev) => !prev);
-    else onClose();
-  };
-
   const isActive = path === item.href || (item.submenu?.some((s) => s.href === path) ?? false);
 
   return (

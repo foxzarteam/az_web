@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
-import { LOAN_LIMITS, CONTACT, COLORS } from "@/app/config/constants";
+import { LOAN_LIMITS, COLORS } from "@/app/config/constants";
 import { formatRupee } from "@/app/utils/format";
 
 function calculateEMI(principal: number, annualRate: number, years: number) {

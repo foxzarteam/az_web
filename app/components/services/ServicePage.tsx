@@ -4,6 +4,11 @@ import { useState } from "react";
 import Image from "next/image";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import { createLead, mapServiceToCategory } from "@/app/utils/leadApi";
+import {
+  sanitizeLeadNameInput,
+  sanitizeLeadPanInput,
+  validateLeadPanNameMobile,
+} from "@/app/utils/leadForm";
 
 type ServicePageProps = {
   title: string;
@@ -23,11 +28,6 @@ function getSuccessMessage(title: string): string {
   return `Your ${title} application has been received. We'll contact you shortly.`;
 }
 
-// PAN: 5 letters + 4 digits + 1 letter (e.g. ABCDE1234F)
-const PAN_REGEX = /^[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}$/;
-// Name: only letters, spaces, dots – no special characters
-const NAME_REGEX = /^[a-zA-Z\s.]*$/;
-
 export default function ServicePage({ title, subtitle, imageSrc, badge, hideHeader }: ServicePageProps) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [pan, setPan] = useState("");
@@ -37,27 +37,11 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validate = (): boolean => {
-    const next: typeof errors = {};
-    const panTrim = pan.trim().toUpperCase();
-    if (!panTrim) {
-      next.pan = "PAN is required";
-    } else if (!PAN_REGEX.test(panTrim)) {
-      next.pan = "Invalid PAN (e.g. ABCDE1234F – 5 letters, 4 digits, 1 letter)";
-    }
-    const mobileTrim = mobile.replace(/\D/g, "");
-    if (!mobileTrim) {
-      next.mobile = "Mobile number is required";
-    } else if (mobileTrim.length !== 10) {
-      next.mobile = "Enter valid 10 digit mobile number";
-    } else if (!/^[6-9]/.test(mobileTrim)) {
-      next.mobile = "Mobile number must start with 6, 7, 8, or 9";
-    }
-    const nameTrim = fullName.trim();
-    if (!nameTrim) {
-      next.fullName = "Full name is required";
-    } else if (!NAME_REGEX.test(nameTrim)) {
-      next.fullName = "Name should not contain special characters or numbers";
-    }
+    const next = validateLeadPanNameMobile({
+      pan,
+      mobileDigits: mobile,
+      fullName,
+    });
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -101,7 +85,7 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
       } else {
         setErrors((prev) => ({ ...prev, api: response.message || "Failed to submit. Please try again." }));
       }
-    } catch (error) {
+    } catch {
       setErrors((prev) => ({ ...prev, api: "Network error. Please try again later." }));
     } finally {
       setIsSubmitting(false);
@@ -109,8 +93,7 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
   };
 
   const handlePanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = e.target.value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10);
-    setPan(v.toUpperCase());
+    setPan(sanitizeLeadPanInput(e.target.value));
     if (errors.pan) setErrors((prev) => ({ ...prev, pan: undefined }));
   };
 
@@ -121,7 +104,7 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFullName(e.target.value.replace(/[^a-zA-Z\s.]/g, ""));
+    setFullName(sanitizeLeadNameInput(e.target.value));
     if (errors.fullName) setErrors((prev) => ({ ...prev, fullName: undefined }));
   };
 

@@ -1,3 +1,5 @@
+import { PUBLIC_API_BASE_URL } from "@/app/config/constants";
+
 export interface CreateLeadRequest {
   pan: string;
   mobileNumber: string;
@@ -11,34 +13,94 @@ export interface CreateLeadRequest {
 
 export interface CreateLeadResponse {
   success: boolean;
-  data?: any;
+  data?: unknown;
   message?: string;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://az-app-khaki.vercel.app';
-
 export async function createLead(leadData: CreateLeadRequest): Promise<CreateLeadResponse> {
+  const endpoint = `${PUBLIC_API_BASE_URL}/api/leads`;
+
   try {
-    const response = await fetch(`${API_BASE_URL}/api/leads`, {
-      method: 'POST',
+    const response = await fetch(endpoint, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        Accept: "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(leadData),
+      mode: "cors",
+      credentials: "omit",
     });
 
-    const data = await response.json();
+    const raw = await response.text();
+    let data: {
+      success?: boolean | string | number;
+      message?: string | string[];
+      data?: unknown;
+      error?: string | string[];
+      statusCode?: number;
+    } = {};
+    if (raw) {
+      try {
+        data = JSON.parse(raw) as typeof data;
+      } catch {
+        const looksLikeHtml = /^\s*</.test(raw);
+        return {
+          success: false,
+          message: looksLikeHtml
+            ? `Lead API returned a web page (HTTP ${response.status}), not JSON. Usually NEXT_PUBLIC_API_URL is wrong or missing at build time — set it to your backend (e.g. https://your-api.vercel.app) and rebuild.`
+            : `Server returned an invalid response (HTTP ${response.status}). Check NEXT_PUBLIC_API_URL.`,
+        };
+      }
+    }
 
-    if (!response.ok || !data.success) {
+    const pickMsg = (m: unknown): string | undefined => {
+      if (typeof m === "string" && m.trim()) return m;
+      if (Array.isArray(m)) {
+        const s = m.filter((x) => typeof x === "string").join(". ");
+        return s || undefined;
+      }
+      return undefined;
+    };
+
+    if (!response.ok) {
+      const msg =
+        pickMsg(data.message) ||
+        pickMsg(data.error) ||
+        `Request failed (HTTP ${response.status}).`;
+      return { success: false, message: msg };
+    }
+
+    const successFlag = data.success;
+    const explicitFailure = successFlag === false || successFlag === "false";
+    const explicitSuccess =
+      successFlag === true || successFlag === "true" || successFlag === 1;
+    /** Some APIs return 201 + body without a `success` field */
+    const implicitSuccess =
+      (response.status === 201 || response.status === 200) &&
+      data.data != null &&
+      typeof data.data === "object";
+
+    if (explicitFailure) {
       return {
         success: false,
-        message: data.message || 'Failed to create lead',
+        message: pickMsg(data.message) || pickMsg(data.error) || "Could not save your details.",
+      };
+    }
+
+    if (explicitSuccess || implicitSuccess) {
+      return {
+        success: true,
+        data: data.data,
       };
     }
 
     return {
-      success: true,
-      data: data.data,
+      success: false,
+      message:
+        pickMsg(data.message) ||
+        pickMsg(data.error) ||
+        "Unexpected response from server. Please try again.",
     };
   } catch (error) {
     console.error('Error creating lead:', error);
