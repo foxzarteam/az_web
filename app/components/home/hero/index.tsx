@@ -152,11 +152,11 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="relative overflow-x-hidden pt-[5.25rem] sm:pt-24 md:pt-28 lg:pt-32 pb-0 sm:pb-10 lg:pb-0 min-h-0 lg:min-h-[420px]"
+      className="relative overflow-x-hidden pt-[5.25rem] sm:pt-24 md:pt-28 lg:pt-32 pb-5 sm:pb-8 md:pb-8 lg:pb-12 min-h-0"
       style={{ backgroundColor: COLORS.PRIMARY }}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md relative z-10 h-full max-w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:gap-10 lg:items-center min-h-0 lg:min-h-[360px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:gap-10 lg:items-center min-h-0">
           {/* Left: Heading + Form - on mobile: top (order-1); on laptop: left */}
           <div className="flex flex-col lg:col-span-6 justify-center items-start order-1 lg:order-1 min-w-0" data-aos="fade-right">
             <div className="w-full min-w-0 mb-4 sm:mb-5 lg:mb-6">
@@ -316,14 +316,14 @@ export default function Hero() {
           </div>
           {/* Right: Hero Image - on mobile: full width (same as form), stick to bottom blue; on laptop: right column */}
           <div className="flex lg:col-span-6 justify-center lg:justify-end items-end lg:items-end order-2 lg:order-2 min-w-0 w-full lg:w-auto">
-            <div className="relative w-full max-w-none sm:max-w-[320px] md:max-w-[360px] lg:max-w-[420px] xl:max-w-[460px] 2xl:max-w-[520px] mx-0 lg:mx-0 lg:ml-auto min-h-[200px] xs:min-h-[240px] sm:min-h-0 lg:min-h-0">
+            <div className="relative w-full max-w-none sm:max-w-[352px] md:max-w-[396px] lg:max-w-[464px] xl:max-w-[508px] 2xl:max-w-[572px] mx-0 lg:mx-0 lg:ml-auto min-h-0">
               <Image
                 src={DEFAULT_IMAGES.HERO}
                 alt="hero"
-                width={520}
-                height={400}
+                width={572}
+                height={440}
                 className="w-full h-auto object-contain object-bottom block lg:object-contain"
-                sizes="(max-width: 640px) 100vw, (max-width: 768px) 360px, (max-width: 1024px) 400px, (max-width: 1280px) 420px, 520px"
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 396px, (max-width: 1024px) 440px, (max-width: 1280px) 464px, 572px"
                 priority
               />
             </div>
