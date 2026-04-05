@@ -2,9 +2,24 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { CONTACT, SOCIAL_LINKS } from "@/app/config/constants";
+import { fetchHeaderServiceSubmenu } from "@/app/utils/fetchActiveServiceCards";
+import type { SubmenuItem } from "@/app/types/layout/menu";
 
 export default function Footer() {
+  const [serviceLinks, setServiceLinks] = useState<SubmenuItem[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchHeaderServiceSubmenu().then((items) => {
+      if (!cancelled) setServiceLinks(items);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <footer id="contact" className="relative z-10 bg-midnight_text dark:bg-semidark overflow-hidden">
       <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md pt-8 sm:pt-10 pb-5 px-4 sm:px-6 lg:px-8 max-w-full">
@@ -51,20 +66,22 @@ export default function Footer() {
                 <li><Link href="/become-partner" className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center">Become a Partner</Link></li>
               </ul>
             </div>
-            <div className="lg:col-span-4 col-span-6 sm:col-span-6">
-              <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Loan Services</h4>
-              <ul className="space-y-0.5">
-                <li><Link href="/services/personal-loan" className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center">Personal Loan</Link></li>
-                <li><Link href="/services/business-loan" className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center">Business Loan</Link></li>
-                <li><Link href="/services/home-loan" className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center">Home Loan</Link></li>
-              </ul>
-            </div>
-            <div className="lg:col-span-4 col-span-6 sm:col-span-6">
-              <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Other Services</h4>
-              <ul className="space-y-0.5">
-                <li><Link href="/services/credit-card" className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center">Credit Card</Link></li>
-                <li><Link href="/services/insurance" className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center">Insurance</Link></li>
-              </ul>
+            <div className="lg:col-span-8 col-span-12 sm:col-span-12">
+              <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Services</h4>
+              {serviceLinks.length > 0 ? (
+                <ul className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-x-6 space-y-0.5">
+                  {serviceLinks.map((s) => (
+                    <li key={s.slug ?? s.href}>
+                      <Link
+                        href={s.href}
+                        className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center"
+                      >
+                        {s.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
             </div>
           </div>
         </div>

@@ -1,3 +1,4 @@
+import type { SubmenuItem } from "@/app/types/layout/menu";
 import { PUBLIC_API_BASE_URL } from "@/app/config/constants";
 
 export type ServiceSliderCard = {
@@ -22,11 +23,10 @@ type ApiServiceRow = {
   isActive?: boolean;
 };
 
-/**
- * Loads home-page service cards from GET /api/services (active rows, sort_order).
- * Backend reads `public.services` via Supabase service role.
- */
-export async function fetchActiveServiceCards(): Promise<FetchActiveServicesResult> {
+let servicesOkCache: FetchActiveServicesResult | null = null;
+let servicesInflight: Promise<FetchActiveServicesResult> | null = null;
+
+async function fetchServicesFromApi(): Promise<FetchActiveServicesResult> {
   const endpoint = `${PUBLIC_API_BASE_URL}/api/services`;
 
   try {
@@ -77,4 +77,29 @@ export async function fetchActiveServiceCards(): Promise<FetchActiveServicesResu
     console.warn("[services] fetch failed:", e);
     return { cards: [], status: "error" };
   }
+}
+
+/**
+ * Loads home-page service cards from GET /api/services (active rows, sort_order).
+ * Successful responses are cached in-memory for the session (shared with nav/footer).
+ */
+export async function fetchActiveServiceCards(): Promise<FetchActiveServicesResult> {
+  if (servicesOkCache) return servicesOkCache;
+  if (!servicesInflight) {
+    servicesInflight = fetchServicesFromApi().then((r) => {
+      servicesInflight = null;
+      if (r.status === "ok") servicesOkCache = r;
+      return r;
+    });
+  }
+  return servicesInflight;
+}
+
+/** Navbar / mobile menu / footer — same API + cache as slider cards */
+export async function fetchHeaderServiceSubmenu(): Promise<SubmenuItem[]> {
+  const { cards } = await fetchActiveServiceCards();
+  return cards.map((c) => {
+    const slug = c.href.replace(/^\/services\//, "").replace(/\/$/, "") || undefined;
+    return { label: c.title, href: c.href, slug };
+  });
 }

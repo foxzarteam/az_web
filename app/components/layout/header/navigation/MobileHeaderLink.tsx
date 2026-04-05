@@ -4,24 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { HeaderItem } from "@/app/types/layout/menu";
-
-const MOBILE_SERVICE_GRADIENTS: Record<string, string> = {
-  "Personal Loan": "from-[#ff9a9e] to-[#fad0c4]",
-  "Business Loan": "from-[#a18cd1] to-[#fbc2eb]",
-  "Home Loan": "from-[#84fab0] to-[#8fd3f4]",
-  "Credit Card": "from-[#f6d365] to-[#fda085]",
-  Insurance: "from-[#cfd9df] to-[#e2ebf0]",
-};
+import { serviceSubmenuGradient, serviceSubmenuIcon } from "./serviceSubmenuUi";
 
 export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; onClose: () => void }) {
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const path = usePathname();
 
-  const isActive = path === item.href || (item.submenu?.some((s) => s.href === path) ?? false);
+  const isActive =
+    path === item.href ||
+    (item.submenu && item.submenu.length > 0 && item.submenu.some((s) => s.href === path));
 
   return (
     <div className="relative w-full">
-      {item.submenu ? (
+      {item.submenu && item.submenu.length > 0 ? (
         <>
           <button
             type="button"
@@ -44,11 +39,12 @@ export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; 
           {submenuOpen && item.submenu && (
             <div className="bg-white dark:bg-darkmode py-2 px-3 w-full space-y-1">
               {item.submenu.map((subItem, index) => {
-                const gradient = MOBILE_SERVICE_GRADIENTS[subItem.label] ?? "from-primary/10 to-primary/40";
+                const gradient = serviceSubmenuGradient(subItem, index);
+                const icon = serviceSubmenuIcon(subItem);
                 const active = subItem.href === path;
                 return (
                   <Link
-                    key={index}
+                    key={subItem.slug ?? subItem.href}
                     href={subItem.href}
                     onClick={onClose}
                     className={`flex items-center gap-3 rounded-lg py-2 px-3 text-sm ${
@@ -58,11 +54,7 @@ export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; 
                     <div
                       className={`h-9 w-9 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white text-base`}
                     >
-                      {subItem.label.includes("Personal") && "₹"}
-                      {subItem.label.includes("Business") && "🏢"}
-                      {subItem.label.includes("Home") && "🏠"}
-                      {subItem.label.includes("Credit") && "💳"}
-                      {subItem.label === "Insurance" && "🛡️"}
+                      {icon}
                     </div>
                     <span className="font-semibold">{subItem.label}</span>
                   </Link>
