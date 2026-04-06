@@ -146,7 +146,7 @@ export default function PartnerForm() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-primary rounded-lg text-white py-4 px-8 mt-2 inline-block hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                  className="btn-shine relative z-0 w-full bg-primary rounded-lg text-white py-4 px-8 mt-2 inline-block hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
                 >
                   {loading ? "Submitting..." : "Submit Partnership Request"}
                 </button>

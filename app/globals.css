@@ -82,6 +82,28 @@ html {
     animation: shine-sweep 2.2s linear infinite;
     pointer-events: none;
   }
+
+  /* Become a Partner hero — subtle sweep across the blue band */
+  .partner-hero-shine {
+    @apply relative overflow-hidden;
+  }
+  .partner-hero-shine::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.06) 42%,
+      rgba(255, 255, 255, 0.14) 50%,
+      rgba(255, 255, 255, 0.06) 58%,
+      transparent 100%
+    );
+    transform: translateX(-120%);
+    animation: shine-sweep 3.2s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -173,22 +195,6 @@ html {
   position: relative;
 }
 
-/* Never-ending carousel: 4x duplicated content, scroll -25% so loop reset is invisible */
-@keyframes carousel-infinite {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-25%); }
-}
-
-.animate-infinite-scroll {
-  animation: carousel-infinite 80s linear infinite;
-  will-change: transform;
-  backface-visibility: hidden;
-}
-
-.animate-infinite-scroll:hover {
-  animation-play-state: paused;
-}
-
 .gradient-bg {
   background: var(--color-primary, #2F73F2);
 }
@@ -206,6 +212,13 @@ html {
   }
   100% {
     transform: translateX(130%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-shine::after,
+  .partner-hero-shine::after {
+    animation: none;
   }
 }
 
@@ -254,6 +267,32 @@ html {
   }
   to {
     width: 0%;
+  }
+}
+
+/* Featured service card – rotating ring accents (photo stays still) */
+@keyframes featured-card-ring-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.featured-card-ring-dashed {
+  transform-origin: center center;
+  will-change: transform;
+  animation: featured-card-ring-spin 22s linear infinite;
+}
+
+.featured-card-ring-conic {
+  transform-origin: center center;
+  will-change: transform;
+  animation: featured-card-ring-spin 30s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .featured-card-ring-dashed,
+  .featured-card-ring-conic {
+    animation: none;
   }
 }
 

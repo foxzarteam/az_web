@@ -74,10 +74,10 @@ export default function IndiaMap() {
 
   return (
     <>
-      <section className="bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 py-12 sm:py-16 md:py-20 px-4 sm:px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/50 to-blue-800/50"></div>
+      <section className="partner-hero-shine bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 py-12 sm:py-16 md:py-20 px-4 sm:px-6 relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-blue-900/50 to-blue-800/50" />
         
-        <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md relative z-10">
+        <div className="container relative z-[1] mx-auto md:max-w-screen-md lg:max-w-screen-xl">
           <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-3 sm:mb-4">
             Agents Across India Are Earning Daily
           </h2>
@@ -124,7 +124,7 @@ export default function IndiaMap() {
               />
               <button
                 type="submit"
-                className="px-4 sm:px-5 md:px-8 py-2 sm:py-2.5 text-sm sm:text-base font-semibold bg-[#ff7a1a] text-white hover:bg-[#ff6700] transition-colors whitespace-nowrap shrink-0"
+                className="btn-shine relative z-0 px-4 sm:px-5 md:px-8 py-2 sm:py-2.5 text-sm sm:text-base font-semibold bg-[#ff7a1a] text-white hover:bg-[#ff6700] transition-colors whitespace-nowrap shrink-0"
               >
                 Submit
               </button>

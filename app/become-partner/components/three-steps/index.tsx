@@ -81,7 +81,7 @@ export default function ThreeSteps() {
             <button
               type="button"
               onClick={() => setShowAppPopup(true)}
-              className="inline-flex items-center gap-2 sm:gap-3 rounded-xl bg-black px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 shadow-lg border border-white/10 min-h-[44px] hover:opacity-90 transition-opacity cursor-pointer"
+              className="btn-shine relative inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border border-white/10 bg-black px-3 py-2 shadow-lg transition-opacity hover:opacity-90 sm:gap-3 sm:px-4 sm:py-2.5 md:px-5"
             >
               <span className="relative flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center shrink-0">
                 <Image

@@ -53,8 +53,8 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
         </div>
       )}
       {submenuOpen && isServices && (
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 mt-1 bg-white dark:bg-darkmode shadow-xl dark:shadow-darkmd rounded-2xl z-50 border border-gray-100/80 dark:border-white/10 w-[min(90vw,320px)] sm:w-[min(400px,90vw)] md:min-w-[480px] lg:min-w-[640px] max-w-[760px] px-3 sm:px-4 md:px-5 py-3 md:py-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 mt-1 bg-white dark:bg-darkmode shadow-xl dark:shadow-darkmd rounded-2xl z-50 border border-gray-100/80 dark:border-white/10 w-[min(90vw,300px)] sm:w-[min(320px,90vw)] max-w-[360px] px-3 sm:px-4 py-3">
+          <div className="flex flex-col gap-1.5 sm:gap-2">
             {item.submenu?.map((subItem, index) => {
               const gradient = serviceSubmenuGradient(subItem, index);
               const icon = serviceSubmenuIcon(subItem);

@@ -2,11 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import {
-  fetchActiveServiceCards,
-  type ServiceSliderCard,
-} from "@/app/utils/fetchActiveServiceCards";
+import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
+import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
 
 const CARD_BGS = [
   "bg-blue-50 dark:bg-blue-900/20 border-blue-200/60 dark:border-blue-500/20",
@@ -18,17 +15,8 @@ const CARD_BGS = [
 const BADGE_ROTATE = ["Quick apply", "Best rates", "Paperless", "Instant review"] as const;
 
 export default function DiscoverProperties() {
-  const [cards, setCards] = useState<ServiceSliderCard[] | undefined>(undefined);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchActiveServiceCards().then(({ cards: list }) => {
-      if (!cancelled) setCards(list);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const fromLayout = useServiceCards();
+  const { cards, isLoading } = useRemoteServiceCards(fromLayout);
 
   return (
     <section className="bg-white dark:bg-darkmode relative overflow-hidden">
@@ -39,7 +27,7 @@ export default function DiscoverProperties() {
         >
           Our Services
         </h2>
-        {cards === undefined ? (
+        {isLoading ? (
           <div
             className="flex justify-center items-center min-h-[200px] text-midnight_text/70 dark:text-white/70 text-sm"
             role="status"

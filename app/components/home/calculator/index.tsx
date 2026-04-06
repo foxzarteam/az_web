@@ -39,17 +39,23 @@ export default function Calculator() {
 
   return (
     <section className="dark:bg-darkmode">
-      <div className="container px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md mx-auto flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-10 justify-between items-stretch max-w-full" data-aos="fade-left">
-        <div className="w-full max-w-[280px] xs:max-w-[320px] sm:max-w-sm md:max-w-full lg:max-w-md flex flex-col gap-4 sm:gap-5 flex-shrink-0 mx-auto lg:mx-0" data-aos="fade-right">
-          <div className="w-full">
-            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-3 sm:mb-4 font-bold text-midnight_text dark:text-white">
+      <div
+        className="container mx-auto grid max-w-full grid-cols-1 gap-6 px-4 sm:px-6 sm:gap-8 md:max-w-screen-md lg:max-w-screen-xl lg:grid-cols-2 lg:gap-10 lg:px-8"
+        data-aos="fade-left"
+      >
+        <div
+          className="flex min-w-0 flex-col items-center justify-center gap-4 text-center lg:py-2"
+          data-aos="fade-right"
+        >
+          <div className="w-full max-w-md lg:max-w-lg">
+            <h2 className="mb-3 text-lg font-bold text-midnight_text dark:text-white sm:mb-4 sm:text-xl md:text-2xl lg:text-3xl">
               Plan Your Loan
             </h2>
-            <p className="text-sm sm:text-base md:text-lg text-gray leading-relaxed">
+            <p className="text-sm leading-relaxed text-gray sm:text-base md:text-lg">
               Check your EMI and choose the right loan amount. Compare interest rates and tenure to make an informed decision.
             </p>
           </div>
-          <div className="w-full flex justify-center">
+          <div className="flex w-full justify-center">
             <div className="relative w-56 h-56 xs:w-64 xs:h-64 sm:w-72 sm:h-72 md:w-80 md:h-80">
               <svg viewBox="0 0 200 200" className="w-full h-full -rotate-90">
                 <defs>
@@ -102,16 +108,19 @@ export default function Calculator() {
           </div>
         </div>
 
-        <div className="w-full min-w-0 lg:flex-1 lg:max-w-xl" data-aos="fade-left">
-          <div className="bg-white dark:bg-darklight rounded-2xl shadow-lg border border-border dark:border-dark_border overflow-hidden">
-            <div className="bg-primary px-6 py-4">
+        <div
+          className="flex min-w-0 w-full flex-col items-center justify-center lg:py-2"
+          data-aos="fade-left"
+        >
+          <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-white shadow-lg dark:border-dark_border dark:bg-darklight">
+            <div className="bg-primary px-6 py-4 text-center">
               <h3 className="text-xl font-bold text-white">EMI Calculator</h3>
-              <p className="text-white/80 text-sm">Calculate EMI on Home, Personal & Business Loans</p>
+              <p className="mt-1 text-sm text-white/80">Calculate EMI on Home, Personal & Business Loans</p>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="space-y-6 p-6 text-center">
               <div>
-                <label className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1">
+                <label className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
                   Loan amount (₹)
                 </label>
                 <input
@@ -139,7 +148,7 @@ export default function Calculator() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1">
+                <label className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
                   Rate of interest (p.a.) %
                 </label>
                 <input
@@ -163,7 +172,7 @@ export default function Calculator() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1">
+                <label className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
                   Loan tenure (years)
                 </label>
                 <input
@@ -185,23 +194,29 @@ export default function Calculator() {
               </div>
             </div>
 
-            <div className="border-t border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode/50 px-4 sm:px-5 md:px-6 py-4 sm:py-5">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+            <div className="border-t border-border bg-gray-50 px-4 py-4 sm:px-5 sm:py-5 md:px-6 dark:border-dark_border dark:bg-darkmode/50">
+              <div className="grid grid-cols-2 gap-3 text-center sm:gap-4 md:grid-cols-4">
                 <div className="min-w-0">
-                  <p className="text-[10px] sm:text-xs text-gray uppercase tracking-wide">Monthly EMI</p>
-                  <p className="text-sm sm:text-base md:text-lg font-bold text-primary truncate">{formatRupee(emi)}</p>
+                  <p className="text-[10px] uppercase tracking-wide text-gray sm:text-xs">Monthly EMI</p>
+                  <p className="truncate text-sm font-bold text-primary sm:text-base md:text-lg">{formatRupee(emi)}</p>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] sm:text-xs text-gray uppercase tracking-wide">Principal amount</p>
-                  <p className="text-sm sm:text-base md:text-lg font-bold text-midnight_text dark:text-white truncate">{formatRupee(principal)}</p>
+                  <p className="text-[10px] uppercase tracking-wide text-gray sm:text-xs">Principal amount</p>
+                  <p className="truncate text-sm font-bold text-midnight_text dark:text-white sm:text-base md:text-lg">
+                    {formatRupee(principal)}
+                  </p>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] sm:text-xs text-gray uppercase tracking-wide">Total interest</p>
-                  <p className="text-sm sm:text-base md:text-lg font-bold text-midnight_text dark:text-white truncate">{formatRupee(totalInterest)}</p>
+                  <p className="text-[10px] uppercase tracking-wide text-gray sm:text-xs">Total interest</p>
+                  <p className="truncate text-sm font-bold text-midnight_text dark:text-white sm:text-base md:text-lg">
+                    {formatRupee(totalInterest)}
+                  </p>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] sm:text-xs text-gray uppercase tracking-wide">Total amount</p>
-                  <p className="text-sm sm:text-base md:text-lg font-bold text-midnight_text dark:text-white truncate">{formatRupee(totalAmount)}</p>
+                  <p className="text-[10px] uppercase tracking-wide text-gray sm:text-xs">Total amount</p>
+                  <p className="truncate text-sm font-bold text-midnight_text dark:text-white sm:text-base md:text-lg">
+                    {formatRupee(totalAmount)}
+                  </p>
                 </div>
               </div>
             </div>

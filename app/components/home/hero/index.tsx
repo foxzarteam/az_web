@@ -12,18 +12,27 @@ import {
 } from "@/app/utils/leadForm";
 import { scrollToElement } from "@/app/utils/scroll";
 import { createLead, mapServiceToCategory } from "@/app/utils/leadApi";
+import { fetchActiveServiceCards } from "@/app/utils/fetchActiveServiceCards";
+import type { ServiceSliderCard } from "@/app/lib/services/types";
 import IndiaFlag from "./IndiaFlag";
 import AnimatedText from "./AnimatedText";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 
-const HERO_SERVICES = [
+const HERO_SERVICE_SLUGS = new Set(["personal-loan", "insurance"]);
+
+const HERO_FALLBACK_OPTIONS: { value: string; label: string }[] = [
   { value: "", label: "Select service" },
   { value: "personal-loan", label: "Personal Loan" },
-  { value: "home-loan", label: "Home Loan" },
-  { value: "business-loan", label: "Business Loan" },
-  { value: "credit-card", label: "Credit Card" },
   { value: "insurance", label: "Insurance" },
 ];
+
+function slugFromServiceCard(card: ServiceSliderCard): string {
+  return card.href.replace(/^\/services\//, "").replace(/\/$/, "").trim();
+}
+
+function pickHeroServiceCards(cards: ServiceSliderCard[]): ServiceSliderCard[] {
+  return cards.filter((c) => HERO_SERVICE_SLUGS.has(slugFromServiceCard(c)));
+}
 
 function handleMobileChange(value: string): string {
   return sanitizeMobileInput(value);
@@ -53,6 +62,32 @@ export default function Hero() {
     api?: string;
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [heroServiceOptions, setHeroServiceOptions] = useState(HERO_FALLBACK_OPTIONS);
+  const [heroAnimatedTitles, setHeroAnimatedTitles] = useState<string[]>([
+    "Personal Loan",
+    "Insurance",
+  ]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { cards, status } = await fetchActiveServiceCards();
+      if (cancelled || status !== "ok") return;
+      const heroCards = pickHeroServiceCards(cards);
+      if (heroCards.length === 0) return;
+      setHeroServiceOptions([
+        { value: "", label: "Select service" },
+        ...heroCards.map((c) => ({
+          value: slugFromServiceCard(c),
+          label: c.title.trim() || slugFromServiceCard(c),
+        })),
+      ]);
+      setHeroAnimatedTitles(heroCards.map((c) => c.title.trim() || slugFromServiceCard(c)));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSubmit = () => {
     const validation = handleFormSubmit(mobile);
@@ -162,7 +197,7 @@ export default function Hero() {
             <div className="w-full min-w-0 mb-4 sm:mb-5 lg:mb-6">
               <h1 className="text-white font-bold flex flex-nowrap items-center gap-1.5 sm:gap-2 whitespace-nowrap leading-tight text-[23px] xs:text-[23px] sm:text-xl md:text-2xl lg:text-[2.15rem] xl:text-[2.625rem]">
                 <span>Get an instant</span>
-                <AnimatedText />
+                <AnimatedText key={heroAnimatedTitles.join("|")} titles={heroAnimatedTitles} />
               </h1>
               <p className="mt-1.5 sm:mt-2 text-white/90 font-medium whitespace-nowrap text-[10px] xs:text-xs sm:text-sm md:text-base">
                 Lowest Rates | Quick Approval | 100% Secure Online Process
@@ -244,7 +279,7 @@ export default function Hero() {
                               }}
                               className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80 ${modalErrors.service ? "border-red-500" : "border-gray-300 dark:border-dark_border"}`}
                             >
-                              {HERO_SERVICES.map((opt) => (
+                              {heroServiceOptions.map((opt) => (
                                 <option key={opt.value || "select"} value={opt.value}>
                                   {opt.label}
                                 </option>

@@ -7,7 +7,9 @@ import Logo from "./logo";
 import HeaderLink from "./navigation/HeaderLink";
 import MobileHeaderLink from "./navigation/MobileHeaderLink";
 import type { HeaderItem, SubmenuItem } from "@/app/types/layout/menu";
-import { fetchHeaderServiceSubmenu } from "@/app/utils/fetchActiveServiceCards";
+import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
+import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
+import { serviceCardsToSubmenu } from "@/app/lib/services/submenu";
 
 const HEADER_BASE: HeaderItem[] = [
   { label: "Home", href: "/" },
@@ -21,19 +23,11 @@ const clientMountedSubscribe = () => () => {};
 export default function Header() {
   const { theme, setTheme } = useTheme();
   const [navbarOpen, setNavbarOpen] = useState(false);
-  const [serviceSubmenu, setServiceSubmenu] = useState<SubmenuItem[]>([]);
+  const fromLayout = useServiceCards();
+  const { cards } = useRemoteServiceCards(fromLayout);
+  const serviceSubmenu = useMemo(() => serviceCardsToSubmenu(cards), [cards]);
   const mounted = useSyncExternalStore(clientMountedSubscribe, () => true, () => false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchHeaderServiceSubmenu().then((items) => {
-      if (!cancelled) setServiceSubmenu(items);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const headerNavItems = useMemo(
     () =>

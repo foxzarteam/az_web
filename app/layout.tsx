@@ -4,6 +4,8 @@ import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import Aoscompo from "@/utils/aos";
 import { PUBLIC_SITE_URL } from "@/app/config/constants";
+import { getActiveServices } from "@/app/data/getActiveServices";
+import { ServiceCardsProvider } from "@/app/components/providers/ServiceCardsProvider";
 import Header from "./components/layout/header";
 import Footer from "./components/layout/footer";
 import ScrollToTop from "./components/scroll-to-top";
@@ -25,19 +27,23 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const serviceCards = await getActiveServices();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={dmSans.className} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <Aoscompo>
-            <Header />
-            {children}
-            <Footer />
+            <ServiceCardsProvider cards={serviceCards}>
+              <Header />
+              {children}
+              <Footer />
+            </ServiceCardsProvider>
             <ScrollToTop />
           </Aoscompo>
         </ThemeProvider>

@@ -11,7 +11,11 @@ export default function History() {
             Your financial need, our priority
           </p>
           <p className="mb-4 sm:mb-6 md:mb-8 pb-2 text-gray text-sm sm:text-base leading-relaxed">
-            Apni Zaroorat helps you compare and apply for loans, insurance, and credit cards online. We connect you with the best rates and quick approval—all from one place.
+            Apni Zaroorat helps you compare and apply for loans, insurance, and credit cards online.
+            <br />
+            We connect you with the best rates and quick approval—
+            <br />
+            all from one place.
           </p>
           <Link href="/#featured" className="text-sm sm:text-base md:text-xl px-5 sm:px-6 md:px-9 py-2.5 sm:py-3 border border-primary text-primary hover:text-white hover:bg-primary rounded-lg inline-block">
             Explore Services

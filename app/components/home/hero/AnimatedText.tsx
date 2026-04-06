@@ -2,27 +2,29 @@
 
 import { useEffect, useState } from "react";
 
-const TEXTS = [
-  "Personal Loan",
-  "Business Loan",
-  "Home Loan",
-  "Credit Card",
-  "Insurance",
-];
+const DEFAULT_TITLES = ["Personal Loan", "Insurance"];
 
 const TYPING_SPEED = 100;
 const DELETING_SPEED = 50;
 const PAUSE_DURATION = 2000;
 
-export default function AnimatedText() {
+type AnimatedTextProps = {
+  /** Typing animation phrases (e.g. service titles from API). */
+  titles?: string[];
+};
+
+export default function AnimatedText({ titles }: AnimatedTextProps) {
+  const texts = titles && titles.length > 0 ? titles : DEFAULT_TITLES;
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [typingSpeed, setTypingSpeed] = useState(TYPING_SPEED);
 
   useEffect(() => {
-    const currentText = TEXTS[currentIndex];
-    
+    if (texts.length === 0) return;
+    const currentText = texts[currentIndex % texts.length];
+
     const handleTyping = () => {
       if (!isDeleting) {
         if (displayText.length < currentText.length) {
@@ -38,7 +40,7 @@ export default function AnimatedText() {
           setTypingSpeed(DELETING_SPEED);
         } else {
           setIsDeleting(false);
-          setCurrentIndex((prev) => (prev + 1) % TEXTS.length);
+          setCurrentIndex((prev) => (prev + 1) % texts.length);
           setTypingSpeed(TYPING_SPEED);
         }
       }
@@ -46,7 +48,7 @@ export default function AnimatedText() {
 
     const timer = setTimeout(handleTyping, typingSpeed);
     return () => clearTimeout(timer);
-  }, [displayText, isDeleting, currentIndex, typingSpeed]);
+  }, [displayText, isDeleting, currentIndex, typingSpeed, texts]);
 
   return (
     <span className="inline-block min-w-[6ch] xs:min-w-[8ch] sm:min-w-[10ch] md:min-w-[180px] text-left shrink-0">

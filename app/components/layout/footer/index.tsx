@@ -2,40 +2,34 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { CONTACT, SOCIAL_LINKS } from "@/app/config/constants";
-import { fetchHeaderServiceSubmenu } from "@/app/utils/fetchActiveServiceCards";
-import type { SubmenuItem } from "@/app/types/layout/menu";
+import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
+import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
+import { serviceCardsToSubmenu } from "@/app/lib/services/submenu";
 
 export default function Footer() {
-  const [serviceLinks, setServiceLinks] = useState<SubmenuItem[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchHeaderServiceSubmenu().then((items) => {
-      if (!cancelled) setServiceLinks(items);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const fromLayout = useServiceCards();
+  const { cards } = useRemoteServiceCards(fromLayout);
+  const serviceLinks = useMemo(() => serviceCardsToSubmenu(cards), [cards]);
 
   return (
     <footer id="contact" className="relative z-10 bg-midnight_text dark:bg-semidark overflow-hidden">
       <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md pt-8 sm:pt-10 pb-5 px-4 sm:px-6 lg:px-8 max-w-full">
         <div className="grid grid-cols-12 gap-6 sm:gap-8">
           <div className="md:col-span-4 col-span-12">
-            <Link href="/" className="mb-4 md:mb-6 inline-flex items-center gap-2 sm:gap-3 min-h-[44px] min-w-[44px]">
-              <Image 
-                src="/images/logo/app_icon.png" 
-                alt="Apni Zaroorat" 
-                width={48} 
-                height={48}
-                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full shrink-0"
+            <Link
+              href="/"
+              className="mb-4 md:mb-6 inline-flex min-h-[44px] min-w-[44px] items-center"
+              aria-label="Apni Zaroorat home"
+            >
+              <Image
+                src="/images/logo/logo.png"
+                alt="Apni Zaroorat"
+                width={320}
+                height={96}
+                className="h-12 w-auto max-w-[min(100%,280px)] object-contain object-left sm:h-14 sm:max-w-[min(100%,320px)] md:h-16 md:max-w-[min(100%,360px)] lg:h-[4.5rem]"
               />
-              <span className="text-base sm:text-lg md:text-xl font-bold text-white">
-                Apni Zaroorat
-              </span>
             </Link>
             <div className="flex items-center gap-2 flex-wrap mt-4">
               <a href={`tel:${CONTACT.PHONE}`} className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-midnight_text bg-white/50 hover:bg-primary transition-colors" aria-label="Phone">
