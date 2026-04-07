@@ -3,8 +3,8 @@ import Link from "next/link";
 
 export default function History() {
   return (
-    <section className="history-bg !py-10 sm:!py-12 lg:!py-16">
-      <div className="container lg:max-w-screen-xl md:max-w-screen-md dark:text-black mx-auto grid grid-cols-1 lg:grid-cols-12 py-6 sm:py-8 lg:py-10 px-4 sm:px-6 lg:px-8 max-w-full gap-8 lg:gap-0">
+    <section className="history-bg !pt-10 !pb-3 sm:!pt-12 sm:!pb-4 lg:!pt-14 lg:!pb-5">
+      <div className="container lg:max-w-screen-xl md:max-w-screen-md dark:text-black mx-auto grid grid-cols-1 lg:grid-cols-12 pt-6 pb-2 sm:pt-8 sm:pb-2 lg:pt-9 lg:pb-3 px-4 sm:px-6 lg:px-8 max-w-full gap-8 lg:gap-0">
         <div className="col-span-1 lg:col-span-7 min-w-0" data-aos="fade-right">
           <p className="text-xl xs:text-2xl sm:text-3xl md:text-4xl text-midnight_text dark:text-white mb-4 sm:mb-6 md:mb-8 font-bold leading-tight">
             Our Story <br />

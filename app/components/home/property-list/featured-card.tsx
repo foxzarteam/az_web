@@ -12,11 +12,12 @@ interface FeaturedCardProps {
   href?: string;
 }
 
+/** Ring + conic chunk: theme primary family only */
 const SEGMENT = {
-  mediumBlue: "#3b82f6",
-  navy: "#1e3a5f",
-  charcoal: "#475569",
-  outerRing: "#60a5fa",
+  light: "#5a9bff",
+  primary: COLORS.PRIMARY,
+  deep: "#2563d4",
+  outerRing: "#5a9bff",
 } as const;
 
 /** Space under half-overlap circle: half-diameter + extra gap before title */
@@ -77,7 +78,7 @@ export default function FeaturedCard({ image, title, description, href }: Featur
           <div
             className="featured-card-ring-conic pointer-events-none absolute inset-[5px] z-[1] rounded-full shadow-[inset_0_1px_2px_rgba(255,255,255,0.35)] xs:inset-[6px] sm:inset-[7px]"
             style={{
-              background: `conic-gradient(from 180deg at 50% 50%, ${SEGMENT.mediumBlue} 0deg 180deg, ${SEGMENT.navy} 180deg 270deg, ${SEGMENT.charcoal} 270deg 360deg)`,
+              background: `conic-gradient(from 180deg at 50% 50%, ${SEGMENT.light} 0deg 180deg, ${SEGMENT.primary} 180deg 270deg, ${SEGMENT.deep} 270deg 360deg)`,
               WebkitMaskImage:
                 "radial-gradient(farthest-side, transparent calc(100% - 12px), black 100%)",
               maskImage:
@@ -91,7 +92,7 @@ export default function FeaturedCard({ image, title, description, href }: Featur
             }}
           />
 
-          <div className="absolute inset-[9px] z-[2] flex items-center justify-center rounded-full bg-gradient-to-br from-sky-50/90 via-white to-sky-100/80 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.95)] xs:inset-[10px] xs:p-1.5 sm:inset-[11px] sm:p-1.5 md:inset-[12px] md:p-2 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800/95 dark:shadow-none">
+          <div className="absolute inset-[9px] z-[2] flex items-center justify-center rounded-full bg-gradient-to-br from-primary/20 via-white to-primary/30 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.95)] xs:inset-[10px] xs:p-1.5 sm:inset-[11px] sm:p-1.5 md:inset-[12px] md:p-2 dark:from-primary/25 dark:via-slate-900 dark:to-primary/20 dark:shadow-none">
             <div className="relative flex h-full w-full min-w-0 items-center justify-center">
               <div
                 className="relative aspect-square h-full max-h-full w-full min-w-0 overflow-hidden rounded-full border border-slate-200/90 bg-white shadow-sm dark:border-slate-600 dark:bg-slate-100 dark:shadow-[0_2px_8px_rgba(0,0,0,0.25)]"

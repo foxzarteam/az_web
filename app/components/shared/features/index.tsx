@@ -15,10 +15,10 @@ const UNCHECKED_PROPERTY = PROPERTY_DATA.find((item) => !item.check) ?? null;
 export default function Features() {
 
   return (
-    <section className="dark:bg-darkmode">
+    <section className="!py-6 dark:bg-darkmode sm:!py-8 md:!py-9 lg:!py-10">
       <div className="container px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md mx-auto flex flex-col md:flex-row justify-between items-center max-w-full">
-        <div className="flex lg:flex-row flex-col lg:gap-0 gap-8 sm:gap-10 justify-between w-full min-w-0">
-          <div className="mb-6 sm:mb-8 md:mb-0 flex-1 min-w-0 w-full">
+        <div className="flex lg:flex-row flex-col lg:gap-0 gap-5 sm:gap-6 justify-between w-full min-w-0">
+          <div className="mb-4 sm:mb-5 md:mb-0 flex-1 min-w-0 w-full">
             <div className="relative max-w-full" data-aos="fade-right">
               <Image
                 src="/images/features/features_iimage.jpg"
@@ -59,9 +59,9 @@ export default function Features() {
           </div>
           <div className="flex-1 min-w-0 w-full">
             <div className="lg:pl-12 xl:pl-20 flex flex-col justify-center h-full">
-              <p className="mb-6 sm:mb-8 md:mb-3.75 text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-midnight_text dark:text-white" data-aos="fade-left">Why People Choose Apni Zaroorat</p>
+              <p className="mb-4 sm:mb-5 md:mb-3 text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-midnight_text dark:text-white" data-aos="fade-left">Why People Choose Apni Zaroorat</p>
               {FEATURES.map((feature) => (
-                <div key={feature.id} className="flex mb-6 sm:mb-8 md:mb-3.75 items-start sm:items-center gap-4 sm:gap-6 md:gap-8" data-aos="fade-left" data-aos-delay="100">
+                <div key={feature.id} className="flex mb-4 sm:mb-5 md:mb-3 items-start sm:items-center gap-4 sm:gap-5 md:gap-6" data-aos="fade-left" data-aos-delay="100">
                   <div className="bg-primary/20 p-3 sm:p-4 rounded-full flex justify-center items-center shrink-0">
                     <Image src={feature.imgSrc} alt={feature.title} height={78} width={78} className="w-12 h-12 sm:w-16 sm:h-16 md:w-[78px] md:h-[78px]" />
                   </div>

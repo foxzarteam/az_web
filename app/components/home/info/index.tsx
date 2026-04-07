@@ -8,7 +8,7 @@ const AOS_DELAYS = {
 
 export default function CompanyInfo() {
   return (
-    <div className="dark:bg-darkmode pt-10 sm:pt-12 md:pt-16 lg:pt-20">
+    <div className="dark:bg-darkmode pt-0">
       <div className="w-full bg-primary">
         <div className="container lg:max-w-screen-xl md:max-w-screen-md mx-auto px-4 sm:px-6 lg:px-8 max-w-full">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-0">

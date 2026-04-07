@@ -307,3 +307,71 @@ html {
 .success-modal-icon {
   animation: success-icon-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s forwards;
 }
+
+/* Home — Our Partners logo marquee */
+@keyframes partners-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.partners-marquee-track {
+  animation: partners-marquee 55s linear infinite;
+}
+
+.partners-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partners-marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    row-gap: 0.75rem;
+  }
+  /* hide duplicated strip (second half) when marquee is off */
+  .partners-marquee-track > div:nth-child(n + 19) {
+    display: none;
+  }
+}
+
+/* About page — cities carousel (infinite loop) */
+@keyframes city-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.city-marquee-track {
+  animation: city-marquee 50s linear infinite;
+}
+
+.city-marquee-track:hover,
+.city-marquee-track:focus-within {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .city-marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100% !important;
+    max-width: 72rem;
+    margin-inline: auto;
+    row-gap: 1rem;
+  }
+  .city-marquee-track > div:nth-child(n + 11) {
+    display: none;
+  }
+}

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 
+import CityLoansSlider from "./components/city-loans-slider";
+
 const History = dynamic(() => import("../components/home/history"));
 const Features = dynamic(() => import("../components/shared/features"));
-const Testimonials = dynamic(() => import("../components/home/testimonial"));
 const CompanyInfo = dynamic(() => import("../components/home/info"));
 
 export const metadata: Metadata = {
@@ -26,7 +27,7 @@ export default function AboutPage() {
       </div>
       <History />
       <Features />
-      <Testimonials />
+      <CityLoansSlider />
       <CompanyInfo />
     </>
   );

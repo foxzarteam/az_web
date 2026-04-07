@@ -66,8 +66,8 @@ export const FEATURED_SERVICES = [
 
 export const COMPANY_STATS = [
   { value: "99%", label: "Happy Customers" },
-  { value: "50K+", label: "Loans Disbursed" },
-  { value: "25+", label: "Bank Partners" },
+  { value: "80K+", label: "Loans Disbursed" },
+  { value: "50+", label: "Bank Partners" },
 ] as const;
 
 export const SOCIAL_LINKS = {
