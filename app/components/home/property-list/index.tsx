@@ -12,7 +12,7 @@ import {
 import FeaturedCard from "./featured-card";
 import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
 import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
-import type { ServicesFetchStatus } from "@/app/lib/services/types";
+import type { ServiceSliderCard, ServicesFetchStatus } from "@/app/lib/services/types";
 
 function emptySliderCopy(status: ServicesFetchStatus): string {
   if (status === "error") {
