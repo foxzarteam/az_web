@@ -24,7 +24,7 @@ function normalizeEnvValue(s: string): string {
  * If env is missing on static export, browser would call same-site `/api/leads` → 404 HTML → submit fails.
  * Override with NEXT_PUBLIC_API_URL when your backend URL changes.
  */
-const DEFAULT_PUBLIC_API_BASE = "https://az-app-khaki.vercel.app";
+const DEFAULT_PUBLIC_API_BASE = "https://server-nu-bay-20.vercel.app";
 
 function resolvePublicApiBaseUrl(): string {
   let raw = normalizeEnvValue(process.env.NEXT_PUBLIC_API_URL ?? "");
