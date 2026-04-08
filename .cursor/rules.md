@@ -96,6 +96,8 @@ FRONTEND RULES (Flutter / Next)
 - Keep UI separate from logic.
 - Do not write business logic inside UI.
 - Create reusable components/widgets.
+- Use assets for images: define all image paths in one config file (e.g. lib/config/app_assets.dart). Use AppImage widget for asset images.
+- Remove debug code and unnecessary comments before committing.
 
 ================================================
 
