@@ -1,7 +1,13 @@
 import Image from "next/image";
 import { PARTNERS, type PartnerEntry } from "./partners-data";
 
-function PartnerTile({ partner }: { partner: PartnerEntry }) {
+function PartnerTile({
+  partner,
+  priority,
+}: {
+  partner: PartnerEntry;
+  priority?: boolean;
+}) {
   if ("src" in partner) {
     return (
       <div className="flex h-[52px] w-[160px] shrink-0 items-center justify-center rounded-xl border border-gray-200/90 bg-white px-2 py-1.5 shadow-sm dark:border-gray-700/80 dark:bg-darklight sm:h-[56px] sm:w-[176px]">
@@ -11,6 +17,7 @@ function PartnerTile({ partner }: { partner: PartnerEntry }) {
           width={152}
           height={48}
           unoptimized
+          priority={priority}
           className="h-9 max-h-full w-auto max-w-[140px] object-contain object-center sm:h-10 sm:max-w-[152px]"
         />
       </div>
@@ -59,7 +66,14 @@ export default function PartnersMarquee() {
         <div className="overflow-hidden">
           <div className="partners-marquee-track flex w-max gap-5 sm:gap-7 md:gap-8">
             {track.map((partner, index) => (
-              <PartnerTile key={`partner-logo-${partner.name}-${index}`} partner={partner} />
+              <PartnerTile
+                key={`partner-logo-${partner.name}-${index}`}
+                partner={partner}
+                priority={
+                  index < 8 ||
+                  (index >= PARTNERS.length && index < PARTNERS.length + 8)
+                }
+              />
             ))}
           </div>
         </div>

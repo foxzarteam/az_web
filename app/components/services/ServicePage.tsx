@@ -152,7 +152,7 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-4">
                 <div>
                   <label className="block text-[10px] sm:text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
                     PAN <span className="text-red-500">*</span>
@@ -199,17 +199,19 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
                     {errors.fullName && <p className="mt-1 text-[10px] sm:text-xs text-red-600 dark:text-red-400">{errors.fullName}</p>}
                   </div>
                 </div>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="mt-4 sm:mt-6 w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-primary hover:bg-blue-700 text-white text-xs sm:text-sm md:text-base font-semibold py-2.5 sm:py-3 px-4 transition-colors shadow-md min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? "Submitting..." : "Submit Details"}
-                  {!isSubmitting && <span className="text-xs">&gt;</span>}
-                </button>
-                <p className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-500 mt-1.5 sm:mt-2">
-                  By submitting, you agree to be contacted by Apni Zaroorat and its lending partners.
-                </p>
+                <div className="pt-7 sm:pt-10">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-primary hover:bg-blue-700 text-white text-xs sm:text-sm md:text-base font-semibold py-2.5 sm:py-3 px-4 transition-colors shadow-md min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Details"}
+                    {!isSubmitting && <span className="text-xs">&gt;</span>}
+                  </button>
+                  <p className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-500 mt-2 sm:mt-2.5">
+                    By submitting, you agree to be contacted by Apni Zaroorat and its lending partners.
+                  </p>
+                </div>
                 </form>
               </div>
             </div>

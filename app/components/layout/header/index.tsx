@@ -15,6 +15,7 @@ const HEADER_BASE: HeaderItem[] = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/#featured" },
   { label: "About", href: "/about" },
+  { label: "Advisor", href: "/agent" },
   { label: "Contact Us", href: "/contact" },
 ];
 

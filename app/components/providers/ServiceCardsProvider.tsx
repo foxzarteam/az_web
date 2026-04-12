@@ -7,7 +7,10 @@ import {
   type ReactNode,
 } from "react";
 import type { ServiceSliderCard } from "@/app/lib/services/types";
-import { primeServicesClientCache } from "@/app/utils/fetchActiveServiceCards";
+import {
+  fetchActiveServiceCards,
+  primeServicesClientCache,
+} from "@/app/utils/fetchActiveServiceCards";
 
 const ServiceCardsContext = createContext<ServiceSliderCard[] | null>(null);
 
@@ -19,7 +22,12 @@ export function ServiceCardsProvider({
   children: ReactNode;
 }) {
   useLayoutEffect(() => {
-    if (cards.length > 0) primeServicesClientCache(cards);
+    if (cards.length > 0) {
+      primeServicesClientCache(cards);
+      return;
+    }
+    // Warm the client cache as early as possible when the server had no cards.
+    void fetchActiveServiceCards();
   }, [cards]);
 
   return (

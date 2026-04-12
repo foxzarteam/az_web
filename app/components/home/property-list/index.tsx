@@ -31,9 +31,9 @@ function gapPxForViewport(): number {
   return 12;
 }
 
-/** Tailwind md — mobile / small: one card; md+: two */
+/** Tailwind md — mobile / small: one card; md+: two (SSR: mobile-first so first paint matches narrow viewports). */
 function isTwoCardsPerView(): boolean {
-  if (typeof window === "undefined") return true;
+  if (typeof window === "undefined") return false;
   return window.matchMedia("(min-width: 768px)").matches;
 }
 
@@ -54,7 +54,6 @@ export default function Listing() {
 
   const viewportRef = useRef<HTMLDivElement>(null);
   const [cardWidthPx, setCardWidthPx] = useState(0);
-  const [slidesPerView, setSlidesPerView] = useState<1 | 2>(1);
   const [gapPx, setGapPx] = useState(12);
   const [slideIndex, setSlideIndex] = useState(0);
   const [slideTransition, setSlideTransition] = useState(true);
@@ -65,13 +64,16 @@ export default function Listing() {
   const measure = useCallback(() => {
     const el = viewportRef.current;
     if (!el) return;
+    // Avoid treating "no slides yet" like a single-card deck — that sets a full-width
+    // cardWidthPx and causes one wrong frame when real cards arrive (stepPx/layout jump).
+    if (n === 0) return;
+
     const w = el.clientWidth;
     const twoUp = isTwoCardsPerView();
     // Mobile one-up: no gap so each slide is full viewport width (no peek of next card)
     const g =
       n <= 1 ? 0 : twoUp ? gapPxForViewport() : 0;
     setGapPx(g);
-    setSlidesPerView(twoUp ? 2 : 1);
     if (n <= 1) {
       setCardWidthPx(w);
       return;
@@ -188,16 +190,23 @@ export default function Listing() {
         </h1>
         <div className="relative -mx-4 sm:mx-0 px-3 xs:px-4 sm:px-11 md:px-14 lg:px-16 xl:px-[4.5rem]">
           <div
-            className="min-h-[1px] overflow-hidden pt-16 sm:pt-20 md:pt-24 lg:pt-28"
+            className="min-h-[1px] overflow-hidden pt-16 sm:pt-20 md:pt-24 lg:pt-28 [container-type:inline-size]"
             ref={viewportRef}
           >
             {isLoading ? (
               <div
-                className="flex justify-center items-center min-h-[340px] sm:min-h-[400px] text-midnight_text/70 dark:text-white/70"
+                className="flex min-h-[300px] sm:min-h-[360px] md:min-h-[380px] gap-0 md:gap-6 lg:gap-8 justify-center px-0"
                 role="status"
                 aria-live="polite"
+                aria-busy="true"
               >
-                Loading services…
+                {[0, 1].map((i) => (
+                  <div
+                    key={i}
+                    className="hidden md:block w-[calc(50cqw-12px)] lg:w-[calc(50cqw-16px)] max-w-full shrink-0 rounded-xl border border-slate-200/80 bg-slate-100/90 dark:border-slate-700 dark:bg-slate-800/50 animate-pulse min-h-[260px] sm:min-h-[280px]"
+                  />
+                ))}
+                <div className="w-[100cqw] md:hidden max-w-full shrink-0 rounded-xl border border-slate-200/80 bg-slate-100/90 dark:border-slate-700 dark:bg-slate-800/50 animate-pulse min-h-[260px] sm:min-h-[280px]" />
               </div>
             ) : n === 0 ? (
               <div
@@ -223,21 +232,14 @@ export default function Listing() {
                       className={
                         n === 1
                           ? "shrink-0 w-full min-w-0 max-w-full"
-                          : "shrink-0 box-border min-w-0 max-w-full md:max-w-none"
+                          : "shrink-0 box-border min-w-0 max-w-full md:max-w-none w-[max(11rem,100cqw)] md:w-[max(11rem,calc(50cqw-16px))]"
                       }
                       style={
                         n === 1
                           ? undefined
                           : cardWidthPx > 0
                             ? { width: cardWidthPx }
-                            : slidesPerView === 2
-                              ? {
-                                  minWidth: "max(11rem, calc(50vw - 3.75rem))",
-                                }
-                              : {
-                                  minWidth:
-                                    "max(11rem, calc(100vw - 2rem))",
-                                }
+                            : undefined
                       }
                     >
                       <FeaturedCard
@@ -245,6 +247,10 @@ export default function Listing() {
                         title={card.title}
                         description={card.description}
                         href={card.href}
+                        imagePriority={
+                          index < 4 ||
+                          (n >= 2 && index >= n && index < n + 4)
+                        }
                       />
                     </div>
                   ))}

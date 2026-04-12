@@ -34,14 +34,18 @@ export {
   PUBLIC_SITE_URL,
 };
 
-export const LOAN_LIMITS = {
-  MIN_AMOUNT: 10000,
-  MAX_AMOUNT: 10000000,
-  MIN_RATE: 1,
-  MAX_RATE: 30,
+/**
+ * Bounds for the home personal loan EMI calculator (illustrative ranges; actual offers vary by lender).
+ * EMI uses the standard monthly reducing-balance formula used for personal loans in India.
+ */
+export const PERSONAL_LOAN_EMI_LIMITS = {
+  MIN_AMOUNT: 50_000,
+  MAX_AMOUNT: 50_00_000,
+  MIN_RATE: 10.5,
+  MAX_RATE: 26,
   MIN_TENURE: 1,
-  MAX_TENURE: 30,
-  STEP_AMOUNT: 10000,
+  MAX_TENURE: 7,
+  STEP_AMOUNT: 10_000,
   STEP_RATE: 0.1,
 } as const;
 

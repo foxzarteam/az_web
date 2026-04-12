@@ -10,6 +10,8 @@ interface FeaturedCardProps {
   title: string;
   description: string;
   href?: string;
+  /** First visible slides: preloads image for faster carousel paint. */
+  imagePriority?: boolean;
 }
 
 /** Ring + conic chunk: theme primary family only */
@@ -24,7 +26,13 @@ const SEGMENT = {
 const CONTENT_TOP_PAD =
   "pt-[4.85rem] xs:pt-[5.35rem] sm:pt-[5.85rem] md:pt-[6.35rem] lg:pt-[6.85rem]";
 
-export default function FeaturedCard({ image, title, description, href }: FeaturedCardProps) {
+export default function FeaturedCard({
+  image,
+  title,
+  description,
+  href,
+  imagePriority = false,
+}: FeaturedCardProps) {
   const handleApply = () => {
     scrollToElement("featured");
   };
@@ -103,6 +111,7 @@ export default function FeaturedCard({ image, title, description, href }: Featur
                       src={image}
                       alt={title}
                       fill
+                      priority={imagePriority}
                       sizes="(max-width: 640px) 128px, 176px"
                       className="object-contain object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                     />

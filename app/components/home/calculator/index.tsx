@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { LOAN_LIMITS, COLORS } from "@/app/config/constants";
+import { PERSONAL_LOAN_EMI_LIMITS, COLORS } from "@/app/config/constants";
 import { formatRupee } from "@/app/utils/format";
 
+/** Monthly reducing-balance EMI — same method lenders use for personal loans. */
 function calculateEMI(principal: number, annualRate: number, years: number) {
   if (principal <= 0 || years <= 0) return { emi: 0, totalInterest: 0, totalAmount: 0 };
   const monthlyRate = annualRate / 100 / 12;
@@ -20,9 +21,9 @@ function clampValue(value: number, min: number, max: number): number {
 }
 
 export default function Calculator() {
-  const [principal, setPrincipal] = useState(500000);
-  const [annualRate, setAnnualRate] = useState(10.5);
-  const [tenureYears, setTenureYears] = useState(5);
+  const [principal, setPrincipal] = useState(500_000);
+  const [annualRate, setAnnualRate] = useState(12);
+  const [tenureYears, setTenureYears] = useState(4);
 
   const { emi, totalInterest, totalAmount } = useMemo(
     () => calculateEMI(principal, annualRate, tenureYears),
@@ -44,15 +45,16 @@ export default function Calculator() {
         data-aos="fade-left"
       >
         <div
-          className="flex min-w-0 flex-col items-center justify-center gap-4 text-center lg:py-2"
+          className="flex min-w-0 flex-col items-start justify-center gap-4 text-left lg:py-2"
           data-aos="fade-right"
         >
           <div className="w-full max-w-md lg:max-w-lg">
             <h2 className="mb-3 text-lg font-bold text-midnight_text dark:text-white sm:mb-4 sm:text-xl md:text-2xl lg:text-3xl">
-              Plan Your Loan
+              Personal Loan EMI Calculator
             </h2>
             <p className="text-sm leading-relaxed text-gray sm:text-base md:text-lg">
-              Check your EMI and choose the right loan amount. Compare interest rates and tenure to make an informed decision.
+              Estimate your personal loan EMI on a reducing balance basis. Adjust amount, interest rate, and tenure to see
+              monthly EMI, total interest, and repayment amount before you apply.
             </p>
           </div>
           <div className="flex w-full justify-center">
@@ -109,38 +111,47 @@ export default function Calculator() {
         </div>
 
         <div
-          className="flex min-w-0 w-full flex-col items-center justify-center lg:py-2"
+          className="flex min-w-0 w-full flex-col items-start justify-center lg:py-2"
           data-aos="fade-left"
         >
           <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-white shadow-lg dark:border-dark_border dark:bg-darklight">
             <div className="bg-primary px-6 py-4 text-center">
-              <h3 className="text-xl font-bold text-white">EMI Calculator</h3>
-              <p className="mt-1 text-sm text-white/80">Calculate EMI on Home, Personal & Business Loans</p>
+              <h3 className="text-xl font-bold text-white">Personal Loan EMI Calculator</h3>
+              <p className="mt-1 text-sm text-white/80">Calculate EMI for your Personal Loan</p>
             </div>
 
-            <div className="space-y-6 p-6 text-center">
+            <div className="space-y-6 p-6 text-left">
               <div>
-                <label className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                  Loan amount (₹)
+                <label htmlFor="calc-pl-principal" className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                  Personal loan amount (₹)
                 </label>
                 <input
+                  id="calc-pl-principal"
                   type="number"
-                  min={LOAN_LIMITS.MIN_AMOUNT}
-                  max={LOAN_LIMITS.MAX_AMOUNT}
-                  step={LOAN_LIMITS.STEP_AMOUNT}
+                  min={PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT}
+                  max={PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT}
+                  step={PERSONAL_LOAN_EMI_LIMITS.STEP_AMOUNT}
                   value={principal}
-                  onChange={(e) => setPrincipal(clampValue(Number(e.target.value) || 0, LOAN_LIMITS.MIN_AMOUNT, LOAN_LIMITS.MAX_AMOUNT))}
+                  onChange={(e) =>
+                    setPrincipal(
+                      clampValue(
+                        Number(e.target.value) || 0,
+                        PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT,
+                        PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT
+                      )
+                    )
+                  }
                   className="w-full px-4 py-3 rounded-lg border border-border dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:ring-2 focus:ring-primary focus:border-primary"
                 />
                 <div className="flex justify-between text-xs text-gray mt-1">
-                  <span>{formatRupee(LOAN_LIMITS.MIN_AMOUNT)}</span>
-                  <span>{formatRupee(LOAN_LIMITS.MAX_AMOUNT)}</span>
+                  <span>{formatRupee(PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT)}</span>
+                  <span>{formatRupee(PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT)}</span>
                 </div>
                 <input
                   type="range"
-                  min={LOAN_LIMITS.MIN_AMOUNT}
-                  max={LOAN_LIMITS.MAX_AMOUNT}
-                  step={LOAN_LIMITS.STEP_AMOUNT}
+                  min={PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT}
+                  max={PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT}
+                  step={PERSONAL_LOAN_EMI_LIMITS.STEP_AMOUNT}
                   value={principal}
                   onChange={(e) => setPrincipal(Number(e.target.value))}
                   className="w-full h-2 bg-primary/20 rounded-lg appearance-none cursor-pointer accent-primary mt-2"
@@ -148,23 +159,32 @@ export default function Calculator() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                  Rate of interest (p.a.) %
+                <label htmlFor="calc-pl-rate" className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                  Interest rate (p.a. %) — personal loan range
                 </label>
                 <input
+                  id="calc-pl-rate"
                   type="number"
-                  min={LOAN_LIMITS.MIN_RATE}
-                  max={LOAN_LIMITS.MAX_RATE}
-                  step={LOAN_LIMITS.STEP_RATE}
+                  min={PERSONAL_LOAN_EMI_LIMITS.MIN_RATE}
+                  max={PERSONAL_LOAN_EMI_LIMITS.MAX_RATE}
+                  step={PERSONAL_LOAN_EMI_LIMITS.STEP_RATE}
                   value={annualRate}
-                  onChange={(e) => setAnnualRate(clampValue(Number(e.target.value) || 0, LOAN_LIMITS.MIN_RATE, LOAN_LIMITS.MAX_RATE))}
+                  onChange={(e) =>
+                    setAnnualRate(
+                      clampValue(
+                        Number(e.target.value) || 0,
+                        PERSONAL_LOAN_EMI_LIMITS.MIN_RATE,
+                        PERSONAL_LOAN_EMI_LIMITS.MAX_RATE
+                      )
+                    )
+                  }
                   className="w-full px-4 py-3 rounded-lg border border-border dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:ring-2 focus:ring-primary focus:border-primary"
                 />
                 <input
                   type="range"
-                  min={LOAN_LIMITS.MIN_RATE}
-                  max={LOAN_LIMITS.MAX_RATE}
-                  step={LOAN_LIMITS.STEP_RATE}
+                  min={PERSONAL_LOAN_EMI_LIMITS.MIN_RATE}
+                  max={PERSONAL_LOAN_EMI_LIMITS.MAX_RATE}
+                  step={PERSONAL_LOAN_EMI_LIMITS.STEP_RATE}
                   value={annualRate}
                   onChange={(e) => setAnnualRate(Number(e.target.value))}
                   className="w-full h-2 bg-primary/20 rounded-lg appearance-none cursor-pointer accent-primary mt-2"
@@ -172,21 +192,30 @@ export default function Calculator() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                  Loan tenure (years)
+                <label htmlFor="calc-pl-tenure" className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                  Tenure (years) — typical personal loan up to 7 years
                 </label>
                 <input
+                  id="calc-pl-tenure"
                   type="number"
-                  min={LOAN_LIMITS.MIN_TENURE}
-                  max={LOAN_LIMITS.MAX_TENURE}
+                  min={PERSONAL_LOAN_EMI_LIMITS.MIN_TENURE}
+                  max={PERSONAL_LOAN_EMI_LIMITS.MAX_TENURE}
                   value={tenureYears}
-                  onChange={(e) => setTenureYears(clampValue(Number(e.target.value) || 0, LOAN_LIMITS.MIN_TENURE, LOAN_LIMITS.MAX_TENURE))}
+                  onChange={(e) =>
+                    setTenureYears(
+                      clampValue(
+                        Number(e.target.value) || 0,
+                        PERSONAL_LOAN_EMI_LIMITS.MIN_TENURE,
+                        PERSONAL_LOAN_EMI_LIMITS.MAX_TENURE
+                      )
+                    )
+                  }
                   className="w-full px-4 py-3 rounded-lg border border-border dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:ring-2 focus:ring-primary focus:border-primary"
                 />
                 <input
                   type="range"
-                  min={LOAN_LIMITS.MIN_TENURE}
-                  max={LOAN_LIMITS.MAX_TENURE}
+                  min={PERSONAL_LOAN_EMI_LIMITS.MIN_TENURE}
+                  max={PERSONAL_LOAN_EMI_LIMITS.MAX_TENURE}
                   value={tenureYears}
                   onChange={(e) => setTenureYears(Number(e.target.value))}
                   className="w-full h-2 bg-primary/20 rounded-lg appearance-none cursor-pointer accent-primary mt-2"
@@ -195,7 +224,7 @@ export default function Calculator() {
             </div>
 
             <div className="border-t border-border bg-gray-50 px-4 py-4 sm:px-5 sm:py-5 md:px-6 dark:border-dark_border dark:bg-darkmode/50">
-              <div className="grid grid-cols-2 gap-3 text-center sm:gap-4 md:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 text-left sm:gap-4 md:grid-cols-4">
                 <div className="min-w-0">
                   <p className="text-[10px] uppercase tracking-wide text-gray sm:text-xs">Monthly EMI</p>
                   <p className="truncate text-sm font-bold text-primary sm:text-base md:text-lg">{formatRupee(emi)}</p>
