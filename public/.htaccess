@@ -1,0 +1,4 @@
+# Apache / LiteSpeed (Verpex, cPanel, etc.) — deploy full `out/` folder including this file.
+# -MultiViews avoids wrong .html negotiation on some hosts.
+Options -Indexes -MultiViews
+DirectoryIndex index.html

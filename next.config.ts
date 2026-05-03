@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "export",
+  /** Static hosts (Apache/cPanel e.g. Verpex) serve `/about/` as `about/index.html`; without this, `/about/` refresh can 404. */
+  trailingSlash: true,
   images: {
     unoptimized: true,
     remotePatterns: [
