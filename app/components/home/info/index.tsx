@@ -17,11 +17,15 @@ export default function CompanyInfo() {
               return (
                 <div
                   key={index}
-                  className={`flex flex-row justify-center items-center gap-2 sm:gap-0 ${index < COMPANY_STATS.length - 1 ? "sm:border-r border-white/20" : ""} py-5 sm:py-6 md:py-8 lg:py-10 px-4`}
+                  className={`flex flex-row justify-center items-center gap-1.5 sm:gap-0 ${index < COMPANY_STATS.length - 1 ? "sm:border-r border-white/20" : ""} py-4 sm:py-6 md:py-8 lg:py-10 px-2 sm:px-4`}
                   data-aos={aosDelay}
                 >
-                  <p className="text-3xl xs:text-4xl sm:text-5xl md:text-[60px] leading-[1.2] mr-0 md:mr-4 mb-0 text-white shrink-0">{stat.value}</p>
-                  <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white text-center md:text-left">{stat.label}</p>
+                  <p className="text-lg xs:text-xl sm:text-3xl md:text-4xl lg:text-[2.75rem] xl:text-[3rem] leading-[1.15] mr-0 md:mr-4 mb-0 text-white shrink-0 tabular-nums tracking-tight">
+                    {stat.value}
+                  </p>
+                  <p className="min-w-0 text-[10px] leading-snug text-white/95 xs:text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-center md:text-left">
+                    {stat.label}
+                  </p>
                 </div>
               );
             })}

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { AGENT_PROFILE, buildWhatsAppHref } from "@/app/agent/agent-config";
+import { AGENT_PROFILE } from "@/app/agent/agent-config";
 import AgentLeadForm from "./AgentLeadForm";
 
 function IconPhone({ className }: { className?: string }) {
@@ -30,16 +30,10 @@ function IconMap({ className }: { className?: string }) {
   );
 }
 
-function IconWhatsApp({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-    </svg>
-  );
-}
+/** Same width + padding as other site pages (footer, about, services). */
+const PAGE_WRAP = "container mx-auto w-full max-w-full md:max-w-screen-md lg:max-w-screen-xl px-4 sm:px-6 lg:px-8";
 
 export default function AgentLanding() {
-  const wa = buildWhatsAppHref(AGENT_PROFILE.phone);
   const telDigits = AGENT_PROFILE.phone.replace(/\D/g, "");
   const telHref =
     telDigits.length === 10
@@ -49,146 +43,179 @@ export default function AgentLanding() {
         : `tel:${AGENT_PROFILE.phone.replace(/\s/g, "")}`;
 
   return (
-    <main className="agent-landing relative min-w-0 overflow-hidden bg-[#f4f7fc] dark:bg-[#0a0f18]">
-      <div className="pointer-events-none absolute inset-0" aria-hidden>
-        <div className="agent-landing-blob absolute -right-20 -top-28 h-[420px] w-[420px] rounded-full bg-primary/25 blur-[100px] dark:bg-primary/20" />
-        <div className="agent-landing-blob agent-landing-blob--delayed absolute -left-32 top-1/4 h-[340px] w-[340px] rounded-full bg-cyan/20 blur-[90px] dark:bg-cyan/10" />
-        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-primary/[0.07] to-transparent dark:from-primary/10" />
+    <main className="agent-portfolio relative min-h-screen min-w-0 overflow-x-hidden bg-gradient-to-br from-light via-white to-[#e4eefc] text-midnight_text dark:from-[#040810] dark:via-[#0a1424] dark:to-[#060a12] dark:text-[#f0f6fa]">
+      <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden>
+        <div className="agent-landing-blob absolute -right-20 top-[-8%] h-[min(560px,58vw)] w-[min(560px,58vw)] rounded-full bg-primary/20 blur-[110px] dark:bg-primary/25" />
+        <div className="agent-landing-blob agent-landing-blob--delayed absolute -left-28 top-[28%] h-[400px] w-[400px] rounded-full bg-cyan/25 blur-[100px] dark:bg-cyan/15" />
+        <div className="absolute bottom-[-15%] left-1/2 h-[480px] w-[min(90vw,520px)] -translate-x-1/2 rounded-full bg-skyBlue/20 blur-[110px] dark:bg-primary/20" />
         <div
-          className="absolute inset-0 opacity-[0.4] dark:opacity-[0.12]"
+          className="absolute inset-0 opacity-[0.35] dark:opacity-[0.08]"
           style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(47 115 242 / 0.12) 1px, transparent 0)`,
-            backgroundSize: "28px 28px",
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(47 115 242 / 0.14) 1px, transparent 0)`,
+            backgroundSize: "24px 24px",
           }}
         />
       </div>
 
-      <div className="relative z-[1] mx-auto max-w-full px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 md:pt-32 lg:max-w-6xl lg:px-8">
-        {/* Compact hero */}
-        <header className="mb-10 flex flex-col items-center text-center lg:mb-12" data-aos="fade-down">
-          <span className="agent-badge mb-4 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/90 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-sky-300">
-            Apni Zaroorat · Advisor
-          </span>
-          <h1 className="w-full text-[2rem] font-bold leading-[1.1] tracking-tight text-midnight_text dark:text-white sm:text-4xl md:text-5xl">
-            <span className="agent-name-gradient bg-gradient-to-r from-[#102D47] via-primary to-[#0369a1] bg-[length:200%_auto] bg-clip-text text-transparent dark:from-white dark:via-sky-200 dark:to-sky-400">
-              {AGENT_PROFILE.displayName}
+      <div className="relative z-[1]">
+        <header className="border-b border-primary/10 bg-white/70 backdrop-blur-lg dark:border-primary/20 dark:bg-[#080f18]/75">
+          <div className={`flex items-center justify-between gap-4 py-4 ${PAGE_WRAP}`}>
+            <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-primary dark:border-primary/30 dark:bg-primary/15 dark:text-sky-200">
+              Your advisor
             </span>
-          </h1>
-          <p className="mt-2 text-base font-medium text-primary dark:text-sky-400 sm:text-lg">{AGENT_PROFILE.role}</p>
+            <Link
+              href="/"
+              className="rounded-full border border-primary/25 bg-gradient-to-r from-white to-light px-4 py-2 text-xs font-bold text-midnight_text shadow-md shadow-primary/10 transition hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 dark:border-primary/35 dark:from-semidark dark:to-darklight dark:text-white dark:hover:border-cyan/40"
+            >
+              Apni Zaroorat
+            </Link>
+          </div>
         </header>
 
-        <div className="grid gap-6 lg:grid-cols-12 lg:gap-8 lg:items-start">
-          {/* Profile card */}
-          <aside
-            className="agent-glass-card flex flex-col rounded-3xl border border-white/70 bg-white/75 p-6 shadow-[0_25px_60px_-15px_rgba(47,115,242,0.18)] backdrop-blur-xl dark:border-white/10 dark:bg-semidark/75 dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] sm:p-8 lg:col-span-5"
-            data-aos="fade-right"
-            data-aos-delay="80"
-          >
-            <div className="flex justify-center">
-              <div className="relative shrink-0">
-                <div className="absolute -inset-0.5 rounded-full bg-gradient-to-br from-primary via-sky-400 to-cyan opacity-80 blur-[1.5px]" aria-hidden />
-                <div className="relative h-20 w-20 overflow-hidden rounded-full border-[3px] border-white shadow-md dark:border-darklight">
-                  {AGENT_PROFILE.photoUrl ? (
+        {/* Hero */}
+        <section className={`py-16 sm:py-20 lg:grid lg:grid-cols-12 lg:gap-12 lg:py-24 ${PAGE_WRAP}`}>
+          <div className="lg:col-span-7" data-aos="fade-up">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-primary">Apni Zaroorat</p>
+            <div className="mt-3 h-1 w-14 rounded-full bg-gradient-to-r from-primary via-skyBlue to-cyan" aria-hidden />
+            <h1 className="mt-5 bg-gradient-to-r from-midnight_text via-primary to-[#1d56c9] bg-clip-text text-[2.35rem] font-bold leading-[1.08] tracking-tight text-transparent sm:text-5xl lg:text-[3.25rem] dark:from-white dark:via-sky-200 dark:to-cyan">
+              {AGENT_PROFILE.displayName}
+            </h1>
+            <p className="mt-3 text-lg font-semibold text-secondary sm:text-xl dark:text-sky-200/90">{AGENT_PROFILE.role}</p>
+            <p className="mt-8 max-w-xl text-base leading-relaxed text-gray sm:text-[1.05rem] dark:text-gray-300">
+              {AGENT_PROFILE.headline}
+            </p>
+            <div className="mt-10 flex flex-wrap items-center gap-3">
+              <a
+                href="#contact"
+                className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-primary to-[#2563eb] px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/35 transition hover:shadow-xl hover:shadow-primary/45 hover:brightness-105"
+              >
+                Get in touch
+              </a>
+              <a
+                href={telHref}
+                className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-3 text-sm font-bold text-primary transition hover:bg-primary/10 dark:border-cyan/30 dark:bg-cyan/10 dark:text-cyan-200 dark:hover:bg-cyan/15"
+              >
+                <IconPhone className="h-4 w-4" />
+                Call me
+              </a>
+            </div>
+          </div>
+
+          <div className="relative mt-14 flex justify-center lg:col-span-5 lg:mt-0" data-aos="fade-up" data-aos-delay="80">
+            <div className="relative mx-auto aspect-square w-full max-w-[min(100%,276px)] sm:max-w-[min(100%,336px)] lg:mx-0 lg:max-w-[min(100%,352px)]">
+              <div
+                className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-primary/40 via-cyan/30 to-skyBlue/25 opacity-90 blur-2xl dark:from-primary/30 dark:via-cyan/20"
+                aria-hidden
+              />
+              <div className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem] border-2 border-primary/25 bg-gradient-to-b from-white to-light shadow-2xl shadow-primary/25 ring-1 ring-white/80 dark:border-primary/30 dark:from-darklight dark:to-semidark dark:shadow-primary/20 dark:ring-white/5">
+                {AGENT_PROFILE.photoUrl ? (
+                  <div className="relative min-h-0 w-full flex-1">
                     <Image
                       src={AGENT_PROFILE.photoUrl}
                       alt={AGENT_PROFILE.displayName}
                       fill
-                      className="object-cover"
-                      sizes="80px"
+                      className="object-cover object-top"
+                      sizes="(max-width: 640px) 276px, 352px"
+                      priority
                     />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary via-[#2563eb] to-sky-600 text-lg font-bold tracking-tight text-white">
-                      {AGENT_PROFILE.avatarInitials}
-                    </div>
-                  )}
+                  </div>
+                ) : (
+                  <div className="flex min-h-0 flex-1 flex-col items-center justify-center bg-gradient-to-br from-midnight_text via-primary to-cyan px-4 py-6 text-center sm:px-6 sm:py-8">
+                    <span className="text-5xl font-semibold tracking-tight text-white/95 sm:text-6xl lg:text-7xl">{AGENT_PROFILE.avatarInitials}</span>
+                    <span className="mt-2 text-xs font-medium text-white/70 sm:mt-3 sm:text-sm">Advisor</span>
+                  </div>
+                )}
+                <div className="shrink-0 border-t border-primary/10 bg-gradient-to-r from-primary/[0.06] via-transparent to-cyan/[0.06] px-4 py-3 dark:border-primary/20 sm:px-5 sm:py-3.5">
+                  <p className="text-[11px] font-medium leading-snug text-gray dark:text-gray-300 sm:text-xs sm:leading-relaxed">
+                    Loans and insurance help through Apni Zaroorat.
+                  </p>
                 </div>
               </div>
             </div>
-
-            <div className="mt-8 space-y-3 border-t border-slate-200/80 pt-8 dark:border-white/10">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray dark:text-gray-500">Location</p>
-              <div className="flex gap-3 rounded-2xl bg-slate-50/90 px-4 py-3 dark:bg-white/[0.04]">
-                <IconMap className="mt-0.5 h-5 w-5 shrink-0 text-primary dark:text-sky-400" />
-                <p className="whitespace-pre-line text-sm leading-relaxed text-midnight_text/90 dark:text-gray-300">
-                  {AGENT_PROFILE.address}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-8 space-y-2 border-t border-slate-200/80 pt-8 dark:border-white/10">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray dark:text-gray-500">Contact</p>
-              <a
-                href={telHref}
-                className="group flex items-center gap-3 rounded-2xl border border-transparent bg-slate-50/90 px-4 py-3 transition hover:border-primary/20 hover:bg-white hover:shadow-md dark:bg-white/[0.04] dark:hover:border-sky-500/20 dark:hover:bg-white/[0.06]"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white dark:bg-sky-500/15 dark:text-sky-300 dark:group-hover:bg-sky-500 dark:group-hover:text-white">
-                  <IconPhone className="h-5 w-5" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-xs text-gray dark:text-gray-500">Phone</span>
-                  <span className="font-semibold text-midnight_text dark:text-white">{AGENT_PROFILE.phone}</span>
-                </span>
-              </a>
-              <a
-                href={`mailto:${AGENT_PROFILE.email}`}
-                className="group flex items-center gap-3 rounded-2xl border border-transparent bg-slate-50/90 px-4 py-3 transition hover:border-primary/20 hover:bg-white hover:shadow-md dark:bg-white/[0.04] dark:hover:border-sky-500/20 dark:hover:bg-white/[0.06]"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white dark:bg-sky-500/15 dark:text-sky-300 dark:group-hover:bg-sky-500 dark:group-hover:text-white">
-                  <IconMail className="h-5 w-5" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-xs text-gray dark:text-gray-500">Email</span>
-                  <span className="break-all font-semibold text-midnight_text dark:text-white">{AGENT_PROFILE.email}</span>
-                </span>
-              </a>
-              {wa !== "#" ? (
-                <a
-                  href={wa}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center gap-3 rounded-2xl border border-transparent bg-emerald-500/[0.08] px-4 py-3 transition hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:shadow-md dark:bg-emerald-500/10"
-                >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 transition group-hover:bg-emerald-500 group-hover:text-white dark:text-emerald-400">
-                    <IconWhatsApp className="h-5 w-5" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-xs text-gray dark:text-gray-500">WhatsApp</span>
-                    <span className="font-semibold text-midnight_text dark:text-white">Message instantly</span>
-                  </span>
-                </a>
-              ) : null}
-            </div>
-
-            <div className="mt-8 border-t border-slate-200/80 pt-8 dark:border-white/10">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray dark:text-gray-500">Services</p>
-              <p className="mt-1 text-xs text-gray dark:text-gray-500">Areas I can help you with</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {AGENT_PROFILE.services.map((name) => (
-                  <span
-                    key={name}
-                    className="inline-flex items-center rounded-full border border-primary/20 bg-gradient-to-b from-white to-slate-50/90 px-3 py-1.5 text-[11px] font-semibold text-midnight_text shadow-sm ring-1 ring-slate-200/80 dark:border-sky-500/25 dark:from-semidark dark:to-darklight dark:text-sky-100 dark:ring-white/10 sm:px-4 sm:py-2 sm:text-xs"
-                  >
-                    {name}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-auto pt-8">
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 text-sm font-medium text-gray transition hover:text-primary dark:text-gray-400 dark:hover:text-sky-400"
-              >
-                <span aria-hidden>←</span> Back to Apni Zaroorat
-              </Link>
-            </div>
-          </aside>
-
-          {/* Form */}
-          <div className="lg:col-span-7" data-aos="fade-left" data-aos-delay="120">
-            <AgentLeadForm agentName={AGENT_PROFILE.displayName} />
           </div>
-        </div>
+        </section>
+
+        {/* Contact + form */}
+        <section
+          id="contact"
+          className="scroll-mt-24 border-t border-primary/15 bg-white py-16 dark:border-primary/20 dark:bg-darkmode sm:py-20 md:py-24"
+        >
+          <div className={`${PAGE_WRAP} flex flex-col gap-16 md:gap-24`}>
+            <div className="grid gap-12 lg:grid-cols-12 lg:gap-14">
+            <div className="lg:col-span-5" data-aos="fade-up">
+              <h2 className="text-xs font-bold uppercase tracking-[0.28em] text-primary">Contact</h2>
+              <p className="mt-3 text-2xl font-bold tracking-tight text-midnight_text dark:text-white sm:text-3xl">Contact me</p>
+              <p className="mt-3 text-gray dark:text-gray-300">
+                Use the form or call. I read every message and reply as soon as I can, often within one working day.
+              </p>
+
+              <ul className="mt-10 space-y-4">
+                <li>
+                  <a
+                    href={telHref}
+                    className="flex items-start gap-4 rounded-2xl border border-primary/15 bg-white/90 p-4 shadow-md shadow-primary/5 backdrop-blur-sm transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/15 dark:border-white/10 dark:bg-darklight/90 dark:hover:border-primary/50"
+                  >
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-cyan/30 text-primary">
+                      <IconPhone className="h-5 w-5" />
+                    </span>
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-primary/80 dark:text-sky-300/90">Phone</p>
+                      <p className="mt-0.5 font-semibold text-midnight_text dark:text-white">{AGENT_PROFILE.phone}</p>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={`mailto:${AGENT_PROFILE.email}`}
+                    className="flex items-start gap-4 rounded-2xl border border-primary/15 bg-white/90 p-4 shadow-md shadow-primary/5 backdrop-blur-sm transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/15 dark:border-white/10 dark:bg-darklight/90 dark:hover:border-primary/50"
+                  >
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-cyan/30 text-primary">
+                      <IconMail className="h-5 w-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-primary/80 dark:text-sky-300/90">Email</p>
+                      <p className="mt-0.5 break-all font-semibold text-midnight_text dark:text-white">{AGENT_PROFILE.email}</p>
+                    </div>
+                  </a>
+                </li>
+                <li className="flex items-start gap-4 rounded-2xl border border-primary/15 bg-white/90 p-4 shadow-md shadow-primary/5 backdrop-blur-sm dark:border-white/10 dark:bg-darklight/90">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-cyan/30 text-primary">
+                    <IconMap className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-primary/80 dark:text-sky-300/90">Location</p>
+                    <p className="mt-0.5 whitespace-pre-line text-sm font-medium leading-relaxed text-midnight_text dark:text-white">{AGENT_PROFILE.address}</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div className="lg:col-span-7" data-aos="fade-up" data-aos-delay="100">
+              <AgentLeadForm agentName={AGENT_PROFILE.displayName} />
+            </div>
+            </div>
+
+            <ul
+              className="grid gap-4 sm:grid-cols-3 sm:gap-5 lg:gap-6"
+              data-aos="fade-up"
+              aria-label="How we support you"
+            >
+              {AGENT_PROFILE.contactBoxes.map((box) => (
+                <li
+                  key={box.title}
+                  className="relative flex flex-col overflow-hidden rounded-2xl border border-primary/15 bg-white p-5 shadow-md shadow-primary/10 sm:p-6 dark:border-white/10 dark:bg-darklight dark:shadow-lg dark:shadow-black/20"
+                >
+                  <div
+                    className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-skyBlue to-cyan opacity-90"
+                    aria-hidden
+                  />
+                  <p className="mt-2 text-lg font-bold tracking-tight text-midnight_text dark:text-white">{box.title}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-gray dark:text-gray-300">{box.text}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
       </div>
     </main>
   );

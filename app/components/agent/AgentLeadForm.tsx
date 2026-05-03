@@ -1,31 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
+import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
+import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
 import { PUBLIC_FORM_SUBMIT_AJAX_URL } from "@/app/config/constants";
 
 type Props = {
   agentName: string;
 };
 
+const emptyForm = { name: "", email: "", phone: "", product: "" };
+
 export default function AgentLeadForm({ agentName }: Props) {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
+  const fromLayout = useServiceCards();
+  const { cards: serviceRows, isLoading: servicesLoading } = useRemoteServiceCards(fromLayout);
+  const serviceOptions = useMemo(() => serviceRows.filter((c) => c.title?.trim() && c.href), [serviceRows]);
+
+  const [formData, setFormData] = useState(emptyForm);
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [productError, setProductError] = useState<string | undefined>();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     const next = name === "phone" ? value.replace(/\D/g, "").slice(0, 10) : value;
     setFormData((prev) => ({ ...prev, [name]: next }));
+    if (name === "product" && productError) setProductError(undefined);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (serviceOptions.length > 0 && !formData.product.trim()) {
+      setProductError("Please select a product");
+      return;
+    }
+    setProductError(undefined);
     setLoading(true);
 
     if (!PUBLIC_FORM_SUBMIT_AJAX_URL) {
@@ -35,9 +47,18 @@ export default function AgentLeadForm({ agentName }: Props) {
       return;
     }
 
+    const selected = serviceOptions.find((c) => c.href === formData.product);
+    const productLine = selected
+      ? `Product: ${selected.title} (${selected.href})`
+      : "Product: (not selected — list unavailable)";
+
     const payload = {
-      ...formData,
-      message: `[Agent lead — ${agentName}]\n${formData.message}`.trim(),
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      phone: formData.phone,
+      product: formData.product || undefined,
+      productTitle: selected?.title,
+      message: `[Agent lead — ${agentName}]\n${productLine}`.trim(),
     };
 
     try {
@@ -48,7 +69,7 @@ export default function AgentLeadForm({ agentName }: Props) {
       });
       const data = await response.json();
       if (data.success) {
-        setFormData({ name: "", email: "", phone: "", message: "" });
+        setFormData(emptyForm);
         setShowSuccess(true);
       } else {
         setShowSuccess(true);
@@ -60,30 +81,33 @@ export default function AgentLeadForm({ agentName }: Props) {
     }
   };
 
+  const fieldClass =
+    "w-full rounded-xl border border-primary/15 bg-white/95 px-4 py-3.5 text-sm text-midnight_text shadow-sm transition placeholder:text-gray/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25 dark:border-primary/25 dark:bg-semidark/80 dark:text-white dark:placeholder:text-gray-400";
+  const selectClass = `${fieldClass} cursor-pointer appearance-none bg-[length:1rem] bg-[right_0.75rem_center] bg-no-repeat pr-10`;
+
   return (
     <div className="relative w-full">
       {showSuccess && (
         <SuccessPopup
-          message="Thank you! Your advisor will reach out shortly."
+          message="Thank you. We got your message and will contact you soon."
           onClose={() => setShowSuccess(false)}
           autoCloseMs={3500}
         />
       )}
       <form
         onSubmit={handleSubmit}
-        className="agent-glass-card flex w-full flex-col rounded-3xl border border-white/70 bg-white/80 p-6 shadow-[0_25px_60px_-15px_rgba(47,115,242,0.2)] backdrop-blur-xl dark:border-white/10 dark:bg-semidark/80 dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.55)] sm:p-8"
+        className="flex w-full flex-col rounded-2xl border-2 border-primary/20 bg-gradient-to-b from-white to-light/80 p-6 shadow-xl shadow-primary/15 backdrop-blur-md dark:border-primary/30 dark:from-darklight dark:to-semidark dark:shadow-primary/20 sm:p-8"
       >
-        <div className="mb-1 h-1 w-14 rounded-full bg-gradient-to-r from-primary via-sky-400 to-cyan" />
-        <h2 className="mt-4 text-2xl font-bold tracking-tight text-midnight_text dark:text-white">Let&apos;s talk</h2>
-        <p className="mt-2 text-sm leading-relaxed text-gray dark:text-gray-400">
-          Tell us what you need — <span className="font-medium text-midnight_text dark:text-gray-300">{agentName}</span> will
-          reply shortly.
+        <div className="h-1.5 w-16 rounded-full bg-gradient-to-r from-primary via-skyBlue to-cyan" aria-hidden />
+        <h2 className="mt-5 text-2xl font-bold tracking-tight text-midnight_text dark:text-white">Need free financial advice?</h2>
+        <p className="mt-2 text-sm leading-relaxed text-gray dark:text-gray-300">
+          Get in touch — <span className="font-semibold text-primary dark:text-sky-200">{agentName}</span> will get back to you soon.
         </p>
 
-        <div className="mt-8 flex flex-col gap-4">
+        <div className="mt-8 flex flex-col gap-5">
           <div>
-            <label htmlFor="agent-lead-name" className="mb-1.5 block text-xs font-semibold text-midnight_text dark:text-gray-300">
-              Full name <span className="text-red-500">*</span>
+            <label htmlFor="agent-lead-name" className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-primary/90 dark:text-sky-300/90">
+              Name <span className="text-red-500">*</span>
             </label>
             <input
               id="agent-lead-name"
@@ -93,12 +117,12 @@ export default function AgentLeadForm({ agentName }: Props) {
               value={formData.name}
               onChange={handleChange}
               placeholder="Your name"
-              className="w-full rounded-xl border border-slate-200/90 bg-white px-4 py-3 text-sm text-midnight_text shadow-sm transition placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-darkmode/50 dark:text-white dark:placeholder:text-gray-500"
+              className={fieldClass}
             />
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="agent-lead-email" className="mb-1.5 block text-xs font-semibold text-midnight_text dark:text-gray-300">
+          <div className="grid min-w-0 grid-cols-2 gap-3 sm:gap-4">
+            <div className="min-w-0">
+              <label htmlFor="agent-lead-email" className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-primary/90 dark:text-sky-300/90">
                 Email <span className="text-red-500">*</span>
               </label>
               <input
@@ -108,13 +132,13 @@ export default function AgentLeadForm({ agentName }: Props) {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="you@email.com"
-                className="w-full rounded-xl border border-slate-200/90 bg-white px-4 py-3 text-sm text-midnight_text shadow-sm transition placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-darkmode/50 dark:text-white dark:placeholder:text-gray-500"
+                placeholder="your@email.com"
+                className={fieldClass}
               />
             </div>
-            <div>
-              <label htmlFor="agent-lead-phone" className="mb-1.5 block text-xs font-semibold text-midnight_text dark:text-gray-300">
-                Mobile <span className="text-red-500">*</span>
+            <div className="min-w-0">
+              <label htmlFor="agent-lead-phone" className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-primary/90 dark:text-sky-300/90">
+                Phone <span className="text-red-500">*</span>
               </label>
               <input
                 id="agent-lead-phone"
@@ -125,33 +149,47 @@ export default function AgentLeadForm({ agentName }: Props) {
                 maxLength={10}
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="10-digit number"
-                className="w-full rounded-xl border border-slate-200/90 bg-white px-4 py-3 text-sm text-midnight_text shadow-sm transition placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-darkmode/50 dark:text-white dark:placeholder:text-gray-500"
+                placeholder="10 digit mobile"
+                className={fieldClass}
               />
             </div>
           </div>
           <div>
-            <label htmlFor="agent-lead-msg" className="mb-1.5 block text-xs font-semibold text-midnight_text dark:text-gray-300">
-              How can we help?
+            <label htmlFor="agent-lead-product" className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-primary/90 dark:text-sky-300/90">
+              Select product <span className="text-red-500">*</span>
             </label>
-            <textarea
-              id="agent-lead-msg"
-              name="message"
-              rows={3}
-              value={formData.message}
+            <select
+              id="agent-lead-product"
+              name="product"
+              value={formData.product}
               onChange={handleChange}
-              placeholder="Loan amount, city, employment type…"
-              className="w-full resize-y rounded-xl border border-slate-200/90 bg-white px-4 py-3 text-sm text-midnight_text shadow-sm transition placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-darkmode/50 dark:text-white dark:placeholder:text-gray-500"
-            />
+              required={serviceOptions.length > 0}
+              disabled={servicesLoading && serviceOptions.length === 0}
+              className={selectClass}
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23668199'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
+              }}
+            >
+              <option value="">{servicesLoading ? "Loading products…" : "Select product"}</option>
+              {serviceOptions.map((c) => (
+                <option key={c.href} value={c.href}>
+                  {c.title}
+                </option>
+              ))}
+            </select>
+            {serviceOptions.length === 0 && !servicesLoading ? (
+              <p className="mt-1 text-[11px] text-gray dark:text-gray-400">Products could not be loaded. You can still submit; we will match you manually.</p>
+            ) : null}
+            {productError ? <p className="mt-1 text-[11px] text-red-600 dark:text-red-400">{productError}</p> : null}
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="agent-cta-btn group relative mt-2 w-full overflow-hidden rounded-xl bg-gradient-to-r from-primary to-[#2563eb] py-3.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg shadow-primary/25 transition hover:shadow-xl hover:shadow-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
+            className="agent-cta-btn group relative mt-1 w-full overflow-hidden rounded-full bg-gradient-to-r from-primary via-[#2563eb] to-cyan py-4 text-sm font-bold text-white shadow-lg shadow-primary/35 transition hover:shadow-xl hover:shadow-primary/45 hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <span className="relative z-10">{loading ? "Sending…" : "Send message"}</span>
+            <span className="relative z-10">{loading ? "Sending…" : "Send"}</span>
             <span
-              className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/25 to-transparent transition duration-500 group-hover:translate-x-[100%]"
+              className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition duration-500 group-hover:translate-x-[100%]"
               aria-hidden
             />
           </button>

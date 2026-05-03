@@ -25,8 +25,8 @@ export default function AboutPage() {
           </p>
         </div>
       </div>
-      <History />
       <Features />
+      <History />
       <CityLoansSlider />
       <CompanyInfo />
     </>

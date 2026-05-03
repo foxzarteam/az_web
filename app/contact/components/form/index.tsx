@@ -87,37 +87,40 @@ export default function ContactForm() {
                   className="w-full text-base px-4 rounded-lg py-2.5 border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
-              <div>
-                <label htmlFor="email" className="pb-3 inline-block text-base font-medium text-midnight_text dark:text-white">
-                  Email Address*
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full text-base px-4 py-2.5 rounded-lg border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-              <div>
-                <label htmlFor="phone" className="pb-3 inline-block text-base font-medium text-midnight_text dark:text-white">
-                  Phone Number*
-                </label>
-                <input
-                  id="phone"
-                  type="tel"
-                  inputMode="numeric"
-                  autoComplete="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  maxLength={10}
-                  pattern="[0-9]*"
-                  className="w-full text-base px-4 py-2.5 rounded-lg border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
+              <div className="grid min-w-0 grid-cols-2 gap-3 sm:gap-4">
+                <div className="min-w-0">
+                  <label htmlFor="email" className="pb-2 sm:pb-3 inline-block text-sm sm:text-base font-medium text-midnight_text dark:text-white">
+                    Email*
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full min-w-0 text-sm sm:text-base px-3 sm:px-4 py-2.5 rounded-lg border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <label htmlFor="phone" className="pb-2 sm:pb-3 inline-block text-sm sm:text-base font-medium text-midnight_text dark:text-white">
+                    Phone*
+                  </label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                    maxLength={10}
+                    pattern="[0-9]*"
+                    placeholder="10 digits"
+                    className="w-full min-w-0 text-sm sm:text-base px-3 sm:px-4 py-2.5 rounded-lg border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
               </div>
               <div>
                 <label htmlFor="message" className="pb-3 inline-block text-base font-medium text-midnight_text dark:text-white">

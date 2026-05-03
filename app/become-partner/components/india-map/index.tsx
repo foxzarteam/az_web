@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import {
@@ -17,28 +17,97 @@ interface Pin {
   delay: number;
 }
 
+/**
+ * x,y = % on the **drawn map bitmap** (0–100 left→right, top→bottom), i.e. inside the
+ * letterboxed `object-contain` area — tuned for typical India political / outline SVGs.
+ */
 const pins: Pin[] = [
-  { id: 1, state: "Delhi", x: 47, y: 21, label: "Agent joined", delay: 0 },
-  { id: 2, state: "Maharashtra", x: 30, y: 50, label: "Lead submitted", delay: 0.8 },
-  { id: 3, state: "Karnataka", x: 33, y: 66, label: "Commission earned", delay: 1.6 },
-  { id: 4, state: "Tamil Nadu", x: 38, y: 80, label: "Agent joined", delay: 2.4 },
-  { id: 5, state: "Gujarat", x: 28, y: 42, label: "Lead submitted", delay: 3.2 },
-  { id: 6, state: "West Bengal", x: 57, y: 36, label: "Commission earned", delay: 4.0 },
-  { id: 7, state: "Uttar Pradesh", x: 46, y: 26, label: "Agent joined", delay: 4.8 },
-  { id: 8, state: "Rajasthan", x: 34, y: 28, label: "Lead submitted", delay: 5.6 },
-  { id: 9, state: "Telangana", x: 37, y: 60, label: "Commission earned", delay: 6.4 },
-  { id: 10, state: "Punjab", x: 41, y: 16, label: "Agent joined", delay: 7.2 },
-  { id: 11, state: "Haryana", x: 43, y: 19, label: "Lead submitted", delay: 8.0 },
-  { id: 12, state: "Kerala", x: 32, y: 76, label: "Commission earned", delay: 8.8 },
-  { id: 13, state: "Madhya Pradesh", x: 37, y: 40, label: "Agent joined", delay: 9.6 },
-  { id: 14, state: "Bihar", x: 53, y: 33, label: "Lead submitted", delay: 10.4 },
-  { id: 15, state: "Odisha", x: 51, y: 50, label: "Commission earned", delay: 11.2 },
+  { id: 1, state: "Delhi", x: 48, y: 18, label: "Agent joined", delay: 0 },
+  { id: 2, state: "Maharashtra", x: 23, y: 54, label: "Lead submitted", delay: 0.8 },
+  { id: 3, state: "Karnataka", x: 37, y: 68, label: "Commission earned", delay: 1.6 },
+  { id: 4, state: "Tamil Nadu", x: 44, y: 83, label: "Agent joined", delay: 2.4 },
+  { id: 5, state: "Gujarat", x: 17, y: 41, label: "Lead submitted", delay: 3.2 },
+  { id: 6, state: "West Bengal", x: 65, y: 39, label: "Commission earned", delay: 4.0 },
+  { id: 7, state: "Uttar Pradesh", x: 45, y: 29, label: "Agent joined", delay: 4.8 },
+  { id: 8, state: "Rajasthan", x: 27, y: 26, label: "Lead submitted", delay: 5.6 },
+  { id: 9, state: "Telangana", x: 40, y: 58, label: "Commission earned", delay: 6.4 },
+  { id: 10, state: "Punjab", x: 42, y: 11, label: "Agent joined", delay: 7.2 },
+  { id: 11, state: "Haryana", x: 44, y: 16, label: "Lead submitted", delay: 8.0 },
+  { id: 12, state: "Kerala", x: 31, y: 85, label: "Commission earned", delay: 8.8 },
+  { id: 13, state: "Madhya Pradesh", x: 38, y: 43, label: "Agent joined", delay: 9.6 },
+  { id: 14, state: "Bihar", x: 56, y: 34, label: "Lead submitted", delay: 10.4 },
+  { id: 15, state: "Odisha", x: 54, y: 49, label: "Commission earned", delay: 11.2 },
 ];
+
+type MapInset = { left: number; top: number; w: number; h: number };
 
 export default function IndiaMap() {
   const [visiblePins, setVisiblePins] = useState<Set<number>>(new Set());
   const [showSuccess, setShowSuccess] = useState(false);
   const [mobile, setMobile] = useState("");
+  const mapWrapRef = useRef<HTMLDivElement>(null);
+  const mapImgRef = useRef<HTMLImageElement>(null);
+  const [mapInset, setMapInset] = useState<MapInset | null>(null);
+
+  const mapSrc = PUBLIC_INDIA_MAP_SVG_URL || PUBLIC_INDIA_MAP_FALLBACK_SVG_URL;
+
+  /**
+   * With `object-contain`, the <img> layout box fills the wrapper but the **picture** is
+   * letterboxed inside it. Pin % must map to the drawn bitmap, not the full element rect.
+   */
+  const updateMapInset = useCallback(() => {
+    const wrap = mapWrapRef.current;
+    const img = mapImgRef.current;
+    if (!wrap || !img || !img.complete || img.naturalWidth === 0) return;
+    const cw = img.clientWidth;
+    const ch = img.clientHeight;
+    const nw = img.naturalWidth;
+    const nh = img.naturalHeight;
+    const ww = wrap.clientWidth;
+    const wh = wrap.clientHeight;
+    if (cw <= 0 || ch <= 0 || nw <= 0 || nh <= 0 || ww <= 0 || wh <= 0) return;
+
+    const scale = Math.min(cw / nw, ch / nh);
+    const drawnW = nw * scale;
+    const drawnH = nh * scale;
+    const offsetX = (cw - drawnW) / 2;
+    const offsetY = (ch - drawnH) / 2;
+
+    setMapInset({
+      left: (offsetX / ww) * 100,
+      top: (offsetY / wh) * 100,
+      w: (drawnW / ww) * 100,
+      h: (drawnH / wh) * 100,
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!mapSrc) return;
+    const wrap = mapWrapRef.current;
+    const img = mapImgRef.current;
+    if (!wrap || !img) return;
+
+    const schedule = () => requestAnimationFrame(() => requestAnimationFrame(updateMapInset));
+
+    const onLoad = () => {
+      if (typeof img.decode === "function") {
+        void img.decode().then(schedule).catch(schedule);
+      } else {
+        schedule();
+      }
+    };
+
+    const ro = new ResizeObserver(schedule);
+    ro.observe(wrap);
+    img.addEventListener("load", onLoad);
+    if (img.complete) onLoad();
+    else schedule();
+
+    return () => {
+      ro.disconnect();
+      img.removeEventListener("load", onLoad);
+    };
+  }, [mapSrc, updateMapInset]);
 
   const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMobile(e.target.value.replace(/\D/g, "").slice(0, 10));
@@ -77,7 +146,7 @@ export default function IndiaMap() {
       <section className="partner-hero-shine bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 py-12 sm:py-16 md:py-20 px-4 sm:px-6 relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-blue-900/50 to-blue-800/50" />
         
-        <div className="container relative z-[1] mx-auto md:max-w-screen-md lg:max-w-screen-xl">
+        <div className="container relative z-[1] mx-auto max-w-full md:max-w-screen-lg lg:max-w-screen-2xl">
           <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-3 sm:mb-4">
             Agents Across India Are Earning Daily
           </h2>
@@ -131,15 +200,19 @@ export default function IndiaMap() {
             </form>
           </div>
 
-          <div className="relative bg-blue-950/30 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 lg:p-12 border border-blue-700/30 shadow-2xl backdrop-blur-sm">
-            <div className="relative w-full h-[340px] xs:h-[380px] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-visible bg-blue-900/20">
-              {PUBLIC_INDIA_MAP_SVG_URL || PUBLIC_INDIA_MAP_FALLBACK_SVG_URL ? (
+          <div className="relative bg-blue-950/30 rounded-xl sm:rounded-2xl p-2 sm:p-4 md:p-5 lg:p-6 border border-blue-700/30 shadow-2xl backdrop-blur-sm">
+            <div
+              ref={mapWrapRef}
+              className="relative mx-auto w-full min-h-[400px] h-[min(82vh,560px)] xs:h-[min(84vh,620px)] sm:h-[min(85vh,700px)] md:h-[min(86vh,780px)] lg:h-[min(88vh,900px)] xl:h-[min(88vh,960px)] overflow-visible bg-blue-900/20"
+            >
+              {mapSrc ? (
                 // External SVG URLs from env + runtime onError fallback
                 // eslint-disable-next-line @next/next/no-img-element -- remote SVG, dynamic src swap
                 <img
-                  src={PUBLIC_INDIA_MAP_SVG_URL || PUBLIC_INDIA_MAP_FALLBACK_SVG_URL}
+                  ref={mapImgRef}
+                  src={mapSrc}
                   alt="India Map"
-                  className="w-full h-full object-contain"
+                  className="pointer-events-none absolute inset-0 h-full w-full select-none object-contain object-center"
                   style={{
                     filter: "brightness(0.95) contrast(1.2) saturate(1.3) hue-rotate(80deg)",
                     opacity: 0.9,
@@ -160,13 +233,17 @@ export default function IndiaMap() {
                 </div>
               )}
 
-              {pins.map((pin) => (
+              {pins.map((pin) => {
+                const inset = mapInset ?? { left: 0, top: 0, w: 100, h: 100 };
+                const left = inset.left + (pin.x / 100) * inset.w;
+                const top = inset.top + (pin.y / 100) * inset.h;
+                return (
                 <div
                   key={pin.id}
-                  className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                  className="absolute z-10 -translate-x-1/2 -translate-y-1/2 transform"
                   style={{
-                    left: `${pin.x}%`,
-                    top: `${pin.y}%`,
+                    left: `${left}%`,
+                    top: `${top}%`,
                   }}
                 >
                   <div
@@ -196,13 +273,14 @@ export default function IndiaMap() {
                     </div>
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
           <div className="mt-6 sm:mt-8 text-center px-2">
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white inline-block px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-800/50 rounded-lg border border-blue-600/50 backdrop-blur-sm">
-              India&apos;s Trusted Loan & Credit Card Partner Platform
+              India&apos;s Trusted Loan & Insurance Partner Platform
             </p>
           </div>
         </div>

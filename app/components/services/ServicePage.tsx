@@ -218,16 +218,16 @@ export default function ServicePage({ title, subtitle, imageSrc, badge, hideHead
           </div>
 
           <div className="relative min-w-0 order-2 lg:order-2 w-full h-full min-h-[280px] lg:min-h-[420px]" data-aos="fade-left">
-            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-primary/10 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 h-full min-h-[280px] lg:min-h-[420px]">
-              <div className="absolute -top-10 -left-10 h-24 w-24 sm:h-32 sm:w-32 rounded-full bg-primary/20 blur-3xl" />
-              <div className="absolute -bottom-8 -right-8 sm:-bottom-12 sm:-right-12 h-28 w-28 sm:h-40 sm:w-40 rounded-full bg-accent/30 blur-3xl" />
-              <div className="relative z-10 w-full h-full min-h-[280px] lg:min-h-[420px]">
+            <div className="relative h-full min-h-[280px] overflow-hidden rounded-2xl border border-primary/10 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 shadow-2xl sm:rounded-3xl lg:min-h-[420px]">
+              <div className="absolute -left-10 -top-10 h-24 w-24 rounded-full bg-primary/20 blur-3xl sm:h-32 sm:w-32" />
+              <div className="absolute -bottom-8 -right-8 h-28 w-28 rounded-full bg-accent/30 blur-3xl sm:-bottom-12 sm:-right-12 sm:h-40 sm:w-40" />
+              <div className="relative z-10 h-full min-h-[280px] w-full lg:min-h-[420px]">
                 <Image
                   src={imageSrc}
                   alt={title}
                   width={640}
                   height={480}
-                  className="w-full h-full min-h-[280px] lg:min-h-[420px] object-cover object-center"
+                  className="h-full min-h-[280px] w-full object-cover object-center lg:min-h-[420px]"
                 />
               </div>
             </div>

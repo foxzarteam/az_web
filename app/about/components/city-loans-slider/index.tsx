@@ -11,8 +11,7 @@ const CITY_FILES = {
   chennai: "imgi_48_chennai.svg",
   delhi: "imgi_49_delhi.svg",
   mumbai: "imgi_50_mumbai.svg",
-  bangalore: "imgi_51_bangalore.png",
-  hyderabad: "imgi_52_hyderabad.png",
+  bangalore: "imgi_51_bangalore.svg",
   pune: "imgi_53_pune.svg",
   patna: "imgi_54_patna.svg",
   ahmedabad: "imgi_55_ahemdabad.svg",
@@ -27,7 +26,6 @@ const CITIES: { slug: CitySlug; city: string }[] = [
   { slug: "delhi", city: "Delhi" },
   { slug: "mumbai", city: "Mumbai" },
   { slug: "bangalore", city: "Bangalore" },
-  { slug: "hyderabad", city: "Hyderabad" },
   { slug: "pune", city: "Pune" },
   { slug: "patna", city: "Patna" },
   { slug: "ahmedabad", city: "Ahmedabad" },
@@ -69,36 +67,36 @@ export default function CityLoansSlider() {
   const loop = [...CITIES, ...CITIES];
 
   return (
-    <section className="bg-white pt-1 pb-12 dark:bg-darkmode sm:pt-2 md:pb-16">
+    <section className="bg-white py-12 dark:bg-darkmode md:py-16">
       <div className="mx-auto w-full max-w-[1260px] px-4">
         <h2 className="mb-3 text-center text-[22px] font-bold leading-[1.25] tracking-normal text-[#1F1F1F] sm:text-[24px] md:mb-4 md:text-[30px] md:leading-snug dark:text-white">
-          Instant Personal Loans and{" "}
+          Instant Loans and{" "}
           <span className="text-primary">insurance</span>, Now in Your City
         </h2>
         <div className="mx-auto mb-5 flex flex-col items-center gap-2 md:mb-7" aria-hidden>
           <div className="h-px w-full max-w-md bg-gradient-to-r from-transparent via-primary to-transparent dark:via-primary" />
           <div className="h-1 w-24 rounded-full bg-primary sm:w-28 md:w-32" />
         </div>
+      </div>
 
-        <div className="relative">
-          <div
-            className="pointer-events-none absolute inset-y-0 left-0 z-[1] w-8 bg-gradient-to-r from-white to-transparent sm:w-12 dark:from-darkmode"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute inset-y-0 right-0 z-[1] w-8 bg-gradient-to-l from-white to-transparent sm:w-12 dark:from-darkmode"
-            aria-hidden
-          />
+      <div className="relative w-full">
+        <div
+          className="pointer-events-none absolute inset-y-0 left-0 z-[1] w-8 bg-gradient-to-r from-white to-transparent sm:w-12 md:w-16 dark:from-darkmode"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 z-[1] w-8 bg-gradient-to-l from-white to-transparent sm:w-12 md:w-16 dark:from-darkmode"
+          aria-hidden
+        />
 
-          <div className="overflow-hidden px-2 py-4 sm:px-3 md:px-4">
-            <div
-              className="city-marquee-track flex w-max"
-              style={{ gap: GAP }}
-            >
-              {loop.map(({ slug, city }, i) => (
-                <CityCard key={`${slug}-${i}`} slug={slug} city={city} />
-              ))}
-            </div>
+        <div className="overflow-hidden py-4">
+          <div
+            className="city-marquee-track flex w-max"
+            style={{ gap: GAP }}
+          >
+            {loop.map(({ slug, city }, i) => (
+              <CityCard key={`${slug}-${i}`} slug={slug} city={city} />
+            ))}
           </div>
         </div>
       </div>

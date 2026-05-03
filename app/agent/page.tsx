@@ -5,10 +5,10 @@ import { PUBLIC_SITE_URL } from "@/app/config/constants";
 
 export const metadata: Metadata = {
   title: `${AGENT_PROFILE.displayName} | Advisor | Apni Zaroorat`,
-  description: `${AGENT_PROFILE.role}. Connect with your Apni Zaroorat advisor.`,
+  description: `${AGENT_PROFILE.headline.slice(0, 155)}${AGENT_PROFILE.headline.length > 155 ? "…" : ""}`,
   openGraph: {
     title: `${AGENT_PROFILE.displayName} — Apni Zaroorat`,
-    description: `${AGENT_PROFILE.role}. Personal loan & insurance guidance.`,
+    description: `${AGENT_PROFILE.role}. Simple help with loans and insurance on Apni Zaroorat.`,
     url: `${PUBLIC_SITE_URL}/agent`,
   },
 };

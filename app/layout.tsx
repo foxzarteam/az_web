@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
@@ -15,6 +15,16 @@ const dmSans = DM_Sans({
   display: "swap",
   preload: true,
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F0F6FA" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c121e" },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(PUBLIC_SITE_URL),
@@ -35,13 +45,18 @@ export default async function RootLayout({
   const serviceCards = await getActiveServices();
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={dmSans.className} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="min-h-[100dvh]">
+      <body className={`${dmSans.className} min-h-[100dvh] min-w-0`} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <Aoscompo>
             <ServiceCardsProvider cards={serviceCards}>
               <Header />
-              {children}
+              <div
+                id="main-content"
+                className="relative min-w-0 w-full max-w-[100vw] overflow-x-clip pb-[env(safe-area-inset-bottom,0px)]"
+              >
+                {children}
+              </div>
               <Footer />
             </ServiceCardsProvider>
             <ScrollToTop />

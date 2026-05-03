@@ -20,16 +20,19 @@ export default function Footer() {
           <div className="md:col-span-4 col-span-12">
             <Link
               href="/"
-              className="mb-4 md:mb-6 inline-flex min-h-[44px] min-w-[44px] items-center"
+              className="mb-4 md:mb-6 inline-flex min-h-[44px] items-center gap-3"
               aria-label="Apni Zaroorat home"
             >
               <Image
-                src="/images/logo/logo.png"
-                alt="Apni Zaroorat"
-                width={320}
-                height={96}
-                className="h-12 w-auto max-w-[min(100%,280px)] object-contain object-left sm:h-14 sm:max-w-[min(100%,320px)] md:h-16 md:max-w-[min(100%,360px)] lg:h-[4.5rem]"
+                src="/favicon.png"
+                alt=""
+                width={56}
+                height={56}
+                className="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-white/25 sm:h-14 sm:w-14"
               />
+              <span className="text-lg font-semibold tracking-tight text-white sm:text-xl md:text-2xl">
+                Apni Zaroorat
+              </span>
             </Link>
             <div className="flex items-center gap-2 flex-wrap mt-4">
               <a href={`tel:${CONTACT.PHONE}`} className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-midnight_text bg-white/50 hover:bg-primary transition-colors" aria-label="Phone">
@@ -63,7 +66,7 @@ export default function Footer() {
             <div className="lg:col-span-8 col-span-12 sm:col-span-12">
               <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Services</h4>
               {serviceLinks.length > 0 ? (
-                <ul className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-x-6 space-y-0.5">
+                <ul className="flex flex-col space-y-0.5">
                   {serviceLinks.map((s) => (
                     <li key={s.slug ?? s.href}>
                       <Link

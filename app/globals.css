@@ -4,6 +4,8 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  min-width: 0;
 }
 
 * {
@@ -15,14 +17,13 @@ html {
 
 @layer components {
   body {
-    @apply text-base overflow-x-hidden font-normal min-w-0;
+    @apply min-h-[100dvh] min-w-0 overflow-x-hidden bg-white text-base font-normal text-midnight_text antialiased dark:bg-darkmode dark:text-white;
     -webkit-text-size-adjust: 100%;
-  }
-  html {
-    @apply overflow-x-hidden;
+    text-size-adjust: 100%;
+    overflow-wrap: anywhere;
   }
   .container {
-    @apply min-w-0;
+    @apply min-w-0 max-w-full;
   }
   textarea,
   input[type="text"],
@@ -43,10 +44,10 @@ html {
     color: #102D47 !important;
   }
   h1 {
-    @apply md:text-[51px] md:leading-[1.2] text-[28px] leading-[1.2] font-bold text-midnight_text dark:text-white;
+    @apply text-[clamp(1.5rem,5vw+0.5rem,3.2rem)] leading-[1.15] font-bold text-midnight_text dark:text-white md:text-[51px] md:leading-[1.2];
   }
   h2 {
-    @apply md:text-[40px] leading-[1.2] text-2xl font-bold text-midnight_text dark:text-white;
+    @apply text-[clamp(1.25rem,3.5vw+0.35rem,2.5rem)] leading-[1.2] font-bold text-midnight_text dark:text-white md:text-[40px];
   }
   h3 {
     @apply md:text-[28px] leading-[1.2] text-lg font-bold text-white dark:text-primary;

@@ -56,7 +56,7 @@ export default function Header() {
     <header
       className="fixed top-0 left-0 right-0 z-50 w-full bg-white dark:bg-semidark shadow-sm transition-all duration-200"
     >
-      <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between px-4 sm:px-6 h-16 sm:h-16 md:h-20 gap-2 min-w-0">
+      <div className="container mx-auto flex min-w-0 max-w-full items-center justify-between gap-2 px-3 xs:px-4 sm:px-6 md:max-w-screen-md md:px-6 lg:max-w-screen-xl h-16 sm:h-16 md:h-20">
         <Logo />
         <nav className="hidden lg:flex flex-grow items-center justify-center space-x-10 xl:space-x-12 min-w-0">
           {headerNavItems.map((item, index) => (
