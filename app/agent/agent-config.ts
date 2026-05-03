@@ -10,7 +10,7 @@ export const AGENT_PROFILE = {
   avatarInitials: "AS",
   /** Optional photo URL (add domain in next.config if remote) */
   photoUrl: "" as string,
-  phone: CONTACT.PHONE || "+91 98765 43210",
+  phone: CONTACT.PHONE,
   email: CONTACT.EMAIL || "advisor@apnizaroorat.com",
   /** Full address as you want it shown */
   address: "Andheri East, Mumbai 400059\n(Online calls for customers anywhere in India)",

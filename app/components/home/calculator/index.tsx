@@ -39,16 +39,17 @@ export default function Calculator() {
   const interestDash = interestShare * circumference;
 
   return (
-    <section className="dark:bg-darkmode">
+    <section className="w-full min-w-0 dark:bg-darkmode">
       <div
-        className="container mx-auto grid max-w-full grid-cols-1 gap-6 px-4 sm:px-6 sm:gap-8 md:max-w-screen-md lg:max-w-screen-xl lg:grid-cols-2 lg:gap-10 lg:px-8"
+        className="container mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md"
         data-aos="fade-left"
       >
+        <div className="grid w-full min-w-0 grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-2 lg:gap-10">
         <div
-          className="flex min-w-0 flex-col items-start justify-center gap-4 text-left lg:py-2"
+          className="flex min-w-0 w-full flex-col items-start justify-center gap-4 text-left lg:py-2"
           data-aos="fade-right"
         >
-          <div className="w-full max-w-md lg:max-w-lg">
+          <div className="w-full min-w-0">
             <h2 className="mb-3 text-lg font-bold text-midnight_text dark:text-white sm:mb-4 sm:text-xl md:text-2xl lg:text-3xl">
               Personal Loan EMI Calculator
             </h2>
@@ -114,7 +115,7 @@ export default function Calculator() {
           className="flex min-w-0 w-full flex-col items-start justify-center lg:py-2"
           data-aos="fade-left"
         >
-          <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-white shadow-lg dark:border-dark_border dark:bg-darklight">
+          <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-border bg-white shadow-lg dark:border-dark_border dark:bg-darklight">
             <div className="bg-primary px-6 py-4 text-center">
               <h3 className="text-xl font-bold text-white">Personal Loan EMI Calculator</h3>
               <p className="mt-1 text-sm text-white/80">Calculate EMI for your Personal Loan</p>
@@ -250,6 +251,7 @@ export default function Calculator() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </section>

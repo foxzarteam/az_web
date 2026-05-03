@@ -3,9 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const SLIDE_W = 215;
-const GAP = 16;
-
 /** Files in `public/city/` */
 const CITY_FILES = {
   chennai: "imgi_48_chennai.svg",
@@ -35,26 +32,23 @@ const CITIES: { slug: CitySlug; city: string }[] = [
 
 function CityCard({ slug, city }: { slug: CitySlug; city: string }) {
   return (
-    <div
-      className="shrink-0"
-      style={{ width: SLIDE_W, minWidth: SLIDE_W, maxWidth: SLIDE_W }}
-    >
+    <div className="shrink-0 w-[calc((100vw-1.25rem)/3)] max-w-[118px] min-w-[86px] md:w-[215px] md:min-w-[215px] md:max-w-[215px]">
       <Link
         href="/services/personal-loan"
         className="flex flex-col items-center rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
-        <div className="flex h-[120px] w-[130px] cursor-pointer items-end justify-center rounded-2xl border-2 border-primary bg-white p-4 shadow-md dark:border-primary dark:bg-darklight md:h-[183px] md:w-[210px]">
+        <div className="flex h-[96px] w-full max-w-[92px] cursor-pointer items-end justify-center rounded-xl border-2 border-primary bg-white p-2 shadow-md dark:border-primary dark:bg-darklight sm:h-[104px] sm:max-w-[100px] sm:p-2.5 md:h-[183px] md:max-w-[210px] md:rounded-2xl md:p-4">
           <Image
             src={`/city/${CITY_FILES[slug]}`}
             alt={city}
             width={120}
             height={120}
-            className="h-[70px] w-[70px] max-h-full max-w-full object-contain md:h-[120px] md:w-[120px]"
+            className="h-[48px] w-[48px] max-h-full max-w-full object-contain sm:h-[54px] sm:w-[54px] md:h-[120px] md:w-[120px]"
             unoptimized
           />
         </div>
-        <div className="mt-4 cursor-pointer text-center">
-          <div className="text-center text-sm font-bold leading-[22px] tracking-normal text-[#1F1F1F] md:text-xl dark:text-white">
+        <div className="mt-2 cursor-pointer text-center md:mt-4">
+          <div className="text-center text-xs font-bold leading-tight tracking-normal text-[#1F1F1F] sm:text-sm md:text-xl dark:text-white">
             {city}
           </div>
         </div>
@@ -90,10 +84,7 @@ export default function CityLoansSlider() {
         />
 
         <div className="overflow-hidden py-4">
-          <div
-            className="city-marquee-track flex w-max"
-            style={{ gap: GAP }}
-          >
+          <div className="city-marquee-track flex w-max gap-2 sm:gap-2.5 md:gap-4">
             {loop.map(({ slug, city }, i) => (
               <CityCard key={`${slug}-${i}`} slug={slug} city={city} />
             ))}

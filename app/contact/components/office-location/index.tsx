@@ -13,7 +13,7 @@ export default function Location() {
             <Link href={`mailto:${CONTACT.EMAIL}`} className="text-base sm:text-lg md:text-xl text-white font-medium underline block mb-2 break-all">
               {CONTACT.EMAIL}
             </Link>
-            <Link href={`tel:${CONTACT.PHONE}`} className="text-base sm:text-lg md:text-xl text-white text-opacity-80 flex items-center gap-2 hover:text-opacity-100 w-fit">
+            <Link href={`tel:${CONTACT.PHONE_TEL}`} className="text-base sm:text-lg md:text-xl text-white text-opacity-80 flex items-center gap-2 hover:text-opacity-100 w-fit">
               <span className="text-white text-opacity-60">Call</span>
               {CONTACT.PHONE}
             </Link>

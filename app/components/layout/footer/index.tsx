@@ -35,7 +35,7 @@ export default function Footer() {
               </span>
             </Link>
             <div className="flex items-center gap-2 flex-wrap mt-4">
-              <a href={`tel:${CONTACT.PHONE}`} className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-midnight_text bg-white/50 hover:bg-primary transition-colors" aria-label="Phone">
+              <a href={`tel:${CONTACT.PHONE_TEL}`} className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-midnight_text bg-white/50 hover:bg-primary transition-colors" aria-label="Phone">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                 </svg>
@@ -55,7 +55,7 @@ export default function Footer() {
             </div>
           </div>
           <div className="md:col-span-8 col-span-12 grid grid-cols-12 gap-6 sm:gap-8">
-            <div className="lg:col-span-4 col-span-6 sm:col-span-6">
+            <div className="col-span-6 min-w-0 lg:col-span-4">
               <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Quick Links</h4>
               <ul className="space-y-0.5">
                 <li><Link href="/contact" className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center">Contact</Link></li>
@@ -63,7 +63,7 @@ export default function Footer() {
                 <li><Link href="/become-partner" className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center">Become a Partner</Link></li>
               </ul>
             </div>
-            <div className="lg:col-span-8 col-span-12 sm:col-span-12">
+            <div className="col-span-6 min-w-0 lg:col-span-8">
               <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Services</h4>
               {serviceLinks.length > 0 ? (
                 <ul className="flex flex-col space-y-0.5">

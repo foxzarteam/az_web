@@ -69,7 +69,16 @@ export function absoluteUrl(path: string): string {
 
 export const PUBLIC_CONTACT_EMAIL = (process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "").trim();
 
-export const PUBLIC_CONTACT_PHONE = (process.env.NEXT_PUBLIC_CONTACT_PHONE ?? "").trim();
+/**
+ * Site-wide support number (footer, contact page).
+ * Intentionally not read from NEXT_PUBLIC_* so static export / stale CI env
+ * cannot leave the wrong number on /contact.
+ */
+const SITE_CONTACT_PHONE_NATIONAL = "9251283215";
+/** Display: +91 prefix and spaced local number */
+export const PUBLIC_CONTACT_PHONE = `+91 ${SITE_CONTACT_PHONE_NATIONAL.slice(0, 5)} ${SITE_CONTACT_PHONE_NATIONAL.slice(5)}`;
+/** Use in `href={\`tel:${...}\`}` (E.164-style, no spaces) */
+export const PUBLIC_CONTACT_PHONE_TEL = `+91${SITE_CONTACT_PHONE_NATIONAL}`;
 
 /** FormSubmit.co JSON endpoint for the contact email. */
 export const PUBLIC_FORM_SUBMIT_AJAX_URL = PUBLIC_CONTACT_EMAIL
