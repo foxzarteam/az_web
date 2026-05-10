@@ -37,7 +37,7 @@ export default function PartnersMarquee() {
   return (
     <div
       role="region"
-      className="overflow-hidden bg-light py-14 sm:py-16 md:py-20 lg:py-24 dark:bg-semidark"
+      className="overflow-hidden bg-white py-14 sm:py-16 md:py-20 lg:py-24 dark:bg-semidark"
       aria-labelledby="our-partners-heading"
     >
       <div className="container mx-auto mb-6 sm:mb-8 max-w-full px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md">
@@ -55,11 +55,11 @@ export default function PartnersMarquee() {
 
       <div className="relative">
         <div
-          className="pointer-events-none absolute inset-y-0 left-0 z-[1] w-12 bg-gradient-to-r from-light to-transparent sm:w-20 dark:from-semidark"
+          className="pointer-events-none absolute inset-y-0 left-0 z-[1] w-12 bg-gradient-to-r from-white to-transparent sm:w-20 dark:from-semidark"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute inset-y-0 right-0 z-[1] w-12 bg-gradient-to-l from-light to-transparent sm:w-20 dark:from-semidark"
+          className="pointer-events-none absolute inset-y-0 right-0 z-[1] w-12 bg-gradient-to-l from-white to-transparent sm:w-20 dark:from-semidark"
           aria-hidden
         />
 

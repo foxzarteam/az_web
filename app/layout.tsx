@@ -53,7 +53,7 @@ export default async function RootLayout({
               <Header />
               <div
                 id="main-content"
-                className="relative min-w-0 w-full max-w-[100vw] overflow-x-clip pb-[env(safe-area-inset-bottom,0px)]"
+                className="relative min-w-0 w-full max-w-full pb-[env(safe-area-inset-bottom,0px)]"
               >
                 {children}
               </div>

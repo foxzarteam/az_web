@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { CONTACT, SOCIAL_LINKS } from "@/app/config/constants";
 import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
@@ -9,9 +10,14 @@ import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards"
 import { serviceCardsToSubmenu } from "@/app/lib/services/submenu";
 
 export default function Footer() {
+  const pathname = usePathname();
   const fromLayout = useServiceCards();
   const { cards } = useRemoteServiceCards(fromLayout);
   const serviceLinks = useMemo(() => serviceCardsToSubmenu(cards), [cards]);
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <footer id="contact" className="relative z-10 bg-midnight_text dark:bg-semidark overflow-hidden">

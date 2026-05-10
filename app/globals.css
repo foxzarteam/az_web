@@ -271,32 +271,6 @@ html {
   }
 }
 
-/* Featured service card – rotating ring accents (photo stays still) */
-@keyframes featured-card-ring-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.featured-card-ring-dashed {
-  transform-origin: center center;
-  will-change: transform;
-  animation: featured-card-ring-spin 22s linear infinite;
-}
-
-.featured-card-ring-conic {
-  transform-origin: center center;
-  will-change: transform;
-  animation: featured-card-ring-spin 30s linear infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .featured-card-ring-dashed,
-  .featured-card-ring-conic {
-    animation: none;
-  }
-}
-
 .success-modal-overlay {
   animation: success-overlay-in 0.25s ease-out forwards;
 }

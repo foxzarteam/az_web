@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { SCROLL_THRESHOLD } from "@/app/config/constants";
 import { scrollToTop as scrollToTopUtil } from "@/app/utils/scroll";
 
@@ -9,6 +10,7 @@ function getScrollVisibility(): boolean {
 }
 
 export default function ScrollToTop() {
+  const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -16,6 +18,10 @@ export default function ScrollToTop() {
     window.addEventListener("scroll", toggleVisibility);
     return () => window.removeEventListener("scroll", toggleVisibility);
   }, []);
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-8 right-8 z-[999]">
