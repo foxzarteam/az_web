@@ -28,7 +28,9 @@ export default function LoginForm() {
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
-        setError(data.error?.trim() || "Login failed.");
+        const msg = data.error?.trim() || "Login failed.";
+        setError(msg);
+        window.alert(msg);
         return;
       }
       router.push("/admin/dashboard");
