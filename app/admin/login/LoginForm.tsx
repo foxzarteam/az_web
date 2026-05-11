@@ -28,9 +28,7 @@ export default function LoginForm() {
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
-        const msg = data.error?.trim() || "Login failed.";
-        setError(msg);
-        window.alert(msg);
+        setError(data.error?.trim() || "Login failed.");
         return;
       }
       router.push("/admin/dashboard");
@@ -52,9 +50,8 @@ export default function LoginForm() {
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           {error ? (
             <div
-              className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm leading-relaxed text-red-700 whitespace-pre-wrap break-words dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+              className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
               role="alert"
-              aria-live="assertive"
             >
               {error}
             </div>
