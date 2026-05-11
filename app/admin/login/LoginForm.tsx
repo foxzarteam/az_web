@@ -4,17 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-function devLoginPrefill(): { email: string; password: string } {
-  if (process.env.NODE_ENV !== "development") {
-    return { email: "", password: "" };
-  }
-  return { email: "info@apnizaroorat.com", password: "Admin@123" };
-}
+const LOGIN_PREFILL = {
+  email: "info@apnizaroorat.com",
+  password: "admin@123",
+} as const;
 
 export default function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState(() => devLoginPrefill().email);
-  const [password, setPassword] = useState(() => devLoginPrefill().password);
+  const [email, setEmail] = useState(LOGIN_PREFILL.email);
+  const [password, setPassword] = useState(LOGIN_PREFILL.password);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
