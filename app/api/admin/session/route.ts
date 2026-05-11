@@ -3,8 +3,9 @@ import { verifyAdminCredentials } from "@/app/lib/admin/verifyCredentials";
 import { setAdminSessionCookie } from "@/app/lib/admin/session";
 
 /**
- * Admin login: browser → this route → Bankers Nest `POST {PUBLIC_API_BASE_URL}/api/auth/login`
- * (server/src/auth) → Supabase `public.auth`. On success, httpOnly `admin_session` cookie only here.
+ * Same-origin only: after Nest `POST …/api/auth/login` succeeds in the browser,
+ * call this to set the httpOnly `admin_session` cookie (Next cannot read cross-site Nest cookies).
+ * Re-verifies credentials server-side via Nest before setting the cookie.
  */
 export async function POST(request: Request) {
   try {
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
     await setAdminSessionCookie({ sub: result.user.id, email: result.user.email, role: result.user.role });
     return NextResponse.json({ ok: true });
   } catch (e) {
-    console.error("admin login", e);
+    console.error("admin session", e);
     return NextResponse.json({ error: "Login failed" }, { status: 500 });
   }
 }

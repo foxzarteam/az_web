@@ -3,11 +3,21 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { PUBLIC_API_BASE_URL } from "@/app/config/constants";
 
 const LOGIN_PREFILL = {
   email: "info@apnizaroorat.com",
   password: "admin@123",
 };
+
+type NestLoginJson = {
+  ok?: boolean;
+  user?: { id: string; email: string; role: string; full_name?: string };
+};
+
+function nestAuthLoginUrl(): string {
+  return `${PUBLIC_API_BASE_URL.replace(/\/+$/, "")}/api/auth/login`;
+}
 
 export default function LoginForm() {
   const router = useRouter();
@@ -21,16 +31,34 @@ export default function LoginForm() {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/login", {
+      const nestRes = await fetch(nestAuthLoginUrl(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ email, password }),
+        mode: "cors",
+        credentials: "omit",
+      });
+
+      const nestJson = (await nestRes.json().catch(() => ({}))) as NestLoginJson;
+
+      if (!nestRes.ok || !nestJson.ok || !nestJson.user?.id || !nestJson.user?.email || !nestJson.user?.role) {
+        setError("Invalid email or password");
+        return;
+      }
+
+      const sessionRes = await fetch("/api/admin/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
+        credentials: "same-origin",
       });
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setError(data.error?.trim() || "Login failed.");
+      const sessionData = (await sessionRes.json().catch(() => ({}))) as { error?: string };
+
+      if (!sessionRes.ok) {
+        setError(sessionData.error?.trim() || "Could not create session.");
         return;
       }
+
       router.push("/admin/dashboard");
       router.refresh();
     } catch {
