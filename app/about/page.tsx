@@ -5,7 +5,6 @@ import CityLoansSlider from "./components/city-loans-slider";
 
 const History = dynamic(() => import("../components/home/history"));
 const Features = dynamic(() => import("../components/shared/features"));
-const CompanyInfo = dynamic(() => import("../components/home/info"));
 
 export const metadata: Metadata = {
   title: "About Us | Apni Zaroorat",
@@ -28,7 +27,6 @@ export default function AboutPage() {
       <Features />
       <History />
       <CityLoansSlider />
-      <CompanyInfo />
     </>
   );
 }

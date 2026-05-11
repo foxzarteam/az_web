@@ -17,13 +17,17 @@ export default function ContactInfo() {
                   Email Us
                 </span>
                 <p className="text-midnight_text/70 font-normal text-sm sm:text-base md:text-xl max-w-full md:max-w-80 pt-2 sm:pt-3 pb-4 sm:pb-7 dark:text-gray break-words">
-                  Feel free to contact us at{" "}
+                  Feel free to contact us at
+                  <br />
                   {CONTACT.EMAIL ? (
-                    <a href={`mailto:${CONTACT.EMAIL}`} className="hover:text-primary transition-colors break-all">
+                    <a
+                      href={`mailto:${CONTACT.EMAIL}`}
+                      className="mt-1 inline-block hover:text-primary transition-colors break-all"
+                    >
                       {CONTACT.EMAIL}
                     </a>
                   ) : (
-                    <span className="text-midnight_text/50">—</span>
+                    <span className="mt-1 inline-block text-midnight_text/50">—</span>
                   )}
                 </p>
               </div>

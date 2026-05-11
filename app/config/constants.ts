@@ -71,12 +71,6 @@ export const FEATURED_SERVICES = [
   { title: "Insurance", description: "Protect your life, health and assets" },
 ] as const;
 
-export const COMPANY_STATS = [
-  { value: "99%", label: "Happy Customers" },
-  { value: "80K+", label: "Loans Disbursed" },
-  { value: "50+", label: "Bank Partners" },
-] as const;
-
 export const SOCIAL_LINKS = {
   FACEBOOK: "#/",
   TWITTER: "#/",

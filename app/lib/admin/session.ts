@@ -12,10 +12,14 @@ type SessionPayload = {
   exp: number;
 };
 
+/** Default signing key when `ADMIN_SESSION_SECRET` is unset. Override in production via env. */
+const DEFAULT_ADMIN_SESSION_SECRET =
+  "fc58aa37dd20fbb47d293d31714deed0febaececf9c20b326bf118adfc818744";
+
 function getSecret(): string {
-  const s = process.env.ADMIN_SESSION_SECRET?.trim();
-  if (!s || s.length < 16) {
-    throw new Error("ADMIN_SESSION_SECRET must be set (at least 16 characters)");
+  const s = (process.env.ADMIN_SESSION_SECRET?.trim() || DEFAULT_ADMIN_SESSION_SECRET).trim();
+  if (s.length < 16) {
+    throw new Error("ADMIN_SESSION_SECRET must be at least 16 characters");
   }
   return s;
 }

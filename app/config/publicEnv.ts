@@ -1,5 +1,5 @@
 /**
- * Client-safe public configuration from .env.local (NEXT_PUBLIC_*).
+ * Client-safe public site config. Env vars (NEXT_PUBLIC_*) override these defaults.
  * Re-exported from @/app/config/constants. See env.local.example for keys.
  */
 
@@ -25,6 +25,16 @@ function normalizeEnvValue(s: string): string {
  * Override with NEXT_PUBLIC_API_URL when your backend URL changes.
  */
 const DEFAULT_PUBLIC_API_BASE = "https://server-nu-bay-20.vercel.app";
+
+const DEFAULT_CONTACT_EMAIL = "info@apnizaroorat.com";
+
+const DEFAULT_GOOGLE_MAPS_EMBED_URL =
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d938779.7831767448!2d71.05098621661072!3d23.20271516446136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e82dd003ff749%3A0x359e803f537cea25!2sGANESH%20GLORY%2C%20Gota%2C%20Ahmedabad%2C%20Gujarat%20382481!5e0!3m2!1sen!2sin!4v1715676641521!5m2!1sen!2sin";
+
+const DEFAULT_INDIA_MAP_SVG_URL = "https://simplemaps.com/static/svg/country/in/admin1/in.svg";
+
+const DEFAULT_INDIA_MAP_FALLBACK_SVG_URL =
+  "https://upload.wikimedia.org/wikipedia/commons/4/41/India_states_and_union_territories_map.svg";
 
 function resolvePublicApiBaseUrl(): string {
   let raw = normalizeEnvValue(process.env.NEXT_PUBLIC_API_URL ?? "");
@@ -67,7 +77,8 @@ export function absoluteUrl(path: string): string {
   return `${PUBLIC_SITE_URL}${p}`;
 }
 
-export const PUBLIC_CONTACT_EMAIL = (process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "").trim();
+export const PUBLIC_CONTACT_EMAIL =
+  normalizeEnvValue(process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "").trim() || DEFAULT_CONTACT_EMAIL;
 
 /**
  * Site-wide support number (footer, contact page).
@@ -85,14 +96,13 @@ export const PUBLIC_FORM_SUBMIT_AJAX_URL = PUBLIC_CONTACT_EMAIL
   ? `https://formsubmit.co/ajax/${PUBLIC_CONTACT_EMAIL}`
   : "";
 
-export const PUBLIC_GOOGLE_MAPS_EMBED_URL = (
-  process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_URL ?? ""
-).trim();
+export const PUBLIC_GOOGLE_MAPS_EMBED_URL =
+  normalizeEnvValue(process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_URL ?? "").trim() ||
+  DEFAULT_GOOGLE_MAPS_EMBED_URL;
 
-export const PUBLIC_INDIA_MAP_SVG_URL = (
-  process.env.NEXT_PUBLIC_INDIA_MAP_SVG_URL ?? ""
-).trim();
+export const PUBLIC_INDIA_MAP_SVG_URL =
+  normalizeEnvValue(process.env.NEXT_PUBLIC_INDIA_MAP_SVG_URL ?? "").trim() || DEFAULT_INDIA_MAP_SVG_URL;
 
-export const PUBLIC_INDIA_MAP_FALLBACK_SVG_URL = (
-  process.env.NEXT_PUBLIC_INDIA_MAP_FALLBACK_SVG_URL ?? ""
-).trim();
+export const PUBLIC_INDIA_MAP_FALLBACK_SVG_URL =
+  normalizeEnvValue(process.env.NEXT_PUBLIC_INDIA_MAP_FALLBACK_SVG_URL ?? "").trim() ||
+  DEFAULT_INDIA_MAP_FALLBACK_SVG_URL;

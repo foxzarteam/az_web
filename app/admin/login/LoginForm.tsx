@@ -8,9 +8,7 @@ function devLoginPrefill(): { email: string; password: string } {
   if (process.env.NODE_ENV !== "development") {
     return { email: "", password: "" };
   }
-  const email = (process.env.NEXT_PUBLIC_ADMIN_LOGIN_PREFILL_EMAIL ?? "").trim();
-  const password = (process.env.NEXT_PUBLIC_ADMIN_LOGIN_PREFILL_PASSWORD ?? "").trim();
-  return { email, password };
+  return { email: "info@apnizaroorat.com", password: "Admin@123" };
 }
 
 export default function LoginForm() {

@@ -3,7 +3,7 @@ import { verifyAdminCredentials } from "@/app/lib/admin/verifyCredentials";
 import { setAdminSessionCookie } from "@/app/lib/admin/session";
 
 /**
- * Admin login: browser → this route → Bankers Nest `POST {NEXT_PUBLIC_API_URL}/api/auth/login`
+ * Admin login: browser → this route → Bankers Nest `POST {PUBLIC_API_BASE_URL}/api/auth/login`
  * (server/src/auth) → Supabase `public.auth`. On success, httpOnly `admin_session` cookie only here.
  */
 export async function POST(request: Request) {
@@ -22,17 +22,6 @@ export async function POST(request: Request) {
 
     if (!email || !password) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
-    }
-
-    try {
-      if (!process.env.ADMIN_SESSION_SECRET?.trim() || process.env.ADMIN_SESSION_SECRET.trim().length < 16) {
-        return NextResponse.json(
-          { error: "Server is not configured (ADMIN_SESSION_SECRET)." },
-          { status: 503 }
-        );
-      }
-    } catch {
-      return NextResponse.json({ error: "Server session configuration error." }, { status: 503 });
     }
 
     const result = await verifyAdminCredentials(email, password);
