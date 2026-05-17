@@ -17,6 +17,158 @@ export interface CreateLeadResponse {
   message?: string;
 }
 
+export type LeadRecord = {
+  id?: string;
+  mobile_number?: string;
+  full_name?: string;
+  pan?: string;
+  category?: string;
+};
+
+function parseLeadApiResponse(
+  response: Response,
+  raw: string
+): CreateLeadResponse {
+  let data: {
+    success?: boolean | string | number;
+    message?: string | string[];
+    data?: unknown;
+    error?: string | string[];
+    statusCode?: number;
+  } = {};
+  if (raw) {
+    try {
+      data = JSON.parse(raw) as typeof data;
+    } catch {
+      const looksLikeHtml = /^\s*</.test(raw);
+      return {
+        success: false,
+        message: looksLikeHtml
+          ? `Lead API returned a web page (HTTP ${response.status}), not JSON. Usually NEXT_PUBLIC_API_URL is wrong or missing at build time — set it to your backend (e.g. https://your-api.vercel.app) and rebuild.`
+          : `Server returned an invalid response (HTTP ${response.status}). Check NEXT_PUBLIC_API_URL.`,
+      };
+    }
+  }
+
+  const pickMsg = (m: unknown): string | undefined => {
+    if (typeof m === "string" && m.trim()) return m;
+    if (Array.isArray(m)) {
+      const s = m.filter((x) => typeof x === "string").join(". ");
+      return s || undefined;
+    }
+    return undefined;
+  };
+
+  if (!response.ok) {
+    const msg =
+      pickMsg(data.message) ||
+      pickMsg(data.error) ||
+      `Request failed (HTTP ${response.status}).`;
+    return { success: false, message: msg };
+  }
+
+  const successFlag = data.success;
+  const explicitFailure = successFlag === false || successFlag === "false";
+  const explicitSuccess =
+    successFlag === true || successFlag === "true" || successFlag === 1;
+  const implicitSuccess =
+    (response.status === 201 || response.status === 200) &&
+    data.data != null &&
+    typeof data.data === "object";
+
+  if (explicitFailure) {
+    return {
+      success: false,
+      message: pickMsg(data.message) || pickMsg(data.error) || "Could not save your details.",
+    };
+  }
+
+  if (explicitSuccess || implicitSuccess) {
+    return {
+      success: true,
+      data: data.data,
+    };
+  }
+
+  return {
+    success: false,
+    message:
+      pickMsg(data.message) ||
+      pickMsg(data.error) ||
+      "Unexpected response from server. Please try again.",
+  };
+}
+
+export function leadIdFromResponse(data: unknown): string | null {
+  if (data == null || typeof data !== "object") return null;
+  const id = (data as LeadRecord).id;
+  return id != null ? String(id) : null;
+}
+
+/** Step 1: save mobile (draft row with Unknown name) or reject duplicate. */
+export async function startLead(
+  mobileNumber: string,
+  category?: CreateLeadRequest["category"]
+): Promise<CreateLeadResponse> {
+  const endpoint = `${PUBLIC_API_BASE_URL}/api/leads/start`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ mobileNumber, category }),
+      mode: "cors",
+      credentials: "omit",
+    });
+
+    const raw = await response.text();
+    return parseLeadApiResponse(response, raw);
+  } catch (error) {
+    console.error("Error starting lead:", error);
+    return {
+      success: false,
+      message: "Network error. Please try again later.",
+    };
+  }
+}
+
+/** Step 2: update draft row with full name, PAN, service. */
+export async function completeLead(
+  leadId: string,
+  payload: {
+    pan: string;
+    fullName: string;
+    category?: CreateLeadRequest["category"];
+  }
+): Promise<CreateLeadResponse> {
+  const endpoint = `${PUBLIC_API_BASE_URL}/api/leads/${encodeURIComponent(leadId)}/complete`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "PATCH",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      mode: "cors",
+      credentials: "omit",
+    });
+
+    const raw = await response.text();
+    return parseLeadApiResponse(response, raw);
+  } catch (error) {
+    console.error("Error completing lead:", error);
+    return {
+      success: false,
+      message: "Network error. Please try again later.",
+    };
+  }
+}
+
 export async function createLead(leadData: CreateLeadRequest): Promise<CreateLeadResponse> {
   const endpoint = `${PUBLIC_API_BASE_URL}/api/leads`;
 
@@ -33,75 +185,7 @@ export async function createLead(leadData: CreateLeadRequest): Promise<CreateLea
     });
 
     const raw = await response.text();
-    let data: {
-      success?: boolean | string | number;
-      message?: string | string[];
-      data?: unknown;
-      error?: string | string[];
-      statusCode?: number;
-    } = {};
-    if (raw) {
-      try {
-        data = JSON.parse(raw) as typeof data;
-      } catch {
-        const looksLikeHtml = /^\s*</.test(raw);
-        return {
-          success: false,
-          message: looksLikeHtml
-            ? `Lead API returned a web page (HTTP ${response.status}), not JSON. Usually NEXT_PUBLIC_API_URL is wrong or missing at build time — set it to your backend (e.g. https://your-api.vercel.app) and rebuild.`
-            : `Server returned an invalid response (HTTP ${response.status}). Check NEXT_PUBLIC_API_URL.`,
-        };
-      }
-    }
-
-    const pickMsg = (m: unknown): string | undefined => {
-      if (typeof m === "string" && m.trim()) return m;
-      if (Array.isArray(m)) {
-        const s = m.filter((x) => typeof x === "string").join(". ");
-        return s || undefined;
-      }
-      return undefined;
-    };
-
-    if (!response.ok) {
-      const msg =
-        pickMsg(data.message) ||
-        pickMsg(data.error) ||
-        `Request failed (HTTP ${response.status}).`;
-      return { success: false, message: msg };
-    }
-
-    const successFlag = data.success;
-    const explicitFailure = successFlag === false || successFlag === "false";
-    const explicitSuccess =
-      successFlag === true || successFlag === "true" || successFlag === 1;
-    /** Some APIs return 201 + body without a `success` field */
-    const implicitSuccess =
-      (response.status === 201 || response.status === 200) &&
-      data.data != null &&
-      typeof data.data === "object";
-
-    if (explicitFailure) {
-      return {
-        success: false,
-        message: pickMsg(data.message) || pickMsg(data.error) || "Could not save your details.",
-      };
-    }
-
-    if (explicitSuccess || implicitSuccess) {
-      return {
-        success: true,
-        data: data.data,
-      };
-    }
-
-    return {
-      success: false,
-      message:
-        pickMsg(data.message) ||
-        pickMsg(data.error) ||
-        "Unexpected response from server. Please try again.",
-    };
+    return parseLeadApiResponse(response, raw);
   } catch (error) {
     console.error('Error creating lead:', error);
     return {

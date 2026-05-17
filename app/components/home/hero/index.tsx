@@ -11,7 +11,7 @@ import {
   validateLeadPanNameMobile,
 } from "@/app/utils/leadForm";
 import { scrollToElement } from "@/app/utils/scroll";
-import { createLead, mapServiceToCategory } from "@/app/utils/leadApi";
+import { completeLead, leadIdFromResponse, mapServiceToCategory, startLead } from "@/app/utils/leadApi";
 import { fetchActiveServiceCards } from "@/app/utils/fetchActiveServiceCards";
 import type { ServiceSliderCard } from "@/app/lib/services/types";
 import IndiaFlag from "./IndiaFlag";
@@ -62,6 +62,8 @@ export default function Hero() {
     api?: string;
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isStartingLead, setIsStartingLead] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
   const [heroServiceOptions, setHeroServiceOptions] = useState(HERO_FALLBACK_OPTIONS);
   const [heroAnimatedTitles, setHeroAnimatedTitles] = useState<string[]>([
     "Personal Loan",
@@ -89,14 +91,37 @@ export default function Hero() {
     };
   }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const validation = handleFormSubmit(mobile);
     if (!validation.isValid) {
       setError(validation.error || "");
       return;
     }
+
+    const mobileTrim = mobile.replace(/\D/g, "");
+    setIsStartingLead(true);
     setError("");
-    setShowServiceModal(true);
+
+    try {
+      const response = await startLead(mobileTrim, "personal_loan");
+      if (!response.success) {
+        setError(response.message || "This number already exists.");
+        return;
+      }
+
+      const id = leadIdFromResponse(response.data);
+      if (!id) {
+        setError("Could not save mobile number. Please try again.");
+        return;
+      }
+
+      setLeadId(id);
+      setShowServiceModal(true);
+    } catch {
+      setError("Network error. Please try again later.");
+    } finally {
+      setIsStartingLead(false);
+    }
   };
 
   const handleMobileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,6 +154,11 @@ export default function Hero() {
     setModalErrors(next);
     if (Object.keys(next).length > 0) return;
 
+    if (!leadId) {
+      setModalErrors((p) => ({ ...p, api: "Session expired. Please enter your mobile number again." }));
+      return;
+    }
+
     setIsSubmitting(true);
     setModalErrors((p) => ({ ...p, api: undefined }));
 
@@ -136,9 +166,8 @@ export default function Hero() {
       const panTrim = pan.trim().toUpperCase();
       const nameTrim = fullName.trim();
       const category = mapServiceToCategory(service);
-      const response = await createLead({
+      const response = await completeLead(leadId, {
         pan: panTrim,
-        mobileNumber: mobileTrim,
         fullName: nameTrim,
         category,
       });
@@ -150,6 +179,7 @@ export default function Hero() {
         setService("");
         setPan("");
         setModalErrors({});
+        setLeadId(null);
         setShowSuccess(true);
       } else {
         setModalErrors((p) => ({ ...p, api: response.message || "Failed to submit. Please try again." }));
@@ -234,6 +264,7 @@ export default function Hero() {
                               setService("");
                               setPan("");
                               setModalErrors({});
+                              setLeadId(null);
                             }}
                             className="p-2 -m-2 rounded-lg text-midnight_text dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                             aria-label="Close"
@@ -341,10 +372,11 @@ export default function Hero() {
                 {error && <p className="text-red-600 text-xs sm:text-sm mt-2">{error}</p>}
                 <button
                   type="button"
-                  onClick={handleSubmit}
-                  className="w-full mt-4 sm:mt-5 py-3 sm:py-3.5 md:py-4 text-sm sm:text-base md:text-lg font-bold text-white bg-primary rounded-lg transition duration-300 hover:bg-blue-700"
+                  onClick={() => void handleSubmit()}
+                  disabled={isStartingLead}
+                  className="w-full mt-4 sm:mt-5 py-3 sm:py-3.5 md:py-4 text-sm sm:text-base md:text-lg font-bold text-white bg-primary rounded-lg transition duration-300 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Apply Now
+                  {isStartingLead ? "Please wait…" : "Apply Now"}
                 </button>
               </div>
             </div>
