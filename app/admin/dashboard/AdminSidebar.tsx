@@ -4,7 +4,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
-const nav = [{ label: "Dashboard", href: "/admin/dashboard" }];
+const nav = [
+  { label: "Dashboard", href: "/admin/dashboard" },
+  { label: "Leads", href: "/admin/dashboard/leads" },
+  { label: "Agents", href: "/admin/dashboard/users" },
+  { label: "Services", href: "/admin/dashboard/services" },
+  { label: "Partners", href: "/admin/dashboard/partners" },
+];
 
 export default function AdminSidebar({ email }: { email: string }) {
   const pathname = usePathname();
@@ -33,7 +39,10 @@ export default function AdminSidebar({ email }: { email: string }) {
       </div>
       <nav className="flex flex-1 flex-col gap-0.5 p-3">
         {nav.map((item) => {
-          const active = pathname === item.href;
+          const active =
+            item.href === "/admin/dashboard"
+              ? pathname === item.href
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.href}

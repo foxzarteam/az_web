@@ -22,12 +22,12 @@ export default function History() {
           </Link>
         </div>
         <div className="flex justify-center lg:block col-span-1 lg:col-span-5" data-aos="fade-left">
-          <div className="bg-white dark:bg-darklight dark:text-white p-4 sm:p-5 w-full max-w-[240px] sm:max-w-60 border-4 border-primary rounded-lg">
+          <div className="bg-white dark:bg-darklight dark:text-white p-5 sm:p-6 w-full max-w-[280px] sm:max-w-[330px] md:max-w-[380px] lg:max-w-[400px] border-4 border-primary rounded-lg">
             <p className="mb-8 sm:mb-12 md:mb-16 text-xl sm:text-2xl md:text-3xl text-midnight_text dark:text-white font-bold">APNI ZAROORAT</p>
             <div className="flex justify-between items-end">
               <div>
-                <p className="text-black text-opacity-60 dark:text-gray text-sm sm:text-base">Years of Trust</p>
-                <p className="text-4xl sm:text-5xl md:text-[65px] leading-[1.2] -mt-1 text-midnight_text dark:text-white font-bold mb-2">10+</p>
+                <p className="text-black text-opacity-60 dark:text-gray text-sm sm:text-base">Trust</p>
+                <p className="text-4xl sm:text-5xl md:text-[65px] leading-[1.2] -mt-1 text-midnight_text dark:text-white font-bold mb-2">100%</p>
               </div>
               <div className="shrink-0">
                 <Image src="/images/history/logo.svg" alt="company" width={93} height={130} className="w-16 h-auto sm:w-20 md:w-[93px]" />
