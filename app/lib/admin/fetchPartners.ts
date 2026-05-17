@@ -36,9 +36,19 @@ export async function fetchActiveServiceOptions(): Promise<PartnerServiceOption[
   }
 }
 
-export async function fetchAdminPartners(): Promise<AdminPartnerRow[]> {
+export type FetchAdminPartnersResult = {
+  partners: AdminPartnerRow[];
+  error: string | null;
+};
+
+export async function fetchAdminPartners(): Promise<FetchAdminPartnersResult> {
   const base = PUBLIC_API_BASE_URL.trim().replace(/\/+$/, "");
-  if (!base) return [];
+  if (!base) {
+    return {
+      partners: [],
+      error: "NEXT_PUBLIC_API_URL is missing on the host. Set it to your Nest API URL (not localhost).",
+    };
+  }
 
   const url = `${base}/api/partners/admin/all`;
 
@@ -48,12 +58,35 @@ export async function fetchAdminPartners(): Promise<AdminPartnerRow[]> {
       cache: "no-store",
     });
 
-    if (!res.ok) return [];
+    const body = (await res.json().catch(() => ({}))) as {
+      success?: boolean;
+      data?: AdminPartnerRow[];
+      message?: string;
+      error?: string;
+    };
 
-    const body = (await res.json()) as { success?: boolean; data?: AdminPartnerRow[] };
-    if (!body.success || !Array.isArray(body.data)) return [];
-    return body.data;
-  } catch {
-    return [];
+    if (!res.ok) {
+      const detail = body.message ?? body.error ?? res.statusText;
+      if (res.status === 401) {
+        return {
+          partners: [],
+          error:
+            "API returned 401 Unauthorized. Set the same ADMIN_INTERNAL_KEY on az_web and the Nest server (production requires it).",
+        };
+      }
+      return { partners: [], error: `API error ${res.status}: ${detail || url}` };
+    }
+
+    if (!body.success || !Array.isArray(body.data)) {
+      return { partners: [], error: "API response invalid. Check Nest server logs and Supabase partner table." };
+    }
+
+    return { partners: body.data, error: null };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Network error";
+    return {
+      partners: [],
+      error: `Cannot reach API at ${url}. ${msg}. Check NEXT_PUBLIC_API_URL and that the server is running.`,
+    };
   }
 }
