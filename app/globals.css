@@ -385,12 +385,45 @@ html {
   }
 }
 
+@keyframes loan-helper-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes loan-helper-pulse-subtle {
+  0%,
+  100% {
+    box-shadow: 0 4px 20px rgba(29, 168, 81, 0.45);
+  }
+  50% {
+    box-shadow: 0 4px 28px rgba(29, 168, 81, 0.6);
+  }
+}
+
+.animate-in-fade {
+  animation: loan-helper-fade-in 0.35s ease-out forwards;
+}
+
+.animate-pulse-subtle {
+  animation: loan-helper-pulse-subtle 2.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .agent-landing-blob,
   .agent-landing-blob--delayed {
     animation: none;
   }
   .agent-name-gradient {
+    animation: none;
+  }
+  .animate-in-fade,
+  .animate-pulse-subtle {
     animation: none;
   }
 }
