@@ -64,33 +64,6 @@ export default function ContactInfo() {
         </div>
 
         <div className="md:pt-16 pt-8 sm:pt-11 md:pb-16 pb-8 w-full min-w-0">
-          <div className="flex sm:flex-row flex-col items-start sm:gap-6 md:gap-8 gap-4 mb-6 sm:mb-8">
-            <div className="bg-primary/20 w-12 h-12 sm:w-14 sm:h-14 md:w-15 md:h-15 flex items-center justify-center rounded-full shrink-0">
-              <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </div>
-            <div className="min-w-0">
-              <span className="text-midnight_text dark:text-white text-lg sm:text-xl font-bold">
-                Office Address
-              </span>
-              <p className="text-midnight_text/70 font-normal text-sm sm:text-base md:text-xl max-w-full md:max-w-2xl pt-2 sm:pt-3 dark:text-gray break-words">
-                {CONTACT.ADDRESS ? (
-                  <a
-                    href={CONTACT.MAPS_DIRECTIONS_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-1 inline-block hover:text-primary transition-colors"
-                  >
-                    {CONTACT.ADDRESS}
-                  </a>
-                ) : (
-                  <span className="mt-1 inline-block text-midnight_text/50">—</span>
-                )}
-              </p>
-            </div>
-          </div>
           <div className="rounded-lg overflow-hidden w-full min-h-[220px] sm:min-h-[320px] md:min-h-[400px] lg:min-h-[477px] min-w-0">
             {PUBLIC_GOOGLE_MAPS_EMBED_URL ? (
               <iframe
@@ -101,7 +74,7 @@ export default function ContactInfo() {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 className="rounded-lg w-full h-[220px] sm:h-[320px] md:h-[400px] lg:h-[477px] border-0"
-                title={`Office Location — ${CONTACT.ADDRESS}`}
+                title="Office Location"
               />
             ) : (
               <div className="flex h-[220px] sm:h-[320px] md:h-[400px] lg:h-[477px] items-center justify-center rounded-lg bg-midnight_text/5 text-midnight_text/60 dark:bg-white/5 dark:text-gray-400 text-sm px-4 text-center">
