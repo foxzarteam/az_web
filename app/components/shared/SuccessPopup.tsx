@@ -104,7 +104,18 @@ export default function SuccessPopup({ message, onClose, autoCloseMs = 3000, var
       aria-live="polite"
       aria-label={variant === "success" ? "Success" : variant === "warning" ? "Warning" : "Alert"}
     >
-      <div className={`success-modal-box bg-white dark:bg-darklight rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border mx-4 ${config.border}`}>
+      <div className={`success-modal-box relative bg-white dark:bg-darklight rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border mx-4 ${config.border}`}>
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
+          aria-label="Close"
+        >
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden>
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+
         {/* Icon */}
         <div className="pt-8 pb-4 px-6 sm:px-8">
           <div className={`success-modal-icon mx-auto flex h-16 w-16 items-center justify-center rounded-full opacity-0 ${config.iconBg} ${config.iconColor}`}>

@@ -4,9 +4,11 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import {
+  PUBLIC_FORM_SUBMIT_AJAX_URL,
   PUBLIC_INDIA_MAP_FALLBACK_SVG_URL,
   PUBLIC_INDIA_MAP_SVG_URL,
 } from "@/app/config/constants";
+import { sanitizeMobileInput, validateMobileNumber } from "@/app/utils/validation";
 
 interface Pin {
   id: number;
@@ -41,9 +43,25 @@ const pins: Pin[] = [
 
 type MapInset = { left: number; top: number; w: number; h: number };
 
+type HeroFieldErrors = {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  submit?: string;
+};
+
+const inputBaseClass =
+  "w-full rounded-xl border-2 bg-white px-4 py-3 sm:py-3.5 text-sm sm:text-base text-midnight_text placeholder:text-gray-400 transition-all focus:outline-none focus:ring-2";
+const inputOkClass = `${inputBaseClass} border-blue-200 focus:border-blue-500 focus:ring-blue-300/50`;
+const inputErrClass = `${inputBaseClass} border-red-500 focus:border-red-500 focus:ring-red-300/50`;
+
 export default function IndiaMap() {
   const [visiblePins, setVisiblePins] = useState<Set<number>>(new Set());
   const [showSuccess, setShowSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<HeroFieldErrors>({});
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const mapWrapRef = useRef<HTMLDivElement>(null);
   const mapImgRef = useRef<HTMLImageElement>(null);
@@ -109,8 +127,78 @@ export default function IndiaMap() {
     };
   }, [mapSrc, updateMapInset]);
 
+  const clearFieldError = (key: keyof HeroFieldErrors) => {
+    setFieldErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  };
+
   const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMobile(e.target.value.replace(/\D/g, "").slice(0, 10));
+    clearFieldError("phone");
+    setMobile(sanitizeMobileInput(e.target.value));
+  };
+
+  const handleHeroJoinSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFieldErrors({});
+
+    const trimmedName = fullName.trim();
+    const trimmedEmail = email.trim();
+    const errors: HeroFieldErrors = {};
+
+    if (!trimmedName) {
+      errors.fullName = "Please enter your full name.";
+    }
+    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      errors.email = "Please enter a valid email address.";
+    }
+    const mobileCheck = validateMobileNumber(mobile);
+    if (!mobileCheck.isValid) {
+      errors.phone = mobileCheck.error ?? "Please enter a valid mobile number.";
+    }
+
+    if (errors.fullName || errors.email || errors.phone) {
+      setFieldErrors(errors);
+      return;
+    }
+
+    if (!PUBLIC_FORM_SUBMIT_AJAX_URL) {
+      setShowSuccess(true);
+      setFullName("");
+      setEmail("");
+      setMobile("");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(PUBLIC_FORM_SUBMIT_AJAX_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: trimmedName,
+          ...(trimmedEmail ? { email: trimmedEmail } : {}),
+          phone: mobile,
+          subject: "Become a Partner — Hero Join Request",
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setFullName("");
+        setEmail("");
+        setMobile("");
+        setShowSuccess(true);
+      } else {
+        setFieldErrors({ submit: "Something went wrong. Please try again." });
+      }
+    } catch {
+      setFieldErrors({ submit: "Unable to submit right now. Please try again." });
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -166,37 +254,116 @@ export default function IndiaMap() {
               />
             )}
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setShowSuccess(true);
-              }}
-              className="flex w-full max-w-md items-stretch rounded-full bg-white/95 shadow-lg overflow-hidden border border-blue-100 min-h-[44px]"
+              onSubmit={handleHeroJoinSubmit}
+              className="w-full max-w-2xl"
+              noValidate
             >
-              <div className="flex items-center gap-1.5 sm:gap-2 pl-3 sm:pl-4 pr-2 sm:pr-3 bg-blue-50 shrink-0">
-                <IndiaFlag />
-                <span className="text-xs sm:text-sm font-semibold text-blue-700 border-l border-blue-200 pl-1.5 sm:pl-2">
-                  +91
-                </span>
+              <div className="rounded-2xl sm:rounded-3xl bg-white/95 backdrop-blur-md border border-white/40 shadow-[0_20px_50px_rgba(0,0,0,0.25)] p-5 sm:p-6 md:p-8 space-y-4">
+                <div>
+                  <label htmlFor="hero-full-name" className="sr-only">
+                    Full Name
+                  </label>
+                  <input
+                    id="hero-full-name"
+                    type="text"
+                    name="fullName"
+                    autoComplete="name"
+                    placeholder="Full Name"
+                    required
+                    value={fullName}
+                    onChange={(e) => {
+                      clearFieldError("fullName");
+                      setFullName(e.target.value);
+                    }}
+                    aria-invalid={!!fieldErrors.fullName}
+                    aria-describedby={fieldErrors.fullName ? "hero-full-name-error" : undefined}
+                    className={fieldErrors.fullName ? inputErrClass : inputOkClass}
+                  />
+                  {fieldErrors.fullName ? (
+                    <p id="hero-full-name-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                      {fieldErrors.fullName}
+                    </p>
+                  ) : null}
+                </div>
+                <div>
+                  <label htmlFor="hero-email" className="sr-only">
+                    Email Address
+                  </label>
+                  <input
+                    id="hero-email"
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    placeholder="Email Address (optional)"
+                    value={email}
+                    onChange={(e) => {
+                      clearFieldError("email");
+                      setEmail(e.target.value);
+                    }}
+                    aria-invalid={!!fieldErrors.email}
+                    aria-describedby={fieldErrors.email ? "hero-email-error" : undefined}
+                    className={fieldErrors.email ? inputErrClass : inputOkClass}
+                  />
+                  {fieldErrors.email ? (
+                    <p id="hero-email-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                      {fieldErrors.email}
+                    </p>
+                  ) : null}
+                </div>
+                <div>
+                  <label htmlFor="hero-phone" className="sr-only">
+                    Phone Number
+                  </label>
+                  <div
+                    className={`flex items-stretch overflow-hidden rounded-xl border-2 bg-white transition-all focus-within:ring-2 ${
+                      fieldErrors.phone
+                        ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-300/50"
+                        : "border-blue-200 focus-within:border-blue-500 focus-within:ring-blue-300/50"
+                    }`}
+                  >
+                    <div
+                      className={`flex items-center gap-1.5 sm:gap-2 pl-3 sm:pl-4 pr-2 sm:pr-3 bg-blue-50 shrink-0 border-r-2 ${
+                        fieldErrors.phone ? "border-red-500" : "border-blue-200"
+                      }`}
+                    >
+                      <IndiaFlag />
+                      <span className="text-xs sm:text-sm font-semibold text-blue-700">+91</span>
+                    </div>
+                    <input
+                      id="hero-phone"
+                      type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      name="phone"
+                      placeholder="Phone Number"
+                      required
+                      value={mobile}
+                      onChange={handleMobileChange}
+                      aria-invalid={!!fieldErrors.phone}
+                      aria-describedby={fieldErrors.phone ? "hero-phone-error" : undefined}
+                      className="flex-1 min-w-0 px-3 sm:px-4 py-3 sm:py-3.5 text-sm sm:text-base text-midnight_text placeholder:text-gray-400 focus:outline-none bg-white"
+                      maxLength={10}
+                    />
+                  </div>
+                  {fieldErrors.phone ? (
+                    <p id="hero-phone-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                      {fieldErrors.phone}
+                    </p>
+                  ) : null}
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn-shine relative z-0 w-full rounded-xl bg-gradient-to-r from-[#ff7a1a] to-[#ff9a4a] py-3.5 sm:py-4 text-base sm:text-lg font-bold text-white shadow-lg shadow-orange-500/30 transition-all hover:from-[#ff6700] hover:to-[#ff8a35] hover:shadow-orange-500/40 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {loading ? "Joining…" : "Join Now"}
+                </button>
+                {fieldErrors.submit ? (
+                  <p className="text-sm text-red-600 text-center" role="alert">
+                    {fieldErrors.submit}
+                  </p>
+                ) : null}
               </div>
-              <input
-                type="tel"
-                inputMode="numeric"
-                autoComplete="tel"
-                name="mobile"
-                placeholder="Enter mobile number"
-                required
-                value={mobile}
-                onChange={handleMobileChange}
-                className="flex-1 min-w-0 px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-midnight_text placeholder:text-gray-400 focus:outline-none"
-                maxLength={10}
-                pattern="[0-9]*"
-              />
-              <button
-                type="submit"
-                className="btn-shine relative z-0 px-4 sm:px-5 md:px-8 py-2 sm:py-2.5 text-sm sm:text-base font-semibold bg-[#ff7a1a] text-white hover:bg-[#ff6700] transition-colors whitespace-nowrap shrink-0"
-              >
-                Submit
-              </button>
             </form>
           </div>
 
