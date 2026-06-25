@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
+import TermsAgreementCheckbox, { TERMS_AGREEMENT_ERROR } from "@/app/components/shared/TermsAgreementCheckbox";
 import {
   PUBLIC_FORM_SUBMIT_AJAX_URL,
   PUBLIC_INDIA_MAP_FALLBACK_SVG_URL,
@@ -48,6 +49,7 @@ type HeroFieldErrors = {
   email?: string;
   phone?: string;
   submit?: string;
+  terms?: string;
 };
 
 const inputBaseClass =
@@ -63,6 +65,7 @@ export default function IndiaMap() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const mapWrapRef = useRef<HTMLDivElement>(null);
   const mapImgRef = useRef<HTMLImageElement>(null);
   const [mapInset, setMapInset] = useState<MapInset | null>(null);
@@ -159,8 +162,11 @@ export default function IndiaMap() {
     if (!mobileCheck.isValid) {
       errors.phone = mobileCheck.error ?? "Please enter a valid mobile number.";
     }
+    if (!termsAccepted) {
+      errors.terms = TERMS_AGREEMENT_ERROR;
+    }
 
-    if (errors.fullName || errors.email || errors.phone) {
+    if (errors.fullName || errors.email || errors.phone || errors.terms) {
       setFieldErrors(errors);
       return;
     }
@@ -170,6 +176,7 @@ export default function IndiaMap() {
       setFullName("");
       setEmail("");
       setMobile("");
+      setTermsAccepted(false);
       return;
     }
 
@@ -190,6 +197,7 @@ export default function IndiaMap() {
         setFullName("");
         setEmail("");
         setMobile("");
+        setTermsAccepted(false);
         setShowSuccess(true);
       } else {
         setFieldErrors({ submit: "Something went wrong. Please try again." });
@@ -351,9 +359,18 @@ export default function IndiaMap() {
                     </p>
                   ) : null}
                 </div>
+                <TermsAgreementCheckbox
+                  id="partner-hero-terms"
+                  checked={termsAccepted}
+                  onChange={(checked) => {
+                    setTermsAccepted(checked);
+                    if (fieldErrors.terms) clearFieldError("terms");
+                  }}
+                  error={fieldErrors.terms}
+                />
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !termsAccepted}
                   className="btn-shine relative z-0 w-full rounded-xl bg-gradient-to-r from-[#ff7a1a] to-[#ff9a4a] py-3.5 sm:py-4 text-base sm:text-lg font-bold text-white shadow-lg shadow-orange-500/30 transition-all hover:from-[#ff6700] hover:to-[#ff8a35] hover:shadow-orange-500/40 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? "Joining…" : "Join Now"}

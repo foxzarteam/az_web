@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
+import TermsAgreementCheckbox, { TERMS_AGREEMENT_ERROR } from "@/app/components/shared/TermsAgreementCheckbox";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { completeLead, leadIdFromResponse, mapServiceToCategory, startLead } from "@/app/utils/leadApi";
@@ -82,8 +83,10 @@ export default function ServicePage({
     fullName?: string;
     service?: string;
     api?: string;
+    terms?: string;
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [isStartingLead, setIsStartingLead] = useState(false);
   const [leadId, setLeadId] = useState<string | null>(null);
 
@@ -173,6 +176,7 @@ export default function ServicePage({
     setFullName("");
     setPan("");
     setModalErrors({});
+    setTermsAccepted(false);
     setLeadId(null);
     if (pageServiceSlug) setService(pageServiceSlug);
   };
@@ -202,6 +206,7 @@ export default function ServicePage({
     });
     const next: typeof modalErrors = { ...base };
     if (!service.trim()) next.service = "Please select a service";
+    if (!termsAccepted) next.terms = TERMS_AGREEMENT_ERROR;
 
     setModalErrors(next);
     if (Object.keys(next).length > 0) return;
@@ -325,7 +330,7 @@ export default function ServicePage({
                                 type="text"
                                 value={fullName}
                                 onChange={handleFullNameChange}
-                                placeholder="As per PAN / Aadhaar"
+                                placeholder="Full Name (As per PAN)"
                                 className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-darkmode text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/80 ${modalErrors.fullName ? "border-red-500" : "border-gray-300 dark:border-dark_border"}`}
                               />
                               {modalErrors.fullName && <p className="mt-1 text-sm text-red-600">{modalErrors.fullName}</p>}
@@ -366,9 +371,18 @@ export default function ServicePage({
                               />
                               {modalErrors.pan && <p className="mt-1 text-sm text-red-600">{modalErrors.pan}</p>}
                             </div>
+                            <TermsAgreementCheckbox
+                              id="service-terms"
+                              checked={termsAccepted}
+                              onChange={(checked) => {
+                                setTermsAccepted(checked);
+                                if (modalErrors.terms) setModalErrors((p) => ({ ...p, terms: undefined }));
+                              }}
+                              error={modalErrors.terms}
+                            />
                             <button
                               type="submit"
-                              disabled={isSubmitting}
+                              disabled={isSubmitting || !termsAccepted}
                               className="w-full py-3 px-4 rounded-xl bg-primary text-white font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               {isSubmitting ? "Submitting..." : "Submit"}
