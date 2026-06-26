@@ -17,7 +17,7 @@ import type { ServiceSliderCard } from "@/app/lib/services/types";
 import IndiaFlag from "./IndiaFlag";
 import AnimatedText from "./AnimatedText";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
-import TermsAgreementCheckbox, { TERMS_AGREEMENT_ERROR } from "@/app/components/shared/TermsAgreementCheckbox";
+import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 
 const HERO_SERVICE_SLUGS = new Set(["personal-loan", "insurance"]);
 
@@ -61,7 +61,6 @@ export default function Hero() {
     fullName?: string;
     service?: string;
     api?: string;
-    terms?: string;
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -95,10 +94,6 @@ export default function Hero() {
   }, []);
 
   const handleSubmit = async () => {
-    if (!termsAccepted) {
-      setError(TERMS_AGREEMENT_ERROR);
-      return;
-    }
     const validation = handleFormSubmit(mobile);
     if (!validation.isValid) {
       setError(validation.error || "");
@@ -356,7 +351,13 @@ export default function Hero() {
                   </div>,
                   document.body
                 )}
-              <div className="bg-white dark:bg-darkmode rounded-xl shadow-lg p-4 sm:p-5 md:p-6 lg:p-7">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void handleSubmit();
+                }}
+                className="bg-white dark:bg-darkmode rounded-xl shadow-lg p-4 sm:p-5 md:p-6 lg:p-7"
+              >
                 <h2 className="text-base sm:text-lg md:text-xl font-bold text-midnight_text dark:text-white mb-3 sm:mb-4">Let&apos;s Get Started</h2>
                 <label className="block text-xs sm:text-sm font-medium text-midnight_text dark:text-gray-300 mb-2">Mobile Number</label>
                 <div className="flex items-center rounded-lg border border-gray-300 dark:border-dark_border overflow-hidden bg-white dark:bg-[#fafafa]">
@@ -381,21 +382,17 @@ export default function Hero() {
                 <TermsAgreementCheckbox
                   id="hero-terms"
                   checked={termsAccepted}
-                  onChange={(checked) => {
-                    setTermsAccepted(checked);
-                    if (error === TERMS_AGREEMENT_ERROR) setError("");
-                  }}
+                  onChange={setTermsAccepted}
                   className="mt-3"
                 />
                 <button
-                  type="button"
-                  onClick={() => void handleSubmit()}
-                  disabled={isStartingLead || !termsAccepted}
+                  type="submit"
+                  disabled={isStartingLead}
                   className="w-full mt-4 sm:mt-5 py-3 sm:py-3.5 md:py-4 text-sm sm:text-base md:text-lg font-bold text-white bg-primary rounded-lg transition duration-300 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isStartingLead ? "Please wait…" : "Apply Now"}
                 </button>
-              </div>
+              </form>
             </div>
           </div>
           {/* Right: Hero Image - on mobile: full width (same as form), stick to bottom blue; on laptop: right column */}

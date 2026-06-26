@@ -8,6 +8,7 @@ type Props = {
   onChange: (checked: boolean) => void;
   error?: string;
   className?: string;
+  required?: boolean;
 };
 
 export const TERMS_AGREEMENT_ERROR = "Please agree to the terms and conditions to continue.";
@@ -18,6 +19,7 @@ export default function TermsAgreementCheckbox({
   onChange,
   error,
   className,
+  required = true,
 }: Props) {
   return (
     <div className={className}>
@@ -27,6 +29,7 @@ export default function TermsAgreementCheckbox({
           type="checkbox"
           checked={checked}
           onChange={(e) => onChange(e.target.checked)}
+          required={required}
           className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-primary focus:ring-primary/80"
           aria-invalid={!!error}
         />

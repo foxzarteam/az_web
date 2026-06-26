@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
-import TermsAgreementCheckbox, { TERMS_AGREEMENT_ERROR } from "@/app/components/shared/TermsAgreementCheckbox";
+import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import { PUBLIC_FORM_SUBMIT_AJAX_URL } from "@/app/config/constants";
 
 export default function ContactForm() {
@@ -16,7 +16,6 @@ export default function ContactForm() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [termsError, setTermsError] = useState<string | undefined>();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -32,11 +31,6 @@ export default function ContactForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!termsAccepted) {
-      setTermsError(TERMS_AGREEMENT_ERROR);
-      return;
-    }
-    setTermsError(undefined);
     setLoading(true);
 
     if (!PUBLIC_FORM_SUBMIT_AJAX_URL) {
@@ -134,11 +128,7 @@ export default function ContactForm() {
               <TermsAgreementCheckbox
                 id="contact-terms"
                 checked={termsAccepted}
-                onChange={(checked) => {
-                  setTermsAccepted(checked);
-                  if (termsError) setTermsError(undefined);
-                }}
-                error={termsError}
+                onChange={setTermsAccepted}
               />
               <div>
                 <label htmlFor="message" className="pb-3 inline-block text-base font-medium text-midnight_text dark:text-white">
@@ -157,7 +147,7 @@ export default function ContactForm() {
               <div>
                 <button
                   type="submit"
-                  disabled={loading || !termsAccepted}
+                  disabled={loading}
                   className="bg-primary rounded-lg text-white py-4 px-8 mt-4 inline-block hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Sending..." : "Send Message"}

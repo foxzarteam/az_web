@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
-import TermsAgreementCheckbox, { TERMS_AGREEMENT_ERROR } from "@/app/components/shared/TermsAgreementCheckbox";
+import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
 import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
 import { PUBLIC_FORM_SUBMIT_AJAX_URL } from "@/app/config/constants";
@@ -23,7 +23,6 @@ export default function AgentLeadForm({ agentName }: Props) {
   const [loading, setLoading] = useState(false);
   const [productError, setProductError] = useState<string | undefined>();
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [termsError, setTermsError] = useState<string | undefined>();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -36,11 +35,6 @@ export default function AgentLeadForm({ agentName }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!termsAccepted) {
-      setTermsError(TERMS_AGREEMENT_ERROR);
-      return;
-    }
-    setTermsError(undefined);
     if (serviceOptions.length > 0 && !formData.product.trim()) {
       setProductError("Please select a product");
       return;
@@ -166,11 +160,7 @@ export default function AgentLeadForm({ agentName }: Props) {
           <TermsAgreementCheckbox
             id="agent-lead-terms"
             checked={termsAccepted}
-            onChange={(checked) => {
-              setTermsAccepted(checked);
-              if (termsError) setTermsError(undefined);
-            }}
-            error={termsError}
+            onChange={setTermsAccepted}
           />
           <div>
             <label htmlFor="agent-lead-product" className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-primary/90 dark:text-sky-300/90">
@@ -202,7 +192,7 @@ export default function AgentLeadForm({ agentName }: Props) {
           </div>
           <button
             type="submit"
-            disabled={loading || !termsAccepted}
+            disabled={loading}
             className="agent-cta-btn group relative mt-1 w-full overflow-hidden rounded-full bg-gradient-to-r from-primary via-[#2563eb] to-cyan py-4 text-sm font-bold text-white shadow-lg shadow-primary/35 transition hover:shadow-xl hover:shadow-primary/45 hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span className="relative z-10">{loading ? "Sending…" : "Send"}</span>

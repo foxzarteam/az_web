@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CONTACT, PUBLIC_FORM_SUBMIT_AJAX_URL } from "@/app/config/constants";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
-import TermsAgreementCheckbox, { TERMS_AGREEMENT_ERROR } from "@/app/components/shared/TermsAgreementCheckbox";
+import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 
 export default function PartnerForm() {
   const [formData, setFormData] = useState({
@@ -16,7 +16,6 @@ export default function PartnerForm() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [termsError, setTermsError] = useState<string | undefined>();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -28,11 +27,6 @@ export default function PartnerForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!termsAccepted) {
-      setTermsError(TERMS_AGREEMENT_ERROR);
-      return;
-    }
-    setTermsError(undefined);
     setLoading(true);
 
     if (!PUBLIC_FORM_SUBMIT_AJAX_URL) {
@@ -126,11 +120,7 @@ export default function PartnerForm() {
               <TermsAgreementCheckbox
                 id="partner-terms"
                 checked={termsAccepted}
-                onChange={(checked) => {
-                  setTermsAccepted(checked);
-                  if (termsError) setTermsError(undefined);
-                }}
-                error={termsError}
+                onChange={setTermsAccepted}
               />
               <div>
                 <label htmlFor="company" className="pb-2 inline-block text-base font-medium text-midnight_text dark:text-white">
@@ -163,7 +153,7 @@ export default function PartnerForm() {
               <div>
                 <button
                   type="submit"
-                  disabled={loading || !termsAccepted}
+                  disabled={loading}
                   className="btn-shine relative z-0 w-full bg-primary rounded-lg text-white py-4 px-8 mt-2 inline-block hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
                 >
                   {loading ? "Submitting..." : "Submit Partnership Request"}

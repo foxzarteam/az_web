@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
-import TermsAgreementCheckbox, { TERMS_AGREEMENT_ERROR } from "@/app/components/shared/TermsAgreementCheckbox";
+import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import {
   PUBLIC_FORM_SUBMIT_AJAX_URL,
   PUBLIC_INDIA_MAP_FALLBACK_SVG_URL,
@@ -49,7 +49,6 @@ type HeroFieldErrors = {
   email?: string;
   phone?: string;
   submit?: string;
-  terms?: string;
 };
 
 const inputBaseClass =
@@ -162,11 +161,8 @@ export default function IndiaMap() {
     if (!mobileCheck.isValid) {
       errors.phone = mobileCheck.error ?? "Please enter a valid mobile number.";
     }
-    if (!termsAccepted) {
-      errors.terms = TERMS_AGREEMENT_ERROR;
-    }
 
-    if (errors.fullName || errors.email || errors.phone || errors.terms) {
+    if (errors.fullName || errors.email || errors.phone) {
       setFieldErrors(errors);
       return;
     }
@@ -362,15 +358,11 @@ export default function IndiaMap() {
                 <TermsAgreementCheckbox
                   id="partner-hero-terms"
                   checked={termsAccepted}
-                  onChange={(checked) => {
-                    setTermsAccepted(checked);
-                    if (fieldErrors.terms) clearFieldError("terms");
-                  }}
-                  error={fieldErrors.terms}
+                  onChange={setTermsAccepted}
                 />
                 <button
                   type="submit"
-                  disabled={loading || !termsAccepted}
+                  disabled={loading}
                   className="btn-shine relative z-0 w-full rounded-xl bg-gradient-to-r from-[#ff7a1a] to-[#ff9a4a] py-3.5 sm:py-4 text-base sm:text-lg font-bold text-white shadow-lg shadow-orange-500/30 transition-all hover:from-[#ff6700] hover:to-[#ff8a35] hover:shadow-orange-500/40 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? "Joining…" : "Join Now"}
