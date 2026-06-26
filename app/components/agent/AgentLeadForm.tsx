@@ -163,6 +163,15 @@ export default function AgentLeadForm({ agentName }: Props) {
               />
             </div>
           </div>
+          <TermsAgreementCheckbox
+            id="agent-lead-terms"
+            checked={termsAccepted}
+            onChange={(checked) => {
+              setTermsAccepted(checked);
+              if (termsError) setTermsError(undefined);
+            }}
+            error={termsError}
+          />
           <div>
             <label htmlFor="agent-lead-product" className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-primary/90 dark:text-sky-300/90">
               Select product <span className="text-red-500">*</span>
@@ -191,15 +200,6 @@ export default function AgentLeadForm({ agentName }: Props) {
             ) : null}
             {productError ? <p className="mt-1 text-[11px] text-red-600 dark:text-red-400">{productError}</p> : null}
           </div>
-          <TermsAgreementCheckbox
-            id="agent-lead-terms"
-            checked={termsAccepted}
-            onChange={(checked) => {
-              setTermsAccepted(checked);
-              if (termsError) setTermsError(undefined);
-            }}
-            error={termsError}
-          />
           <button
             type="submit"
             disabled={loading || !termsAccepted}

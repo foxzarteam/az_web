@@ -131,6 +131,15 @@ export default function ContactForm() {
                   />
                 </div>
               </div>
+              <TermsAgreementCheckbox
+                id="contact-terms"
+                checked={termsAccepted}
+                onChange={(checked) => {
+                  setTermsAccepted(checked);
+                  if (termsError) setTermsError(undefined);
+                }}
+                error={termsError}
+              />
               <div>
                 <label htmlFor="message" className="pb-3 inline-block text-base font-medium text-midnight_text dark:text-white">
                   Message*
@@ -145,15 +154,6 @@ export default function ContactForm() {
                   className="w-full text-base px-4 py-2.5 rounded-lg border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
                 />
               </div>
-              <TermsAgreementCheckbox
-                id="contact-terms"
-                checked={termsAccepted}
-                onChange={(checked) => {
-                  setTermsAccepted(checked);
-                  if (termsError) setTermsError(undefined);
-                }}
-                error={termsError}
-              />
               <div>
                 <button
                   type="submit"

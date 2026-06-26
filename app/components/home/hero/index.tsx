@@ -95,6 +95,10 @@ export default function Hero() {
   }, []);
 
   const handleSubmit = async () => {
+    if (!termsAccepted) {
+      setError(TERMS_AGREEMENT_ERROR);
+      return;
+    }
     const validation = handleFormSubmit(mobile);
     if (!validation.isValid) {
       setError(validation.error || "");
@@ -153,7 +157,6 @@ export default function Hero() {
     });
     const next: typeof modalErrors = { ...base };
     if (!service.trim()) next.service = "Please select a service";
-    if (!termsAccepted) next.terms = TERMS_AGREEMENT_ERROR;
 
     setModalErrors(next);
     if (Object.keys(next).length > 0) return;
@@ -269,7 +272,6 @@ export default function Hero() {
                               setService("");
                               setPan("");
                               setModalErrors({});
-                              setTermsAccepted(false);
                               setLeadId(null);
                             }}
                             className="p-2 -m-2 rounded-lg text-midnight_text dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
@@ -339,19 +341,10 @@ export default function Hero() {
                             />
                             {modalErrors.pan && <p className="mt-1 text-sm text-red-600">{modalErrors.pan}</p>}
                           </div>
-                          <TermsAgreementCheckbox
-                            id="hero-terms"
-                            checked={termsAccepted}
-                            onChange={(checked) => {
-                              setTermsAccepted(checked);
-                              if (modalErrors.terms) setModalErrors((p) => ({ ...p, terms: undefined }));
-                            }}
-                            error={modalErrors.terms}
-                          />
                           <div className="pt-2">
                             <button
                               type="submit"
-                              disabled={isSubmitting || !termsAccepted}
+                              disabled={isSubmitting}
                               className="w-full py-3 px-4 rounded-xl bg-primary text-white font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               {isSubmitting ? "Submitting..." : "Submit"}
@@ -385,10 +378,19 @@ export default function Hero() {
                   />
                 </div>
                 {error && <p className="text-red-600 text-xs sm:text-sm mt-2">{error}</p>}
+                <TermsAgreementCheckbox
+                  id="hero-terms"
+                  checked={termsAccepted}
+                  onChange={(checked) => {
+                    setTermsAccepted(checked);
+                    if (error === TERMS_AGREEMENT_ERROR) setError("");
+                  }}
+                  className="mt-3"
+                />
                 <button
                   type="button"
                   onClick={() => void handleSubmit()}
-                  disabled={isStartingLead}
+                  disabled={isStartingLead || !termsAccepted}
                   className="w-full mt-4 sm:mt-5 py-3 sm:py-3.5 md:py-4 text-sm sm:text-base md:text-lg font-bold text-white bg-primary rounded-lg transition duration-300 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isStartingLead ? "Please wait…" : "Apply Now"}

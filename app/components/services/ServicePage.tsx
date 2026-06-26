@@ -136,6 +136,10 @@ export default function ServicePage({
   }, [showDetailsModal]);
 
   const openDetailsModal = async () => {
+    if (!termsAccepted) {
+      setMobileError(TERMS_AGREEMENT_ERROR);
+      return;
+    }
     const validation = validateMobileNumber(mobile);
     if (!validation.isValid) {
       setMobileError(validation.error || "Enter a valid 10-digit mobile number");
@@ -176,7 +180,6 @@ export default function ServicePage({
     setFullName("");
     setPan("");
     setModalErrors({});
-    setTermsAccepted(false);
     setLeadId(null);
     if (pageServiceSlug) setService(pageServiceSlug);
   };
@@ -206,7 +209,6 @@ export default function ServicePage({
     });
     const next: typeof modalErrors = { ...base };
     if (!service.trim()) next.service = "Please select a service";
-    if (!termsAccepted) next.terms = TERMS_AGREEMENT_ERROR;
 
     setModalErrors(next);
     if (Object.keys(next).length > 0) return;
@@ -232,6 +234,7 @@ export default function ServicePage({
         setFullName("");
         setPan("");
         setModalErrors({});
+        setTermsAccepted(false);
         setLeadId(null);
         if (pageServiceSlug) setService(pageServiceSlug);
         setShowSuccess(true);
@@ -371,18 +374,9 @@ export default function ServicePage({
                               />
                               {modalErrors.pan && <p className="mt-1 text-sm text-red-600">{modalErrors.pan}</p>}
                             </div>
-                            <TermsAgreementCheckbox
-                              id="service-terms"
-                              checked={termsAccepted}
-                              onChange={(checked) => {
-                                setTermsAccepted(checked);
-                                if (modalErrors.terms) setModalErrors((p) => ({ ...p, terms: undefined }));
-                              }}
-                              error={modalErrors.terms}
-                            />
                             <button
                               type="submit"
-                              disabled={isSubmitting || !termsAccepted}
+                              disabled={isSubmitting}
                               className="w-full py-3 px-4 rounded-xl bg-primary text-white font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               {isSubmitting ? "Submitting..." : "Submit"}
@@ -420,11 +414,20 @@ export default function ServicePage({
                     {mobileError && <p className="text-red-600 text-xs sm:text-sm mt-2">{mobileError}</p>}
                   </div>
 
+                  <TermsAgreementCheckbox
+                    id="service-terms"
+                    checked={termsAccepted}
+                    onChange={(checked) => {
+                      setTermsAccepted(checked);
+                      if (mobileError === TERMS_AGREEMENT_ERROR) setMobileError("");
+                    }}
+                  />
+
                   <div className="mt-auto w-full pt-3 sm:pt-4">
                     <button
                       type="button"
                       onClick={() => void openDetailsModal()}
-                      disabled={isStartingLead}
+                      disabled={isStartingLead || !termsAccepted}
                       className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-primary hover:bg-blue-700 text-white text-sm sm:text-base font-semibold py-2.5 sm:py-3 px-4 transition-colors shadow-md min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isStartingLead ? "Please wait…" : "Apply Now"}
