@@ -1,20 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
+import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
-import { completeLead, leadIdFromResponse, mapServiceToCategory, startLead } from "@/app/utils/leadApi";
+import { mapServiceToCategory } from "@/app/utils/leadApi";
 import { fetchActiveServiceCards } from "@/app/utils/fetchActiveServiceCards";
-import {
-  sanitizeLeadNameInput,
-  sanitizeLeadPanInput,
-  validateLeadPanNameMobile,
-} from "@/app/utils/leadForm";
 import { sanitizeMobileInput, validateMobileNumber } from "@/app/utils/validation";
 
 type ServicePageProps = {
@@ -23,7 +18,6 @@ type ServicePageProps = {
   imageSrc: string;
   badge?: string;
   hideHeader?: boolean;
-  /** e.g. personal-loan — defaults from URL /services/[slug] */
   serviceSlug?: string;
 };
 
@@ -66,32 +60,15 @@ export default function ServicePage({
   const pathname = usePathname();
   const pageServiceSlug = useMemo(
     () => (serviceSlugProp?.trim() || slugFromPathname(pathname) || "").trim(),
-    [serviceSlugProp, pathname]
+    [serviceSlugProp, pathname],
   );
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [mobile, setMobile] = useState("");
   const [mobileError, setMobileError] = useState("");
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [fullName, setFullName] = useState("");
-  const [service, setService] = useState("");
-  const [pan, setPan] = useState("");
+  const [showApplyModal, setShowApplyModal] = useState(false);
   const [serviceOptions, setServiceOptions] = useState(FALLBACK_SERVICE_OPTIONS);
-  const [modalErrors, setModalErrors] = useState<{
-    pan?: string;
-    mobile?: string;
-    fullName?: string;
-    service?: string;
-    api?: string;
-  }>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [isStartingLead, setIsStartingLead] = useState(false);
-  const [leadId, setLeadId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (pageServiceSlug) setService(pageServiceSlug);
-  }, [pageServiceSlug]);
 
   useEffect(() => {
     let cancelled = false;
@@ -111,72 +88,14 @@ export default function ServicePage({
     };
   }, []);
 
-  useEffect(() => {
-    if (!showDetailsModal) return;
-    const scrollY = window.scrollY;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    const prev = {
-      overflow: document.body.style.overflow,
-      paddingRight: document.body.style.paddingRight,
-      position: document.body.style.position,
-      top: document.body.style.top,
-    };
-    document.body.style.overflow = "hidden";
-    document.body.style.paddingRight = scrollbarWidth ? `${scrollbarWidth}px` : "0";
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    return () => {
-      document.body.style.overflow = prev.overflow;
-      document.body.style.paddingRight = prev.paddingRight;
-      document.body.style.position = prev.position;
-      document.body.style.top = prev.top;
-      window.scrollTo(0, scrollY);
-    };
-  }, [showDetailsModal]);
-
-  const openDetailsModal = async () => {
+  const openApplyModal = () => {
     const validation = validateMobileNumber(mobile);
     if (!validation.isValid) {
       setMobileError(validation.error || "Enter a valid 10-digit mobile number");
       return;
     }
-
-    const mobileTrim = mobile.replace(/\D/g, "");
-    const category = mapServiceToCategory(pageServiceSlug || service || "personal-loan");
-
-    setIsStartingLead(true);
     setMobileError("");
-
-    try {
-      const response = await startLead(mobileTrim, category);
-      if (!response.success) {
-        setMobileError(response.message || "This number already exists.");
-        return;
-      }
-
-      const id = leadIdFromResponse(response.data);
-      if (!id) {
-        setMobileError("Could not save mobile number. Please try again.");
-        return;
-      }
-
-      setLeadId(id);
-      if (pageServiceSlug) setService(pageServiceSlug);
-      setShowDetailsModal(true);
-    } catch {
-      setMobileError("Network error. Please try again later.");
-    } finally {
-      setIsStartingLead(false);
-    }
-  };
-
-  const closeDetailsModal = () => {
-    setShowDetailsModal(false);
-    setFullName("");
-    setPan("");
-    setModalErrors({});
-    setLeadId(null);
-    if (pageServiceSlug) setService(pageServiceSlug);
+    setShowApplyModal(true);
   };
 
   const handleMobileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,64 +103,7 @@ export default function ServicePage({
     if (mobileError) setMobileError("");
   };
 
-  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFullName(sanitizeLeadNameInput(e.target.value));
-    if (modalErrors.fullName) setModalErrors((p) => ({ ...p, fullName: undefined }));
-  };
-
-  const handlePanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPan(sanitizeLeadPanInput(e.target.value));
-    if (modalErrors.pan) setModalErrors((p) => ({ ...p, pan: undefined }));
-  };
-
-  const handleDetailsSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const mobileTrim = mobile.replace(/\D/g, "");
-    const base = validateLeadPanNameMobile({
-      pan,
-      mobileDigits: mobileTrim,
-      fullName,
-    });
-    const next: typeof modalErrors = { ...base };
-    if (!service.trim()) next.service = "Please select a service";
-
-    setModalErrors(next);
-    if (Object.keys(next).length > 0) return;
-
-    if (!leadId) {
-      setModalErrors((p) => ({ ...p, api: "Session expired. Please enter your mobile number again." }));
-      return;
-    }
-
-    setIsSubmitting(true);
-    setModalErrors((p) => ({ ...p, api: undefined }));
-
-    try {
-      const response = await completeLead(leadId, {
-        pan: pan.trim().toUpperCase(),
-        fullName: fullName.trim(),
-        category: mapServiceToCategory(service),
-      });
-
-      if (response.success) {
-        setShowDetailsModal(false);
-        setMobile("");
-        setFullName("");
-        setPan("");
-        setModalErrors({});
-        setTermsAccepted(false);
-        setLeadId(null);
-        if (pageServiceSlug) setService(pageServiceSlug);
-        setShowSuccess(true);
-      } else {
-        setModalErrors((p) => ({ ...p, api: response.message || "Failed to submit. Please try again." }));
-      }
-    } catch {
-      setModalErrors((p) => ({ ...p, api: "Network error. Please try again later." }));
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const category = mapServiceToCategory(pageServiceSlug || "personal-loan");
 
   return (
     <section className="pt-16 sm:pt-20 md:pt-24 lg:pt-28 pb-12 sm:pb-16 bg-gradient-to-b from-light to-white dark:from-darkmode dark:to-semidark">
@@ -284,109 +146,25 @@ export default function ServicePage({
                   />
                 )}
 
-                {showDetailsModal &&
-                  typeof document !== "undefined" &&
-                  createPortal(
-                    <div
-                      className="fixed inset-0 z-[99999] flex items-center justify-center px-4 sm:p-4 bg-black/50 backdrop-blur-sm"
-                      role="dialog"
-                      aria-modal="true"
-                      aria-labelledby="service-lead-modal-title"
-                    >
-                      <div className="bg-gradient-to-r from-primary to-[#ff7a1a] p-[1px] w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
-                        <div className="bg-white dark:bg-darklight rounded-2xl overflow-hidden max-h-[85vh] overflow-y-auto">
-                          <div className="flex items-center justify-between p-4 sm:p-6 pb-0">
-                            <h2 id="service-lead-modal-title" className="text-lg sm:text-xl font-bold text-midnight_text dark:text-white">
-                              Enter details
-                            </h2>
-                            <button
-                              type="button"
-                              onClick={closeDetailsModal}
-                              className="p-2 -m-2 rounded-lg text-midnight_text dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
-                              aria-label="Close"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <line x1="18" y1="6" x2="6" y2="18" />
-                                <line x1="6" y1="6" x2="18" y2="18" />
-                              </svg>
-                            </button>
-                          </div>
-                          <form onSubmit={handleDetailsSubmit} className="p-6 sm:p-8 pt-4 space-y-4">
-                            {(modalErrors.api || modalErrors.mobile) && (
-                              <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                                <p className="text-sm text-red-600 dark:text-red-400">
-                                  {modalErrors.api ?? modalErrors.mobile}
-                                </p>
-                              </div>
-                            )}
-                            <div>
-                              <label htmlFor="service-fullname" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Full Name *
-                              </label>
-                              <input
-                                id="service-fullname"
-                                type="text"
-                                value={fullName}
-                                onChange={handleFullNameChange}
-                                placeholder="Full Name (As per PAN)"
-                                className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-darkmode text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/80 ${modalErrors.fullName ? "border-red-500" : "border-gray-300 dark:border-dark_border"}`}
-                              />
-                              {modalErrors.fullName && <p className="mt-1 text-sm text-red-600">{modalErrors.fullName}</p>}
-                            </div>
-                            <div>
-                              <label htmlFor="service-select" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Select service *
-                              </label>
-                              <select
-                                id="service-select"
-                                value={service}
-                                onChange={(e) => {
-                                  setService(e.target.value);
-                                  if (modalErrors.service) setModalErrors((p) => ({ ...p, service: undefined }));
-                                }}
-                                className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80 ${modalErrors.service ? "border-red-500" : "border-gray-300 dark:border-dark_border"}`}
-                              >
-                                {serviceOptions.map((opt) => (
-                                  <option key={opt.value || "select"} value={opt.value}>
-                                    {opt.label}
-                                  </option>
-                                ))}
-                              </select>
-                              {modalErrors.service && <p className="mt-1 text-sm text-red-600">{modalErrors.service}</p>}
-                            </div>
-                            <div>
-                              <label htmlFor="service-pan" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                PAN Card number *
-                              </label>
-                              <input
-                                id="service-pan"
-                                type="text"
-                                value={pan}
-                                onChange={handlePanChange}
-                                maxLength={10}
-                                placeholder="e.g. ABCDE1234F"
-                                className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-darkmode text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/80 ${modalErrors.pan ? "border-red-500" : "border-gray-300 dark:border-dark_border"}`}
-                              />
-                              {modalErrors.pan && <p className="mt-1 text-sm text-red-600">{modalErrors.pan}</p>}
-                            </div>
-                            <button
-                              type="submit"
-                              disabled={isSubmitting}
-                              className="w-full py-3 px-4 rounded-xl bg-primary text-white font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {isSubmitting ? "Submitting..." : "Submit"}
-                            </button>
-                          </form>
-                        </div>
-                      </div>
-                    </div>,
-                    document.body
-                  )}
+                <LeadApplyModal
+                  open={showApplyModal}
+                  mobile={mobile.replace(/\D/g, "")}
+                  category={category}
+                  serviceOptions={serviceOptions}
+                  defaultService={pageServiceSlug}
+                  onClose={() => setShowApplyModal(false)}
+                  onEditMobile={() => setShowApplyModal(false)}
+                  onSuccess={() => {
+                    setMobile("");
+                    setTermsAccepted(false);
+                    setShowSuccess(true);
+                  }}
+                />
 
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    void openDetailsModal();
+                    openApplyModal();
                   }}
                   className="mt-4 flex flex-1 flex-col gap-4 min-h-0"
                 >
@@ -395,23 +173,23 @@ export default function ServicePage({
                       Mobile Number
                     </label>
                     <div className="flex items-center rounded-lg sm:rounded-xl border border-gray-300 dark:border-dark_border overflow-hidden bg-white dark:bg-darkmode/80">
-                  <span className="pl-2.5 sm:pl-3 flex items-center shrink-0" aria-hidden>
-                    <IndiaFlag />
-                  </span>
-                  <span className="pl-1.5 sm:pl-2 pr-2 sm:pr-3 text-sm text-midnight_text dark:text-white font-medium">+91</span>
-                  <span className="h-5 sm:h-6 w-px bg-gray-300 dark:bg-dark_border" aria-hidden />
-                  <input
-                    type="tel"
-                    inputMode="numeric"
-                    autoComplete="tel"
-                    maxLength={MOBILE_VALIDATION.MAX_LENGTH}
-                    placeholder="Mobile Number"
-                    value={mobile}
-                    onChange={handleMobileInputChange}
-                    pattern="[0-9]*"
-                    className="flex-1 py-2.5 sm:py-3 px-2.5 sm:px-3 min-w-0 text-sm sm:text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none bg-transparent"
-                  />
-                </div>
+                      <span className="pl-2.5 sm:pl-3 flex items-center shrink-0" aria-hidden>
+                        <IndiaFlag />
+                      </span>
+                      <span className="pl-1.5 sm:pl-2 pr-2 sm:pr-3 text-sm text-midnight_text dark:text-white font-medium">+91</span>
+                      <span className="h-5 sm:h-6 w-px bg-gray-300 dark:bg-dark_border" aria-hidden />
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel"
+                        maxLength={MOBILE_VALIDATION.MAX_LENGTH}
+                        placeholder="Mobile Number"
+                        value={mobile}
+                        onChange={handleMobileInputChange}
+                        pattern="[0-9]*"
+                        className="flex-1 py-2.5 sm:py-3 px-2.5 sm:px-3 min-w-0 text-sm sm:text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none bg-transparent"
+                      />
+                    </div>
                     {mobileError && <p className="text-red-600 text-xs sm:text-sm mt-2">{mobileError}</p>}
                   </div>
 
@@ -424,10 +202,9 @@ export default function ServicePage({
                   <div className="mt-auto w-full pt-3 sm:pt-4">
                     <button
                       type="submit"
-                      disabled={isStartingLead}
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-primary hover:bg-blue-700 text-white text-sm sm:text-base font-semibold py-2.5 sm:py-3 px-4 transition-colors shadow-md min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-primary hover:bg-blue-700 text-white text-sm sm:text-base font-semibold py-2.5 sm:py-3 px-4 transition-colors shadow-md min-h-[44px]"
                     >
-                      {isStartingLead ? "Please wait…" : "Apply Now"}
+                      Apply Now
                     </button>
                     <p className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-500 mt-2">
                       By submitting, you agree to be contacted by Apni Zaroorat and its lending partners.

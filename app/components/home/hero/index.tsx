@@ -1,23 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
 import Image from "next/image";
 import { COLORS, DEFAULT_IMAGES, MOBILE_VALIDATION } from "@/app/config/constants";
 import { validateMobileNumber, sanitizeMobileInput } from "@/app/utils/validation";
-import {
-  sanitizeLeadNameInput,
-  sanitizeLeadPanInput,
-  validateLeadPanNameMobile,
-} from "@/app/utils/leadForm";
 import { scrollToElement } from "@/app/utils/scroll";
-import { completeLead, leadIdFromResponse, mapServiceToCategory, startLead } from "@/app/utils/leadApi";
 import { fetchActiveServiceCards } from "@/app/utils/fetchActiveServiceCards";
 import type { ServiceSliderCard } from "@/app/lib/services/types";
 import IndiaFlag from "./IndiaFlag";
 import AnimatedText from "./AnimatedText";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
+import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 
 const HERO_SERVICE_SLUGS = new Set(["personal-loan", "insurance"]);
 
@@ -50,22 +44,9 @@ function handleFormSubmit(mobile: string): { isValid: boolean; error?: string } 
 export default function Hero() {
   const [mobile, setMobile] = useState("");
   const [error, setError] = useState("");
-  const [showServiceModal, setShowServiceModal] = useState(false);
+  const [showApplyModal, setShowApplyModal] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [fullName, setFullName] = useState("");
-  const [service, setService] = useState("");
-  const [pan, setPan] = useState("");
-  const [modalErrors, setModalErrors] = useState<{
-    pan?: string;
-    mobile?: string;
-    fullName?: string;
-    service?: string;
-    api?: string;
-  }>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [isStartingLead, setIsStartingLead] = useState(false);
-  const [leadId, setLeadId] = useState<string | null>(null);
   const [heroServiceOptions, setHeroServiceOptions] = useState(HERO_FALLBACK_OPTIONS);
   const [heroAnimatedTitles, setHeroAnimatedTitles] = useState<string[]>([
     "Personal Loan",
@@ -93,37 +74,14 @@ export default function Hero() {
     };
   }, []);
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const validation = handleFormSubmit(mobile);
     if (!validation.isValid) {
       setError(validation.error || "");
       return;
     }
-
-    const mobileTrim = mobile.replace(/\D/g, "");
-    setIsStartingLead(true);
     setError("");
-
-    try {
-      const response = await startLead(mobileTrim, "personal_loan");
-      if (!response.success) {
-        setError(response.message || "This number already exists.");
-        return;
-      }
-
-      const id = leadIdFromResponse(response.data);
-      if (!id) {
-        setError("Could not save mobile number. Please try again.");
-        return;
-      }
-
-      setLeadId(id);
-      setShowServiceModal(true);
-    } catch {
-      setError("Network error. Please try again later.");
-    } finally {
-      setIsStartingLead(false);
-    }
+    setShowApplyModal(true);
   };
 
   const handleMobileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,91 +89,6 @@ export default function Hero() {
     setMobile(sanitized);
     if (error) setError("");
   };
-
-  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFullName(sanitizeLeadNameInput(e.target.value));
-    if (modalErrors.fullName) setModalErrors((p) => ({ ...p, fullName: undefined }));
-  };
-
-  const handlePanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPan(sanitizeLeadPanInput(e.target.value));
-    if (modalErrors.pan) setModalErrors((p) => ({ ...p, pan: undefined }));
-  };
-
-  const handleServiceModalSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const mobileTrim = mobile.replace(/\D/g, "");
-    const base = validateLeadPanNameMobile({
-      pan,
-      mobileDigits: mobileTrim,
-      fullName,
-    });
-    const next: typeof modalErrors = { ...base };
-    if (!service.trim()) next.service = "Please select a service";
-
-    setModalErrors(next);
-    if (Object.keys(next).length > 0) return;
-
-    if (!leadId) {
-      setModalErrors((p) => ({ ...p, api: "Session expired. Please enter your mobile number again." }));
-      return;
-    }
-
-    setIsSubmitting(true);
-    setModalErrors((p) => ({ ...p, api: undefined }));
-
-    try {
-      const panTrim = pan.trim().toUpperCase();
-      const nameTrim = fullName.trim();
-      const category = mapServiceToCategory(service);
-      const response = await completeLead(leadId, {
-        pan: panTrim,
-        fullName: nameTrim,
-        category,
-      });
-
-      if (response.success) {
-        setShowServiceModal(false);
-        setMobile("");
-        setFullName("");
-        setService("");
-        setPan("");
-        setModalErrors({});
-        setTermsAccepted(false);
-        setLeadId(null);
-        setShowSuccess(true);
-      } else {
-        setModalErrors((p) => ({ ...p, api: response.message || "Failed to submit. Please try again." }));
-      }
-    } catch {
-      setModalErrors((p) => ({ ...p, api: "Network error. Please try again later." }));
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!showServiceModal) return;
-    const scrollY = window.scrollY;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    const prev = {
-      overflow: document.body.style.overflow,
-      paddingRight: document.body.style.paddingRight,
-      position: document.body.style.position,
-      top: document.body.style.top,
-    };
-    document.body.style.overflow = "hidden";
-    document.body.style.paddingRight = scrollbarWidth ? `${scrollbarWidth}px` : "0";
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    return () => {
-      document.body.style.overflow = prev.overflow;
-      document.body.style.paddingRight = prev.paddingRight;
-      document.body.style.position = prev.position;
-      document.body.style.top = prev.top;
-      window.scrollTo(0, scrollY);
-    };
-  }, [showServiceModal]);
 
   return (
     <section
@@ -225,7 +98,6 @@ export default function Hero() {
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md relative z-10 h-full max-w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:gap-10 lg:items-center min-h-0">
-          {/* Left: Heading + Form - on mobile: top (order-1); on laptop: left */}
           <div className="flex flex-col lg:col-span-6 justify-center items-start order-1 lg:order-1 min-w-0" data-aos="fade-right">
             <div className="w-full min-w-0 mb-4 sm:mb-5 lg:mb-6">
               <h1 className="text-white font-bold flex flex-nowrap items-center gap-1.5 sm:gap-2 whitespace-nowrap leading-tight text-[23px] xs:text-[23px] sm:text-xl md:text-2xl lg:text-[2.15rem] xl:text-[2.625rem]">
@@ -244,117 +116,23 @@ export default function Hero() {
                   autoCloseMs={3000}
                 />
               )}
-              {showServiceModal &&
-                typeof document !== "undefined" &&
-                createPortal(
-                  <div
-                    className="fixed inset-0 z-[99999] flex items-center justify-center px-4 sm:p-4 bg-black/50 backdrop-blur-sm"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="hero-service-modal-title"
-                  >
-                    <div className="bg-gradient-to-r from-primary to-[#ff7a1a] p-[1px] w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
-                      <div className="bg-white dark:bg-darklight rounded-2xl overflow-hidden max-h-[85vh] overflow-y-auto">
-                        <div className="flex items-center justify-between p-4 sm:p-6 pb-0 sm:pb-0">
-                          <h2 id="hero-service-modal-title" className="text-lg sm:text-xl font-bold text-midnight_text dark:text-white">
-                            Enter details
-                          </h2>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowServiceModal(false);
-                              setFullName("");
-                              setService("");
-                              setPan("");
-                              setModalErrors({});
-                              setLeadId(null);
-                            }}
-                            className="p-2 -m-2 rounded-lg text-midnight_text dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
-                            aria-label="Close"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <line x1="18" y1="6" x2="6" y2="18" />
-                              <line x1="6" y1="6" x2="18" y2="18" />
-                            </svg>
-                          </button>
-                        </div>
-                        <form onSubmit={handleServiceModalSubmit} className="p-6 sm:p-8 pt-4 sm:pt-6 space-y-4">
-                          {(modalErrors.api || modalErrors.mobile) && (
-                            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                              <p className="text-sm text-red-600 dark:text-red-400">
-                                {modalErrors.api ?? modalErrors.mobile}
-                              </p>
-                            </div>
-                          )}
-                          <div>
-                            <label htmlFor="hero-fullname" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                              Full Name *
-                            </label>
-                            <input
-                              id="hero-fullname"
-                              type="text"
-                              value={fullName}
-                              onChange={handleFullNameChange}
-                              placeholder="Full Name (As per PAN)"
-                              className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-darkmode text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/80 ${modalErrors.fullName ? "border-red-500" : "border-gray-300 dark:border-dark_border"}`}
-                            />
-                            {modalErrors.fullName && <p className="mt-1 text-sm text-red-600">{modalErrors.fullName}</p>}
-                          </div>
-                          <div>
-                            <label htmlFor="hero-service" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                              Select service *
-                            </label>
-                            <select
-                              id="hero-service"
-                              value={service}
-                              onChange={(e) => {
-                                setService(e.target.value);
-                                if (modalErrors.service) setModalErrors((p) => ({ ...p, service: undefined }));
-                              }}
-                              className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80 ${modalErrors.service ? "border-red-500" : "border-gray-300 dark:border-dark_border"}`}
-                            >
-                              {heroServiceOptions.map((opt) => (
-                                <option key={opt.value || "select"} value={opt.value}>
-                                  {opt.label}
-                                </option>
-                              ))}
-                            </select>
-                            {modalErrors.service && <p className="mt-1 text-sm text-red-600">{modalErrors.service}</p>}
-                          </div>
-                          <div>
-                            <label htmlFor="hero-pan" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                              PAN Card number *
-                            </label>
-                            <input
-                              id="hero-pan"
-                              type="text"
-                              value={pan}
-                              onChange={handlePanChange}
-                              maxLength={10}
-                              placeholder="e.g. ABCDE1234F"
-                              className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-darkmode text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/80 ${modalErrors.pan ? "border-red-500" : "border-gray-300 dark:border-dark_border"}`}
-                            />
-                            {modalErrors.pan && <p className="mt-1 text-sm text-red-600">{modalErrors.pan}</p>}
-                          </div>
-                          <div className="pt-2">
-                            <button
-                              type="submit"
-                              disabled={isSubmitting}
-                              className="w-full py-3 px-4 rounded-xl bg-primary text-white font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {isSubmitting ? "Submitting..." : "Submit"}
-                            </button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  </div>,
-                  document.body
-                )}
+              <LeadApplyModal
+                open={showApplyModal}
+                mobile={mobile.replace(/\D/g, "")}
+                category="personal_loan"
+                serviceOptions={heroServiceOptions}
+                onClose={() => setShowApplyModal(false)}
+                onEditMobile={() => setShowApplyModal(false)}
+                onSuccess={() => {
+                  setMobile("");
+                  setTermsAccepted(false);
+                  setShowSuccess(true);
+                }}
+              />
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  void handleSubmit();
+                  handleSubmit();
                 }}
                 className="bg-white dark:bg-darkmode rounded-xl shadow-lg p-4 sm:p-5 md:p-6 lg:p-7"
               >
@@ -387,15 +165,13 @@ export default function Hero() {
                 />
                 <button
                   type="submit"
-                  disabled={isStartingLead}
-                  className="w-full mt-4 sm:mt-5 py-3 sm:py-3.5 md:py-4 text-sm sm:text-base md:text-lg font-bold text-white bg-primary rounded-lg transition duration-300 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full mt-4 sm:mt-5 py-3 sm:py-3.5 md:py-4 text-sm sm:text-base md:text-lg font-bold text-white bg-primary rounded-lg transition duration-300 hover:bg-blue-700"
                 >
-                  {isStartingLead ? "Please wait…" : "Apply Now"}
+                  Apply Now
                 </button>
               </form>
             </div>
           </div>
-          {/* Right: Hero Image - on mobile: full width (same as form), stick to bottom blue; on laptop: right column */}
           <div className="flex lg:col-span-6 justify-center lg:justify-end items-end lg:items-end order-2 lg:order-2 min-w-0 w-full lg:w-auto">
             <div className="relative w-full max-w-none sm:max-w-[352px] md:max-w-[396px] lg:max-w-[464px] xl:max-w-[508px] 2xl:max-w-[572px] mx-0 lg:mx-0 lg:ml-auto min-h-0">
               <Image

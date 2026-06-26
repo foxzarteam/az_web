@@ -14,10 +14,16 @@ export function sanitizeLeadNameInput(raw: string): string {
   return raw.replace(/[^a-zA-Z\s.]/g, "");
 }
 
+export function sanitizeLeadAadhaarInput(raw: string): string {
+  return raw.replace(/\D/g, "").slice(0, 12);
+}
+
 export type LeadFieldErrors = Partial<{
   pan: string;
   mobile: string;
   fullName: string;
+  aadhaar: string;
+  service: string;
 }>;
 
 export function validateLeadPanNameMobile(params: {
@@ -44,6 +50,24 @@ export function validateLeadPanNameMobile(params: {
   else if (!LEAD_NAME_PATTERN.test(n)) {
     errors.fullName = "Name should not contain special characters or numbers";
   }
+
+  return errors;
+}
+
+export function validateLeadApplicantDetails(params: {
+  pan: string;
+  mobileDigits: string;
+  fullName: string;
+  aadhaar: string;
+  service: string;
+}): LeadFieldErrors {
+  const errors = validateLeadPanNameMobile(params);
+
+  const a = params.aadhaar.replace(/\D/g, "");
+  if (!a) errors.aadhaar = "Aadhaar is required";
+  else if (a.length !== 12) errors.aadhaar = "Enter valid 12-digit Aadhaar number";
+
+  if (!params.service.trim()) errors.service = "Please select a service";
 
   return errors;
 }
