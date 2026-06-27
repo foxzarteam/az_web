@@ -1,10 +1,10 @@
 const DEFAULT_FIREBASE_CONFIG = {
-  apiKey: "AIzaSyCmtpVbQBuNyHvky2SGffS44QdsvEThSLQ",
-  authDomain: "azapp-77130.firebaseapp.com",
-  projectId: "azapp-77130",
-  storageBucket: "azapp-77130.firebasestorage.app",
-  messagingSenderId: "33994590102",
-  appId: "1:33994590102:web:azweb",
+  apiKey: "AIzaSyDxPzbaTyjK_B3ixH1wUUXPgMQj6UOCJso",
+  authDomain: "apnizaroorat-c5d91.firebaseapp.com",
+  projectId: "apnizaroorat-c5d91",
+  storageBucket: "apnizaroorat-c5d91.firebasestorage.app",
+  messagingSenderId: "853219549386",
+  appId: "1:853219549386:web:a4b53ce885d6303d059433",
 };
 
 function env(key: string, fallback: string): string {
@@ -26,3 +26,7 @@ export const firebaseWebConfig = {
   ),
   appId: env("NEXT_PUBLIC_FIREBASE_APP_ID", DEFAULT_FIREBASE_CONFIG.appId),
 };
+
+export function isFirebaseWebConfigured(): boolean {
+  return Boolean(firebaseWebConfig.appId.trim());
+}

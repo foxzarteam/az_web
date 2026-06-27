@@ -17,6 +17,7 @@ import {
   validateLeadApplicantDetails,
 } from "@/app/utils/leadForm";
 import {
+  getFirebaseOtpSendErrorMessage,
   RECAPTCHA_CONTAINER_ID,
   resetRecaptcha,
   sendFirebasePhoneOtp,
@@ -128,8 +129,8 @@ export default function LeadApplyModal({
       const confirmation = await sendFirebasePhoneOtp(mobileDigits);
       setFirebaseConfirmation(confirmation);
       setResendCooldown(RESEND_COOLDOWN_SEC);
-    } catch {
-      setError("Failed to send OTP. Please try again.");
+    } catch (err) {
+      setError(getFirebaseOtpSendErrorMessage(err));
     } finally {
       setIsSendingOtp(false);
     }
