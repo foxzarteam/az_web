@@ -105,7 +105,7 @@ export function leadIdFromResponse(data: unknown): string | null {
   return id != null ? String(id) : null;
 }
 
-/** Step 1: save mobile (draft row with Unknown name) or reject duplicate. */
+/** Step 1: find existing lead by mobile or create a draft row. */
 export async function startLead(
   mobileNumber: string,
   category?: CreateLeadRequest["category"]

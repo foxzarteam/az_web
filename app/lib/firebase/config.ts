@@ -26,11 +26,3 @@ export const firebaseWebConfig = {
   ),
   appId: env("NEXT_PUBLIC_FIREBASE_APP_ID", DEFAULT_FIREBASE_CONFIG.appId),
 };
-
-export function isFirebaseConfigured(): boolean {
-  return Boolean(
-    firebaseWebConfig.apiKey &&
-      firebaseWebConfig.authDomain &&
-      firebaseWebConfig.projectId,
-  );
-}

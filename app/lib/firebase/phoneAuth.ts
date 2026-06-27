@@ -5,21 +5,21 @@ import {
   signInWithPhoneNumber,
 } from "firebase/auth";
 import { getApps, initializeApp } from "firebase/app";
-import { firebaseWebConfig, isFirebaseConfigured } from "./config";
+import { PUBLIC_API_BASE_URL } from "@/app/config/constants";
+import { firebaseWebConfig } from "./config";
+
+const RECAPTCHA_CONTAINER_ID = "lead-recaptcha-container";
 
 let recaptchaVerifier: RecaptchaVerifier | null = null;
 
 function getFirebaseAuth() {
-  if (!isFirebaseConfigured()) {
-    throw new Error("Firebase is not configured");
-  }
   if (getApps().length === 0) {
     initializeApp(firebaseWebConfig);
   }
   return getAuth();
 }
 
-export function resetRecaptcha(containerId = "lead-recaptcha-container"): void {
+export function resetRecaptcha(containerId = RECAPTCHA_CONTAINER_ID): void {
   if (recaptchaVerifier) {
     try {
       recaptchaVerifier.clear();
@@ -43,18 +43,34 @@ function ensureRecaptcha(containerId: string): RecaptchaVerifier {
 
 export async function sendFirebasePhoneOtp(
   mobileDigits: string,
-  containerId = "lead-recaptcha-container",
+  containerId = RECAPTCHA_CONTAINER_ID,
 ): Promise<ConfirmationResult> {
   const auth = getFirebaseAuth();
   const verifier = ensureRecaptcha(containerId);
   return signInWithPhoneNumber(auth, `+91${mobileDigits}`, verifier);
 }
 
-export async function confirmFirebasePhoneOtp(
+export async function verifyPhoneOtp(
   confirmation: ConfirmationResult,
   otp: string,
-): Promise<string> {
-  const result = await confirmation.confirm(otp);
-  const token = await result.user.getIdToken();
-  return token;
+  mobileDigits: string,
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const result = await confirmation.confirm(otp);
+    const idToken = await result.user.getIdToken();
+    const res = await fetch(`${PUBLIC_API_BASE_URL}/api/otp/verify-firebase`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ mobileNumber: mobileDigits, idToken }),
+    });
+    const data = (await res.json()) as { success?: boolean; message?: string };
+    return { success: data.success === true, message: data.message };
+  } catch {
+    return { success: false, message: "Invalid OTP. Please try again." };
+  }
 }
+
+export { RECAPTCHA_CONTAINER_ID };

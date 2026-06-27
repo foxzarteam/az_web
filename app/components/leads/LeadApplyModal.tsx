@@ -17,21 +17,14 @@ import {
   validateLeadApplicantDetails,
 } from "@/app/utils/leadForm";
 import {
-  getOtpLiveFlag,
-  sendBackendOtp,
-  verifyBackendOtp,
-  verifyFirebaseOtpOnServer,
-} from "@/app/utils/otpApi";
-import { isFirebaseConfigured } from "@/app/lib/firebase/config";
-import {
-  confirmFirebasePhoneOtp,
+  RECAPTCHA_CONTAINER_ID,
   resetRecaptcha,
   sendFirebasePhoneOtp,
+  verifyPhoneOtp,
 } from "@/app/lib/firebase/phoneAuth";
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN_SEC = 60;
-const RECAPTCHA_ID = "lead-recaptcha-container";
 
 type LeadApplyModalProps = {
   open: boolean;
@@ -103,12 +96,10 @@ export default function LeadApplyModal({
   const [pan, setPan] = useState("");
   const [aadhaar, setAadhaar] = useState("");
   const [error, setError] = useState("");
-  const [info, setInfo] = useState("");
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [useBackendOtp, setUseBackendOtp] = useState(false);
   const [firebaseConfirmation, setFirebaseConfirmation] =
     useState<ConfirmationResult | null>(null);
 
@@ -123,47 +114,19 @@ export default function LeadApplyModal({
     setPan("");
     setAadhaar("");
     setError("");
-    setInfo("");
     setResendCooldown(0);
     setFirebaseConfirmation(null);
-    resetRecaptcha(RECAPTCHA_ID);
+    resetRecaptcha(RECAPTCHA_CONTAINER_ID);
   }, [defaultService]);
 
   const sendOtp = useCallback(async () => {
-    if (!mobileDigits || mobileDigits.length !== 10) return;
+    if (mobileDigits.length !== 10) return;
     setIsSendingOtp(true);
     setError("");
-    setInfo("");
 
     try {
-      const live = await getOtpLiveFlag();
-      const canFirebase = live && isFirebaseConfigured();
-
-      if (canFirebase) {
-        try {
-          const confirmation = await sendFirebasePhoneOtp(mobileDigits, RECAPTCHA_ID);
-          setFirebaseConfirmation(confirmation);
-          setUseBackendOtp(false);
-          setInfo("OTP sent to your mobile via SMS.");
-          setResendCooldown(RESEND_COOLDOWN_SEC);
-          return;
-        } catch {
-          /* fall through to backend */
-        }
-      }
-
-      const res = await sendBackendOtp(mobileDigits);
-      if (!res.success) {
-        setError(res.message || "Failed to send OTP. Please try again.");
-        return;
-      }
-      setUseBackendOtp(true);
-      setFirebaseConfirmation(null);
-      setInfo(
-        live
-          ? "OTP sent via server. If testing, check /api/otp/dev on the API."
-          : "OTP sent. Check server dev logs if SMS is not configured.",
-      );
+      const confirmation = await sendFirebasePhoneOtp(mobileDigits);
+      setFirebaseConfirmation(confirmation);
       setResendCooldown(RESEND_COOLDOWN_SEC);
     } catch {
       setError("Failed to send OTP. Please try again.");
@@ -225,37 +188,19 @@ export default function LeadApplyModal({
   };
 
   const verifyOtp = async (otp: string) => {
-    if (otp.length !== OTP_LENGTH || isVerifyingOtp) return;
+    if (otp.length !== OTP_LENGTH || isVerifyingOtp || !firebaseConfirmation) return;
     setIsVerifyingOtp(true);
     setError("");
 
-    try {
-      if (useBackendOtp || !firebaseConfirmation) {
-        const res = await verifyBackendOtp(mobileDigits, otp);
-        if (!res.success) {
-          setError(res.message || "Invalid OTP. Please try again.");
-          setOtpDigits(Array(OTP_LENGTH).fill(""));
-          inputRefs.current[0]?.focus();
-          return;
-        }
-      } else {
-        const idToken = await confirmFirebasePhoneOtp(firebaseConfirmation, otp);
-        const res = await verifyFirebaseOtpOnServer(mobileDigits, idToken);
-        if (!res.success) {
-          setError(res.message || "OTP verification failed. Please try again.");
-          setOtpDigits(Array(OTP_LENGTH).fill(""));
-          inputRefs.current[0]?.focus();
-          return;
-        }
-      }
-      setStep("details");
-    } catch {
-      setError("Invalid OTP. Please try again.");
+    const res = await verifyPhoneOtp(firebaseConfirmation, otp, mobileDigits);
+    if (!res.success) {
+      setError(res.message || "Invalid OTP. Please try again.");
       setOtpDigits(Array(OTP_LENGTH).fill(""));
       inputRefs.current[0]?.focus();
-    } finally {
-      setIsVerifyingOtp(false);
+    } else {
+      setStep("details");
     }
+    setIsVerifyingOtp(false);
   };
 
   const handleDetailsSubmit = async (e: React.FormEvent) => {
@@ -318,7 +263,7 @@ export default function LeadApplyModal({
       role="dialog"
       aria-modal="true"
     >
-      <div id={RECAPTCHA_ID} className="sr-only" aria-hidden />
+      <div id={RECAPTCHA_CONTAINER_ID} className="sr-only" aria-hidden />
       <div className="bg-white dark:bg-darklight w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-5 sm:px-6 pt-5 pb-2 border-b border-gray-100 dark:border-dark_border">
           <h2 className="text-lg sm:text-xl font-bold text-midnight_text dark:text-white">
@@ -348,12 +293,6 @@ export default function LeadApplyModal({
               {error}
             </div>
           )}
-          {info && !error && step === "otp" && (
-            <div className="mb-4 p-3 rounded-lg bg-blue-50 border border-blue-100 text-sm text-blue-700">
-              {info}
-            </div>
-          )}
-
           {step === "otp" ? (
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
