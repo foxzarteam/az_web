@@ -44,6 +44,8 @@ const OTP_SEND_HINTS: Record<string, string> = {
     "Security check failed. Refresh the page and disable ad-blockers.",
   "auth/quota-exceeded":
     "Daily SMS limit reached (new projects: 10/day). Try tomorrow or add billing.",
+  "auth/billing-not-enabled":
+    "Firebase billing is not enabled. Console → ⚙️ Project settings → Usage and billing → Upgrade to Blaze plan (pay-as-you-go). Phone OTP SMS requires Blaze.",
   "auth/too-many-requests": "Too many attempts. Wait a few minutes.",
   "auth/invalid-phone-number": "Invalid mobile number.",
 };
