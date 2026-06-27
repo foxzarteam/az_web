@@ -264,7 +264,11 @@ export default function LeadApplyModal({
       role="dialog"
       aria-modal="true"
     >
-      <div id={RECAPTCHA_CONTAINER_ID} className="sr-only" aria-hidden />
+      <div
+        id={RECAPTCHA_CONTAINER_ID}
+        className="fixed left-0 top-0 h-px w-px overflow-hidden opacity-0 pointer-events-none"
+        aria-hidden
+      />
       <div className="bg-white dark:bg-darklight w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-5 sm:px-6 pt-5 pb-2 border-b border-gray-100 dark:border-dark_border">
           <h2 className="text-lg sm:text-xl font-bold text-midnight_text dark:text-white">
@@ -290,7 +294,7 @@ export default function LeadApplyModal({
           <Stepper step={step} />
 
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">
+            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600 break-words">
               {error}
             </div>
           )}

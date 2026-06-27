@@ -5,6 +5,7 @@ const DEFAULT_FIREBASE_CONFIG = {
   storageBucket: "apnizaroorat-c5d91.firebasestorage.app",
   messagingSenderId: "853219549386",
   appId: "1:853219549386:web:a4b53ce885d6303d059433",
+  measurementId: "G-6HQ4WKD6PC",
 };
 
 function env(key: string, fallback: string): string {
@@ -25,6 +26,10 @@ export const firebaseWebConfig = {
     DEFAULT_FIREBASE_CONFIG.messagingSenderId,
   ),
   appId: env("NEXT_PUBLIC_FIREBASE_APP_ID", DEFAULT_FIREBASE_CONFIG.appId),
+  measurementId: env(
+    "NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID",
+    DEFAULT_FIREBASE_CONFIG.measurementId,
+  ),
 };
 
 export function isFirebaseWebConfigured(): boolean {
