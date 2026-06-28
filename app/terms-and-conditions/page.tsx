@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Terms and Conditions | Apni Zaroorat",
-  description: "Terms and conditions for Apni Zaroorat services.",
+  description: "Terms and conditions for Apni Zaroorat products.",
 };
 
 export default function TermsAndConditionsPage() {

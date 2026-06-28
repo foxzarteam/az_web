@@ -70,7 +70,7 @@ export default function Footer() {
               </ul>
             </div>
             <div className="col-span-6 min-w-0 lg:col-span-8">
-              <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Services</h4>
+              <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Products</h4>
               {serviceLinks.length > 0 ? (
                 <ul className="flex flex-col space-y-0.5">
                   {serviceLinks.map((s) => (

@@ -9,6 +9,7 @@ import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { mapServiceToCategory } from "@/app/utils/leadApi";
+import { isAllowedProductSlug } from "@/app/lib/services/allowedProducts";
 import { fetchActiveServiceCards } from "@/app/utils/fetchActiveServiceCards";
 import { sanitizeMobileInput, validateMobileNumber } from "@/app/utils/validation";
 
@@ -22,20 +23,17 @@ type ServicePageProps = {
 };
 
 const FALLBACK_SERVICE_OPTIONS: { value: string; label: string }[] = [
-  { value: "", label: "Select service" },
+  { value: "", label: "Select product" },
   { value: "personal-loan", label: "Personal Loan" },
-  { value: "home-loan", label: "Home Loan" },
-  { value: "business-loan", label: "Business Loan" },
-  { value: "credit-card", label: "Credit Card" },
   { value: "insurance", label: "Insurance" },
 ];
 
 function slugFromServiceHref(href: string): string {
-  return href.replace(/^\/services\//, "").replace(/\/$/, "").trim();
+  return href.replace(/^\/products\//, "").replace(/\/$/, "").trim();
 }
 
 function slugFromPathname(pathname: string): string {
-  const m = pathname.match(/\/services\/([^/]+)/);
+  const m = pathname.match(/\/products\/([^/]+)/);
   return m?.[1]?.trim() ?? "";
 }
 
@@ -75,9 +73,11 @@ export default function ServicePage({
     (async () => {
       const { cards, status } = await fetchActiveServiceCards();
       if (cancelled || status !== "ok" || cards.length === 0) return;
+      const allowed = cards.filter((c) => isAllowedProductSlug(slugFromServiceHref(c.href)));
+      if (allowed.length === 0) return;
       setServiceOptions([
-        { value: "", label: "Select service" },
-        ...cards.map((c) => {
+        { value: "", label: "Select product" },
+        ...allowed.map((c) => {
           const slug = slugFromServiceHref(c.href);
           return { value: slug, label: c.title.trim() || slug };
         }),
@@ -206,9 +206,6 @@ export default function ServicePage({
                     >
                       Apply Now
                     </button>
-                    <p className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-500 mt-2">
-                      By submitting, you agree to be contacted by Apni Zaroorat and its lending partners.
-                    </p>
                   </div>
                 </form>
               </div>

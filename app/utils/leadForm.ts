@@ -95,7 +95,7 @@ export function validateLeadApplicantDetails(params: {
   if (!a) errors.aadhaar = "Aadhaar is required";
   else if (a.length !== 12) errors.aadhaar = "Enter valid 12-digit Aadhaar number";
 
-  if (!params.service.trim()) errors.service = "Please select a service";
+  if (!params.service.trim()) errors.service = "Please select a product";
 
   const category = mapServiceToCategory(params.service);
   if (category === "personal_loan" && !params.loanAmt?.trim()) {

@@ -5,7 +5,7 @@ import { COLORS } from "@/app/config/constants";
 import { PROPERTY_DATA } from "@/app/data/propertyData";
 
 const FEATURES = [
-  { id: 1, imgSrc: "/images/features/rating.svg", title: "Best Rates", description: "Compare interest rates from multiple banks and NBFCs. Get the best deal on loans, insurance, and credit cards." },
+  { id: 1, imgSrc: "/images/features/rating.svg", title: "Best Rates", description: "Compare interest rates from multiple banks and NBFCs. Get the best deal on loans and insurance." },
   { id: 2, imgSrc: "/images/features/Give-Women's-Rights.svg", title: "Trusted Partners", description: "We work with leading banks and insurers. Safe, transparent process with no hidden charges." },
   { id: 3, imgSrc: "/images/features/live-chat.svg", title: "24/7 Support", description: "Apply anytime, anywhere. Our team is here to help you with applications and queries round the clock." },
 ] as const;

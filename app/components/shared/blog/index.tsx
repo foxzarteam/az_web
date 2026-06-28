@@ -3,7 +3,7 @@ import Image from "next/image";
 
 const BLOG_POSTS = [
   { title: "How to Choose the Right Personal Loan", excerpt: "Compare interest rates, tenure, and processing fees before you apply.", slug: "#", coverImage: "/images/blog/blog-image.jpg", date: "15 Jan 2024" },
-  { title: "Credit Card vs Personal Loan: When to Use Which", excerpt: "Understand the difference and pick the right option for your needs.", slug: "#", coverImage: "/images/blog/blogdetail-1.jpg", date: "20 Jan 2024" },
+  { title: "Personal Loan vs Insurance: What Do You Need First?", excerpt: "Understand when a personal loan fits and when insurance should be your priority.", slug: "#", coverImage: "/images/blog/blogdetail-1.jpg", date: "20 Jan 2024" },
 ];
 
 export default function BlogSmall() {

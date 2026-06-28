@@ -62,7 +62,7 @@ export default function Listing() {
           className="mb-10 text-center text-xl font-bold text-midnight_text dark:text-white xs:text-2xl sm:mb-14 sm:text-3xl md:mb-16 md:text-4xl"
           data-aos="fade-up"
         >
-          Our Services
+          Our Products
         </h1>
 
         <div className="flex flex-col gap-14 lg:gap-20">
@@ -84,7 +84,7 @@ export default function Listing() {
               </p>
               <div className="flex justify-start">
                 <Link
-                  href="/services/personal-loan"
+                  href="/products/personal-loan"
                   className={applyBtnClass}
                   style={applyBtnStyle}
                 >
@@ -108,7 +108,7 @@ export default function Listing() {
                 Protect your life, health, and assets with plans tailored to your needs.
               </p>
               <div className="flex justify-start">
-                <Link href="/services/insurance" className={applyBtnClass} style={applyBtnStyle}>
+                <Link href="/products/insurance" className={applyBtnClass} style={applyBtnStyle}>
                   <PlayIcon />
                   Apply now
                 </Link>

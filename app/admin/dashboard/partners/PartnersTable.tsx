@@ -13,7 +13,7 @@ const VIEW_FIELDS = ["name", "service_names", "payout_type", "commission_value",
 
 const FIELD_LABELS: Record<string, string> = {
   name: "Name",
-  service_names: "Services",
+  service_names: "Products",
   payout_type: "Payout type",
   commission_value: "Commission value",
   created_at: "Created",
@@ -119,11 +119,11 @@ function ServiceMultiSelect({
   }
 
   if (options.length === 0) {
-    return <p className="text-sm text-gray dark:text-gray-400">No active services found.</p>;
+    return <p className="text-sm text-gray dark:text-gray-400">No active products found.</p>;
   }
 
   const selectedTitles = options.filter((o) => selected.includes(o.sortOrder)).map((o) => o.title);
-  const triggerLabel = selectedTitles.length > 0 ? selectedTitles.join(", ") : "Select services";
+  const triggerLabel = selectedTitles.length > 0 ? selectedTitles.join(", ") : "Select products";
 
   const triggerClass =
     "flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-midnight_text focus:outline-none focus:ring-2 focus:ring-primary/80 dark:border-dark_border dark:bg-darkmode dark:text-white";
@@ -264,13 +264,13 @@ function PartnerFormFields({
         <input className={inputClass} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
       </label>
       <div className="block">
-        <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Services</span>
+        <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Products</span>
         <ServiceMultiSelect
           options={serviceOptions}
           selected={form.selectedSortOrders}
           onChange={(selectedSortOrders) => setForm({ ...form, selectedSortOrders })}
         />
-        <p className="mt-1 text-xs text-gray dark:text-gray-400">Open dropdown and select one or more services</p>
+        <p className="mt-1 text-xs text-gray dark:text-gray-400">Open dropdown and select one or more products</p>
       </div>
       <label className="block">
         <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Payout type</span>
@@ -362,7 +362,7 @@ export default function PartnersTable({
   }
 
   function validateForm(f: PartnerForm): string | null {
-    if (f.selectedSortOrders.length === 0) return "Select at least one service.";
+    if (f.selectedSortOrders.length === 0) return "Select at least one product.";
     return null;
   }
 
@@ -481,7 +481,7 @@ export default function PartnersTable({
             <thead className="bg-slate-50 dark:bg-semidark">
               <tr>
                 <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Name</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Services</th>
+                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Products</th>
                 <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Commission</th>
                 <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Created date</th>
                 <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Action</th>

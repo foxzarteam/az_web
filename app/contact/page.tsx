@@ -5,7 +5,7 @@ import Location from "./components/office-location";
 
 export const metadata: Metadata = {
   title: "Contact Us | Apni Zaroorat",
-  description: "Get in touch with Apni Zaroorat for loans, insurance, and credit cards. Contact us for instant support.",
+  description: "Get in touch with Apni Zaroorat for personal loans and insurance. Contact us for instant support.",
 };
 
 export default function ContactPage() {

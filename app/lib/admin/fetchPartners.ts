@@ -1,5 +1,6 @@
 import "server-only";
 import { PUBLIC_API_BASE_URL } from "@/app/config/publicEnv";
+import { isAllowedProductSlug } from "@/app/lib/services/allowedProducts";
 import { adminInternalHeaders } from "@/app/lib/admin/adminInternalKey";
 
 export type AdminPartnerRow = Record<string, unknown>;
@@ -23,10 +24,11 @@ export async function fetchActiveServiceOptions(): Promise<PartnerServiceOption[
 
     return body.data
       .map((row) => {
+        const slug = String(row.slug ?? "").trim().toLowerCase();
         const sortOrder = Number(row.sortOrder ?? row.sort_order);
         const title = String(row.title ?? "").trim();
         const isActive = row.isActive !== false && row.is_active !== false;
-        if (!isActive || !Number.isFinite(sortOrder) || !title) return null;
+        if (!isActive || !Number.isFinite(sortOrder) || !title || !isAllowedProductSlug(slug)) return null;
         return { sortOrder, title };
       })
       .filter((o): o is PartnerServiceOption => o != null)

@@ -25,18 +25,18 @@ export default function DiscoverProperties() {
           className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-10 md:mb-12 text-midnight_text dark:text-white text-center"
           data-aos="fade-up"
         >
-          Our Services
+          Our Products
         </h2>
         {isLoading ? (
           <div
             className="flex justify-center items-center min-h-[200px] text-midnight_text/70 dark:text-white/70 text-sm"
             role="status"
           >
-            Loading services…
+            Loading products…
           </div>
         ) : cards.length === 0 ? (
           <p className="text-center text-sm sm:text-base text-gray dark:text-gray-400 py-8">
-            No services to show right now.
+            No products to show right now.
           </p>
         ) : (
           <div className="grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">

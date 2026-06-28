@@ -16,13 +16,13 @@ import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 const HERO_SERVICE_SLUGS = new Set(["personal-loan", "insurance"]);
 
 const HERO_FALLBACK_OPTIONS: { value: string; label: string }[] = [
-  { value: "", label: "Select service" },
+  { value: "", label: "Select product" },
   { value: "personal-loan", label: "Personal Loan" },
   { value: "insurance", label: "Insurance" },
 ];
 
 function slugFromServiceCard(card: ServiceSliderCard): string {
-  return card.href.replace(/^\/services\//, "").replace(/\/$/, "").trim();
+  return card.href.replace(/^\/products\//, "").replace(/\/$/, "").trim();
 }
 
 function pickHeroServiceCards(cards: ServiceSliderCard[]): ServiceSliderCard[] {
@@ -61,7 +61,7 @@ export default function Hero() {
       const heroCards = pickHeroServiceCards(cards);
       if (heroCards.length === 0) return;
       setHeroServiceOptions([
-        { value: "", label: "Select service" },
+        { value: "", label: "Select product" },
         ...heroCards.map((c) => ({
           value: slugFromServiceCard(c),
           label: c.title.trim() || slugFromServiceCard(c),

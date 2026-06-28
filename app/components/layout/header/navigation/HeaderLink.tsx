@@ -20,7 +20,7 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
 
   const isActive =
     path === item.href || (item.submenu && item.submenu.length > 0 && item.submenu.some((s) => s.href === path));
-  const isServices = item.label === "Services" && item.submenu && item.submenu.length > 0;
+  const isProducts = item.label === "Products" && item.submenu && item.submenu.length > 0;
 
   return (
     <div
@@ -39,7 +39,7 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
           </svg>
         )}
       </Link>
-      {submenuOpen && item.submenu && item.submenu.length > 0 && !isServices && (
+      {submenuOpen && item.submenu && item.submenu.length > 0 && !isProducts && (
         <div className="absolute py-2 top-9 left-0 mt-0.5 w-60 bg-white dark:bg-darkmode shadow-lg dark:shadow-darkmd rounded-lg z-50">
           {item.submenu.map((subItem, index) => (
             <Link
@@ -52,7 +52,7 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
           ))}
         </div>
       )}
-      {submenuOpen && isServices && (
+      {submenuOpen && isProducts && (
         <div className="absolute top-10 left-1/2 -translate-x-1/2 mt-1 bg-white dark:bg-darkmode shadow-xl dark:shadow-darkmd rounded-2xl z-50 border border-gray-100/80 dark:border-white/10 w-[min(90vw,300px)] sm:w-[min(320px,90vw)] max-w-[360px] px-3 sm:px-4 py-3">
           <div className="flex flex-col gap-1.5 sm:gap-2">
             {item.submenu?.map((subItem, index) => {

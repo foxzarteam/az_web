@@ -14,7 +14,7 @@ import { serviceCardsToSubmenu } from "@/app/lib/services/submenu";
 
 const HEADER_BASE: HeaderItem[] = [
   { label: "Home", href: "/" },
-  { label: "Services", href: "/#featured" },
+  { label: "Products", href: "/#featured" },
   { label: "About", href: "/about" },
   { label: "Contact Us", href: "/contact" },
 ];
@@ -34,9 +34,9 @@ export default function Header() {
   const headerNavItems = useMemo(
     () =>
       HEADER_BASE.map((item) =>
-        item.label === "Services" && serviceSubmenu.length > 0
+        item.label === "Products" && serviceSubmenu.length > 0
           ? { ...item, submenu: serviceSubmenu }
-          : item.label === "Services"
+          : item.label === "Products"
             ? { ...item, submenu: undefined }
             : item
       ),

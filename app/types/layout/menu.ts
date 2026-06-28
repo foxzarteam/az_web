@@ -1,7 +1,7 @@
 export type SubmenuItem = {
   label: string;
   href: string;
-  /** From `/services/:slug` — optional styling (gradient / icon) */
+  /** From `/products/:slug` — optional styling (gradient / icon) */
   slug?: string;
 };
 

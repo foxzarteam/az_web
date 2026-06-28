@@ -8,10 +8,7 @@ import { getActiveServices } from "@/app/data/getActiveServices";
 import { ServiceCardsProvider } from "@/app/components/providers/ServiceCardsProvider";
 import Header from "./components/layout/header";
 import Footer from "./components/layout/footer";
-import BeepOnPageLoad from "./components/loan-helper/BeepOnPageLoad";
-import { BEEP_AUTOPLAY_INLINE_SCRIPT } from "./components/loan-helper/beepAutoplayInlineScript";
 import LoanHelperChat from "./components/loan-helper/LoanHelperChat";
-import { WHATSAPP_BEEP_URL } from "./utils/loanHelperBeep";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -31,8 +28,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(PUBLIC_SITE_URL),
-  title: "Apni Zaroorat | Loans, Insurance & Credit Cards Online",
-  description: "Apni Zaroorat – Compare and apply for personal loans, insurance, and credit cards online. Quick approval, best rates, 100% digital.",
+  title: "Apni Zaroorat | Personal Loans & Insurance Online",
+  description: "Apni Zaroorat – Compare and apply for personal loans and insurance online. Quick approval, best rates, 100% digital.",
   icons: {
     icon: [{ url: "/favicon.png", type: "image/png" }],
     shortcut: "/favicon.png",
@@ -49,23 +46,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning className="min-h-[100dvh]">
-      <head>
-        <link rel="preload" href={WHATSAPP_BEEP_URL} as="fetch" type="audio/wav" />
-      </head>
       <body className={`${dmSans.className} min-h-[100dvh] min-w-0`} suppressHydrationWarning>
-        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-        <audio
-          id="loan-advisor-beep"
-          src={WHATSAPP_BEEP_URL}
-          preload="auto"
-          className="hidden"
-          aria-hidden
-        />
-        <script
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{ __html: BEEP_AUTOPLAY_INLINE_SCRIPT }}
-        />
-        <BeepOnPageLoad />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <Aoscompo>
             <ServiceCardsProvider cards={serviceCards}>

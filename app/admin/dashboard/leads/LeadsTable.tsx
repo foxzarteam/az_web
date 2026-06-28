@@ -7,11 +7,7 @@ import { insuranceTypeLabel, loanAmountLabel } from "@/app/utils/leadForm";
 
 const CATEGORIES = [
   { value: "personal_loan", label: "Personal Loan" },
-  { value: "home_loan", label: "Home Loan" },
-  { value: "business_loan", label: "Business Loan" },
-  { value: "credit_card", label: "Credit Card" },
   { value: "insurance", label: "Insurance" },
-  { value: "vehicle_loan", label: "Vehicle Loan" },
 ] as const;
 
 const STATUSES = [
@@ -49,7 +45,7 @@ const FIELD_LABELS: Record<string, string> = {
   required_amount: "Required amount",
   loan_amt: "Loan amount range",
   ins_type: "Insurance type",
-  category: "Service",
+  category: "Product",
   status: "Status",
   notes: "Notes",
   is_active: "Active",
@@ -316,7 +312,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
               <tr>
                 <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Name</th>
                 <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Phone</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Service</th>
+                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Product</th>
                 <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Amount / Type</th>
                 <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Action</th>
               </tr>
@@ -425,7 +421,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
                 <input className={inputClass} value={editForm.pan} onChange={(e) => setEditForm({ ...editForm, pan: e.target.value.toUpperCase() })} required maxLength={10} />
               </label>
               <label className="block">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Service</span>
+                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Product</span>
                 <select className={inputClass} value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}>
                   {CATEGORIES.map((c) => (
                     <option key={c.value} value={c.value}>

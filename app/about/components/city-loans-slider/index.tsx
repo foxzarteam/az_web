@@ -34,7 +34,7 @@ function CityCard({ slug, city }: { slug: CitySlug; city: string }) {
   return (
     <div className="shrink-0 w-[calc((100vw-1.25rem)/3)] max-w-[118px] min-w-[86px] md:w-[215px] md:min-w-[215px] md:max-w-[215px]">
       <Link
-        href="/services/personal-loan"
+        href="/products/personal-loan"
         className="flex flex-col items-center rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
         <div className="flex h-[96px] w-full max-w-[92px] cursor-pointer items-end justify-center rounded-xl border-2 border-primary bg-white p-2 shadow-md dark:border-primary dark:bg-darklight sm:h-[104px] sm:max-w-[100px] sm:p-2.5 md:h-[183px] md:max-w-[210px] md:rounded-2xl md:p-4">

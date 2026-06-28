@@ -9,6 +9,35 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /** Helps hosts that expect `/about/` → `about/index.html` style URLs. */
   trailingSlash: true,
+  async redirects() {
+    return [
+      {
+        source: "/services/:path*",
+        destination: "/products/:path*",
+        permanent: true,
+      },
+      {
+        source: "/admin/dashboard/services/:path*",
+        destination: "/admin/dashboard/products/:path*",
+        permanent: true,
+      },
+      {
+        source: "/products/credit-card/:path*",
+        destination: "/products/personal-loan/",
+        permanent: true,
+      },
+      {
+        source: "/products/home-loan/:path*",
+        destination: "/products/personal-loan/",
+        permanent: true,
+      },
+      {
+        source: "/products/business-loan/:path*",
+        destination: "/products/personal-loan/",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     unoptimized: true,
     remotePatterns: [

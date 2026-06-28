@@ -316,7 +316,7 @@ export default function ServicesTable({ initialServices }: { initialServices: Ad
       </div>
 
       {viewRow && (
-        <ModalShell title="Service details" wide onClose={() => setViewRow(null)}>
+        <ModalShell title="Product details" wide onClose={() => setViewRow(null)}>
           <ul className="grid grid-cols-1 gap-x-6 gap-y-3 p-5 sm:grid-cols-2">
             {VIEW_FIELDS.map((key) => (
               <li key={key} className={`flex flex-wrap items-baseline gap-1 text-sm ${key === "description" ? "sm:col-span-2" : ""}`}>
@@ -331,7 +331,7 @@ export default function ServicesTable({ initialServices }: { initialServices: Ad
       )}
 
       {editRow && editForm && (
-        <ModalShell title="Edit service" wide onClose={closeModals}>
+        <ModalShell title="Edit product" wide onClose={closeModals}>
           <form onSubmit={handleSaveEdit} className="space-y-4 p-5">
             {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
             <div className="grid gap-4 sm:grid-cols-2">
@@ -374,10 +374,10 @@ export default function ServicesTable({ initialServices }: { initialServices: Ad
       )}
 
       {deleteRow && (
-        <ModalShell title="Delete service" onClose={closeModals}>
+        <ModalShell title="Delete product" onClose={closeModals}>
           <div className="p-5">
             <p className="text-sm text-midnight_text dark:text-gray-200">
-              Delete service <strong>{cellText(deleteRow, "title")}</strong>? This cannot be undone.
+              Delete product <strong>{cellText(deleteRow, "title")}</strong>? This cannot be undone.
             </p>
             {error && <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
             <div className="mt-6 flex justify-end gap-2">

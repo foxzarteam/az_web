@@ -4,7 +4,6 @@ import Image from "next/image";
 import { Inter } from "next/font/google";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { playLoanHelperBeep, primeLoanHelperBeep } from "@/app/utils/loanHelperBeep";
 import { sanitizeMobileInput, validateMobileNumber } from "@/app/utils/validation";
 
 const inter = Inter({
@@ -238,10 +237,6 @@ export default function LoanHelperChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatBodyRef = useRef<HTMLDivElement>(null);
   const handleFabClick = () => {
-    primeLoanHelperBeep();
-    if (!isOpen && typeof window !== "undefined" && !window.__azWaBeepDone) {
-      void playLoanHelperBeep();
-    }
     setIsOpen((open) => !open);
   };
 

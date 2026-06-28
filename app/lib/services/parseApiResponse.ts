@@ -1,4 +1,5 @@
 import type { ApiServiceRow, ServiceSliderCard } from "@/app/lib/services/types";
+import { isAllowedProductSlug } from "@/app/lib/services/allowedProducts";
 
 function rowSortKey(row: ApiServiceRow): number {
   const n = row.sort_order ?? row.sortOrder;
@@ -12,13 +13,13 @@ function isRowActive(row: ApiServiceRow): boolean {
 
 function rowToCard(row: ApiServiceRow): ServiceSliderCard | null {
   const slug = typeof row.slug === "string" ? row.slug.trim() : "";
-  if (!slug) return null;
+  if (!slug || !isAllowedProductSlug(slug)) return null;
   const imageRaw = row.imageUrl ?? row.image_url;
   return {
     title: typeof row.title === "string" ? row.title : "",
     description: typeof row.description === "string" ? row.description : "",
     image: typeof imageRaw === "string" ? imageRaw.trim() : "",
-    href: `/services/${slug}`,
+    href: `/products/${slug}`,
   };
 }
 

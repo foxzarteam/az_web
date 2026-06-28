@@ -8,7 +8,7 @@ const Features = dynamic(() => import("../components/shared/features"));
 
 export const metadata: Metadata = {
   title: "About Us | Apni Zaroorat",
-  description: "Learn about Apni Zaroorat - Your trusted partner for loans, insurance, and credit cards. We help you make informed financial decisions.",
+  description: "Learn about Apni Zaroorat - Your trusted partner for loans and insurance. We help you make informed financial decisions.",
 };
 
 export default function AboutPage() {
@@ -20,7 +20,7 @@ export default function AboutPage() {
             About Us
           </h1>
           <p className="text-white/90 text-center text-base sm:text-lg max-w-2xl mx-auto">
-            Your trusted partner for loans, insurance, and credit cards.
+            Your trusted partner for loans and insurance.
           </p>
         </div>
       </div>
