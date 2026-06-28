@@ -49,7 +49,7 @@ const FIELD_LABELS: Record<string, string> = {
   required_amount: "Required amount",
   loan_amt: "Loan amount range",
   ins_type: "Insurance type",
-  category: "Category",
+  category: "Service",
   status: "Status",
   notes: "Notes",
   is_active: "Active",
@@ -81,11 +81,24 @@ function formatValue(key: string, value: unknown): string {
   return s;
 }
 
-function cellText(row: AdminLeadRow, key: "full_name" | "email" | "mobile_number" | "category"): string {
+function cellText(row: AdminLeadRow, key: "full_name" | "mobile_number" | "category"): string {
   if (key === "category") return categoryLabel(row[key]);
   const v = row[key];
   if (v == null || v === "") return "—";
   return String(v);
+}
+
+function amountOrInsuranceText(row: AdminLeadRow): string {
+  const category = String(row.category ?? "");
+  if (category === "personal_loan" && row.loan_amt) {
+    return loanAmountLabel(String(row.loan_amt));
+  }
+  if (category === "insurance" && row.ins_type) {
+    return insuranceTypeLabel(String(row.ins_type));
+  }
+  if (row.loan_amt) return loanAmountLabel(String(row.loan_amt));
+  if (row.ins_type) return insuranceTypeLabel(String(row.ins_type));
+  return "—";
 }
 
 type EditForm = {
@@ -302,9 +315,9 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
             <thead className="bg-slate-50 dark:bg-semidark">
               <tr>
                 <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Name</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Email</th>
                 <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Phone</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Category</th>
+                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Service</th>
+                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Amount / Type</th>
                 <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Action</th>
               </tr>
             </thead>
@@ -321,14 +334,14 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
                     <td className="whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">
                       {cellText(row, "full_name")}
                     </td>
-                    <td className="max-w-[200px] truncate whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">
-                      {cellText(row, "email")}
-                    </td>
                     <td className="whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">
                       {cellText(row, "mobile_number")}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">
                       {cellText(row, "category")}
+                    </td>
+                    <td className="max-w-[220px] truncate whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">
+                      {amountOrInsuranceText(row)}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3">
                       <div className="flex items-center gap-1.5">
@@ -412,7 +425,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
                 <input className={inputClass} value={editForm.pan} onChange={(e) => setEditForm({ ...editForm, pan: e.target.value.toUpperCase() })} required maxLength={10} />
               </label>
               <label className="block">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Category</span>
+                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Service</span>
                 <select className={inputClass} value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}>
                   {CATEGORIES.map((c) => (
                     <option key={c.value} value={c.value}>

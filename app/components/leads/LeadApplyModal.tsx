@@ -282,8 +282,8 @@ export default function LeadApplyModal({
         className="fixed left-0 top-0 h-px w-px overflow-hidden opacity-0 pointer-events-none"
         aria-hidden
       />
-      <div className="bg-white dark:bg-darklight w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-5 sm:px-6 pt-5 pb-2 border-b border-gray-100 dark:border-dark_border">
+      <div className="bg-white dark:bg-darklight w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden min-h-[min(560px,88vh)] max-h-[92vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-6 sm:px-8 pt-6 pb-3 border-b border-gray-100 dark:border-dark_border">
           <h2 className="text-lg sm:text-xl font-bold text-midnight_text dark:text-white">
             {step === "otp" ? "Verify OTP" : "Applicant Details"}
           </h2>
@@ -303,7 +303,7 @@ export default function LeadApplyModal({
           </button>
         </div>
 
-        <div className="px-5 sm:px-6 py-5 sm:py-6">
+        <div className="px-6 sm:px-8 py-6 sm:py-8">
           <Stepper step={step} />
 
           {error && (
@@ -368,7 +368,7 @@ export default function LeadApplyModal({
               </div>
             </div>
           ) : (
-            <form onSubmit={handleDetailsSubmit} className="space-y-4">
+            <form onSubmit={handleDetailsSubmit} className="space-y-5">
               <div>
                 <label htmlFor="lead-fullname" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Full Name *
@@ -379,7 +379,7 @@ export default function LeadApplyModal({
                   value={fullName}
                   onChange={(e) => setFullName(sanitizeLeadNameInput(e.target.value))}
                   placeholder="Full Name (As per PAN)"
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
                 />
               </div>
               <div>
@@ -394,7 +394,7 @@ export default function LeadApplyModal({
                     setLoanAmt("");
                     setInsType("");
                   }}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
                 >
                   {serviceOptions.map((opt) => (
                     <option key={opt.value || "select"} value={opt.value}>
@@ -412,7 +412,7 @@ export default function LeadApplyModal({
                     id="lead-loan-amt"
                     value={loanAmt}
                     onChange={(e) => setLoanAmt(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
                   >
                     <option value="">Select amount range</option>
                     {LOAN_AMOUNT_OPTIONS.map((opt) => (
@@ -432,7 +432,7 @@ export default function LeadApplyModal({
                     id="lead-ins-type"
                     value={insType}
                     onChange={(e) => setInsType(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
                   >
                     <option value="">Select insurance type</option>
                     {INSURANCE_TYPE_OPTIONS.map((opt) => (
@@ -454,7 +454,7 @@ export default function LeadApplyModal({
                   onChange={(e) => setPan(sanitizeLeadPanInput(e.target.value))}
                   maxLength={10}
                   placeholder="e.g. ABCDE1234F"
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
                 />
               </div>
               <div>
@@ -469,7 +469,7 @@ export default function LeadApplyModal({
                   onChange={(e) => setAadhaar(sanitizeLeadAadhaarInput(e.target.value))}
                   maxLength={12}
                   placeholder="12-digit Aadhaar number"
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
                 />
               </div>
               <button
