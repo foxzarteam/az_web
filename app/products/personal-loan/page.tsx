@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import ServicePage from "@/app/components/services/ServicePage";
+import QuickEasyProcess from "@/app/components/products/personal-loan/QuickEasyProcess";
 import { COLORS } from "@/app/config/constants";
 
 export const metadata: Metadata = {
@@ -37,6 +38,8 @@ export default function PersonalLoanPage() {
         badge="Instant personal loan assistance"
         hideHeader
       />
+
+      <QuickEasyProcess />
     </>
   );
 }
