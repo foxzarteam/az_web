@@ -1,11 +1,11 @@
 const DEFAULT_FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDxPzbaTyjK_B3ixH1wUUXPgMQj6UOCJso",
-  authDomain: "apnizaroorat-c5d91.firebaseapp.com",
-  projectId: "apnizaroorat-c5d91",
-  storageBucket: "apnizaroorat-c5d91.firebasestorage.app",
-  messagingSenderId: "853219549386",
-  appId: "1:853219549386:web:a4b53ce885d6303d059433",
-  measurementId: "G-6HQ4WKD6PC",
+  apiKey: "AIzaSyA1ommyharuXqAyxwRpnCEYc0CR7KG2rUU",
+  authDomain: "azapp-77130.firebaseapp.com",
+  projectId: "azapp-77130",
+  storageBucket: "azapp-77130.firebasestorage.app",
+  messagingSenderId: "33994590102",
+  appId: "1:33994590102:web:db620f6a678378b499bfb7",
+  measurementId: "G-KXXTJW6FPD",
 };
 
 function env(key: string, fallback: string): string {
