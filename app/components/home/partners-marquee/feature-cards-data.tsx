@@ -119,20 +119,20 @@ export const FEATURE_CARDS: FeatureCard[] = [
     title: "Secure & Trusted Partners",
     description:
       "We work with trusted banks and NBFCs to provide safe and reliable loan solutions.",
-    gradient: "from-violet-500 via-purple-500 to-fuchsia-600",
-    hoverBorder: "group-hover:from-violet-500 group-hover:via-purple-500 group-hover:to-fuchsia-600",
-    glow: "group-hover:shadow-violet-500/30",
-    iconBg: "bg-gradient-to-br from-violet-500 to-fuchsia-600",
+    gradient: "from-[#1e40af] via-[#2563eb] to-[#2f73f2]",
+    hoverBorder: "group-hover:from-[#1e40af] group-hover:via-[#2563eb] group-hover:to-[#2f73f2]",
+    glow: "group-hover:shadow-[#2563eb]/30",
+    iconBg: "bg-gradient-to-br from-[#3b82f6] to-[#1e40af]",
     icon: <IconShield />,
   },
   {
     title: "No Hidden Charges",
     description:
       "Transparent loan process with all applicable charges disclosed before you apply.",
-    gradient: "from-rose-400 via-pink-500 to-red-500",
-    hoverBorder: "group-hover:from-rose-400 group-hover:via-pink-500 group-hover:to-red-500",
-    glow: "group-hover:shadow-rose-500/30",
-    iconBg: "bg-gradient-to-br from-rose-400 to-pink-600",
+    gradient: "from-violet-500 via-purple-500 to-fuchsia-600",
+    hoverBorder: "group-hover:from-violet-500 group-hover:via-purple-500 group-hover:to-fuchsia-600",
+    glow: "group-hover:shadow-violet-500/30",
+    iconBg: "bg-gradient-to-br from-violet-400 to-purple-600",
     icon: <IconTransparent />,
   },
 ];

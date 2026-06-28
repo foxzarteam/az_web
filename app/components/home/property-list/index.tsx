@@ -29,7 +29,7 @@ function ServiceVideo({ src, label }: { src: string; label: string }) {
     <div className="relative w-full overflow-hidden rounded-2xl border border-slate-200/90 bg-light shadow-[0_10px_30px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-900/40">
       <div className="relative aspect-video w-full overflow-hidden">
         <video
-          className="absolute left-1/2 top-1/2 block min-w-full object-cover object-center"
+          className="pointer-events-none absolute left-1/2 top-1/2 block min-w-full select-none object-cover object-center"
           style={{
             height: "calc(100% + 10px)",
             width: "100%",
@@ -40,9 +40,11 @@ function ServiceVideo({ src, label }: { src: string; label: string }) {
           muted
           loop
           playsInline
-          controls
+          disablePictureInPicture
+          controlsList="nodownload noplaybackrate noremoteplayback"
           preload="auto"
           aria-label={label}
+          tabIndex={-1}
         >
           <source src={src} type="video/mp4" />
         </video>

@@ -67,7 +67,7 @@ export const PERSONAL_LOAN_PROCESS_STEPS: ProcessStepData[] = [
   {
     num: "04",
     title: "Receive Funds",
-    description: "Funds transferred directly to your bank account hassle-free.",
+    description: "Funds transferred directly to your bank account easily.",
     gradient: "from-[#5a9bff] via-[#2f73f2] to-[#2563d4]",
     ring: "shadow-[0_0_0_6px_rgba(47,115,242,0.15)]",
     titleColor: "text-[#2f73f2]",
