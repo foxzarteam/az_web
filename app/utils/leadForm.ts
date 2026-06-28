@@ -3,6 +3,30 @@
  * Keeps API payload rules in one place.
  */
 
+import { mapServiceToCategory } from "@/app/utils/leadApi";
+
+export const LOAN_AMOUNT_OPTIONS = [
+  { value: "25000_100000", label: "₹25,000 - ₹1,00,000" },
+  { value: "100000_200000", label: "₹1,00,000 - ₹2,00,000" },
+  { value: "200000_300000", label: "₹2,00,000 - ₹3,00,000" },
+  { value: "300000_400000", label: "₹3,00,000 - ₹4,00,000" },
+  { value: "400000_500000", label: "₹4,00,000 - ₹5,00,000" },
+] as const;
+
+export const INSURANCE_TYPE_OPTIONS = [
+  { value: "life_insurance", label: "Life Insurance" },
+  { value: "health_insurance", label: "Health Insurance" },
+  { value: "motor_insurance", label: "Motor Insurance" },
+] as const;
+
+export function loanAmountLabel(value: string): string {
+  return LOAN_AMOUNT_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+export function insuranceTypeLabel(value: string): string {
+  return INSURANCE_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
 export const LEAD_PAN_PATTERN = /^[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}$/;
 export const LEAD_NAME_PATTERN = /^[a-zA-Z\s.]+$/;
 
@@ -24,6 +48,8 @@ export type LeadFieldErrors = Partial<{
   fullName: string;
   aadhaar: string;
   service: string;
+  loanAmt: string;
+  insType: string;
 }>;
 
 export function validateLeadPanNameMobile(params: {
@@ -60,6 +86,8 @@ export function validateLeadApplicantDetails(params: {
   fullName: string;
   aadhaar: string;
   service: string;
+  loanAmt?: string;
+  insType?: string;
 }): LeadFieldErrors {
   const errors = validateLeadPanNameMobile(params);
 
@@ -68,6 +96,14 @@ export function validateLeadApplicantDetails(params: {
   else if (a.length !== 12) errors.aadhaar = "Enter valid 12-digit Aadhaar number";
 
   if (!params.service.trim()) errors.service = "Please select a service";
+
+  const category = mapServiceToCategory(params.service);
+  if (category === "personal_loan" && !params.loanAmt?.trim()) {
+    errors.loanAmt = "Please select loan amount range";
+  }
+  if (category === "insurance" && !params.insType?.trim()) {
+    errors.insType = "Please select insurance type";
+  }
 
   return errors;
 }

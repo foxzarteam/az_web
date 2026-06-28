@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
+import { insuranceTypeLabel, loanAmountLabel } from "@/app/utils/leadForm";
 
 const CATEGORIES = [
   { value: "personal_loan", label: "Personal Loan" },
@@ -28,6 +29,8 @@ const VIEW_FIELDS = [
   "status",
   "pincode",
   "required_amount",
+  "loan_amt",
+  "ins_type",
   "notes",
   "user_id",
   "is_active",
@@ -44,6 +47,8 @@ const FIELD_LABELS: Record<string, string> = {
   email: "Email",
   pincode: "Pincode",
   required_amount: "Required amount",
+  loan_amt: "Loan amount range",
+  ins_type: "Insurance type",
   category: "Category",
   status: "Status",
   notes: "Notes",
@@ -62,6 +67,8 @@ function categoryLabel(value: unknown): string {
 function formatValue(key: string, value: unknown): string {
   if (value == null || value === "") return "—";
   if (key === "category") return categoryLabel(value);
+  if (key === "loan_amt") return loanAmountLabel(String(value));
+  if (key === "ins_type") return insuranceTypeLabel(String(value));
   if (key === "status") return String(value).replace(/_/g, " ");
   if (typeof value === "boolean") return value ? "Yes" : "No";
   const s = String(value);

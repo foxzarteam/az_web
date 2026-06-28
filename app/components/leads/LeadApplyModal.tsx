@@ -11,6 +11,8 @@ import {
   type CreateLeadRequest,
 } from "@/app/utils/leadApi";
 import {
+  INSURANCE_TYPE_OPTIONS,
+  LOAN_AMOUNT_OPTIONS,
   sanitizeLeadAadhaarInput,
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
@@ -94,6 +96,8 @@ export default function LeadApplyModal({
   const [otpDigits, setOtpDigits] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [fullName, setFullName] = useState("");
   const [service, setService] = useState(defaultService);
+  const [loanAmt, setLoanAmt] = useState("");
+  const [insType, setInsType] = useState("");
   const [pan, setPan] = useState("");
   const [aadhaar, setAadhaar] = useState("");
   const [error, setError] = useState("");
@@ -106,12 +110,17 @@ export default function LeadApplyModal({
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const mobileDigits = mobile.replace(/\D/g, "");
+  const selectedCategory = mapServiceToCategory(service);
+  const showLoanAmount = selectedCategory === "personal_loan";
+  const showInsuranceType = selectedCategory === "insurance";
 
   const resetState = useCallback(() => {
     setStep("otp");
     setOtpDigits(Array(OTP_LENGTH).fill(""));
     setFullName("");
     setService(defaultService);
+    setLoanAmt("");
+    setInsType("");
     setPan("");
     setAadhaar("");
     setError("");
@@ -212,6 +221,8 @@ export default function LeadApplyModal({
       fullName,
       aadhaar,
       service,
+      loanAmt,
+      insType,
     });
     const keys = Object.keys(validation);
     if (keys.length > 0) {
@@ -237,8 +248,10 @@ export default function LeadApplyModal({
       const completeRes = await completeLead(leadId, {
         pan: pan.trim().toUpperCase(),
         fullName: fullName.trim(),
-        category: mapServiceToCategory(service),
+        category: selectedCategory,
         aadhaar: aadhaar.trim(),
+        ...(showLoanAmount && loanAmt ? { loanAmt } : {}),
+        ...(showInsuranceType && insType ? { insType } : {}),
       });
 
       if (!completeRes.success) {
@@ -376,7 +389,11 @@ export default function LeadApplyModal({
                 <select
                   id="lead-service"
                   value={service}
-                  onChange={(e) => setService(e.target.value)}
+                  onChange={(e) => {
+                    setService(e.target.value);
+                    setLoanAmt("");
+                    setInsType("");
+                  }}
                   className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
                 >
                   {serviceOptions.map((opt) => (
@@ -386,6 +403,46 @@ export default function LeadApplyModal({
                   ))}
                 </select>
               </div>
+              {showLoanAmount && (
+                <div>
+                  <label htmlFor="lead-loan-amt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Loan amount range *
+                  </label>
+                  <select
+                    id="lead-loan-amt"
+                    value={loanAmt}
+                    onChange={(e) => setLoanAmt(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
+                  >
+                    <option value="">Select amount range</option>
+                    {LOAN_AMOUNT_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {showInsuranceType && (
+                <div>
+                  <label htmlFor="lead-ins-type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Insurance type *
+                  </label>
+                  <select
+                    id="lead-ins-type"
+                    value={insType}
+                    onChange={(e) => setInsType(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode text-midnight_text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/80"
+                  >
+                    <option value="">Select insurance type</option>
+                    {INSURANCE_TYPE_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div>
                 <label htmlFor="lead-pan" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   PAN Card number *

@@ -143,6 +143,8 @@ export async function completeLead(
     fullName: string;
     category?: CreateLeadRequest["category"];
     aadhaar?: string;
+    loanAmt?: string;
+    insType?: string;
   }
 ): Promise<CreateLeadResponse> {
   const endpoint = `${PUBLIC_API_BASE_URL}/api/leads/${encodeURIComponent(leadId)}/complete`;
