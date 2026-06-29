@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
-import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
+import TermsAgreementCheckbox, { TERMS_AGREEMENT_ERROR } from "@/app/components/shared/TermsAgreementCheckbox";
 import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
@@ -67,6 +67,7 @@ export default function ServicePage({
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [serviceOptions, setServiceOptions] = useState(FALLBACK_SERVICE_OPTIONS);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsError, setTermsError] = useState<string | undefined>();
 
   useEffect(() => {
     let cancelled = false;
@@ -94,7 +95,12 @@ export default function ServicePage({
       setMobileError(validation.error || "Enter a valid 10-digit mobile number");
       return;
     }
+    if (!termsAccepted) {
+      setTermsError(TERMS_AGREEMENT_ERROR);
+      return;
+    }
     setMobileError("");
+    setTermsError(undefined);
     setShowApplyModal(true);
   };
 
@@ -196,7 +202,11 @@ export default function ServicePage({
                   <TermsAgreementCheckbox
                     id="service-terms"
                     checked={termsAccepted}
-                    onChange={setTermsAccepted}
+                    onChange={(checked) => {
+                      setTermsAccepted(checked);
+                      if (checked && termsError) setTermsError(undefined);
+                    }}
+                    error={termsError}
                   />
 
                   <div className="mt-auto w-full pt-3 sm:pt-4">

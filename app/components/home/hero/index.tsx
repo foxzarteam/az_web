@@ -12,6 +12,7 @@ import IndiaFlag from "./IndiaFlag";
 import HeroFeatureIcons from "./HeroFeatureIcons";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
+import { TERMS_AGREEMENT_ERROR } from "@/app/components/shared/TermsAgreementCheckbox";
 
 const HERO_SERVICE_SLUGS = new Set(["personal-loan", "insurance"]);
 
@@ -43,6 +44,7 @@ export default function Hero() {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsError, setTermsError] = useState("");
   const [heroServiceOptions, setHeroServiceOptions] = useState(HERO_FALLBACK_OPTIONS);
 
   useEffect(() => {
@@ -71,7 +73,12 @@ export default function Hero() {
       setError(validation.error || "");
       return;
     }
+    if (!termsAccepted) {
+      setTermsError(TERMS_AGREEMENT_ERROR);
+      return;
+    }
     setError("");
+    setTermsError("");
     setShowApplyModal(true);
   };
 
@@ -162,8 +169,12 @@ export default function Hero() {
                     id="hero-terms"
                     type="checkbox"
                     checked={termsAccepted}
-                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    onChange={(e) => {
+                      setTermsAccepted(e.target.checked);
+                      if (e.target.checked && termsError) setTermsError("");
+                    }}
                     className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-primary focus:ring-primary/80"
+                    aria-invalid={!!termsError}
                   />
                   <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                     I agree to{" "}
@@ -176,6 +187,11 @@ export default function Hero() {
                     </Link>
                   </span>
                 </label>
+                {termsError ? (
+                  <p className="text-red-600 text-xs sm:text-sm mt-1.5" role="alert">
+                    {termsError}
+                  </p>
+                ) : null}
 
                 <button
                   type="submit"

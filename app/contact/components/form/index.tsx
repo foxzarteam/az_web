@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
-import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
+import TermsAgreementCheckbox, { TERMS_AGREEMENT_ERROR } from "@/app/components/shared/TermsAgreementCheckbox";
 import { PUBLIC_FORM_SUBMIT_AJAX_URL } from "@/app/config/constants";
 
 export default function ContactForm() {
@@ -31,6 +31,11 @@ export default function ContactForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!termsAccepted) {
+      setTermsError(TERMS_AGREEMENT_ERROR);
+      return;
+    }
+    setTermsError(undefined);
     setLoading(true);
 
     if (!PUBLIC_FORM_SUBMIT_AJAX_URL) {
@@ -142,7 +147,11 @@ export default function ContactForm() {
               <TermsAgreementCheckbox
                 id="contact-terms"
                 checked={termsAccepted}
-                onChange={setTermsAccepted}
+                onChange={(checked) => {
+                  setTermsAccepted(checked);
+                  if (checked && termsError) setTermsError(undefined);
+                }}
+                error={termsError}
               />
               <div>
                 <button
