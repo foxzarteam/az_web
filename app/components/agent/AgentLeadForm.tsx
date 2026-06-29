@@ -36,6 +36,11 @@ export default function AgentLeadForm({ agentName }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!termsAccepted) {
+      setTermsError(TERMS_AGREEMENT_ERROR);
+      return;
+    }
+    setTermsError(undefined);
     if (serviceOptions.length > 0 && !formData.product.trim()) {
       setProductError("Please select a product");
       return;
