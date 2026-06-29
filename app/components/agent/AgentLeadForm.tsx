@@ -101,7 +101,7 @@ export default function AgentLeadForm({ agentName }: Props) {
         onSubmit={handleSubmit}
         className="flex w-full flex-col rounded-2xl border-2 border-primary/20 bg-gradient-to-b from-white to-light/80 p-6 shadow-xl shadow-primary/15 backdrop-blur-md dark:border-primary/30 dark:from-darklight dark:to-semidark dark:shadow-primary/20 sm:p-8"
       >
-        <div className="h-1.5 w-16 rounded-full bg-gradient-to-r from-primary via-skyBlue to-cyan" aria-hidden />
+        <div className="h-1.5 w-16 rounded-full theme-gradient-bg" aria-hidden />
         <h2 className="mt-5 text-2xl font-bold tracking-tight text-midnight_text dark:text-white">Need free financial advice?</h2>
         <p className="mt-2 text-sm leading-relaxed text-gray dark:text-gray-300">
           Get in touch — <span className="font-semibold text-primary dark:text-sky-200">{agentName}</span> will get back to you soon.
@@ -123,7 +123,7 @@ export default function AgentLeadForm({ agentName }: Props) {
               className={fieldClass}
             />
           </div>
-          <div className="grid min-w-0 grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid min-w-0 grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
             <div className="min-w-0">
               <label htmlFor="agent-lead-email" className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-primary/90 dark:text-sky-300/90">
                 Email <span className="text-red-500">*</span>
@@ -193,7 +193,7 @@ export default function AgentLeadForm({ agentName }: Props) {
           <button
             type="submit"
             disabled={loading}
-            className="agent-cta-btn group relative mt-1 w-full overflow-hidden rounded-full bg-gradient-to-r from-primary via-[#2563eb] to-cyan py-4 text-sm font-bold text-white shadow-lg shadow-primary/35 transition hover:shadow-xl hover:shadow-primary/45 hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+            className="agent-cta-btn group relative mt-1 w-full overflow-hidden rounded-full btn-gradient py-4 text-sm font-bold text-white shadow-lg transition disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span className="relative z-10">{loading ? "Sending…" : "Send"}</span>
             <span

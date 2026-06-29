@@ -457,7 +457,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
               <button type="button" onClick={closeModals} className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium dark:border-dark_border dark:text-white">
                 Cancel
               </button>
-              <button type="submit" disabled={saving} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+              <button type="submit" disabled={saving} className="btn-gradient rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
                 {saving ? "Saving…" : "Save changes"}
               </button>
             </div>

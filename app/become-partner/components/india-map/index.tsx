@@ -93,11 +93,23 @@ export default function IndiaMap() {
     const offsetX = (cw - drawnW) / 2;
     const offsetY = (ch - drawnH) / 2;
 
-    setMapInset({
-      left: (offsetX / ww) * 100,
-      top: (offsetY / wh) * 100,
-      w: (drawnW / ww) * 100,
-      h: (drawnH / wh) * 100,
+    setMapInset((prev) => {
+      const next = {
+        left: (offsetX / ww) * 100,
+        top: (offsetY / wh) * 100,
+        w: (drawnW / ww) * 100,
+        h: (drawnH / wh) * 100,
+      };
+      if (
+        prev &&
+        Math.abs(prev.left - next.left) < 0.05 &&
+        Math.abs(prev.top - next.top) < 0.05 &&
+        Math.abs(prev.w - next.w) < 0.05 &&
+        Math.abs(prev.h - next.h) < 0.05
+      ) {
+        return prev;
+      }
+      return next;
     });
   }, []);
 
@@ -322,16 +334,16 @@ export default function IndiaMap() {
                     className={`flex items-stretch overflow-hidden rounded-xl border-2 bg-white transition-all focus-within:ring-2 ${
                       fieldErrors.phone
                         ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-300/50"
-                        : "border-blue-200 focus-within:border-blue-500 focus-within:ring-blue-300/50"
+                        : "border-primary/30 focus-within:border-primary focus-within:ring-primary/30"
                     }`}
                   >
                     <div
-                      className={`flex items-center gap-1.5 sm:gap-2 pl-3 sm:pl-4 pr-2 sm:pr-3 bg-blue-50 shrink-0 border-r-2 ${
-                        fieldErrors.phone ? "border-red-500" : "border-blue-200"
+                      className={`flex items-center gap-1.5 sm:gap-2 pl-3 sm:pl-4 pr-2 sm:pr-3 bg-[#EEF0FF] shrink-0 border-r-2 ${
+                        fieldErrors.phone ? "border-red-500" : "border-primary/30"
                       }`}
                     >
                       <IndiaFlag />
-                      <span className="text-xs sm:text-sm font-semibold text-blue-700">+91</span>
+                      <span className="text-xs sm:text-sm font-semibold text-primary">+91</span>
                     </div>
                     <input
                       id="hero-phone"
@@ -363,7 +375,7 @@ export default function IndiaMap() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="btn-shine relative z-0 w-full rounded-xl bg-gradient-to-r from-[#ff7a1a] to-[#ff9a4a] py-3.5 sm:py-4 text-base sm:text-lg font-bold text-white shadow-lg shadow-orange-500/30 transition-all hover:from-[#ff6700] hover:to-[#ff8a35] hover:shadow-orange-500/40 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="btn-shine relative z-0 w-full rounded-xl btn-gradient py-3.5 sm:py-4 text-base sm:text-lg font-bold text-white shadow-lg transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? "Joining…" : "Join Now"}
                 </button>
@@ -376,10 +388,10 @@ export default function IndiaMap() {
             </form>
           </div>
 
-          <div className="relative bg-blue-950/30 rounded-xl sm:rounded-2xl p-2 sm:p-4 md:p-5 lg:p-6 border border-blue-700/30 shadow-2xl backdrop-blur-sm">
+          <div className="relative bg-purple-950/30 rounded-xl sm:rounded-2xl p-2 sm:p-4 md:p-5 lg:p-6 border border-purple-700/30 shadow-2xl backdrop-blur-sm">
             <div
               ref={mapWrapRef}
-              className="relative mx-auto w-full min-h-[400px] h-[min(82vh,560px)] xs:h-[min(84vh,620px)] sm:h-[min(85vh,700px)] md:h-[min(86vh,780px)] lg:h-[min(88vh,900px)] xl:h-[min(88vh,960px)] overflow-visible bg-blue-900/20"
+              className="relative mx-auto w-full min-h-[280px] h-[min(68vh,480px)] xs:h-[min(72vh,540px)] sm:h-[min(78vh,620px)] md:h-[min(82vh,700px)] lg:h-[min(85vh,820px)] xl:h-[min(86vh,900px)] overflow-hidden bg-purple-900/20"
             >
               {mapSrc ? (
                 // External SVG URLs from env + runtime onError fallback
@@ -409,27 +421,27 @@ export default function IndiaMap() {
                 </div>
               )}
 
-              {pins.map((pin) => {
-                const inset = mapInset ?? { left: 0, top: 0, w: 100, h: 100 };
-                const left = inset.left + (pin.x / 100) * inset.w;
-                const top = inset.top + (pin.y / 100) * inset.h;
+              {mapInset &&
+                pins.map((pin) => {
+                const left = mapInset.left + (pin.x / 100) * mapInset.w;
+                const top = mapInset.top + (pin.y / 100) * mapInset.h;
+                const isActive = visiblePins.has(pin.id);
                 return (
                 <div
                   key={pin.id}
-                  className="absolute z-10 -translate-x-1/2 -translate-y-1/2 transform"
+                  className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
                   style={{
                     left: `${left}%`,
                     top: `${top}%`,
                   }}
                 >
-                  <div
-                    className={`pin-container ${visiblePins.has(pin.id) ? "pin-visible" : "pin-hidden"}`}
-                  >
+                  <div className={`pin-container ${isActive ? "pin-visible" : "pin-hidden"}`}>
                     <svg
                       width="24"
                       height="32"
                       viewBox="0 0 24 32"
                       className="pin-icon"
+                      aria-hidden
                     >
                       <path
                         d="M12 0C5.373 0 0 5.373 0 12c0 8.5 12 20 12 20s12-11.5 12-20C24 5.373 18.627 0 12 0zm0 17c-2.757 0-5-2.243-5-5s2.243-5 5-5 5 2.243 5 5-2.243 5-5 5z"
@@ -439,15 +451,18 @@ export default function IndiaMap() {
                     </svg>
                   </div>
 
-                  {visiblePins.has(pin.id) && (
-                    <div className="pin-label absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 sm:mb-2 z-20 max-w-[120px] xs:max-w-none">
-                      <div className="bg-white text-blue-900 text-[10px] xs:text-xs font-semibold px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg shadow-lg border border-blue-200 whitespace-nowrap">
-                        <div className="font-bold">{pin.state}</div>
-                        <div className="text-[9px] xs:text-[10px] mt-0.5">{pin.label}</div>
-                      </div>
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white"></div>
+                  <div
+                    className={`pin-label absolute bottom-full left-1/2 z-20 mb-1 w-max max-w-none -translate-x-1/2 transition-opacity duration-300 sm:mb-2 ${
+                      isActive ? "opacity-100" : "pointer-events-none opacity-0"
+                    }`}
+                    aria-hidden={!isActive}
+                  >
+                    <div className="pin-label__box rounded-lg border border-purple-200 bg-white px-2.5 py-1.5 text-center text-[10px] font-semibold text-purple-900 shadow-lg xs:text-xs sm:px-3 sm:py-1.5">
+                      <div className="font-bold whitespace-nowrap">{pin.state}</div>
+                      <div className="mt-0.5 text-[9px] whitespace-nowrap xs:text-[10px]">{pin.label}</div>
                     </div>
-                  )}
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white" aria-hidden />
+                  </div>
                 </div>
                 );
               })}
@@ -455,7 +470,7 @@ export default function IndiaMap() {
           </div>
 
           <div className="mt-6 sm:mt-8 text-center px-2">
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white inline-block px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-800/50 rounded-lg border border-blue-600/50 backdrop-blur-sm">
+            <p className="max-w-full text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white inline-block px-3 xs:px-4 sm:px-6 py-2 xs:py-2.5 sm:py-3 theme-gradient-bg rounded-lg border border-purple-600/50 backdrop-blur-sm leading-snug">
               India&apos;s Trusted Loan & Insurance Partner Platform
             </p>
           </div>
@@ -464,32 +479,17 @@ export default function IndiaMap() {
 
       <style jsx global>{`
         .pin-container {
-          transition: all 0.3s ease;
+          transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
         .pin-hidden {
           opacity: 0;
-          transform: scale(0);
+          transform: scale(0.85);
         }
 
         .pin-visible {
           opacity: 1;
           transform: scale(1);
-          animation: pinPop 0.8s ease-out;
-        }
-
-        @keyframes pinPop {
-          0% {
-            transform: scale(0);
-            opacity: 0;
-          }
-          50% {
-            transform: scale(1.2);
-          }
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
         }
 
         .pin-icon {
@@ -506,19 +506,10 @@ export default function IndiaMap() {
           }
         }
 
-        .pin-label {
-          animation: labelFadeIn 0.6s ease-out;
-        }
-
-        @keyframes labelFadeIn {
-          0% {
-            opacity: 0;
-            transform: translate(-50%, 10px);
-          }
-          100% {
-            opacity: 1;
-            transform: translate(-50%, 0);
-          }
+        .pin-label__box {
+          overflow-wrap: normal;
+          word-break: normal;
+          white-space: nowrap;
         }
       `}</style>
     </>

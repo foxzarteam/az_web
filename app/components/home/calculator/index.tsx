@@ -39,7 +39,7 @@ export default function Calculator() {
   const interestDash = interestShare * circumference;
 
   return (
-    <section className="w-full min-w-0 bg-light dark:bg-semidark">
+    <section className="w-full min-w-0 bg-white dark:bg-semidark">
       <div
         className="container mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md"
         data-aos="fade-left"
@@ -72,7 +72,7 @@ export default function Calculator() {
                   cy="100"
                   r={r}
                   fill="none"
-                  stroke="#E8EEFC"
+                  stroke="#EDE5FF"
                   strokeWidth="22"
                   className="dark:opacity-80"
                 />
@@ -92,7 +92,7 @@ export default function Calculator() {
                   cy="100"
                   r={r}
                   fill="none"
-                  stroke="#B8D4F1"
+                  stroke="#D4BCFA"
                   strokeWidth="22"
                   strokeDasharray={`${interestDash} ${circumference}`}
                   strokeDashoffset={-principalDash}
@@ -116,7 +116,7 @@ export default function Calculator() {
           data-aos="fade-left"
         >
           <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-border bg-white shadow-lg dark:border-dark_border dark:bg-darklight">
-            <div className="bg-primary px-6 py-4 text-center">
+            <div className="theme-gradient-bg px-6 py-4 text-center">
               <h3 className="text-xl font-bold text-white">Personal Loan EMI Calculator</h3>
               <p className="mt-1 text-sm text-white/80">Calculate EMI for your Personal Loan</p>
             </div>
@@ -227,23 +227,23 @@ export default function Calculator() {
             <div className="border-t border-border bg-gray-50 px-4 py-4 sm:px-5 sm:py-5 md:px-6 dark:border-dark_border dark:bg-darkmode/50">
               <div className="grid grid-cols-2 gap-3 text-left sm:gap-4 md:grid-cols-4">
                 <div className="min-w-0">
-                  <p className="text-[10px] uppercase tracking-wide text-gray sm:text-xs">Monthly EMI</p>
+                  <p className="text-[11px] uppercase tracking-wide text-gray xs:text-xs sm:text-xs">Monthly EMI</p>
                   <p className="truncate text-sm font-bold text-primary sm:text-base md:text-lg">{formatRupee(emi)}</p>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] uppercase tracking-wide text-gray sm:text-xs">Principal amount</p>
+                  <p className="text-[11px] uppercase tracking-wide text-gray xs:text-xs sm:text-xs">Principal amount</p>
                   <p className="truncate text-sm font-bold text-midnight_text dark:text-white sm:text-base md:text-lg">
                     {formatRupee(principal)}
                   </p>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] uppercase tracking-wide text-gray sm:text-xs">Total interest</p>
+                  <p className="text-[11px] uppercase tracking-wide text-gray xs:text-xs sm:text-xs">Total interest</p>
                   <p className="truncate text-sm font-bold text-midnight_text dark:text-white sm:text-base md:text-lg">
                     {formatRupee(totalInterest)}
                   </p>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] uppercase tracking-wide text-gray sm:text-xs">Total amount</p>
+                  <p className="text-[11px] uppercase tracking-wide text-gray xs:text-xs sm:text-xs">Total amount</p>
                   <p className="truncate text-sm font-bold text-midnight_text dark:text-white sm:text-base md:text-lg">
                     {formatRupee(totalAmount)}
                   </p>

@@ -34,7 +34,7 @@ export default function ThreeSteps() {
                 >
                   {/* Circle with Image or fallback number */}
                   <div className="relative flex items-center justify-center">
-                    <div className="relative w-32 h-32 xs:w-36 xs:h-36 sm:w-40 sm:h-40 md:w-40 md:h-40 rounded-full bg-primary flex items-center justify-center shadow-lg border-2 border-white dark:border-darkmode overflow-hidden">
+                    <div className="relative w-32 h-32 xs:w-36 xs:h-36 sm:w-40 sm:h-40 md:w-40 md:h-40 rounded-full theme-gradient-bg flex items-center justify-center shadow-lg border-2 border-white dark:border-darkmode overflow-hidden">
                       {imageErrors[index] ? (
                         <span className="text-2xl xs:text-3xl sm:text-4xl font-bold text-white relative z-10">{index + 1}</span>
                       ) : (

@@ -17,7 +17,7 @@ export default function History() {
             <br />
             all from one place.
           </p>
-          <Link href="/#featured" className="text-sm sm:text-base md:text-xl px-5 sm:px-6 md:px-9 py-2.5 sm:py-3 border border-primary text-primary hover:text-white hover:bg-primary rounded-lg inline-block">
+          <Link href="/#featured" className="btn-gradient text-sm sm:text-base md:text-xl px-5 sm:px-6 md:px-9 py-2.5 sm:py-3 rounded-lg inline-block transition-opacity">
             Explore Products
           </Link>
         </div>
@@ -27,7 +27,7 @@ export default function History() {
             <div className="flex justify-between items-end">
               <div>
                 <p className="text-black text-opacity-60 dark:text-gray text-sm sm:text-base">Trust</p>
-                <p className="text-4xl sm:text-5xl md:text-[65px] leading-[1.2] -mt-1 text-midnight_text dark:text-white font-bold mb-2">100%</p>
+                <p className="text-3xl xs:text-4xl sm:text-5xl md:text-[65px] leading-[1.2] -mt-1 text-midnight_text dark:text-white font-bold mb-2">100%</p>
               </div>
               <div className="shrink-0">
                 <Image src="/images/history/logo.svg" alt="company" width={93} height={130} className="w-16 h-auto sm:w-20 md:w-[93px]" />

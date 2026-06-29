@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import ServicePage from "@/app/components/services/ServicePage";
-import { COLORS } from "@/app/config/constants";
 
 export const metadata: Metadata = {
   title: "Business Loan | Apni Zaroorat",
@@ -11,8 +10,7 @@ export default function BusinessLoanPage() {
   return (
     <>
       <section
-        className="pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 text-white px-4 sm:px-6"
-        style={{ backgroundColor: COLORS.PRIMARY }}
+        className="pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 text-white px-4 sm:px-6 theme-gradient-bg"
       >
         <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md max-w-full">
           <div className="max-w-3xl mx-auto text-center">

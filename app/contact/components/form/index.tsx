@@ -90,7 +90,7 @@ export default function ContactForm() {
                   className="w-full text-base px-4 rounded-lg py-2.5 border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
-              <div className="grid min-w-0 grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid min-w-0 grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
                 <div className="min-w-0">
                   <label htmlFor="email" className="pb-2 sm:pb-3 inline-block text-sm sm:text-base font-medium text-midnight_text dark:text-white">
                     Email*
@@ -148,7 +148,7 @@ export default function ContactForm() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-primary rounded-lg text-white py-4 px-8 mt-4 inline-block hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-gradient rounded-lg text-white py-4 px-8 mt-4 inline-block transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Sending..." : "Send Message"}
                 </button>

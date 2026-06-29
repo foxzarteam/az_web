@@ -53,7 +53,7 @@ function Stepper({ step }: { step: Step }) {
     <div className="flex items-center justify-center gap-0 mb-6 px-2">
       {steps.map((s, i) => (
         <div key={s.key} className="flex items-center">
-          <div className="flex flex-col items-center min-w-[88px]">
+          <div className="flex flex-col items-center min-w-[68px] xs:min-w-[76px] sm:min-w-[88px]">
             <div
               className={`h-3 w-3 rounded-full border-2 ${
                 i <= activeIdx
@@ -71,7 +71,7 @@ function Stepper({ step }: { step: Step }) {
           </div>
           {i < steps.length - 1 && (
             <div
-              className={`h-0.5 w-12 sm:w-16 mb-5 ${
+              className={`h-0.5 w-8 xs:w-10 sm:w-16 mb-5 ${
                 i < activeIdx ? "bg-primary" : "bg-gray-200"
               }`}
             />
@@ -283,7 +283,7 @@ export default function LeadApplyModal({
         aria-hidden
       />
       <div className="bg-white dark:bg-darklight w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden min-h-[min(560px,88vh)] max-h-[92vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 sm:px-8 pt-6 pb-3 border-b border-gray-100 dark:border-dark_border">
+        <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 pt-5 sm:pt-6 pb-3 border-b border-gray-100 dark:border-dark_border">
           <h2 className="text-lg sm:text-xl font-bold text-midnight_text dark:text-white">
             {step === "otp" ? "Verify OTP" : "Applicant Details"}
           </h2>
@@ -303,7 +303,7 @@ export default function LeadApplyModal({
           </button>
         </div>
 
-        <div className="px-6 sm:px-8 py-6 sm:py-8">
+        <div className="px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8">
           <Stepper step={step} />
 
           {error && (
@@ -475,7 +475,7 @@ export default function LeadApplyModal({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3 rounded-xl bg-primary text-white font-semibold hover:bg-blue-700 disabled:opacity-50"
+                className="w-full py-3 rounded-xl btn-gradient text-white font-semibold disabled:opacity-50"
               >
                 {isSubmitting ? "Submitting…" : "Submit"}
               </button>

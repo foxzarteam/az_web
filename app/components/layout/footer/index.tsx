@@ -61,7 +61,7 @@ export default function Footer() {
             </div>
           </div>
           <div className="md:col-span-8 col-span-12 grid grid-cols-12 gap-6 sm:gap-8">
-            <div className="col-span-6 min-w-0 lg:col-span-4">
+            <div className="col-span-12 xs:col-span-6 min-w-0 lg:col-span-4">
               <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Quick Links</h4>
               <ul className="space-y-0.5">
                 <li><Link href="/contact" className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center">Contact</Link></li>
@@ -69,7 +69,7 @@ export default function Footer() {
                 <li><Link href="/become-partner" className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center">Become a Partner</Link></li>
               </ul>
             </div>
-            <div className="col-span-6 min-w-0 lg:col-span-8">
+            <div className="col-span-12 xs:col-span-6 min-w-0 lg:col-span-8">
               <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Products</h4>
               {serviceLinks.length > 0 ? (
                 <ul className="flex flex-col space-y-0.5">

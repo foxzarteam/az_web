@@ -3,7 +3,7 @@ import { CONTACT } from "@/app/config/constants";
 
 export default function Location() {
   return (
-    <section className="bg-primary lg:py-24 py-12 sm:py-16 px-4 sm:px-6">
+    <section className="theme-gradient-bg lg:py-24 py-12 sm:py-16 px-4 sm:px-6">
       <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 lg:grid-cols-9 gap-4 sm:gap-6 md:gap-7 border-b border-solid border-white border-opacity-50 pb-8 sm:pb-11">
           <div className="sm:col-span-2 md:col-span-3">

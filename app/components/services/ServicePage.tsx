@@ -202,7 +202,7 @@ export default function ServicePage({
                   <div className="mt-auto w-full pt-3 sm:pt-4">
                     <button
                       type="submit"
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-primary hover:bg-blue-700 text-white text-sm sm:text-base font-semibold py-2.5 sm:py-3 px-4 transition-colors shadow-md min-h-[44px]"
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl btn-gradient text-white text-sm sm:text-base font-semibold py-2.5 sm:py-3 px-4 transition-opacity shadow-md min-h-[44px]"
                     >
                       Apply Now
                     </button>
@@ -212,8 +212,8 @@ export default function ServicePage({
             </div>
           </div>
 
-          <div className="relative min-w-0 order-2 lg:order-2 w-full h-full min-h-[280px] lg:min-h-[420px]" data-aos="fade-left">
-            <div className="relative h-full min-h-[280px] overflow-hidden rounded-2xl border border-primary/10 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 shadow-2xl sm:rounded-3xl lg:min-h-[420px]">
+          <div className="relative min-w-0 order-2 lg:order-2 w-full h-full min-h-[240px] sm:min-h-[280px] lg:min-h-[420px]" data-aos="fade-left">
+            <div className="relative h-full min-h-[240px] sm:min-h-[280px] overflow-hidden rounded-2xl border border-primary/10 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 shadow-2xl sm:rounded-3xl lg:min-h-[420px]">
               <div className="absolute -left-10 -top-10 h-24 w-24 rounded-full bg-primary/20 blur-3xl sm:h-32 sm:w-32" />
               <div className="absolute -bottom-8 -right-8 h-28 w-28 rounded-full bg-accent/30 blur-3xl sm:-bottom-12 sm:-right-12 sm:h-40 sm:w-40" />
               <div className="relative z-10 h-full min-h-[280px] w-full lg:min-h-[420px]">

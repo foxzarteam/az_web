@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import ServicePage from "@/app/components/services/ServicePage";
 import QuickEasyProcess from "@/app/components/products/personal-loan/QuickEasyProcess";
-import { COLORS } from "@/app/config/constants";
 
 export const metadata: Metadata = {
   title: "Personal Loan | Apni Zaroorat",
@@ -12,8 +11,7 @@ export default function PersonalLoanPage() {
   return (
     <>
       <section
-        className="pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 text-white"
-        style={{ backgroundColor: COLORS.PRIMARY }}
+        className="pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 text-white theme-gradient-bg"
       >
         <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md max-w-full">
           <div className="max-w-3xl mx-auto text-center">

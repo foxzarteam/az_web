@@ -5,13 +5,13 @@ export const PERSONAL_LOAN_PROCESS_STEPS: ProcessStepData[] = [
     num: "01",
     title: "Apply Online",
     description: "Fill out a simple online form in just a few minutes.",
-    gradient: "from-[#4facfe] via-[#3b9cf5] to-[#2f73f2]",
-    ring: "shadow-[0_0_0_6px_rgba(47,115,242,0.15)]",
-    titleColor: "text-[#2f73f2]",
-    lineColor: "bg-[#2f73f2]",
-    badgeColor: "text-[#2f73f2]",
-    connector: "from-[#2f73f2] to-[#059669]",
-    dot: "bg-[#2f73f2]",
+    gradient: "from-[#4236FB] via-[#5A4DFC] to-[#FF7E29]",
+    ring: "shadow-[0_0_0_6px_rgba(66,54,251,0.15)]",
+    titleColor: "text-[#4236FB]",
+    lineColor: "bg-[#4236FB]",
+    badgeColor: "text-[#4236FB]",
+    connector: "from-[#4236FB] to-[#059669]",
+    dot: "bg-[#4236FB]",
     icon: (
       <svg viewBox="0 0 48 48" fill="none" className="h-10 w-10 sm:h-12 sm:w-12" aria-hidden>
         <rect x="10" y="8" width="24" height="30" rx="3" stroke="currentColor" strokeWidth="2.5" />
@@ -53,7 +53,7 @@ export const PERSONAL_LOAN_PROCESS_STEPS: ProcessStepData[] = [
     titleColor: "text-[#ea580c]",
     lineColor: "bg-[#ea580c]",
     badgeColor: "text-[#ea580c]",
-    connector: "from-[#fb923c] to-[#2f73f2]",
+    connector: "from-[#fb923c] to-[#4236FB]",
     dot: "bg-[#ea580c]",
     icon: (
       <svg viewBox="0 0 48 48" fill="none" className="h-10 w-10 sm:h-12 sm:w-12" aria-hidden>
@@ -68,13 +68,13 @@ export const PERSONAL_LOAN_PROCESS_STEPS: ProcessStepData[] = [
     num: "04",
     title: "Receive Funds",
     description: "Funds transferred directly to your bank account easily.",
-    gradient: "from-[#5a9bff] via-[#2f73f2] to-[#2563d4]",
-    ring: "shadow-[0_0_0_6px_rgba(47,115,242,0.15)]",
-    titleColor: "text-[#2f73f2]",
-    lineColor: "bg-[#2f73f2]",
-    badgeColor: "text-[#2f73f2]",
+    gradient: "from-[#4236FB] via-[#5A4DFC] to-[#FF7E29]",
+    ring: "shadow-[0_0_0_6px_rgba(66,54,251,0.15)]",
+    titleColor: "text-[#4236FB]",
+    lineColor: "bg-[#4236FB]",
+    badgeColor: "text-[#4236FB]",
     connector: "",
-    dot: "bg-[#2f73f2]",
+    dot: "bg-[#4236FB]",
     icon: (
       <svg viewBox="0 0 48 48" fill="none" className="h-10 w-10 sm:h-12 sm:w-12" aria-hidden>
         <path d="M8 38V18l16-8 16 8v20H8Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />

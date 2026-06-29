@@ -1,21 +1,21 @@
 import type { SubmenuItem } from "@/app/types/layout/menu";
 
 const GRADIENT_BY_SLUG: Record<string, string> = {
-  "personal-loan": "from-[#ff9a9e] to-[#fad0c4]",
-  "business-loan": "from-[#a18cd1] to-[#fbc2eb]",
-  "home-loan": "from-[#84fab0] to-[#8fd3f4]",
-  "credit-card": "from-[#f6d365] to-[#fda085]",
-  insurance: "from-[#cfd9df] to-[#e2ebf0]",
-  "vehicle-loan": "from-primary/20 to-primary/40",
+  "personal-loan": "from-[#4236FB] to-[#6B62FC]",
+  "business-loan": "from-[#4236FB] to-[#5A4DFC]",
+  "home-loan": "from-[#5A4DFC] to-[#6B62FC]",
+  "credit-card": "from-[#5A4DFC] to-[#FF7E29]",
+  insurance: "from-[#4236FB] to-[#FF7E29]",
+  "vehicle-loan": "from-[#4236FB] to-[#5A4DFC]",
 };
 
 const FALLBACK_GRADIENTS = [
-  "from-[#ff9a9e] to-[#fad0c4]",
-  "from-[#a18cd1] to-[#fbc2eb]",
-  "from-[#84fab0] to-[#8fd3f4]",
-  "from-[#f6d365] to-[#fda085]",
-  "from-[#cfd9df] to-[#e2ebf0]",
-  "from-primary/15 to-primary/35",
+  "from-[#4236FB] to-[#6B62FC]",
+  "from-[#4236FB] to-[#5A4DFC]",
+  "from-[#5A4DFC] to-[#FF7E29]",
+  "from-[#4236FB] to-[#FF7E29]",
+  "from-[#6B62FC] to-[#FF7E29]",
+  "from-[#4236FB] to-[#5A4DFC]",
 ] as const;
 
 export function serviceSubmenuGradient(item: SubmenuItem, index: number): string {
@@ -24,7 +24,7 @@ export function serviceSubmenuGradient(item: SubmenuItem, index: number): string
   return FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length];
 }
 
-/** Small label for gradient tile — works for DB-driven titles too */
+/** @deprecated Use ServiceSubmenuIcon component instead */
 export function serviceSubmenuIcon(item: SubmenuItem): string {
   const slug = (item.slug ?? "").toLowerCase();
   const label = item.label.toLowerCase();

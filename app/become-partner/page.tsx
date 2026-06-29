@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function BecomePartnerPage() {
   return (
     <>
-      <div className="partner-hero-shine pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 bg-gradient-to-b from-primary from-10% to-primary/90 to-90% px-4 sm:px-6">
+      <div className="partner-hero-shine pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 theme-gradient-bg px-4 sm:px-6">
         <div className="relative z-[1] container mx-auto lg:max-w-screen-xl md:max-w-screen-md">
           <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-bold text-white text-center mb-3 sm:mb-4" data-aos="fade-up">
             Become a Partner

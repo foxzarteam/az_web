@@ -43,15 +43,15 @@ export default function AgentLanding() {
         : `tel:${AGENT_PROFILE.phone.replace(/\s/g, "")}`;
 
   return (
-    <main className="agent-portfolio relative min-h-screen min-w-0 overflow-x-hidden bg-gradient-to-br from-light via-white to-[#e4eefc] text-midnight_text dark:from-[#040810] dark:via-[#0a1424] dark:to-[#060a12] dark:text-[#f0f6fa]">
+    <main className="agent-portfolio relative min-h-screen min-w-0 overflow-x-hidden bg-gradient-to-br from-light via-white to-[#f5f0ff] text-midnight_text dark:from-[#040810] dark:via-[#0a1424] dark:to-[#060a12] dark:text-[#f0f6fa]">
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden>
         <div className="agent-landing-blob absolute -right-20 top-[-8%] h-[min(560px,58vw)] w-[min(560px,58vw)] rounded-full bg-primary/20 blur-[110px] dark:bg-primary/25" />
-        <div className="agent-landing-blob agent-landing-blob--delayed absolute -left-28 top-[28%] h-[400px] w-[400px] rounded-full bg-cyan/25 blur-[100px] dark:bg-cyan/15" />
+        <div className="agent-landing-blob agent-landing-blob--delayed absolute -left-28 top-[28%] h-[min(400px,70vw)] w-[min(400px,70vw)] rounded-full bg-cyan/25 blur-[100px] dark:bg-cyan/15" />
         <div className="absolute bottom-[-15%] left-1/2 h-[480px] w-[min(90vw,520px)] -translate-x-1/2 rounded-full bg-skyBlue/20 blur-[110px] dark:bg-primary/20" />
         <div
           className="absolute inset-0 opacity-[0.35] dark:opacity-[0.08]"
           style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(47 115 242 / 0.14) 1px, transparent 0)`,
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(66 54 251 / 0.14) 1px, transparent 0)`,
             backgroundSize: "24px 24px",
           }}
         />
@@ -76,8 +76,8 @@ export default function AgentLanding() {
         <section className={`py-16 sm:py-20 lg:grid lg:grid-cols-12 lg:gap-12 lg:py-24 ${PAGE_WRAP}`}>
           <div className="lg:col-span-7" data-aos="fade-up">
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-primary">Apni Zaroorat</p>
-            <div className="mt-3 h-1 w-14 rounded-full bg-gradient-to-r from-primary via-skyBlue to-cyan" aria-hidden />
-            <h1 className="mt-5 bg-gradient-to-r from-midnight_text via-primary to-[#1d56c9] bg-clip-text text-[2.35rem] font-bold leading-[1.08] tracking-tight text-transparent sm:text-5xl lg:text-[3.25rem] dark:from-white dark:via-sky-200 dark:to-cyan">
+            <div className="mt-3 h-1 w-14 rounded-full theme-gradient-bg" aria-hidden />
+            <h1 className="mt-5 theme-gradient-text text-[1.65rem] xs:text-[1.85rem] sm:text-4xl lg:text-[3.25rem] font-bold leading-[1.12] tracking-tight">
               {AGENT_PROFILE.displayName}
             </h1>
             <p className="mt-3 text-lg font-semibold text-secondary sm:text-xl dark:text-sky-200/90">{AGENT_PROFILE.role}</p>
@@ -87,7 +87,7 @@ export default function AgentLanding() {
             <div className="mt-10 flex flex-wrap items-center gap-3">
               <a
                 href="#contact"
-                className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-primary to-[#2563eb] px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/35 transition hover:shadow-xl hover:shadow-primary/45 hover:brightness-105"
+                className="btn-gradient inline-flex items-center justify-center rounded-full px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/35 transition hover:opacity-95"
               >
                 Get in touch
               </a>
@@ -120,12 +120,12 @@ export default function AgentLanding() {
                     />
                   </div>
                 ) : (
-                  <div className="flex min-h-0 flex-1 flex-col items-center justify-center bg-gradient-to-br from-midnight_text via-primary to-cyan px-4 py-6 text-center sm:px-6 sm:py-8">
+                  <div className="flex min-h-0 flex-1 flex-col items-center justify-center theme-gradient-bg px-4 py-6 text-center sm:px-6 sm:py-8">
                     <span className="text-5xl font-semibold tracking-tight text-white/95 sm:text-6xl lg:text-7xl">{AGENT_PROFILE.avatarInitials}</span>
                     <span className="mt-2 text-xs font-medium text-white/70 sm:mt-3 sm:text-sm">Advisor</span>
                   </div>
                 )}
-                <div className="shrink-0 border-t border-primary/10 bg-gradient-to-r from-primary/[0.06] via-transparent to-cyan/[0.06] px-4 py-3 dark:border-primary/20 sm:px-5 sm:py-3.5">
+                <div className="shrink-0 border-t border-primary/10 bg-gradient-to-r from-primary/[0.06] via-transparent to-accent/[0.06] px-4 py-3 dark:border-primary/20 sm:px-5 sm:py-3.5">
                   <p className="text-[11px] font-medium leading-snug text-gray dark:text-gray-300 sm:text-xs sm:leading-relaxed">
                     Loans and insurance help through Apni Zaroorat.
                   </p>
@@ -206,7 +206,7 @@ export default function AgentLanding() {
                   className="relative flex flex-col overflow-hidden rounded-2xl border border-primary/15 bg-white p-5 shadow-md shadow-primary/10 sm:p-6 dark:border-white/10 dark:bg-darklight dark:shadow-lg dark:shadow-black/20"
                 >
                   <div
-                    className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-skyBlue to-cyan opacity-90"
+                    className="absolute inset-x-0 top-0 h-1 theme-gradient-bg opacity-90"
                     aria-hidden
                   />
                   <p className="mt-2 text-lg font-bold tracking-tight text-midnight_text dark:text-white">{box.title}</p>

@@ -325,7 +325,7 @@ export default function LoanHelperChat() {
 
   return (
     <div
-      className={`${inter.className} fixed bottom-5 right-4 z-[1000] flex flex-col items-end sm:bottom-6 sm:right-6`}
+      className={`${inter.className} fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] z-[1000] flex flex-col items-end sm:bottom-6 sm:right-6`}
     >
       {isOpen && (
         <div
@@ -484,7 +484,7 @@ export default function LoanHelperChat() {
                 type="button"
                 onClick={() => step === "mobile" && handleMobileSubmit()}
                 disabled={step !== "mobile"}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1DA851] text-white shadow-md transition-transform duration-200 hover:scale-105 hover:bg-[#178F42] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                className="btn-gradient flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform duration-200 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                 aria-label="Send message"
               >
                 <SendIcon />
@@ -510,7 +510,7 @@ export default function LoanHelperChat() {
             : "Open Loan Advisor, 1 new message"
         }
         aria-expanded={isOpen}
-        className={`relative flex h-14 w-14 items-center justify-center rounded-full bg-[#1DA851] text-white shadow-[0_4px_20px_rgba(29,168,81,0.45)] transition-all duration-300 hover:scale-105 hover:bg-[#178F42] hover:shadow-[0_6px_28px_rgba(29,168,81,0.55)] active:scale-95 ${
+        className={`btn-gradient relative flex h-14 w-14 items-center justify-center rounded-full text-white shadow-[0_4px_20px_rgba(66,54,251,0.35)] transition-all duration-300 hover:scale-105 hover:shadow-[0_6px_28px_rgba(66,54,251,0.45)] active:scale-95 ${
           !isOpen ? "animate-pulse-subtle" : ""
         }`}
       >

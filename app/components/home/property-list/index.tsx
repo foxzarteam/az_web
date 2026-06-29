@@ -1,15 +1,8 @@
-import type { CSSProperties } from "react";
 import Link from "next/link";
 import { COLORS } from "@/app/config/constants";
 
 const applyBtnClass =
-  "relative inline-flex w-auto shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-full px-4 py-2.5 text-xs font-bold uppercase tracking-[0.1em] text-white transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:px-5 sm:py-3 sm:text-sm md:text-base";
-
-const applyBtnStyle: CSSProperties = {
-  background: `linear-gradient(180deg, #5a9bff 0%, ${COLORS.PRIMARY} 42%, #2563d4 100%)`,
-  boxShadow:
-    "0 4px 14px rgba(47,115,242,0.45), 0 2px 6px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.28)",
-};
+  "btn-gradient relative inline-flex w-auto shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-full px-4 py-2.5 text-xs font-bold uppercase tracking-[0.1em] text-white transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:px-5 sm:py-3 sm:text-sm md:text-base";
 
 function PlayIcon() {
   return (
@@ -57,7 +50,7 @@ export default function Listing() {
   return (
     <section
       id="featured"
-      className="flex justify-center overflow-hidden bg-white py-12 sm:py-16 lg:py-20 dark:bg-semidark"
+      className="flex justify-center overflow-hidden bg-light py-12 sm:py-16 lg:py-20 dark:bg-semidark"
     >
       <div className="container mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md">
         <h1
@@ -75,7 +68,7 @@ export default function Listing() {
             </div>
             <div className="flex w-full flex-col justify-center gap-4 text-left lg:w-1/2">
               <h2
-                className="text-2xl font-bold uppercase tracking-[0.06em] sm:text-3xl md:text-4xl"
+                className="text-xl font-bold normal-case tracking-normal xs:text-2xl sm:text-3xl sm:uppercase sm:tracking-[0.06em] md:text-4xl"
                 style={{ color: COLORS.PRIMARY }}
               >
                 Personal loan
@@ -88,7 +81,6 @@ export default function Listing() {
                 <Link
                   href="/products/personal-loan"
                   className={applyBtnClass}
-                  style={applyBtnStyle}
                 >
                   <PlayIcon />
                   Apply now
@@ -101,7 +93,7 @@ export default function Listing() {
           <div className="flex flex-col items-stretch gap-8 lg:flex-row lg:items-center lg:gap-12 xl:gap-16">
             <div className="order-2 flex w-full flex-col justify-center gap-4 text-left lg:order-1 lg:w-1/2">
               <h2
-                className="text-2xl font-bold uppercase tracking-[0.06em] sm:text-3xl md:text-4xl"
+                className="text-xl font-bold normal-case tracking-normal xs:text-2xl sm:text-3xl sm:uppercase sm:tracking-[0.06em] md:text-4xl"
                 style={{ color: COLORS.PRIMARY }}
               >
                 Insurance
@@ -110,7 +102,7 @@ export default function Listing() {
                 Protect your life, health, and assets with plans tailored to your needs.
               </p>
               <div className="flex justify-start">
-                <Link href="/products/insurance" className={applyBtnClass} style={applyBtnStyle}>
+                <Link href="/products/insurance" className={applyBtnClass}>
                   <PlayIcon />
                   Apply now
                 </Link>

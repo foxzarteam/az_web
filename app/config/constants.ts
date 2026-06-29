@@ -14,10 +14,16 @@ import {
 } from "./publicEnv";
 
 export const COLORS = {
-  PRIMARY: "#2F73F2",
-  GRADIENT_START: "#ffa104",
-  GRADIENT_END: "#ff4512",
+  PRIMARY: "#4236FB",
+  PRIMARY_LIGHT: "#6B62FC",
+  ACCENT: "#FF7E29",
+  GRADIENT_START: "#4236FB",
+  GRADIENT_MID: "#5A4DFC",
+  GRADIENT_END: "#FF7E29",
 } as const;
+
+export const BRAND_GRADIENT =
+  "linear-gradient(90deg, #4236FB 0%, #5A4DFC 50%, #FF7E29 100%)" as const;
 
 /** Email from env; phone and address from publicEnv (display + tel/directions href). */
 export const CONTACT = {

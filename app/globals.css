@@ -50,16 +50,16 @@ html {
     @apply text-[clamp(1.25rem,3.5vw+0.35rem,2.5rem)] leading-[1.2] font-bold text-midnight_text dark:text-white md:text-[40px];
   }
   h3 {
-    @apply md:text-[28px] leading-[1.2] text-lg font-bold text-white dark:text-primary;
+    @apply text-base sm:text-lg md:text-[28px] leading-[1.2] font-bold text-white dark:text-primary;
   }
   h4 {
-    @apply text-2xl font-bold text-midnight_text dark:text-primary;
+    @apply text-lg sm:text-xl md:text-2xl font-bold text-midnight_text dark:text-primary;
   }
   h5 {
-    @apply text-[22px] leading-[1.2] font-medium text-midnight_text dark:text-primary;
+    @apply text-base sm:text-lg md:text-[22px] leading-[1.2] font-medium text-midnight_text dark:text-primary;
   }
   section {
-    @apply py-12 sm:py-16 lg:py-24;
+    @apply py-10 xs:py-12 sm:py-16 lg:py-24;
   }
   .container-padding {
     @apply px-4 sm:px-6 md:px-6 lg:px-8 max-w-full;
@@ -82,6 +82,31 @@ html {
     transform: translateX(-120%);
     animation: shine-sweep 2.2s linear infinite;
     pointer-events: none;
+  }
+
+  .btn-gradient {
+    background: linear-gradient(90deg, #4236fb 0%, #5a4dfc 50%, #ff7e29 100%);
+    color: #fff;
+  }
+
+  .btn-gradient:hover:not(:disabled) {
+    opacity: 0.95;
+  }
+
+  .btn-gradient:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .theme-gradient-bg {
+    background: linear-gradient(90deg, #4236fb 0%, #5a4dfc 50%, #ff7e29 100%);
+  }
+
+  .theme-gradient-text {
+    background: linear-gradient(90deg, #4236fb 0%, #5a4dfc 50%, #ff7e29 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   /* Become a Partner hero — subtle sweep across the blue band */
@@ -115,17 +140,17 @@ html {
 
 /* Home page specific (calculator, history) */
 .history-bg {
-  background: #f3f9fd;
+  background: #faf8ff;
 }
 @media (min-width: 1024px) {
   .history-bg {
-    background: linear-gradient(to right, #f3f9fd 0%, #f3f9fd 64.3%, #bccfe1 64.3%, #bccfe1 100%);
+    background: linear-gradient(to right, #faf8ff 0%, #faf8ff 64.3%, #e9dff8 64.3%, #e9dff8 100%);
   }
 }
 
 @media (min-width: 768px) {
   .estate-summary-bg {
-    background: #2f73f2;
+    background: linear-gradient(90deg, #4236fb 0%, #5a4dfc 50%, #ff7e29 100%);
   }
 }
 
@@ -140,7 +165,7 @@ html {
 
 @media (min-width: 768px) {
   .dark .estate-summary-bg {
-    background: #2f73f2;
+    background: linear-gradient(90deg, #4236fb 0%, #5a4dfc 50%, #ff7e29 100%);
   }
 }
 
@@ -148,7 +173,7 @@ html {
   content: "";
   position: absolute;
   top: -34px;
-  background-color: #6bc1f9;
+  background-color: #4236fb;
   width: 12px;
   height: 12px;
   z-index: 1;
@@ -162,7 +187,7 @@ html {
   left: -5px;
   padding: 6px;
   border-radius: 50%;
-  border: 2px solid #6bc1f9;
+  border: 2px solid #4236fb;
   height: 22px;
   width: 22px;
   background: white;
@@ -185,7 +210,7 @@ html {
   right: 0;
   width: 100%;
   height: 3px;
-  background-color: #6bc1f9;
+  background-color: #4236fb;
 }
 
 .relative-container {
@@ -197,11 +222,14 @@ html {
 }
 
 .gradient-bg {
-  background: var(--color-primary, #2F73F2);
+  background: linear-gradient(90deg, #4236fb 0%, #5a4dfc 50%, #ff7e29 100%);
 }
 
 .gradient-text {
-  color: var(--color-primary, #2F73F2);
+  background: linear-gradient(90deg, #4236fb 0%, #5a4dfc 50%, #ff7e29 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 @keyframes shine-sweep {
@@ -285,11 +313,11 @@ html {
 
 /* Home — Why Choose Us carousel (CSS-sized slides = no load flash) */
 .partners-carousel-viewport {
-  --partners-gap: 16px;
+  --partners-gap: 20px;
   --partners-slide: 100%;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .partners-carousel-viewport {
     --partners-slide: calc((100% - var(--partners-gap)) / 2);
   }
@@ -297,7 +325,7 @@ html {
 
 @media (min-width: 1024px) {
   .partners-carousel-viewport {
-    --partners-slide: calc((100% - 2 * var(--partners-gap)) / 3);
+    --partners-slide: calc((100% - 3 * var(--partners-gap)) / 4);
   }
 }
 
@@ -407,6 +435,75 @@ html {
 
 .animate-pulse-subtle {
   animation: loan-helper-pulse-subtle 2.5s ease-in-out infinite;
+}
+
+/* Home hero — dotted orbital background */
+/* Home hero — sits below fixed header, overrides default section padding */
+.hero-section {
+  position: relative;
+  margin-top: 4rem;
+  padding-top: 1.5rem !important;
+  padding-bottom: 2.5rem !important;
+}
+
+@media (min-width: 640px) {
+  .hero-section {
+    padding-top: 2rem !important;
+    padding-bottom: 3rem !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-section {
+    margin-top: 5rem;
+    padding-top: 2rem !important;
+    padding-bottom: 3.5rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-section {
+    padding-top: 2.5rem !important;
+    padding-bottom: 4rem !important;
+  }
+}
+
+.hero-section__bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hero-section__bg::before,
+.hero-section__bg::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  border: 1px dashed rgba(66, 54, 251, 0.18);
+}
+
+.hero-section__bg::before {
+  width: min(90vw, 680px);
+  height: min(90vw, 680px);
+  top: -12%;
+  right: -8%;
+}
+
+.hero-section__bg::after {
+  width: min(70vw, 520px);
+  height: min(70vw, 520px);
+  bottom: -18%;
+  left: -6%;
+  border-color: rgba(66, 54, 251, 0.14);
+}
+
+.dark .hero-section__bg::before {
+  border-color: rgba(66, 54, 251, 0.12);
+}
+
+.dark .hero-section__bg::after {
+  border-color: rgba(66, 54, 251, 0.1);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -390,7 +390,7 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
               >
                 Cancel
               </button>
-              <button type="submit" disabled={saving} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+              <button type="submit" disabled={saving} className="btn-gradient rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
                 {saving ? "Saving…" : "Save changes"}
               </button>
             </div>

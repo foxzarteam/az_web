@@ -6,7 +6,7 @@ import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider
 import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
 
 const CARD_BGS = [
-  "bg-blue-50 dark:bg-blue-900/20 border-blue-200/60 dark:border-blue-500/20",
+  "bg-[#EEF0FF] dark:bg-indigo-900/20 border-indigo-200/60 dark:border-indigo-500/20",
   "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200/60 dark:border-emerald-500/20",
   "bg-violet-50 dark:bg-violet-900/20 border-violet-200/60 dark:border-violet-500/20",
   "bg-amber-50 dark:bg-amber-900/20 border-amber-200/60 dark:border-amber-500/20",
@@ -73,11 +73,7 @@ export default function DiscoverProperties() {
                 <p className="text-gray dark:text-gray-400 text-xs sm:text-sm mb-3 flex-1">{item.description}</p>
                 <Link
                   href={item.href}
-                  className={`inline-flex items-center justify-center gap-1 rounded-lg py-2 sm:py-2.5 px-3 sm:px-4 text-xs sm:text-sm font-semibold transition-colors ${
-                    index === 0
-                      ? "bg-primary text-white hover:bg-blue-700"
-                      : "border border-primary text-primary dark:border-white/30 dark:text-white hover:bg-primary/10 dark:hover:bg-white/10"
-                  }`}
+                  className="btn-gradient inline-flex items-center justify-center gap-1 rounded-lg py-2 sm:py-2.5 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-white transition-opacity"
                 >
                   Apply Now <span className="ml-0.5">&gt;</span>
                 </Link>

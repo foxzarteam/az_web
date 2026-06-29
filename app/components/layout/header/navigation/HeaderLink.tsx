@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { HeaderItem } from "@/app/types/layout/menu";
-import { serviceSubmenuGradient, serviceSubmenuIcon } from "./serviceSubmenuUi";
+import { serviceSubmenuGradient } from "./serviceSubmenuUi";
+import ServiceSubmenuIcon from "./ServiceSubmenuIcon";
 
 export default function HeaderLink({ item }: { item: HeaderItem }) {
   const [submenuOpen, setSubmenuOpen] = useState(false);
@@ -45,7 +46,7 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
             <Link
               key={index}
               href={subItem.href}
-              className={`block px-4 py-2 ${path === subItem.href ? "text-white bg-primary hover:bg-blue-700" : "text-midnight_text dark:text-white hover:bg-section dark:hover:bg-semidark"}`}
+              className={`block px-4 py-2 ${path === subItem.href ? "text-white btn-gradient" : "text-midnight_text dark:text-white hover:bg-section dark:hover:bg-semidark"}`}
             >
               {subItem.label}
             </Link>
@@ -57,21 +58,22 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
           <div className="flex flex-col gap-1.5 sm:gap-2">
             {item.submenu?.map((subItem, index) => {
               const gradient = serviceSubmenuGradient(subItem, index);
-              const icon = serviceSubmenuIcon(subItem);
               return (
                 <Link
                   key={subItem.slug ?? subItem.href}
                   href={subItem.href}
                   className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors ${
                     path === subItem.href
-                      ? "bg-primary text-white"
+                      ? "btn-gradient text-white"
                       : "hover:bg-light dark:hover:bg-semidark text-midnight_text dark:text-white"
                   }`}
                 >
                   <div
-                    className={`h-10 w-10 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white shadow-sm shrink-0`}
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} shadow-sm ${
+                      path === subItem.href ? "ring-2 ring-white/30" : ""
+                    }`}
                   >
-                    <span className="text-lg font-semibold leading-none">{icon}</span>
+                    <ServiceSubmenuIcon item={subItem} />
                   </div>
                   <span className="text-sm sm:text-base font-bold leading-snug whitespace-nowrap">
                     {subItem.label}

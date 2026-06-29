@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { HeaderItem } from "@/app/types/layout/menu";
-import { serviceSubmenuGradient, serviceSubmenuIcon } from "./serviceSubmenuUi";
+import { serviceSubmenuGradient } from "./serviceSubmenuUi";
+import ServiceSubmenuIcon from "./ServiceSubmenuIcon";
 
 export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; onClose: () => void }) {
   const [submenuOpen, setSubmenuOpen] = useState(false);
@@ -22,7 +23,7 @@ export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; 
             type="button"
             onClick={() => setSubmenuOpen((prev) => !prev)}
             className={`flex items-center justify-between w-full py-2 px-3 rounded-md text-left focus:outline-none dark:text-opacity-60 ${
-              isActive ? "bg-primary text-white dark:bg-primary dark:text-white dark:text-opacity-100" : "text-midnight_text dark:text-white"
+              isActive ? "btn-gradient text-white dark:text-white dark:text-opacity-100" : "text-midnight_text dark:text-white"
             }`}
           >
             {item.label}
@@ -40,7 +41,6 @@ export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; 
             <div className="bg-white dark:bg-darkmode py-2 px-3 w-full space-y-1">
               {item.submenu.map((subItem, index) => {
                 const gradient = serviceSubmenuGradient(subItem, index);
-                const icon = serviceSubmenuIcon(subItem);
                 const active = subItem.href === path;
                 return (
                   <Link
@@ -48,13 +48,15 @@ export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; 
                     href={subItem.href}
                     onClick={onClose}
                     className={`flex items-center gap-3 rounded-lg py-2 px-3 text-sm ${
-                      active ? "bg-primary text-white" : "text-midnight_text dark:text-gray hover:bg-light dark:hover:bg-semidark"
+                      active ? "btn-gradient text-white" : "text-midnight_text dark:text-gray hover:bg-light dark:hover:bg-semidark"
                     }`}
                   >
                     <div
-                      className={`h-9 w-9 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white text-base`}
+                      className={`flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} ${
+                        active ? "ring-2 ring-white/30" : ""
+                      }`}
                     >
-                      {icon}
+                      <ServiceSubmenuIcon item={subItem} />
                     </div>
                     <span className="font-semibold">{subItem.label}</span>
                   </Link>
@@ -67,7 +69,7 @@ export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; 
         <Link
           href={item.href}
           onClick={onClose}
-          className={`flex items-center justify-between w-full py-2 px-3 rounded-md ${isActive ? "bg-primary text-white dark:bg-primary dark:text-white" : "text-midnight_text dark:text-white"}`}
+          className={`flex items-center justify-between w-full py-2 px-3 rounded-md ${isActive ? "btn-gradient text-white dark:text-white" : "text-midnight_text dark:text-white"}`}
         >
           {item.label}
         </Link>

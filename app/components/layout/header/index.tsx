@@ -71,7 +71,7 @@ export default function Header() {
         <div className="flex items-center gap-1 sm:gap-3 md:gap-4 shrink-0">
           <Link
             href="/become-partner"
-            className="hidden sm:inline-flex items-center px-3 py-2 sm:px-4 text-xs sm:text-sm font-semibold text-white bg-primary rounded-lg transition-all duration-300 hover:bg-blue-700 btn-shine"
+            className="hidden sm:inline-flex items-center px-3 py-2 sm:px-4 text-xs sm:text-sm font-semibold text-white btn-gradient rounded-lg transition-all duration-300 btn-shine"
           >
             Become a Partner
           </Link>
@@ -133,7 +133,7 @@ export default function Header() {
           <Link
             href="/become-partner"
             onClick={() => setNavbarOpen(false)}
-            className="w-full mt-2 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg transition-all duration-300 hover:bg-blue-700 text-center btn-shine"
+            className="w-full mt-2 px-4 py-2.5 text-sm font-semibold text-white btn-gradient rounded-lg transition-all duration-300 text-center btn-shine"
           >
             Become a Partner
           </Link>
