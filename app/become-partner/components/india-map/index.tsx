@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
-import TermsAgreementCheckbox, { TERMS_AGREEMENT_ERROR } from "@/app/components/shared/TermsAgreementCheckbox";
+import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
+import { reportFormValidity } from "@/app/utils/formValidation";
 import {
   PUBLIC_FORM_SUBMIT_AJAX_URL,
   PUBLIC_INDIA_MAP_FALLBACK_SVG_URL,
@@ -65,7 +66,6 @@ export default function IndiaMap() {
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [termsError, setTermsError] = useState<string | undefined>();
   const mapWrapRef = useRef<HTMLDivElement>(null);
   const mapImgRef = useRef<HTMLImageElement>(null);
   const [mapInset, setMapInset] = useState<MapInset | null>(null);
@@ -156,8 +156,9 @@ export default function IndiaMap() {
     setMobile(sanitizeMobileInput(e.target.value));
   };
 
-  const handleHeroJoinSubmit = async (e: React.FormEvent) => {
+  const handleHeroJoinSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!reportFormValidity(e.currentTarget)) return;
     setFieldErrors({});
 
     const trimmedName = fullName.trim();
@@ -179,12 +180,6 @@ export default function IndiaMap() {
       setFieldErrors(errors);
       return;
     }
-
-    if (!termsAccepted) {
-      setTermsError(TERMS_AGREEMENT_ERROR);
-      return;
-    }
-    setTermsError(undefined);
 
     if (!PUBLIC_FORM_SUBMIT_AJAX_URL) {
       setShowSuccess(true);
@@ -377,11 +372,7 @@ export default function IndiaMap() {
                 <TermsAgreementCheckbox
                   id="partner-hero-terms"
                   checked={termsAccepted}
-                  onChange={(checked) => {
-                    setTermsAccepted(checked);
-                    if (checked && termsError) setTermsError(undefined);
-                  }}
-                  error={termsError}
+                  onChange={setTermsAccepted}
                 />
                 <button
                   type="submit"

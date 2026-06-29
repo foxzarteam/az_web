@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
-import TermsAgreementCheckbox, { TERMS_AGREEMENT_ERROR } from "@/app/components/shared/TermsAgreementCheckbox";
+import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
+import { reportFormValidity } from "@/app/utils/formValidation";
 import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
 import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
 import { PUBLIC_FORM_SUBMIT_AJAX_URL } from "@/app/config/constants";
@@ -23,7 +24,6 @@ export default function AgentLeadForm({ agentName }: Props) {
   const [loading, setLoading] = useState(false);
   const [productError, setProductError] = useState<string | undefined>();
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [termsError, setTermsError] = useState<string | undefined>();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -34,13 +34,9 @@ export default function AgentLeadForm({ agentName }: Props) {
     if (name === "product" && productError) setProductError(undefined);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!termsAccepted) {
-      setTermsError(TERMS_AGREEMENT_ERROR);
-      return;
-    }
-    setTermsError(undefined);
+    if (!reportFormValidity(e.currentTarget)) return;
     if (serviceOptions.length > 0 && !formData.product.trim()) {
       setProductError("Please select a product");
       return;
@@ -166,11 +162,7 @@ export default function AgentLeadForm({ agentName }: Props) {
           <TermsAgreementCheckbox
             id="agent-lead-terms"
             checked={termsAccepted}
-            onChange={(checked) => {
-              setTermsAccepted(checked);
-              if (checked && termsError) setTermsError(undefined);
-            }}
-            error={termsError}
+            onChange={setTermsAccepted}
           />
           <div>
             <label htmlFor="agent-lead-product" className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-primary/90 dark:text-sky-300/90">

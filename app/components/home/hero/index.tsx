@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { DEFAULT_IMAGES, MOBILE_VALIDATION } from "@/app/config/constants";
 import { validateMobileNumber, sanitizeMobileInput } from "@/app/utils/validation";
@@ -12,7 +11,8 @@ import IndiaFlag from "./IndiaFlag";
 import HeroFeatureIcons from "./HeroFeatureIcons";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
-import { TERMS_AGREEMENT_ERROR } from "@/app/components/shared/TermsAgreementCheckbox";
+import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
+import { reportFormValidity } from "@/app/utils/formValidation";
 
 const HERO_SERVICE_SLUGS = new Set(["personal-loan", "insurance"]);
 
@@ -44,7 +44,6 @@ export default function Hero() {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [termsError, setTermsError] = useState("");
   const [heroServiceOptions, setHeroServiceOptions] = useState(HERO_FALLBACK_OPTIONS);
 
   useEffect(() => {
@@ -67,18 +66,15 @@ export default function Hero() {
     };
   }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = (form: HTMLFormElement) => {
+    if (!reportFormValidity(form)) return;
+
     const validation = handleFormSubmit(mobile);
     if (!validation.isValid) {
       setError(validation.error || "");
       return;
     }
-    if (!termsAccepted) {
-      setTermsError(TERMS_AGREEMENT_ERROR);
-      return;
-    }
     setError("");
-    setTermsError("");
     setShowApplyModal(true);
   };
 
@@ -135,7 +131,7 @@ export default function Hero() {
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  handleSubmit();
+                  handleSubmit(e.currentTarget);
                 }}
                 className="bg-white dark:bg-darklight rounded-2xl shadow-[0_8px_40px_rgba(16,45,71,0.08)] p-4 sm:p-5 md:p-7"
               >
@@ -164,34 +160,13 @@ export default function Hero() {
                 </div>
                 {error && <p className="text-red-600 text-xs sm:text-sm mt-2">{error}</p>}
 
-                <label htmlFor="hero-terms" className="flex items-start gap-2.5 cursor-pointer mt-4">
-                  <input
-                    id="hero-terms"
-                    type="checkbox"
-                    checked={termsAccepted}
-                    onChange={(e) => {
-                      setTermsAccepted(e.target.checked);
-                      if (e.target.checked && termsError) setTermsError("");
-                    }}
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-primary focus:ring-primary/80"
-                    aria-invalid={!!termsError}
-                  />
-                  <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                    I agree to{" "}
-                    <Link href="/terms-and-conditions" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
-                      Terms &amp; Conditions
-                    </Link>
-                    ,{" "}
-                    <Link href="/terms-and-conditions" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
-                      Privacy Policy
-                    </Link>
-                  </span>
-                </label>
-                {termsError ? (
-                  <p className="text-red-600 text-xs sm:text-sm mt-1.5" role="alert">
-                    {termsError}
-                  </p>
-                ) : null}
+                <TermsAgreementCheckbox
+                  id="hero-terms"
+                  checked={termsAccepted}
+                  onChange={setTermsAccepted}
+                  className="mt-4"
+                  textClassName="text-xs sm:text-sm text-gray-600 dark:text-gray-300"
+                />
 
                 <button
                   type="submit"

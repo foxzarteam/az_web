@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
-import TermsAgreementCheckbox, { TERMS_AGREEMENT_ERROR } from "@/app/components/shared/TermsAgreementCheckbox";
+import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
+import { reportFormValidity } from "@/app/utils/formValidation";
 import { PUBLIC_FORM_SUBMIT_AJAX_URL } from "@/app/config/constants";
 
 export default function ContactForm() {
@@ -16,7 +17,6 @@ export default function ContactForm() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [termsError, setTermsError] = useState<string | undefined>();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -30,13 +30,9 @@ export default function ContactForm() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!termsAccepted) {
-      setTermsError(TERMS_AGREEMENT_ERROR);
-      return;
-    }
-    setTermsError(undefined);
+    if (!reportFormValidity(e.currentTarget)) return;
     setLoading(true);
 
     if (!PUBLIC_FORM_SUBMIT_AJAX_URL) {
@@ -148,11 +144,7 @@ export default function ContactForm() {
               <TermsAgreementCheckbox
                 id="contact-terms"
                 checked={termsAccepted}
-                onChange={(checked) => {
-                  setTermsAccepted(checked);
-                  if (checked && termsError) setTermsError(undefined);
-                }}
-                error={termsError}
+                onChange={setTermsAccepted}
               />
               <div>
                 <button
