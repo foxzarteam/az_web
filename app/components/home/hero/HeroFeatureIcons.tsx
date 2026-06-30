@@ -5,11 +5,11 @@ type FeatureItemProps = {
 
 function FeatureItem({ icon, text }: FeatureItemProps) {
   return (
-    <div className="flex items-center gap-2 min-w-0">
+    <div className="flex items-center gap-1.5 min-w-0">
       <span className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF]">
         {icon}
       </span>
-      <span className="text-[11px] sm:text-xs font-medium text-gray leading-snug">{text}</span>
+      <span className="text-xs sm:text-sm font-medium text-gray leading-snug">{text}</span>
     </div>
   );
 }
@@ -40,7 +40,7 @@ const ApprovalIcon = () => (
 
 export default function HeroFeatureIcons() {
   return (
-    <div className="flex flex-wrap gap-x-4 gap-y-3 sm:gap-x-6 mb-3 sm:mb-4">
+    <div className="mt-3 flex flex-wrap gap-x-2.5 gap-y-2 sm:gap-x-3 mb-3 sm:mb-4">
       <FeatureItem icon={<ShieldIcon />} text="Low Interest Rates" />
       <FeatureItem icon={<ApprovalIcon />} text="Instant Approval" />
       <FeatureItem icon={<ClockIcon />} text="Disbursal in 24 Hours*" />

@@ -9,6 +9,7 @@ import { fetchActiveServiceCards } from "@/app/utils/fetchActiveServiceCards";
 import type { ServiceSliderCard } from "@/app/lib/services/types";
 import IndiaFlag from "./IndiaFlag";
 import HeroFeatureIcons from "./HeroFeatureIcons";
+import HeroTrustStrip from "./HeroTrustStrip";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
@@ -86,7 +87,7 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="hero-section relative overflow-x-hidden min-h-0 bg-[#F5F7FB] dark:bg-darkmode"
+      className="hero-section hero-section--with-strip relative overflow-x-hidden min-h-0 bg-[#F5F7FB] dark:bg-darkmode"
     >
       <div className="hero-section__bg" aria-hidden />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md relative z-10 h-full max-w-full">
@@ -99,9 +100,6 @@ export default function Hero() {
               <p className="mt-0.5 text-[1.375rem] xs:text-[1.5rem] sm:text-[clamp(1.75rem,3vw+0.5rem,2.75rem)] font-bold leading-[1.15]">
                 <span className="text-midnight_text dark:text-white">up to </span>
                 <span className="theme-gradient-text">₹10 Lakhs</span>
-              </p>
-              <p className="mt-3 text-xs sm:text-sm md:text-base text-gray font-medium leading-relaxed">
-                Minimal Documents &bull; Quick Approval &bull; 100% Online Process
               </p>
             </div>
 
@@ -204,6 +202,7 @@ export default function Hero() {
           </div>
         </div>
       </div>
+      <HeroTrustStrip />
     </section>
   );
 }

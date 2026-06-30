@@ -468,6 +468,23 @@ html {
   }
 }
 
+/* Hero + trust strip — strip sits flush under hero content */
+.hero-section--with-strip {
+  padding-bottom: 1.25rem !important;
+}
+
+@media (min-width: 640px) {
+  .hero-section--with-strip {
+    padding-bottom: 1.5rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-section--with-strip {
+    padding-bottom: 2rem !important;
+  }
+}
+
 .hero-section__bg {
   position: absolute;
   inset: 0;
