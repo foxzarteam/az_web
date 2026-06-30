@@ -30,10 +30,19 @@ const ClockIcon = () => (
   </svg>
 );
 
+const ApprovalIcon = () => (
+  <svg viewBox="0 0 20 20" className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" aria-hidden>
+    <circle cx="10" cy="10" r="8" fill="#4236FB" opacity="0.15" />
+    <circle cx="10" cy="10" r="8" stroke="#4236FB" strokeWidth="1.2" />
+    <path d="M6.5 10l2.5 2.5 5-5" stroke="#4236FB" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 export default function HeroFeatureIcons() {
   return (
     <div className="flex flex-wrap gap-x-4 gap-y-3 sm:gap-x-6 mb-3 sm:mb-4">
       <FeatureItem icon={<ShieldIcon />} text="Low Interest Rates" />
+      <FeatureItem icon={<ApprovalIcon />} text="Instant Approval" />
       <FeatureItem icon={<ClockIcon />} text="Disbursal in 24 Hours*" />
     </div>
   );
