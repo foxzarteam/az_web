@@ -42,7 +42,7 @@ export default function HeroFeatureIcons() {
   return (
     <div className="mt-3 flex flex-wrap gap-x-2.5 gap-y-2 sm:gap-x-3 mb-3 sm:mb-4">
       <FeatureItem icon={<ShieldIcon />} text="Low Interest Rates" />
-      <FeatureItem icon={<ApprovalIcon />} text="Instant Approval" />
+      <FeatureItem icon={<ApprovalIcon />} text="Quick Approval" />
       <FeatureItem icon={<ClockIcon />} text="Disbursal in 24 Hours*" />
     </div>
   );
