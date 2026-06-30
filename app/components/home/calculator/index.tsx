@@ -21,7 +21,7 @@ function clampValue(value: number, min: number, max: number): number {
 }
 
 export default function Calculator() {
-  const [principal, setPrincipal] = useState(500_000);
+  const [principal, setPrincipal] = useState(50_000);
   const [annualRate, setAnnualRate] = useState(12);
   const [tenureYears, setTenureYears] = useState(4);
 

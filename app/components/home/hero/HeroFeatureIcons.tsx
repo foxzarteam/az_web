@@ -33,7 +33,7 @@ const ClockIcon = () => (
 export default function HeroFeatureIcons() {
   return (
     <div className="flex flex-wrap gap-x-4 gap-y-3 sm:gap-x-6 mb-3 sm:mb-4">
-      <FeatureItem icon={<ShieldIcon />} text="Interest starts from 9.99%* p.a." />
+      <FeatureItem icon={<ShieldIcon />} text="Low Interest Rates" />
       <FeatureItem icon={<ClockIcon />} text="Disbursal in 24 Hours*" />
     </div>
   );

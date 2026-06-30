@@ -121,7 +121,7 @@ function IconOnline() {
 export const FEATURE_CARDS: FeatureCard[] = [
   {
     title: "Lowest Interest",
-    description: "Interest rates start from 9.99%* p.a. onwards.",
+    description: "Low Interest Rates",
     icon: <IconPercent />,
   },
   {
