@@ -55,12 +55,12 @@ export {
  */
 export const PERSONAL_LOAN_EMI_LIMITS = {
   MIN_AMOUNT: 25_000,
-  MAX_AMOUNT: 1_00_000,
+  MAX_AMOUNT: 10_00_000,
   MIN_RATE: 9.99,
   MAX_RATE: 26,
   MIN_TENURE: 1,
   MAX_TENURE: 7,
-  STEP_AMOUNT: 5_000,
+  STEP_AMOUNT: 10_000,
   STEP_RATE: 0.1,
 } as const;
 
