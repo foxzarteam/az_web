@@ -109,6 +109,23 @@ html {
     color: transparent;
   }
 
+  /* Dashed connector line flows toward the arrowhead */
+  @keyframes arrow-dash-flow {
+    to {
+      stroke-dashoffset: -14;
+    }
+  }
+
+  .arrow-flow {
+    animation: arrow-dash-flow 0.8s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .arrow-flow {
+      animation: none;
+    }
+  }
+
   /* Become a Partner hero — subtle sweep across the blue band */
   .partner-hero-shine {
     @apply relative overflow-hidden;

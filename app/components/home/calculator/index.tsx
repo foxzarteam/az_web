@@ -39,7 +39,7 @@ export default function Calculator() {
   const interestDash = interestShare * circumference;
 
   return (
-    <section className="w-full min-w-0 bg-white dark:bg-semidark">
+    <section id="emi-calculator" className="w-full min-w-0 bg-white dark:bg-semidark">
       <div
         className="container mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md"
         data-aos="fade-left"

@@ -10,9 +10,17 @@ import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { mapServiceToCategory } from "@/app/utils/leadApi";
+import {
+  INSURANCE_TYPE_OPTIONS,
+  LOAN_AMOUNT_OPTIONS,
+  sanitizeLeadNameInput,
+  sanitizeLeadPanInput,
+  validateLeadPanNameMobile,
+  type LeadFieldErrors,
+} from "@/app/utils/leadForm";
 import { isAllowedProductSlug } from "@/app/lib/services/allowedProducts";
 import { fetchActiveServiceCards } from "@/app/utils/fetchActiveServiceCards";
-import { sanitizeMobileInput, validateMobileNumber } from "@/app/utils/validation";
+import { sanitizeMobileInput } from "@/app/utils/validation";
 
 type ServicePageProps = {
   title: string;
@@ -48,6 +56,9 @@ function getSuccessMessage(title: string): string {
   return `Your ${title} application has been received. We'll contact you shortly.`;
 }
 
+const inputClass =
+  "w-full px-3.5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode/80 text-sm sm:text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70";
+
 export default function ServicePage({
   title,
   subtitle,
@@ -63,11 +74,21 @@ export default function ServicePage({
   );
 
   const [showSuccess, setShowSuccess] = useState(false);
-  const [mobile, setMobile] = useState("");
-  const [mobileError, setMobileError] = useState("");
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [serviceOptions, setServiceOptions] = useState(FALLBACK_SERVICE_OPTIONS);
   const [termsAccepted, setTermsAccepted] = useState(false);
+
+  const [fullName, setFullName] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [service, setService] = useState(pageServiceSlug);
+  const [loanAmt, setLoanAmt] = useState("");
+  const [insType, setInsType] = useState("");
+  const [pan, setPan] = useState("");
+  const [formError, setFormError] = useState("");
+
+  const selectedCategory = mapServiceToCategory(service);
+  const showLoanAmount = selectedCategory === "personal_loan";
+  const showInsuranceType = selectedCategory === "insurance";
 
   useEffect(() => {
     let cancelled = false;
@@ -89,28 +110,44 @@ export default function ServicePage({
     };
   }, []);
 
-  const openApplyModal = () => {
-    const validation = validateMobileNumber(mobile);
-    if (!validation.isValid) {
-      setMobileError(validation.error || "Enter a valid 10-digit mobile number");
+  const resetForm = () => {
+    setFullName("");
+    setMobile("");
+    setService(pageServiceSlug);
+    setLoanAmt("");
+    setInsType("");
+    setPan("");
+    setTermsAccepted(false);
+    setFormError("");
+  };
+
+  const handleSubmit = (form: HTMLFormElement) => {
+    if (!reportFormValidity(form)) return;
+
+    const errors: LeadFieldErrors = validateLeadPanNameMobile({
+      pan,
+      mobileDigits: mobile.replace(/\D/g, ""),
+      fullName,
+    });
+    if (!service.trim()) errors.service = "Please select a product";
+    if (showLoanAmount && !loanAmt.trim()) errors.loanAmt = "Please select loan amount range";
+    if (showInsuranceType && !insType.trim()) errors.insType = "Please select insurance type";
+
+    const firstError = Object.values(errors)[0];
+    if (firstError) {
+      setFormError(firstError);
       return;
     }
-    setMobileError("");
+
+    setFormError("");
     setShowApplyModal(true);
   };
-
-  const handleMobileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMobile(sanitizeMobileInput(e.target.value));
-    if (mobileError) setMobileError("");
-  };
-
-  const category = mapServiceToCategory(pageServiceSlug || "personal-loan");
 
   return (
     <section className="pt-16 sm:pt-20 md:pt-24 lg:pt-28 pb-12 sm:pb-16 bg-gradient-to-b from-light to-white dark:from-darkmode dark:to-semidark">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md max-w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 items-stretch">
-          <div className="min-w-0 flex flex-col w-full order-1 lg:order-1 lg:justify-center" data-aos="fade-right">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-stretch">
+          <div className="min-w-0 flex flex-col w-full order-1 lg:order-1 lg:col-span-6 lg:justify-center" data-aos="fade-right">
             {!hideHeader && (
               <>
                 {badge && (
@@ -128,15 +165,12 @@ export default function ServicePage({
               </>
             )}
 
-            <div className="bg-gradient-to-r from-primary to-[#ff7a1a] p-[1px] rounded-2xl sm:rounded-3xl shadow-xl w-full min-w-0 flex flex-col lg:min-h-[300px]">
-              <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-5 sm:py-6 lg:py-8 px-4 sm:px-5 md:px-6 flex flex-1 flex-col min-h-0">
+            <div className="bg-gradient-to-r from-primary to-[#ff7a1a] p-[1px] rounded-2xl sm:rounded-3xl shadow-xl w-full min-w-0 flex flex-col">
+              <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-5 sm:py-6 lg:py-7 px-4 sm:px-5 md:px-6 flex flex-1 flex-col min-h-0">
                 <div className="mb-3">
                   <h2 className="text-lg sm:text-xl font-semibold text-midnight_text dark:text-white">
-                    Let&apos;s Get Started
-                  </h2>
-                  <p className="mt-1 text-sm text-gray dark:text-gray-400">
                     Apply for {title}
-                  </p>
+                  </h2>
                 </div>
 
                 {showSuccess && (
@@ -150,14 +184,11 @@ export default function ServicePage({
                 <LeadApplyModal
                   open={showApplyModal}
                   mobile={mobile.replace(/\D/g, "")}
-                  category={category}
-                  serviceOptions={serviceOptions}
-                  defaultService={pageServiceSlug}
+                  details={{ fullName, service, loanAmt, insType, pan }}
                   onClose={() => setShowApplyModal(false)}
                   onEditMobile={() => setShowApplyModal(false)}
                   onSuccess={() => {
-                    setMobile("");
-                    setTermsAccepted(false);
+                    resetForm();
                     setShowSuccess(true);
                   }}
                 />
@@ -165,14 +196,33 @@ export default function ServicePage({
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    if (!reportFormValidity(e.currentTarget)) return;
-                    openApplyModal();
+                    handleSubmit(e.currentTarget);
                   }}
-                  className="mt-4 flex flex-1 flex-col gap-4 min-h-0"
+                  className="mt-3 flex flex-1 flex-col gap-4 min-h-0"
                 >
+                  {formError && (
+                    <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600 break-words">
+                      {formError}
+                    </div>
+                  )}
+
                   <div>
-                    <label className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-2">
-                      Mobile Number
+                    <label htmlFor="service-fullname" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+                      Full Name *
+                    </label>
+                    <input
+                      id="service-fullname"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(sanitizeLeadNameInput(e.target.value))}
+                      placeholder="Full Name (As per PAN)"
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+                      Mobile Number *
                     </label>
                     <div className="flex items-center rounded-lg sm:rounded-xl border border-gray-300 dark:border-dark_border overflow-hidden bg-white dark:bg-darkmode/80">
                       <span className="pl-2.5 sm:pl-3 flex items-center shrink-0" aria-hidden>
@@ -187,12 +237,92 @@ export default function ServicePage({
                         maxLength={MOBILE_VALIDATION.MAX_LENGTH}
                         placeholder="Mobile Number"
                         value={mobile}
-                        onChange={handleMobileInputChange}
+                        onChange={(e) => setMobile(sanitizeMobileInput(e.target.value))}
                         pattern="[0-9]*"
                         className="flex-1 py-2.5 sm:py-3 px-2.5 sm:px-3 min-w-0 text-sm sm:text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none bg-transparent"
                       />
                     </div>
-                    {mobileError && <p className="text-red-600 text-xs sm:text-sm mt-2">{mobileError}</p>}
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="service-product" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+                        Select product *
+                      </label>
+                      <select
+                        id="service-product"
+                        value={service}
+                        onChange={(e) => {
+                          setService(e.target.value);
+                          setLoanAmt("");
+                          setInsType("");
+                        }}
+                        className={inputClass}
+                      >
+                        {serviceOptions.map((opt) => (
+                          <option key={opt.value || "select"} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {showLoanAmount && (
+                      <div>
+                        <label htmlFor="service-loan-amt" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+                          Loan amount range *
+                        </label>
+                        <select
+                          id="service-loan-amt"
+                          value={loanAmt}
+                          onChange={(e) => setLoanAmt(e.target.value)}
+                          className={inputClass}
+                        >
+                          <option value="">Select amount range</option>
+                          {LOAN_AMOUNT_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {showInsuranceType && (
+                      <div>
+                        <label htmlFor="service-ins-type" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+                          Insurance type *
+                        </label>
+                        <select
+                          id="service-ins-type"
+                          value={insType}
+                          onChange={(e) => setInsType(e.target.value)}
+                          className={inputClass}
+                        >
+                          <option value="">Select insurance type</option>
+                          {INSURANCE_TYPE_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label htmlFor="service-pan" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+                      PAN Card number *
+                    </label>
+                    <input
+                      id="service-pan"
+                      type="text"
+                      value={pan}
+                      onChange={(e) => setPan(sanitizeLeadPanInput(e.target.value))}
+                      maxLength={10}
+                      placeholder="e.g. ABCDE1234F"
+                      className={inputClass}
+                    />
                   </div>
 
                   <TermsAgreementCheckbox
@@ -201,7 +331,7 @@ export default function ServicePage({
                     onChange={setTermsAccepted}
                   />
 
-                  <div className="mt-auto w-full pt-3 sm:pt-4">
+                  <div className="mt-auto w-full pt-2 sm:pt-3">
                     <button
                       type="submit"
                       className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl btn-gradient text-white text-sm sm:text-base font-semibold py-2.5 sm:py-3 px-4 transition-opacity shadow-md min-h-[44px]"
@@ -214,20 +344,14 @@ export default function ServicePage({
             </div>
           </div>
 
-          <div className="relative min-w-0 order-2 lg:order-2 w-full h-full min-h-[240px] sm:min-h-[280px] lg:min-h-[420px]" data-aos="fade-left">
-            <div className="relative h-full min-h-[240px] sm:min-h-[280px] overflow-hidden rounded-2xl border border-primary/10 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 shadow-2xl sm:rounded-3xl lg:min-h-[420px]">
-              <div className="absolute -left-10 -top-10 h-24 w-24 rounded-full bg-primary/20 blur-3xl sm:h-32 sm:w-32" />
-              <div className="absolute -bottom-8 -right-8 h-28 w-28 rounded-full bg-accent/30 blur-3xl sm:-bottom-12 sm:-right-12 sm:h-40 sm:w-40" />
-              <div className="relative z-10 h-full min-h-[280px] w-full lg:min-h-[420px]">
-                <Image
-                  src={imageSrc}
-                  alt={title}
-                  width={640}
-                  height={480}
-                  className="h-full min-h-[280px] w-full object-cover object-center lg:min-h-[420px]"
-                />
-              </div>
-            </div>
+          <div className="flex min-w-0 order-2 lg:order-2 w-full items-center justify-center lg:col-span-6" data-aos="fade-left">
+            <Image
+              src={imageSrc}
+              alt={title}
+              width={640}
+              height={480}
+              className="block h-auto w-full max-w-[560px] object-contain lg:max-w-none"
+            />
           </div>
         </div>
       </div>

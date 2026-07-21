@@ -15,7 +15,7 @@ const UNCHECKED_PROPERTY = PROPERTY_DATA.find((item) => !item.check) ?? null;
 export default function Features() {
 
   return (
-    <section className="dark:bg-darkmode !pt-6 sm:!pt-8 md:!pt-9 lg:!pt-10 !pb-10 sm:!pb-12 md:!pb-14 lg:!pb-16">
+    <section className="bg-[#F5F7FB] dark:bg-darkmode !pt-6 sm:!pt-8 md:!pt-9 lg:!pt-10 !pb-10 sm:!pb-12 md:!pb-14 lg:!pb-16">
       <div className="container px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md mx-auto flex flex-col md:flex-row justify-between items-center max-w-full">
         <div className="flex lg:flex-row flex-col lg:gap-0 gap-5 sm:gap-6 justify-between w-full min-w-0">
           <div className="mb-4 sm:mb-5 md:mb-0 shrink-0 w-full max-w-full md:max-w-[min(100%,26rem)] lg:max-w-[min(100%,30rem)] xl:max-w-[min(100%,34rem)]">

@@ -26,7 +26,7 @@ function CarouselArrow({
       type="button"
       onClick={onClick}
       aria-label={direction === "prev" ? "Previous slide" : "Next slide"}
-      className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#E2E8F0] bg-white text-midnight_text shadow-sm transition hover:border-primary hover:text-primary active:scale-95 dark:border-dark_border dark:bg-darklight dark:text-white dark:hover:border-primary ${className}`}
+      className={`btn-gradient inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white shadow-[0_4px_18px_rgba(66,54,251,0.35)] transition hover:opacity-90 active:scale-95 ${className}`}
     >
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden>
         {direction === "prev" ? (
@@ -40,16 +40,14 @@ function CarouselArrow({
 }
 
 function FeatureCard({ card }: { card: (typeof FEATURE_CARDS)[number] }) {
-  const isOrange = card.accent === "orange";
-
   return (
     <article className="flex h-full min-h-[200px] flex-col rounded-2xl bg-white p-4 shadow-[0_4px_24px_rgba(16,45,71,0.07)] dark:bg-darklight sm:min-h-[220px] sm:p-6">
-      <div
-        className={`mb-4 flex h-14 w-14 shrink-0 items-center justify-center rounded-full sm:h-[60px] sm:w-[60px] ${
-          isOrange ? "bg-[#FFF0E6]" : "bg-[#EEF0FF]"
-        }`}
-      >
-        {card.icon}
+      <div className="theme-gradient-bg mb-4 w-fit rounded-full p-[2px]">
+        <div
+          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full sm:h-[60px] sm:w-[60px] ${card.iconWrapClass}`}
+        >
+          {card.icon}
+        </div>
       </div>
       <h3 className="mb-2 text-base font-bold leading-snug text-midnight_text dark:text-white sm:text-lg">
         {card.title}

@@ -50,7 +50,7 @@ export default function Listing() {
   return (
     <section
       id="featured"
-      className="flex justify-center overflow-hidden bg-light py-12 sm:py-16 lg:py-20 dark:bg-semidark"
+      className="flex justify-center overflow-hidden bg-white py-12 sm:py-16 lg:py-20 dark:bg-semidark"
     >
       <div className="container mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md">
         <h1

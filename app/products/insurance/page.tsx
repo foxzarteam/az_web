@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import ServicePage from "@/app/components/services/ServicePage";
-import QuickEasyProcess from "@/app/components/products/insurance/QuickEasyProcess";
+import HowItWorks from "@/app/components/products/insurance/HowItWorks";
 
 export const metadata: Metadata = {
   title: "Insurance | Apni Zaroorat",
@@ -37,7 +37,7 @@ export default function InsurancePage() {
         hideHeader
       />
 
-      <QuickEasyProcess />
+      <HowItWorks />
     </>
   );
 }

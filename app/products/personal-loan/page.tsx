@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import ServicePage from "@/app/components/services/ServicePage";
-import QuickEasyProcess from "@/app/components/products/personal-loan/QuickEasyProcess";
+import HowItWorks from "@/app/components/products/personal-loan/HowItWorks";
 
 export const metadata: Metadata = {
   title: "Personal Loan | Apni Zaroorat",
@@ -37,7 +37,7 @@ export default function PersonalLoanPage() {
         hideHeader
       />
 
-      <QuickEasyProcess />
+      <HowItWorks />
     </>
   );
 }
