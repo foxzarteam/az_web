@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { FAQ_ITEMS } from "./faq-data";
+import { FAQ_ITEMS, type FaqItem } from "./faq-data";
 
 function ChevronIcon({ open }: { open: boolean }) {
   return (
@@ -22,7 +22,7 @@ function FaqAccordionItem({
   open,
   onToggle,
 }: {
-  item: (typeof FAQ_ITEMS)[number];
+  item: FaqItem;
   open: boolean;
   onToggle: () => void;
 }) {
@@ -80,7 +80,11 @@ function FaqAccordionItem({
   );
 }
 
-export default function FaqSection() {
+type FaqSectionProps = {
+  items?: FaqItem[];
+};
+
+export default function FaqSection({ items = FAQ_ITEMS }: FaqSectionProps) {
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
@@ -118,7 +122,7 @@ export default function FaqSection() {
           </div>
 
           <div className="flex min-w-0 flex-col gap-3 sm:gap-4 lg:col-span-7">
-            {FAQ_ITEMS.map((item) => (
+            {items.map((item) => (
               <FaqAccordionItem
                 key={item.id}
                 item={item}

@@ -126,6 +126,49 @@ html {
     }
   }
 
+  /* Loan amount range slider — white thumb, filled track via inline gradient */
+  .loan-amount-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 9999px;
+    outline: none;
+  }
+
+  .loan-amount-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 9999px;
+    background: #fff;
+    border: 1px solid rgba(66, 54, 251, 0.2);
+    box-shadow: 0 2px 10px rgba(16, 45, 71, 0.2);
+    cursor: pointer;
+    margin-top: -8px;
+  }
+
+  .loan-amount-slider::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 9999px;
+  }
+
+  .loan-amount-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 9999px;
+    background: #fff;
+    border: 1px solid rgba(66, 54, 251, 0.2);
+    box-shadow: 0 2px 10px rgba(16, 45, 71, 0.2);
+    cursor: pointer;
+  }
+
+  .loan-amount-slider::-moz-range-track {
+    height: 8px;
+    border-radius: 9999px;
+    background: transparent;
+  }
+
   /* Become a Partner hero — subtle sweep across the blue band */
   .partner-hero-shine {
     @apply relative overflow-hidden;

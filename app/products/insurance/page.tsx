@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import ServicePage from "@/app/components/services/ServicePage";
 import HowItWorks from "@/app/components/products/insurance/HowItWorks";
+import FaqSection from "@/app/components/home/faq";
+import { INSURANCE_FAQ_ITEMS } from "@/app/components/home/faq/faq-data";
 
 export const metadata: Metadata = {
   title: "Insurance | Apni Zaroorat",
@@ -38,7 +40,7 @@ export default function InsurancePage() {
       />
 
       <HowItWorks />
+      <FaqSection items={INSURANCE_FAQ_ITEMS} />
     </>
   );
 }
-

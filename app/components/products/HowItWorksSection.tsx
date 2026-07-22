@@ -65,14 +65,9 @@ export default function HowItWorksSection({ headingPrefix, headingHighlight, ste
                 </div>
               </div>
 
-              <div className="flex items-center justify-center gap-2.5">
-                <span className="btn-gradient flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-[0_4px_14px_rgba(66,54,251,0.35)] sm:h-8 sm:w-8 sm:text-sm">
-                  {step.num}
-                </span>
-                <h3 className="!text-sm font-bold !text-midnight_text dark:!text-white sm:!text-base">
-                  {step.title}
-                </h3>
-              </div>
+              <h3 className="!text-sm font-bold !text-midnight_text dark:!text-white sm:!text-base">
+                {step.title}
+              </h3>
 
               <p className="mt-2.5 max-w-[230px] text-xs leading-relaxed text-gray dark:text-gray-400 sm:text-sm">
                 {step.description}

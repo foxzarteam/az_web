@@ -8,18 +8,17 @@ import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckb
 import { reportFormValidity } from "@/app/utils/formValidation";
 import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
-import { MOBILE_VALIDATION } from "@/app/config/constants";
+import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
+import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
 import { mapServiceToCategory } from "@/app/utils/leadApi";
 import {
+  amountToLoanAmtRange,
   INSURANCE_TYPE_OPTIONS,
-  LOAN_AMOUNT_OPTIONS,
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
   validateLeadPanNameMobile,
   type LeadFieldErrors,
 } from "@/app/utils/leadForm";
-import { isAllowedProductSlug } from "@/app/lib/services/allowedProducts";
-import { fetchActiveServiceCards } from "@/app/utils/fetchActiveServiceCards";
 import { sanitizeMobileInput } from "@/app/utils/validation";
 
 type ServicePageProps = {
@@ -30,16 +29,6 @@ type ServicePageProps = {
   hideHeader?: boolean;
   serviceSlug?: string;
 };
-
-const FALLBACK_SERVICE_OPTIONS: { value: string; label: string }[] = [
-  { value: "", label: "Select product" },
-  { value: "personal-loan", label: "Personal Loan" },
-  { value: "insurance", label: "Insurance" },
-];
-
-function slugFromServiceHref(href: string): string {
-  return href.replace(/^\/products\//, "").replace(/\/$/, "").trim();
-}
 
 function slugFromPathname(pathname: string): string {
   const m = pathname.match(/\/products\/([^/]+)/);
@@ -55,6 +44,8 @@ function getSuccessMessage(title: string): string {
   if (t.includes("insurance")) return "Your Insurance request has been received. We'll contact you shortly.";
   return `Your ${title} application has been received. We'll contact you shortly.`;
 }
+
+const DEFAULT_LOAN_AMOUNT = 5_00_000;
 
 const inputClass =
   "w-full px-3.5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode/80 text-sm sm:text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70";
@@ -75,46 +66,29 @@ export default function ServicePage({
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
-  const [serviceOptions, setServiceOptions] = useState(FALLBACK_SERVICE_OPTIONS);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
-  const [service, setService] = useState(pageServiceSlug);
-  const [loanAmt, setLoanAmt] = useState("");
+  const [loanAmount, setLoanAmount] = useState(DEFAULT_LOAN_AMOUNT);
   const [insType, setInsType] = useState("");
   const [pan, setPan] = useState("");
   const [formError, setFormError] = useState("");
 
+  const service = pageServiceSlug;
   const selectedCategory = mapServiceToCategory(service);
   const showLoanAmount = selectedCategory === "personal_loan";
   const showInsuranceType = selectedCategory === "insurance";
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const { cards, status } = await fetchActiveServiceCards();
-      if (cancelled || status !== "ok" || cards.length === 0) return;
-      const allowed = cards.filter((c) => isAllowedProductSlug(slugFromServiceHref(c.href)));
-      if (allowed.length === 0) return;
-      setServiceOptions([
-        { value: "", label: "Select product" },
-        ...allowed.map((c) => {
-          const slug = slugFromServiceHref(c.href);
-          return { value: slug, label: c.title.trim() || slug };
-        }),
-      ]);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    setInsType("");
+    setLoanAmount(DEFAULT_LOAN_AMOUNT);
+  }, [pageServiceSlug]);
 
   const resetForm = () => {
     setFullName("");
     setMobile("");
-    setService(pageServiceSlug);
-    setLoanAmt("");
+    setLoanAmount(DEFAULT_LOAN_AMOUNT);
     setInsType("");
     setPan("");
     setTermsAccepted(false);
@@ -129,8 +103,15 @@ export default function ServicePage({
       mobileDigits: mobile.replace(/\D/g, ""),
       fullName,
     });
-    if (!service.trim()) errors.service = "Please select a product";
-    if (showLoanAmount && !loanAmt.trim()) errors.loanAmt = "Please select loan amount range";
+    if (!service.trim()) errors.service = "Product could not be detected for this page";
+    if (showLoanAmount) {
+      if (
+        loanAmount < PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT ||
+        loanAmount > PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT
+      ) {
+        errors.loanAmt = `Loan amount must be between ₹${PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT.toLocaleString("en-IN")} and ₹${PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT.toLocaleString("en-IN")}`;
+      }
+    }
     if (showInsuranceType && !insType.trim()) errors.insType = "Please select insurance type";
 
     const firstError = Object.values(errors)[0];
@@ -142,6 +123,8 @@ export default function ServicePage({
     setFormError("");
     setShowApplyModal(true);
   };
+
+  const loanAmtRange = showLoanAmount ? amountToLoanAmtRange(loanAmount) : "";
 
   return (
     <section className="pt-16 sm:pt-20 md:pt-24 lg:pt-28 pb-12 sm:pb-16 bg-gradient-to-b from-light to-white dark:from-darkmode dark:to-semidark">
@@ -184,7 +167,13 @@ export default function ServicePage({
                 <LeadApplyModal
                   open={showApplyModal}
                   mobile={mobile.replace(/\D/g, "")}
-                  details={{ fullName, service, loanAmt, insType, pan }}
+                  details={{
+                    fullName,
+                    service,
+                    loanAmt: loanAmtRange,
+                    insType,
+                    pan,
+                  }}
                   onClose={() => setShowApplyModal(false)}
                   onEditMobile={() => setShowApplyModal(false)}
                   onSuccess={() => {
@@ -203,6 +192,31 @@ export default function ServicePage({
                   {formError && (
                     <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600 break-words">
                       {formError}
+                    </div>
+                  )}
+
+                  {showLoanAmount && (
+                    <LoanAmountSlider value={loanAmount} onChange={setLoanAmount} />
+                  )}
+
+                  {showInsuranceType && (
+                    <div>
+                      <label htmlFor="service-ins-type" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+                        Insurance type *
+                      </label>
+                      <select
+                        id="service-ins-type"
+                        value={insType}
+                        onChange={(e) => setInsType(e.target.value)}
+                        className={inputClass}
+                      >
+                        <option value="">Select insurance type</option>
+                        {INSURANCE_TYPE_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   )}
 
@@ -242,72 +256,6 @@ export default function ServicePage({
                         className="flex-1 py-2.5 sm:py-3 px-2.5 sm:px-3 min-w-0 text-sm sm:text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none bg-transparent"
                       />
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div>
-                      <label htmlFor="service-product" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
-                        Select product *
-                      </label>
-                      <select
-                        id="service-product"
-                        value={service}
-                        onChange={(e) => {
-                          setService(e.target.value);
-                          setLoanAmt("");
-                          setInsType("");
-                        }}
-                        className={inputClass}
-                      >
-                        {serviceOptions.map((opt) => (
-                          <option key={opt.value || "select"} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {showLoanAmount && (
-                      <div>
-                        <label htmlFor="service-loan-amt" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
-                          Loan amount range *
-                        </label>
-                        <select
-                          id="service-loan-amt"
-                          value={loanAmt}
-                          onChange={(e) => setLoanAmt(e.target.value)}
-                          className={inputClass}
-                        >
-                          <option value="">Select amount range</option>
-                          {LOAN_AMOUNT_OPTIONS.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
-                    {showInsuranceType && (
-                      <div>
-                        <label htmlFor="service-ins-type" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
-                          Insurance type *
-                        </label>
-                        <select
-                          id="service-ins-type"
-                          value={insType}
-                          onChange={(e) => setInsType(e.target.value)}
-                          className={inputClass}
-                        >
-                          <option value="">Select insurance type</option>
-                          {INSURANCE_TYPE_OPTIONS.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
                   </div>
 
                   <div>

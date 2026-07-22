@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import ServicePage from "@/app/components/services/ServicePage";
 import HowItWorks from "@/app/components/products/personal-loan/HowItWorks";
+import FaqSection from "@/app/components/home/faq";
+import { PERSONAL_LOAN_FAQ_ITEMS } from "@/app/components/home/faq/faq-data";
 
 export const metadata: Metadata = {
   title: "Personal Loan | Apni Zaroorat",
@@ -38,7 +40,7 @@ export default function PersonalLoanPage() {
       />
 
       <HowItWorks />
+      <FaqSection items={PERSONAL_LOAN_FAQ_ITEMS} />
     </>
   );
 }
-

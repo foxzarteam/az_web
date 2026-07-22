@@ -28,6 +28,20 @@ export function loanAmountLabel(value: string): string {
   return LOAN_AMOUNT_OPTIONS.find((o) => o.value === value)?.label ?? value;
 }
 
+/** Maps an exact loan amount to the backend range key expected by leads.loan_amt. */
+export function amountToLoanAmtRange(amount: number): string {
+  if (amount <= 100_000) return "25000_100000";
+  if (amount <= 200_000) return "100000_200000";
+  if (amount <= 300_000) return "200000_300000";
+  if (amount <= 400_000) return "300000_400000";
+  if (amount <= 500_000) return "400000_500000";
+  if (amount <= 600_000) return "500000_600000";
+  if (amount <= 700_000) return "600000_700000";
+  if (amount <= 800_000) return "700000_800000";
+  if (amount <= 900_000) return "800000_900000";
+  return "900000_1000000";
+}
+
 export function insuranceTypeLabel(value: string): string {
   return INSURANCE_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? value;
 }
