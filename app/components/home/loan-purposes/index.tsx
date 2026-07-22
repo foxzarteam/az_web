@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 
 type LoanPurpose = {
@@ -10,6 +12,8 @@ type LoanPurpose = {
 };
 
 const iconClass = "h-6 w-6 sm:h-7 sm:w-7";
+const AUTO_MS = 4500;
+const PAGE_SIZE = 4;
 
 function IconMedical() {
   return (
@@ -199,7 +203,45 @@ const LOAN_PURPOSES: LoanPurpose[] = [
   },
 ];
 
+const PAGES = Array.from({ length: Math.ceil(LOAN_PURPOSES.length / PAGE_SIZE) }, (_, i) =>
+  LOAN_PURPOSES.slice(i * PAGE_SIZE, i * PAGE_SIZE + PAGE_SIZE),
+);
+
+function PurposeCard({ purpose }: { purpose: LoanPurpose }) {
+  return (
+    <article className="flex h-full flex-col items-center rounded-2xl bg-white px-3 py-5 text-center shadow-[0_4px_24px_rgba(16,45,71,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_10px_32px_rgba(16,45,71,0.12)] dark:bg-darklight sm:px-4 sm:py-6">
+      <div className="theme-gradient-bg mb-3 rounded-full p-[2px] sm:mb-4">
+        <div
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full sm:h-14 sm:w-14 ${purpose.iconWrapClass}`}
+        >
+          {purpose.icon}
+        </div>
+      </div>
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray sm:text-[11px]">
+        Personal Loan for
+      </p>
+      <h3 className="mt-0.5 !text-sm font-bold leading-snug !text-midnight_text dark:!text-white sm:!text-base">
+        {purpose.title}
+      </h3>
+      <p className="mt-1.5 flex-1 text-xs leading-relaxed text-gray dark:text-gray-400 sm:text-[13px]">
+        {purpose.description}
+      </p>
+    </article>
+  );
+}
+
 export default function LoanPurposes() {
+  const [page, setPage] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused || PAGES.length <= 1) return;
+    const id = window.setInterval(() => {
+      setPage((p) => (p + 1) % PAGES.length);
+    }, AUTO_MS);
+    return () => window.clearInterval(id);
+  }, [paused]);
+
   return (
     <section
       className="bg-[#F5F7FB] dark:bg-semidark"
@@ -218,30 +260,57 @@ export default function LoanPurposes() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-5">
+        {/* Desktop: all 8 cards in 4-col grid */}
+        <div className="hidden grid-cols-2 gap-3 sm:gap-4 lg:grid lg:grid-cols-4 lg:gap-5">
           {LOAN_PURPOSES.map((purpose) => (
-            <article
-              key={purpose.title}
-              className="flex h-full flex-col items-center rounded-2xl bg-white px-3 py-5 text-center shadow-[0_4px_24px_rgba(16,45,71,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_10px_32px_rgba(16,45,71,0.12)] dark:bg-darklight sm:px-4 sm:py-6"
-            >
-              <div className="theme-gradient-bg mb-3 rounded-full p-[2px] sm:mb-4">
-                <div
-                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full sm:h-14 sm:w-14 ${purpose.iconWrapClass}`}
-                >
-                  {purpose.icon}
-                </div>
-              </div>
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-gray sm:text-[11px]">
-                Personal Loan for
-              </p>
-              <h3 className="mt-0.5 !text-sm font-bold leading-snug !text-midnight_text dark:!text-white sm:!text-base">
-                {purpose.title}
-              </h3>
-              <p className="mt-1.5 flex-1 text-xs leading-relaxed text-gray dark:text-gray-400 sm:text-[13px]">
-                {purpose.description}
-              </p>
-            </article>
+            <PurposeCard key={purpose.title} purpose={purpose} />
           ))}
+        </div>
+
+        {/* Mobile / tablet: 4 cards at a time, slow auto-slide */}
+        <div
+          className="lg:hidden"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onTouchStart={() => setPaused(true)}
+          onTouchEnd={() => setPaused(false)}
+        >
+          <div className="overflow-hidden" aria-roledescription="carousel">
+            <div
+              className="flex transition-transform duration-[900ms] ease-in-out"
+              style={{ transform: `translateX(-${page * 100}%)` }}
+            >
+              {PAGES.map((pageItems, pageIndex) => (
+                <div
+                  key={pageIndex}
+                  className="grid w-full shrink-0 grid-cols-2 gap-3 sm:gap-4"
+                  aria-hidden={pageIndex !== page}
+                >
+                  {pageItems.map((purpose) => (
+                    <PurposeCard key={purpose.title} purpose={purpose} />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-5 flex items-center justify-center gap-2" role="tablist" aria-label="Loan purpose pages">
+            {PAGES.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                role="tab"
+                aria-selected={index === page}
+                aria-label={`Show purposes ${index * PAGE_SIZE + 1} to ${Math.min((index + 1) * PAGE_SIZE, LOAN_PURPOSES.length)}`}
+                onClick={() => setPage(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === page
+                    ? "w-7 bg-primary"
+                    : "w-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600"
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="mt-8 text-center sm:mt-10">
