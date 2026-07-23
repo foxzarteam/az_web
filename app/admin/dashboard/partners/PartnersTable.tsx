@@ -1,8 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AdminPartnerRow, PartnerServiceOption } from "@/app/lib/admin/fetchPartners";
+import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
+import AdminModal from "../AdminModal";
+import {
+  ADMIN_BTN_DANGER,
+  ADMIN_BTN_PRIMARY,
+  ADMIN_BTN_SECONDARY,
+  ADMIN_ERROR,
+  ADMIN_INPUT,
+  ADMIN_LABEL,
+} from "../adminUi";
 
 const PAYOUT_TYPES = [
   { value: "PERCENTAGE", label: "Percentage (%)" },
@@ -178,74 +188,6 @@ function ServiceMultiSelect({
   );
 }
 
-function IconButton({
-  label,
-  onClick,
-  children,
-  variant = "default",
-}: {
-  label: string;
-  onClick: () => void;
-  children: React.ReactNode;
-  variant?: "default" | "danger";
-}) {
-  return (
-    <button
-      type="button"
-      title={label}
-      aria-label={label}
-      onClick={onClick}
-      className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border transition ${
-        variant === "danger"
-          ? "border border-black text-red-600 hover:bg-red-50 dark:border-black dark:text-red-400 dark:hover:bg-red-950/40"
-          : "border-gray-200 text-midnight_text hover:bg-gray-100 dark:border-dark_border dark:text-gray-200 dark:hover:bg-white/10"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
-function ModalShell({
-  title,
-  onClose,
-  children,
-  wide = false,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-  wide?: boolean;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <button type="button" className="absolute inset-0 bg-black/50" aria-label="Close overlay" onClick={onClose} />
-      <div
-        role="dialog"
-        aria-modal="true"
-        className={`relative z-10 w-full max-h-[90vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-dark_border dark:bg-darklight ${
-          wide ? "max-w-3xl" : "max-w-lg"
-        }`}
-      >
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-dark_border">
-          <h2 className="text-lg font-bold text-midnight_text dark:text-white">{title}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-gray hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10"
-            aria-label="Close"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
-
 function PartnerFormFields({
   form,
   setForm,
@@ -258,13 +200,13 @@ function PartnerFormFields({
   serviceOptions: PartnerServiceOption[];
 }) {
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-5">
       <label className="block">
-        <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Name</span>
+        <span className={ADMIN_LABEL}>Name</span>
         <input className={inputClass} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
       </label>
       <div className="block">
-        <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Products</span>
+        <span className={ADMIN_LABEL}>Products</span>
         <ServiceMultiSelect
           options={serviceOptions}
           selected={form.selectedSortOrders}
@@ -273,7 +215,7 @@ function PartnerFormFields({
         <p className="mt-1 text-xs text-gray dark:text-gray-400">Open dropdown and select one or more products</p>
       </div>
       <label className="block">
-        <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Payout type</span>
+        <span className={ADMIN_LABEL}>Payout type</span>
         <select className={inputClass} value={form.payoutType} onChange={(e) => setForm({ ...form, payoutType: e.target.value })}>
           {PAYOUT_TYPES.map((p) => (
             <option key={p.value} value={p.value}>
@@ -283,7 +225,7 @@ function PartnerFormFields({
         </select>
       </label>
       <label className="block">
-        <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Commission value</span>
+        <span className={ADMIN_LABEL}>Commission value</span>
         <input
           type="number"
           min={0}
@@ -450,8 +392,7 @@ export default function PartnersTable({
     }
   }
 
-  const inputClass =
-    "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-midnight_text focus:outline-none focus:ring-2 focus:ring-primary/80 dark:border-dark_border dark:bg-darkmode dark:text-white";
+  const inputClass = ADMIN_INPUT;
 
   const deleteIcon = (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -463,75 +404,98 @@ export default function PartnersTable({
     </svg>
   );
 
+  const columns = useMemo<CrmColumn<AdminPartnerRow>[]>(
+    () => [
+      {
+        id: "name",
+        header: "Name",
+        sortable: true,
+        sortValue: (row) => String(row.name ?? ""),
+        searchValue: (row) => cellText(row, "name"),
+        cell: (row) => cellText(row, "name"),
+      },
+      {
+        id: "products",
+        header: "Products",
+        sortable: true,
+        sortValue: (row) => servicesText(row),
+        searchValue: (row) => servicesText(row),
+        className: "max-w-[280px] truncate whitespace-nowrap",
+        cell: (row) => <span title={servicesText(row)}>{servicesText(row)}</span>,
+      },
+      {
+        id: "commission",
+        header: "Commission",
+        sortable: true,
+        sortValue: (row) => payoutText(row),
+        searchValue: (row) => payoutText(row),
+        cell: (row) => payoutText(row),
+      },
+      {
+        id: "created_at",
+        header: "Created date",
+        sortable: true,
+        sortValue: (row) => String(row.created_at ?? ""),
+        searchValue: (row) => createdDateText(row),
+        cell: (row) => createdDateText(row),
+      },
+      {
+        id: "actions",
+        header: "Action",
+        searchable: false,
+        cell: (row) => (
+          <div className="flex items-center gap-1.5">
+            <CrmActionButton label="View" onClick={() => setViewRow(row)}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </CrmActionButton>
+            <CrmActionButton label="Edit" onClick={() => openEdit(row)}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+              </svg>
+            </CrmActionButton>
+            <CrmActionButton
+              label="Delete"
+              variant="danger"
+              onClick={() => {
+                setDeleteRow(row);
+                setError(null);
+              }}
+            >
+              {deleteIcon}
+            </CrmActionButton>
+          </div>
+        ),
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- action handlers use stable setters
+    [],
+  );
+
   return (
     <>
-      <div className="mt-6 flex justify-end">
-        <button
-          type="button"
-          onClick={openCreate}
-          className="btn-gradient rounded-lg px-4 py-2 text-sm font-medium text-white"
-        >
-          Add partner
-        </button>
-      </div>
-
-      <div className="mt-4 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-dark_border dark:bg-darklight">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 text-left text-sm dark:divide-dark_border">
-            <thead className="bg-slate-50 dark:bg-semidark">
-              <tr>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Name</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Products</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Commission</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Created date</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-dark_border">
-              {partners.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-gray dark:text-gray-400">
-                    No data to display.
-                  </td>
-                </tr>
-              ) : (
-                partners.map((row, i) => (
-                  <tr key={String(row.id ?? i)} className="hover:bg-slate-50/80 dark:hover:bg-white/5">
-                    <td className="whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">{cellText(row, "name")}</td>
-                    <td className="max-w-[280px] truncate whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200" title={servicesText(row)}>
-                      {servicesText(row)}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">{payoutText(row)}</td>
-                    <td className="whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">{createdDateText(row)}</td>
-                    <td className="whitespace-nowrap px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <IconButton label="View" onClick={() => setViewRow(row)}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                            <circle cx="12" cy="12" r="3" />
-                          </svg>
-                        </IconButton>
-                        <IconButton label="Edit" onClick={() => openEdit(row)}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                          </svg>
-                        </IconButton>
-                        <IconButton label="Delete" variant="danger" onClick={() => { setDeleteRow(row); setError(null); }}>
-                          {deleteIcon}
-                        </IconButton>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <CrmDataTable
+        rows={partners}
+        columns={columns}
+        getRowId={(row, i) => String(row.id ?? i)}
+        searchPlaceholder="Search partners, products…"
+        emptyMessage="No partners to display."
+        toolbarRight={
+          <button
+            type="button"
+            onClick={openCreate}
+            className={ADMIN_BTN_PRIMARY}
+          >
+            Add partner
+          </button>
+        }
+      />
 
       {viewRow && (
-        <ModalShell title="Partner details" wide onClose={() => setViewRow(null)}>
-          <ul className="grid grid-cols-1 gap-x-6 gap-y-3 p-5 sm:grid-cols-2">
+        <AdminModal title="Partner details" wide onClose={() => setViewRow(null)}>
+          <ul className="grid grid-cols-1 gap-x-8 gap-y-5 p-6 sm:grid-cols-2 sm:p-8">
             {VIEW_FIELDS.map((key) => (
               <li key={key} className="flex flex-wrap items-baseline gap-1 text-sm">
                 <span className="shrink-0 font-semibold text-midnight_text dark:text-white">{FIELD_LABELS[key] ?? key}:</span>
@@ -539,60 +503,60 @@ export default function PartnersTable({
               </li>
             ))}
           </ul>
-        </ModalShell>
+        </AdminModal>
       )}
 
       {createOpen && (
-        <ModalShell title="Add partner" onClose={closeModals}>
-          <form onSubmit={handleCreate} className="space-y-4 p-5">
-            {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
+        <AdminModal title="Add partner" wide onClose={closeModals}>
+          <form onSubmit={handleCreate} className="space-y-6 p-6 sm:p-8">
+            {error && <p className={ADMIN_ERROR}>{error}</p>}
             <PartnerFormFields form={form} setForm={setForm} inputClass={inputClass} serviceOptions={serviceOptions} />
-            <div className="flex justify-end gap-2 border-t border-gray-200 pt-4 dark:border-dark_border">
-              <button type="button" onClick={closeModals} className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium dark:border-dark_border dark:text-white">
+            <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
+              <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
                 Cancel
               </button>
-              <button type="submit" disabled={saving} className="btn-gradient rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+              <button type="submit" disabled={saving} className={ADMIN_BTN_PRIMARY}>
                 {saving ? "Saving…" : "Create"}
               </button>
             </div>
           </form>
-        </ModalShell>
+        </AdminModal>
       )}
 
       {editRow && (
-        <ModalShell title="Edit partner" onClose={closeModals}>
-          <form onSubmit={handleSaveEdit} className="space-y-4 p-5">
-            {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
+        <AdminModal title="Edit partner" wide onClose={closeModals}>
+          <form onSubmit={handleSaveEdit} className="space-y-6 p-6 sm:p-8">
+            {error && <p className={ADMIN_ERROR}>{error}</p>}
             <PartnerFormFields form={form} setForm={setForm} inputClass={inputClass} serviceOptions={serviceOptions} />
-            <div className="flex justify-end gap-2 border-t border-gray-200 pt-4 dark:border-dark_border">
-              <button type="button" onClick={closeModals} className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium dark:border-dark_border dark:text-white">
+            <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
+              <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
                 Cancel
               </button>
-              <button type="submit" disabled={saving} className="btn-gradient rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+              <button type="submit" disabled={saving} className={ADMIN_BTN_PRIMARY}>
                 {saving ? "Saving…" : "Save changes"}
               </button>
             </div>
           </form>
-        </ModalShell>
+        </AdminModal>
       )}
 
       {deleteRow && (
-        <ModalShell title="Delete partner" onClose={closeModals}>
-          <div className="p-5">
+        <AdminModal title="Delete partner" onClose={closeModals}>
+          <div className="p-6 sm:p-8">
             <p className="text-sm text-midnight_text dark:text-gray-200">
               Delete partner <strong>{cellText(deleteRow, "name")}</strong>? This cannot be undone.
             </p>
-            {error && <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
-            <div className="mt-6 flex justify-end gap-2">
-              <button type="button" onClick={closeModals} className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium dark:border-dark_border dark:text-white">
+            {error && <p className={`mt-3 ${ADMIN_ERROR}`}>{error}</p>}
+            <div className="mt-8 flex justify-end gap-3">
+              <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
                 Cancel
               </button>
-              <button type="button" onClick={handleConfirmDelete} disabled={deleting} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+              <button type="button" onClick={handleConfirmDelete} disabled={deleting} className={ADMIN_BTN_DANGER}>
                 {deleting ? "Deleting…" : "Delete"}
               </button>
             </div>
           </div>
-        </ModalShell>
+        </AdminModal>
       )}
     </>
   );

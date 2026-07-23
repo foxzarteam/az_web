@@ -1,8 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AdminServiceRow } from "@/app/lib/admin/fetchServices";
+import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
+import AdminModal from "../AdminModal";
+import {
+  ADMIN_BTN_DANGER,
+  ADMIN_BTN_PRIMARY,
+  ADMIN_BTN_SECONDARY,
+  ADMIN_ERROR,
+  ADMIN_INPUT,
+  ADMIN_LABEL,
+} from "../adminUi";
 
 const VIEW_FIELDS = [
   "title",
@@ -67,74 +77,6 @@ function serviceToEditForm(row: AdminServiceRow): EditForm {
     sortOrder: row.sort_order != null ? String(row.sort_order) : "0",
     isActive: row.is_active !== false,
   };
-}
-
-function IconButton({
-  label,
-  onClick,
-  children,
-  variant = "default",
-}: {
-  label: string;
-  onClick: () => void;
-  children: React.ReactNode;
-  variant?: "default" | "danger";
-}) {
-  return (
-    <button
-      type="button"
-      title={label}
-      aria-label={label}
-      onClick={onClick}
-      className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border transition ${
-        variant === "danger"
-          ? "border border-black text-red-600 hover:bg-red-50 dark:border-black dark:text-red-400 dark:hover:bg-red-950/40"
-          : "border-gray-200 text-midnight_text hover:bg-gray-100 dark:border-dark_border dark:text-gray-200 dark:hover:bg-white/10"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
-function ModalShell({
-  title,
-  onClose,
-  children,
-  wide = false,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-  wide?: boolean;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <button type="button" className="absolute inset-0 bg-black/50" aria-label="Close overlay" onClick={onClose} />
-      <div
-        role="dialog"
-        aria-modal="true"
-        className={`relative z-10 w-full max-h-[90vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-dark_border dark:bg-darklight ${
-          wide ? "max-w-3xl" : "max-w-lg"
-        }`}
-      >
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-dark_border">
-          <h2 className="text-lg font-bold text-midnight_text dark:text-white">{title}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-gray hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10"
-            aria-label="Close"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
 }
 
 export default function ServicesTable({ initialServices }: { initialServices: AdminServiceRow[] }) {
@@ -238,8 +180,7 @@ export default function ServicesTable({ initialServices }: { initialServices: Ad
     }
   }
 
-  const inputClass =
-    "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-midnight_text focus:outline-none focus:ring-2 focus:ring-primary/80 dark:border-dark_border dark:bg-darkmode dark:text-white";
+  const inputClass = ADMIN_INPUT;
 
   const deleteIcon = (
     <svg
@@ -261,63 +202,91 @@ export default function ServicesTable({ initialServices }: { initialServices: Ad
     </svg>
   );
 
+  const columns = useMemo<CrmColumn<AdminServiceRow>[]>(
+    () => [
+      {
+        id: "title",
+        header: "Title",
+        sortable: true,
+        sortValue: (row) => String(row.title ?? ""),
+        searchValue: (row) => cellText(row, "title"),
+        className: "max-w-[240px] truncate whitespace-nowrap",
+        cell: (row) => cellText(row, "title"),
+      },
+      {
+        id: "is_active",
+        header: "Active",
+        sortable: true,
+        sortValue: (row) => (row.is_active === false ? 0 : 1),
+        searchValue: (row) => activeText(row),
+        cell: (row) => (
+          <span
+            className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
+              row.is_active === false
+                ? "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-gray-300"
+                : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+            }`}
+          >
+            {activeText(row)}
+          </span>
+        ),
+      },
+      {
+        id: "created_at",
+        header: "Created date",
+        sortable: true,
+        sortValue: (row) => String(row.created_at ?? ""),
+        searchValue: (row) => createdDateText(row),
+        cell: (row) => createdDateText(row),
+      },
+      {
+        id: "actions",
+        header: "Action",
+        searchable: false,
+        cell: (row) => (
+          <div className="flex items-center gap-1.5">
+            <CrmActionButton label="View" onClick={() => setViewRow(row)}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </CrmActionButton>
+            <CrmActionButton label="Edit" onClick={() => openEdit(row)}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+              </svg>
+            </CrmActionButton>
+            <CrmActionButton
+              label="Delete"
+              variant="danger"
+              onClick={() => {
+                setDeleteRow(row);
+                setError(null);
+              }}
+            >
+              {deleteIcon}
+            </CrmActionButton>
+          </div>
+        ),
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- action handlers use stable setters
+    [],
+  );
+
   return (
     <>
-      <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-dark_border dark:bg-darklight">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 text-left text-sm dark:divide-dark_border">
-            <thead className="bg-slate-50 dark:bg-semidark">
-              <tr>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Title</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Active</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Created date</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-dark_border">
-              {services.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-gray dark:text-gray-400">
-                    No data to display.
-                  </td>
-                </tr>
-              ) : (
-                services.map((row, i) => (
-                  <tr key={String(row.id ?? i)} className="hover:bg-slate-50/80 dark:hover:bg-white/5">
-                    <td className="max-w-[240px] truncate whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">
-                      {cellText(row, "title")}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">{activeText(row)}</td>
-                    <td className="whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">{createdDateText(row)}</td>
-                    <td className="whitespace-nowrap px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <IconButton label="View" onClick={() => setViewRow(row)}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                            <circle cx="12" cy="12" r="3" />
-                          </svg>
-                        </IconButton>
-                        <IconButton label="Edit" onClick={() => openEdit(row)}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                          </svg>
-                        </IconButton>
-                        <IconButton label="Delete" variant="danger" onClick={() => { setDeleteRow(row); setError(null); }}>
-                          {deleteIcon}
-                        </IconButton>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <CrmDataTable
+        rows={services}
+        columns={columns}
+        getRowId={(row, i) => String(row.id ?? i)}
+        searchPlaceholder="Search products…"
+        emptyMessage="No products to display."
+      />
 
       {viewRow && (
-        <ModalShell title="Product details" wide onClose={() => setViewRow(null)}>
-          <ul className="grid grid-cols-1 gap-x-6 gap-y-3 p-5 sm:grid-cols-2">
+        <AdminModal title="Product details" wide onClose={() => setViewRow(null)}>
+          <ul className="grid grid-cols-1 gap-x-8 gap-y-5 p-6 sm:grid-cols-2 sm:p-8">
             {VIEW_FIELDS.map((key) => (
               <li key={key} className={`flex flex-wrap items-baseline gap-1 text-sm ${key === "description" ? "sm:col-span-2" : ""}`}>
                 <span className="shrink-0 font-semibold text-midnight_text dark:text-white">
@@ -327,28 +296,28 @@ export default function ServicesTable({ initialServices }: { initialServices: Ad
               </li>
             ))}
           </ul>
-        </ModalShell>
+        </AdminModal>
       )}
 
       {editRow && editForm && (
-        <ModalShell title="Edit product" wide onClose={closeModals}>
-          <form onSubmit={handleSaveEdit} className="space-y-4 p-5">
-            {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
-            <div className="grid gap-4 sm:grid-cols-2">
+        <AdminModal title="Edit product" wide onClose={closeModals}>
+          <form onSubmit={handleSaveEdit} className="space-y-6 p-6 sm:p-8">
+            {error && <p className={ADMIN_ERROR}>{error}</p>}
+            <div className="grid gap-5 sm:grid-cols-2">
               <label className="block sm:col-span-2">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Title</span>
+                <span className={ADMIN_LABEL}>Title</span>
                 <input className={inputClass} value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} required />
               </label>
               <label className="block">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Slug</span>
+                <span className={ADMIN_LABEL}>Slug</span>
                 <input className={inputClass} value={editForm.slug} onChange={(e) => setEditForm({ ...editForm, slug: e.target.value })} required />
               </label>
               <label className="block">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Sort order</span>
+                <span className={ADMIN_LABEL}>Sort order</span>
                 <input type="number" min={0} className={inputClass} value={editForm.sortOrder} onChange={(e) => setEditForm({ ...editForm, sortOrder: e.target.value })} />
               </label>
               <label className="block sm:col-span-2">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Description</span>
+                <span className={ADMIN_LABEL}>Description</span>
                 <textarea className={inputClass} rows={4} value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} required />
               </label>
               <label className="flex items-center gap-2 sm:col-span-2">
@@ -361,35 +330,35 @@ export default function ServicesTable({ initialServices }: { initialServices: Ad
                 <span className="text-sm font-medium text-midnight_text dark:text-white">Active</span>
               </label>
             </div>
-            <div className="flex justify-end gap-2 border-t border-gray-200 pt-4 dark:border-dark_border">
-              <button type="button" onClick={closeModals} className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium dark:border-dark_border dark:text-white">
+            <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
+              <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
                 Cancel
               </button>
-              <button type="submit" disabled={saving} className="btn-gradient rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+              <button type="submit" disabled={saving} className={ADMIN_BTN_PRIMARY}>
                 {saving ? "Saving…" : "Save changes"}
               </button>
             </div>
           </form>
-        </ModalShell>
+        </AdminModal>
       )}
 
       {deleteRow && (
-        <ModalShell title="Delete product" onClose={closeModals}>
-          <div className="p-5">
+        <AdminModal title="Delete product" onClose={closeModals}>
+          <div className="p-6 sm:p-8">
             <p className="text-sm text-midnight_text dark:text-gray-200">
               Delete product <strong>{cellText(deleteRow, "title")}</strong>? This cannot be undone.
             </p>
-            {error && <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
-            <div className="mt-6 flex justify-end gap-2">
-              <button type="button" onClick={closeModals} className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium dark:border-dark_border dark:text-white">
+            {error && <p className={`mt-3 ${ADMIN_ERROR}`}>{error}</p>}
+            <div className="mt-8 flex justify-end gap-3">
+              <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
                 Cancel
               </button>
-              <button type="button" onClick={handleConfirmDelete} disabled={deleting} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+              <button type="button" onClick={handleConfirmDelete} disabled={deleting} className={ADMIN_BTN_DANGER}>
                 {deleting ? "Deleting…" : "Delete"}
               </button>
             </div>
           </div>
-        </ModalShell>
+        </AdminModal>
       )}
     </>
   );

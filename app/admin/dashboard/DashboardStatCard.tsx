@@ -1,52 +1,50 @@
 import Link from "next/link";
+import { ADMIN_UI } from "./adminUi";
 
 type Props = {
   label: string;
   value: number;
   description: string;
   href?: string;
-  accent: "primary" | "sky" | "violet";
   icon: React.ReactNode;
 };
 
-const accentStyles = {
-  primary: {
-    bg: "bg-primary/10 text-primary",
-    hover: "hover:border-primary/40",
-  },
-  sky: {
-    bg: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
-    hover: "hover:border-sky-500/40",
-  },
-  violet: {
-    bg: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
-    hover: "hover:border-violet-500/40",
-  },
-} as const;
-
-export default function DashboardStatCard({ label, value, description, href, accent, icon }: Props) {
-  const accentBg = accentStyles[accent].bg;
-  const accentHover = accentStyles[accent].hover;
-
+export default function DashboardStatCard({ label, value, description, href, icon }: Props) {
   const inner = (
     <div
-      className={`flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm transition dark:border-dark_border dark:bg-darklight ${
-        href ? `${accentHover} hover:shadow` : ""
-      }`}
+      className="group rounded-xl border bg-white p-4 shadow-sm transition hover:border-[#4236FB]/35 hover:shadow-md dark:border-dark_border dark:bg-darklight"
+      style={{ borderColor: ADMIN_UI.border }}
     >
-      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${accentBg}`}>{icon}</div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-midnight_text dark:text-white">{label}</p>
-        <p className="truncate text-xs text-gray dark:text-gray-400">{description}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-xl"
+          style={{ backgroundColor: ADMIN_UI.primarySoft, color: ADMIN_UI.primary }}
+        >
+          {icon}
+        </div>
+        {href && (
+          <span className="text-[11px] font-semibold text-slate-400 transition group-hover:text-[#4236FB]">
+            View →
+          </span>
+        )}
       </div>
-      <p className="shrink-0 text-2xl font-bold tabular-nums text-midnight_text dark:text-white">
+      <p className="mt-3 text-sm font-medium text-slate-500 dark:text-gray-400">{label}</p>
+      <p className="mt-1 text-3xl font-semibold tabular-nums tracking-tight text-slate-900 dark:text-white">
         {value.toLocaleString("en-IN")}
       </p>
+      <p className="mt-1.5 text-xs leading-relaxed text-slate-400 dark:text-gray-500">{description}</p>
     </div>
   );
 
   if (href) {
-    return <Link href={href}>{inner}</Link>;
+    return (
+      <Link
+        href={href}
+        className="block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4236FB]/35"
+      >
+        {inner}
+      </Link>
+    );
   }
 
   return inner;

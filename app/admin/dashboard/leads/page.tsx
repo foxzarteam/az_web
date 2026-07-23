@@ -5,9 +5,8 @@ export default async function AdminLeadsPage() {
   const leads = await fetchAdminLeads();
 
   return (
-    <main className="p-6 md:p-8 lg:p-10">
-      <h1 className="text-2xl font-bold text-midnight_text dark:text-white md:text-3xl">Leads</h1>
-      <p className="mt-2 text-gray dark:text-gray-400">
+    <main className="p-4 sm:p-5 lg:p-6">
+      <p className="mb-1 text-sm text-gray dark:text-gray-400">
         {leads.length === 0
           ? "No leads found in the database."
           : `${leads.length} lead${leads.length === 1 ? "" : "s"} from the leads table.`}

@@ -1,9 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
 import { insuranceTypeLabel, loanAmountLabel } from "@/app/utils/leadForm";
+import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
+import AdminModal from "../AdminModal";
+import {
+  ADMIN_BTN_DANGER,
+  ADMIN_BTN_PRIMARY,
+  ADMIN_BTN_SECONDARY,
+  ADMIN_ERROR,
+  ADMIN_INPUT,
+  ADMIN_LABEL,
+} from "../adminUi";
 
 const CATEGORIES = [
   { value: "personal_loan", label: "Personal Loan" },
@@ -123,74 +133,6 @@ function leadToEditForm(lead: AdminLeadRow): EditForm {
   };
 }
 
-function IconButton({
-  label,
-  onClick,
-  children,
-  variant = "default",
-}: {
-  label: string;
-  onClick: () => void;
-  children: React.ReactNode;
-  variant?: "default" | "danger";
-}) {
-  return (
-    <button
-      type="button"
-      title={label}
-      aria-label={label}
-      onClick={onClick}
-      className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border transition ${
-        variant === "danger"
-          ? "border border-black text-red-600 hover:bg-red-50 dark:border-black dark:text-red-400 dark:hover:bg-red-950/40"
-          : "border-gray-200 text-midnight_text hover:bg-gray-100 dark:border-dark_border dark:text-gray-200 dark:hover:bg-white/10"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
-function ModalShell({
-  title,
-  onClose,
-  children,
-  wide = false,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-  wide?: boolean;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <button type="button" className="absolute inset-0 bg-black/50" aria-label="Close overlay" onClick={onClose} />
-      <div
-        role="dialog"
-        aria-modal="true"
-        className={`relative z-10 w-full max-h-[90vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-dark_border dark:bg-darklight ${
-          wide ? "max-w-3xl" : "max-w-lg"
-        }`}
-      >
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-dark_border">
-          <h2 className="text-lg font-bold text-midnight_text dark:text-white">{title}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-gray hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10"
-            aria-label="Close"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
-
 export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRow[] }) {
   const router = useRouter();
   const [leads, setLeads] = useState(initialLeads);
@@ -300,90 +242,100 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     }
   }
 
-  const inputClass =
-    "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-midnight_text focus:outline-none focus:ring-2 focus:ring-primary/80 dark:border-dark_border dark:bg-darkmode dark:text-white";
+  const inputClass = ADMIN_INPUT;
+
+  const columns = useMemo<CrmColumn<AdminLeadRow>[]>(
+    () => [
+      {
+        id: "full_name",
+        header: "Name",
+        sortable: true,
+        sortValue: (row) => String(row.full_name ?? ""),
+        searchValue: (row) => cellText(row, "full_name"),
+        cell: (row) => cellText(row, "full_name"),
+      },
+      {
+        id: "mobile_number",
+        header: "Phone",
+        sortable: true,
+        sortValue: (row) => String(row.mobile_number ?? ""),
+        searchValue: (row) => cellText(row, "mobile_number"),
+        cell: (row) => cellText(row, "mobile_number"),
+      },
+      {
+        id: "category",
+        header: "Product",
+        sortable: true,
+        sortValue: (row) => categoryLabel(row.category),
+        searchValue: (row) => cellText(row, "category"),
+        cell: (row) => (
+          <span className="inline-flex rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-[#1E3A8A] dark:bg-blue-950/40 dark:text-blue-200">
+            {cellText(row, "category")}
+          </span>
+        ),
+      },
+      {
+        id: "amount",
+        header: "Amount / Type",
+        sortable: true,
+        sortValue: (row) => amountOrInsuranceText(row),
+        searchValue: (row) => amountOrInsuranceText(row),
+        className: "max-w-[220px] truncate whitespace-nowrap",
+        cell: (row) => amountOrInsuranceText(row),
+      },
+      {
+        id: "actions",
+        header: "Action",
+        searchable: false,
+        cell: (row) => (
+          <div className="flex items-center gap-1.5">
+            <CrmActionButton label="View" onClick={() => setViewLead(row)}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </CrmActionButton>
+            <CrmActionButton label="Edit" onClick={() => openEdit(row)}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+              </svg>
+            </CrmActionButton>
+            <CrmActionButton
+              label="Delete"
+              variant="danger"
+              onClick={() => {
+                setDeleteLead(row);
+                setError(null);
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 6h18" />
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                <line x1="10" y1="11" x2="10" y2="17" />
+                <line x1="14" y1="11" x2="14" y2="17" />
+              </svg>
+            </CrmActionButton>
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
 
   return (
     <>
-      <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-dark_border dark:bg-darklight">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 text-left text-sm dark:divide-dark_border">
-            <thead className="bg-slate-50 dark:bg-semidark">
-              <tr>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Name</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Phone</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Product</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Amount / Type</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold text-midnight_text dark:text-white">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-dark_border">
-              {leads.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-gray dark:text-gray-400">
-                    No data to display.
-                  </td>
-                </tr>
-              ) : (
-                leads.map((row, i) => (
-                  <tr key={String(row.id ?? i)} className="hover:bg-slate-50/80 dark:hover:bg-white/5">
-                    <td className="whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">
-                      {cellText(row, "full_name")}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">
-                      {cellText(row, "mobile_number")}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">
-                      {cellText(row, "category")}
-                    </td>
-                    <td className="max-w-[220px] truncate whitespace-nowrap px-4 py-3 text-midnight_text dark:text-gray-200">
-                      {amountOrInsuranceText(row)}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <IconButton label="View" onClick={() => setViewLead(row)}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                            <circle cx="12" cy="12" r="3" />
-                          </svg>
-                        </IconButton>
-                        <IconButton label="Edit" onClick={() => openEdit(row)}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                          </svg>
-                        </IconButton>
-                        <IconButton label="Delete" variant="danger" onClick={() => { setDeleteLead(row); setError(null); }}>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M3 6h18" />
-                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                            <line x1="10" y1="11" x2="10" y2="17" />
-                            <line x1="14" y1="11" x2="14" y2="17" />
-                          </svg>
-                        </IconButton>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <CrmDataTable
+        rows={leads}
+        columns={columns}
+        getRowId={(row, i) => String(row.id ?? i)}
+        searchPlaceholder="Search name, phone, product…"
+        emptyMessage="No leads to display."
+      />
 
       {viewLead && (
-        <ModalShell title="Lead details" wide onClose={() => setViewLead(null)}>
-          <ul className="grid grid-cols-1 gap-x-6 gap-y-3 p-5 sm:grid-cols-2">
+        <AdminModal title="Lead details" wide onClose={() => setViewLead(null)}>
+          <ul className="grid grid-cols-1 gap-x-8 gap-y-5 p-6 sm:grid-cols-2 sm:p-8">
             {VIEW_FIELDS.map((key) => (
               <li
                 key={key}
@@ -396,32 +348,32 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
               </li>
             ))}
           </ul>
-        </ModalShell>
+        </AdminModal>
       )}
 
       {editLead && editForm && (
-        <ModalShell title="Edit lead" onClose={closeModals}>
-          <form onSubmit={handleSaveEdit} className="space-y-4 p-5">
-            {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
-            <div className="grid gap-4 sm:grid-cols-2">
+        <AdminModal title="Edit lead" wide onClose={closeModals}>
+          <form onSubmit={handleSaveEdit} className="space-y-6 p-6 sm:p-8">
+            {error && <p className={ADMIN_ERROR}>{error}</p>}
+            <div className="grid gap-5 sm:grid-cols-2">
               <label className="block sm:col-span-2">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Name</span>
+                <span className={ADMIN_LABEL}>Name</span>
                 <input className={inputClass} value={editForm.fullName} onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })} required />
               </label>
               <label className="block">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Email</span>
+                <span className={ADMIN_LABEL}>Email</span>
                 <input type="email" className={inputClass} value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
               </label>
               <label className="block">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Phone</span>
+                <span className={ADMIN_LABEL}>Phone</span>
                 <input className={inputClass} value={editForm.mobileNumber} onChange={(e) => setEditForm({ ...editForm, mobileNumber: e.target.value })} required maxLength={10} />
               </label>
               <label className="block">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">PAN</span>
+                <span className={ADMIN_LABEL}>PAN</span>
                 <input className={inputClass} value={editForm.pan} onChange={(e) => setEditForm({ ...editForm, pan: e.target.value.toUpperCase() })} required maxLength={10} />
               </label>
               <label className="block">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Product</span>
+                <span className={ADMIN_LABEL}>Product</span>
                 <select className={inputClass} value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}>
                   {CATEGORIES.map((c) => (
                     <option key={c.value} value={c.value}>
@@ -431,7 +383,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Status</span>
+                <span className={ADMIN_LABEL}>Status</span>
                 <select className={inputClass} value={editForm.status} onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}>
                   {STATUSES.map((s) => (
                     <option key={s.value} value={s.value}>
@@ -441,52 +393,52 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Pincode</span>
+                <span className={ADMIN_LABEL}>Pincode</span>
                 <input className={inputClass} value={editForm.pincode} onChange={(e) => setEditForm({ ...editForm, pincode: e.target.value })} maxLength={6} />
               </label>
               <label className="block">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Required amount</span>
+                <span className={ADMIN_LABEL}>Required amount</span>
                 <input type="number" min={0} className={inputClass} value={editForm.requiredAmount} onChange={(e) => setEditForm({ ...editForm, requiredAmount: e.target.value })} />
               </label>
               <label className="block sm:col-span-2">
-                <span className="mb-1 block text-sm font-medium text-midnight_text dark:text-white">Notes</span>
+                <span className={ADMIN_LABEL}>Notes</span>
                 <textarea className={inputClass} rows={3} value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} />
               </label>
             </div>
-            <div className="flex justify-end gap-2 border-t border-gray-200 pt-4 dark:border-dark_border">
-              <button type="button" onClick={closeModals} className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium dark:border-dark_border dark:text-white">
+            <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
+              <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
                 Cancel
               </button>
-              <button type="submit" disabled={saving} className="btn-gradient rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+              <button type="submit" disabled={saving} className={ADMIN_BTN_PRIMARY}>
                 {saving ? "Saving…" : "Save changes"}
               </button>
             </div>
           </form>
-        </ModalShell>
+        </AdminModal>
       )}
 
       {deleteLead && (
-        <ModalShell title="Delete lead" onClose={closeModals}>
-          <div className="p-5">
+        <AdminModal title="Delete lead" onClose={closeModals}>
+          <div className="p-6 sm:p-8">
             <p className="text-sm text-midnight_text dark:text-gray-200">
               Delete lead for <strong>{cellText(deleteLead, "full_name")}</strong> ({cellText(deleteLead, "mobile_number")})? This cannot be undone.
             </p>
-            {error && <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
-            <div className="mt-6 flex justify-end gap-2">
-              <button type="button" onClick={closeModals} className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium dark:border-dark_border dark:text-white">
+            {error && <p className={`mt-3 ${ADMIN_ERROR}`}>{error}</p>}
+            <div className="mt-8 flex justify-end gap-3">
+              <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleConfirmDelete}
                 disabled={deleting}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                className={ADMIN_BTN_DANGER}
               >
                 {deleting ? "Deleting…" : "Delete"}
               </button>
             </div>
           </div>
-        </ModalShell>
+        </AdminModal>
       )}
     </>
   );
