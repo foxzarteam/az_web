@@ -10,6 +10,9 @@ import { firebaseWebConfig, isFirebaseWebConfigured } from "./config";
 
 const RECAPTCHA_CONTAINER_ID = "lead-recaptcha-container";
 
+const MSG_OTP_DAILY_LIMIT =
+  "Is mobile number par OTP ki limit (5) puri ho chuki hai. Kripya 24 hours baad dobara try karein.";
+
 let recaptchaVerifier: RecaptchaVerifier | null = null;
 
 function parseFirebaseError(error: unknown): { code: string; message: string } {
@@ -64,6 +67,12 @@ export function getFirebaseOtpSendErrorMessage(error: unknown): string {
   if (!isFirebaseWebConfigured()) {
     return OTP_SEND_HINTS["auth/missing-web-app-id"];
   }
+  if (error != null && typeof error === "object") {
+    const e = error as { code?: string; message?: string };
+    if (e.code === "otp/daily-limit") {
+      return e.message?.trim() || MSG_OTP_DAILY_LIMIT;
+    }
+  }
   console.error("[Firebase OTP send failed]", error);
   return formatOtpError(error, OTP_SEND_HINTS, "Failed to send OTP. Please try again.");
 }
@@ -97,6 +106,50 @@ function ensureRecaptcha(containerId: string): RecaptchaVerifier {
   return recaptchaVerifier;
 }
 
+export async function requestOtpSendSlot(
+  mobileDigits: string,
+): Promise<{ allowed: boolean; message?: string; remainingSends?: number }> {
+  const mobile = mobileDigits.replace(/\D/g, "");
+  if (mobile.length !== 10) {
+    return { allowed: false, message: "Invalid mobile number." };
+  }
+
+  try {
+    const res = await fetch(`${PUBLIC_API_BASE_URL}/api/otp/request-send`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ mobileNumber: mobile }),
+    });
+    const data = (await res.json()) as {
+      success?: boolean;
+      message?: string;
+      remainingSends?: number;
+    };
+
+    if (!res.ok || data.success !== true) {
+      return {
+        allowed: false,
+        message: data.message || MSG_OTP_DAILY_LIMIT,
+        remainingSends: data.remainingSends,
+      };
+    }
+
+    return {
+      allowed: true,
+      message: data.message,
+      remainingSends: data.remainingSends,
+    };
+  } catch {
+    return {
+      allowed: false,
+      message: "OTP limit check failed. Please try again.",
+    };
+  }
+}
+
 export async function sendFirebasePhoneOtp(
   mobileDigits: string,
   containerId = RECAPTCHA_CONTAINER_ID,
@@ -104,6 +157,14 @@ export async function sendFirebasePhoneOtp(
   if (!isFirebaseWebConfigured()) {
     throw new Error("auth/missing-web-app-id Firebase Web app ID is not configured.");
   }
+
+  const slot = await requestOtpSendSlot(mobileDigits);
+  if (!slot.allowed) {
+    const err = new Error(slot.message || MSG_OTP_DAILY_LIMIT) as Error & { code?: string };
+    err.code = "otp/daily-limit";
+    throw err;
+  }
+
   const auth = getFirebaseAuth();
   const verifier = ensureRecaptcha(containerId);
   await verifier.render();

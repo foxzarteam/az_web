@@ -11,7 +11,7 @@ export default function Logo() {
         alt="Apni Zaroorat"
         width={280}
         height={72}
-        className="h-11 w-auto max-w-[min(100%,220px)] object-contain object-left xs:h-12 xs:max-w-[min(100%,260px)] sm:h-[3.25rem] sm:max-w-[min(100%,280px)] md:h-14 md:max-w-[min(100%,300px)]"
+        className="h-11 w-auto max-w-[min(100%,220px)] object-contain object-left xs:h-12 xs:max-w-[min(100%,260px)] sm:h-[3.25rem] sm:max-w-[min(100%,280px)] md:h-16 md:max-w-[min(100%,300px)]"
         quality={100}
         priority
       />

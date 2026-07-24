@@ -53,6 +53,7 @@ export default function LeadApplyModal({
   const [resendCooldown, setResendCooldown] = useState(0);
   const [firebaseConfirmation, setFirebaseConfirmation] =
     useState<ConfirmationResult | null>(null);
+  const [rateLimited, setRateLimited] = useState(false);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const mobileDigits = mobile.replace(/\D/g, "");
@@ -62,11 +63,12 @@ export default function LeadApplyModal({
     setError("");
     setResendCooldown(0);
     setFirebaseConfirmation(null);
+    setRateLimited(false);
     resetRecaptcha(RECAPTCHA_CONTAINER_ID);
   }, []);
 
   const sendOtp = useCallback(async () => {
-    if (mobileDigits.length !== 10) return;
+    if (mobileDigits.length !== 10 || rateLimited) return;
     setIsSendingOtp(true);
     setError("");
 
@@ -74,12 +76,20 @@ export default function LeadApplyModal({
       const confirmation = await sendFirebasePhoneOtp(mobileDigits);
       setFirebaseConfirmation(confirmation);
       setResendCooldown(RESEND_COOLDOWN_SEC);
+      setRateLimited(false);
     } catch (err) {
-      setError(getFirebaseOtpSendErrorMessage(err));
+      const message = getFirebaseOtpSendErrorMessage(err);
+      setError(message);
+      if (
+        (err != null && typeof err === "object" && (err as { code?: string }).code === "otp/daily-limit") ||
+        /24 hours|limit \(5\)/i.test(message)
+      ) {
+        setRateLimited(true);
+      }
     } finally {
       setIsSendingOtp(false);
     }
-  }, [mobileDigits]);
+  }, [mobileDigits, rateLimited]);
 
   useEffect(() => {
     if (!open) {
@@ -285,11 +295,15 @@ export default function LeadApplyModal({
           <div className="text-center">
             <button
               type="button"
-              disabled={resendCooldown > 0 || busy}
+              disabled={rateLimited || resendCooldown > 0 || busy}
               onClick={() => void sendOtp()}
               className="text-sm font-semibold text-primary disabled:text-gray-400 disabled:cursor-not-allowed hover:underline"
             >
-              {resendCooldown > 0 ? `Resend Code in ${resendCooldown}s` : "Resend Code"}
+              {rateLimited
+                ? "OTP limit reached — try after 24 hours"
+                : resendCooldown > 0
+                  ? `Resend Code in ${resendCooldown}s`
+                  : "Resend Code"}
             </button>
           </div>
         </div>
