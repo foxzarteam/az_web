@@ -10,7 +10,7 @@ import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
-import { mapServiceToCategory } from "@/app/utils/leadApi";
+import { applyLead, leadIdFromResponse, mapServiceToCategory } from "@/app/utils/leadApi";
 import {
   amountToLoanAmtRange,
   INSURANCE_TYPE_OPTIONS,
@@ -66,6 +66,8 @@ export default function ServicePage({
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
+  const [pendingLeadId, setPendingLeadId] = useState("");
+  const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const [fullName, setFullName] = useState("");
@@ -93,10 +95,11 @@ export default function ServicePage({
     setPan("");
     setTermsAccepted(false);
     setFormError("");
+    setPendingLeadId("");
   };
 
-  const handleSubmit = (form: HTMLFormElement) => {
-    if (!reportFormValidity(form)) return;
+  const handleSubmit = async (form: HTMLFormElement) => {
+    if (!reportFormValidity(form) || isSubmittingForm) return;
 
     const errors: LeadFieldErrors = validateLeadPanNameMobile({
       pan,
@@ -121,10 +124,38 @@ export default function ServicePage({
     }
 
     setFormError("");
-    setShowApplyModal(true);
-  };
+    setIsSubmittingForm(true);
 
-  const loanAmtRange = showLoanAmount ? amountToLoanAmtRange(loanAmount) : "";
+    try {
+      const category = mapServiceToCategory(service);
+      const applyRes = await applyLead({
+        pan: pan.trim().toUpperCase(),
+        mobileNumber: mobile.replace(/\D/g, ""),
+        fullName: fullName.trim(),
+        category,
+        ...(category === "personal_loan" ? { loanAmt: amountToLoanAmtRange(loanAmount) } : {}),
+        ...(category === "insurance" ? { insType } : {}),
+      });
+
+      if (!applyRes.success) {
+        setFormError(applyRes.message || "Could not submit application.");
+        return;
+      }
+
+      const leadId = leadIdFromResponse(applyRes.data);
+      if (!leadId) {
+        setFormError("Could not submit application. Please try again.");
+        return;
+      }
+
+      setPendingLeadId(leadId);
+      setShowApplyModal(true);
+    } catch {
+      setFormError("Network error. Please try again.");
+    } finally {
+      setIsSubmittingForm(false);
+    }
+  };
 
   return (
     <section className="pt-16 sm:pt-20 md:pt-24 lg:pt-28 pb-12 sm:pb-16 bg-gradient-to-b from-light to-white dark:from-darkmode dark:to-semidark">
@@ -165,15 +196,9 @@ export default function ServicePage({
                 )}
 
                 <LeadApplyModal
-                  open={showApplyModal}
+                  open={showApplyModal && Boolean(pendingLeadId)}
+                  leadId={pendingLeadId}
                   mobile={mobile.replace(/\D/g, "")}
-                  details={{
-                    fullName,
-                    service,
-                    loanAmt: loanAmtRange,
-                    insType,
-                    pan,
-                  }}
                   onClose={() => setShowApplyModal(false)}
                   onEditMobile={() => setShowApplyModal(false)}
                   onSuccess={() => {
@@ -185,7 +210,7 @@ export default function ServicePage({
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    handleSubmit(e.currentTarget);
+                    void handleSubmit(e.currentTarget);
                   }}
                   className="mt-3 flex flex-1 flex-col gap-4 min-h-0"
                 >
@@ -282,9 +307,10 @@ export default function ServicePage({
                   <div className="mt-auto w-full pt-2 sm:pt-3">
                     <button
                       type="submit"
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl btn-gradient text-white text-sm sm:text-base font-semibold py-2.5 sm:py-3 px-4 transition-opacity shadow-md min-h-[44px]"
+                      disabled={isSubmittingForm}
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl btn-gradient text-white text-sm sm:text-base font-semibold py-2.5 sm:py-3 px-4 transition-opacity shadow-md min-h-[44px] disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                      Apply Now
+                      {isSubmittingForm ? "Submitting…" : "Apply Now"}
                     </button>
                   </div>
                 </form>

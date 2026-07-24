@@ -9,6 +9,8 @@ export interface CreateLeadRequest {
   email?: string;
   pincode?: string;
   requiredAmount?: number;
+  loanAmt?: string;
+  insType?: string;
 }
 
 export interface CreateLeadResponse {
@@ -105,7 +107,67 @@ export function leadIdFromResponse(data: unknown): string | null {
   return id != null ? String(id) : null;
 }
 
-/** Step 1: find existing lead by mobile or create a draft row. */
+/**
+ * Save full lead BEFORE OTP (otp_verify = 0).
+ * Rejects duplicate mobile / PAN.
+ */
+export async function applyLead(
+  leadData: CreateLeadRequest
+): Promise<CreateLeadResponse> {
+  const endpoint = `${PUBLIC_API_BASE_URL}/api/leads/apply`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(leadData),
+      mode: "cors",
+      credentials: "omit",
+    });
+
+    const raw = await response.text();
+    return parseLeadApiResponse(response, raw);
+  } catch (error) {
+    console.error("Error applying lead:", error);
+    return {
+      success: false,
+      message: "Network error. Please try again later.",
+    };
+  }
+}
+
+/** After Firebase OTP success — set otp_verify = 1 */
+export async function markLeadOtpVerified(
+  leadId: string
+): Promise<CreateLeadResponse> {
+  const endpoint = `${PUBLIC_API_BASE_URL}/api/leads/${encodeURIComponent(leadId)}/otp-verify`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "PATCH",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      mode: "cors",
+      credentials: "omit",
+    });
+
+    const raw = await response.text();
+    return parseLeadApiResponse(response, raw);
+  } catch (error) {
+    console.error("Error marking lead OTP verified:", error);
+    return {
+      success: false,
+      message: "Network error. Please try again later.",
+    };
+  }
+}
+
+/** @deprecated Prefer applyLead — kept for older flows */
 export async function startLead(
   mobileNumber: string,
   category?: CreateLeadRequest["category"]
@@ -135,7 +197,7 @@ export async function startLead(
   }
 }
 
-/** Step 2: update draft row with full name, PAN, service. */
+/** @deprecated Prefer applyLead — kept for older flows */
 export async function completeLead(
   leadId: string,
   payload: {

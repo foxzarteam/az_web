@@ -3,12 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { ConfirmationResult } from "firebase/auth";
-import {
-  completeLead,
-  leadIdFromResponse,
-  mapServiceToCategory,
-  startLead,
-} from "@/app/utils/leadApi";
+import { markLeadOtpVerified } from "@/app/utils/leadApi";
 import {
   getFirebaseOtpSendErrorMessage,
   RECAPTCHA_CONTAINER_ID,
@@ -30,8 +25,8 @@ export type LeadDetails = {
 
 type LeadApplyModalProps = {
   open: boolean;
+  leadId: string;
   mobile: string;
-  details: LeadDetails;
   onClose: () => void;
   onSuccess: () => void;
   onEditMobile?: () => void;
@@ -39,8 +34,8 @@ type LeadApplyModalProps = {
 
 export default function LeadApplyModal({
   open,
+  leadId,
   mobile,
-  details,
   onClose,
   onSuccess,
   onEditMobile,
@@ -95,8 +90,9 @@ export default function LeadApplyModal({
       resetState();
       return;
     }
+    if (!leadId) return;
     void sendOtp();
-  }, [open, resetState, sendOtp]);
+  }, [open, leadId, resetState, sendOtp]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -121,33 +117,14 @@ export default function LeadApplyModal({
     };
   }, [open]);
 
-  const submitLead = async () => {
+  const markVerified = async () => {
     setIsSubmitting(true);
     setError("");
 
     try {
-      const category = mapServiceToCategory(details.service);
-      const startRes = await startLead(mobileDigits, category);
-      if (!startRes.success) {
-        setError(startRes.message || "Could not save mobile number.");
-        return;
-      }
-      const leadId = leadIdFromResponse(startRes.data);
-      if (!leadId) {
-        setError("Could not save your application. Please try again.");
-        return;
-      }
-
-      const completeRes = await completeLead(leadId, {
-        pan: details.pan.trim().toUpperCase(),
-        fullName: details.fullName.trim(),
-        category,
-        ...(category === "personal_loan" && details.loanAmt ? { loanAmt: details.loanAmt } : {}),
-        ...(category === "insurance" && details.insType ? { insType: details.insType } : {}),
-      });
-
-      if (!completeRes.success) {
-        setError(completeRes.message || "Failed to submit details.");
+      const res = await markLeadOtpVerified(leadId);
+      if (!res.success) {
+        setError(res.message || "Could not update verification status.");
         return;
       }
 
@@ -176,7 +153,7 @@ export default function LeadApplyModal({
       return;
     }
 
-    await submitLead();
+    await markVerified();
   };
 
   const handleOtpChange = (index: number, value: string) => {
@@ -283,7 +260,7 @@ export default function LeadApplyModal({
 
           {isSubmitting ? (
             <p className="text-center text-sm text-gray-500 mb-3">
-              Submitting your application…
+              Confirming verification…
             </p>
           ) : (
             (isSendingOtp || isVerifyingOtp) && (

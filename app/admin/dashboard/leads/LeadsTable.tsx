@@ -33,6 +33,7 @@ const VIEW_FIELDS = [
   "pan",
   "category",
   "status",
+  "otp_verify",
   "pincode",
   "required_amount",
   "loan_amt",
@@ -57,6 +58,7 @@ const FIELD_LABELS: Record<string, string> = {
   ins_type: "Insurance type",
   category: "Product",
   status: "Status",
+  otp_verify: "Verified",
   notes: "Notes",
   is_active: "Active",
   created_at: "Created",
@@ -71,6 +73,9 @@ function categoryLabel(value: unknown): string {
 }
 
 function formatValue(key: string, value: unknown): string {
+  if (key === "otp_verify") {
+    return Number(value) === 1 ? "Yes" : "No";
+  }
   if (value == null || value === "") return "—";
   if (key === "category") return categoryLabel(value);
   if (key === "loan_amt") return loanAmountLabel(String(value));
@@ -85,6 +90,10 @@ function formatValue(key: string, value: unknown): string {
     }
   }
   return s;
+}
+
+function isOtpVerified(row: AdminLeadRow): boolean {
+  return Number(row.otp_verify) === 1;
 }
 
 function cellText(row: AdminLeadRow, key: "full_name" | "mobile_number" | "category"): string {
@@ -284,6 +293,27 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         cell: (row) => amountOrInsuranceText(row),
       },
       {
+        id: "otp_verify",
+        header: "Verified",
+        sortable: true,
+        sortValue: (row) => (isOtpVerified(row) ? 1 : 0),
+        searchValue: (row) => (isOtpVerified(row) ? "yes verified" : "no unverified"),
+        cell: (row) => {
+          const verified = isOtpVerified(row);
+          return (
+            <span
+              className={
+                verified
+                  ? "inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+                  : "inline-flex rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600 dark:bg-red-950/40 dark:text-red-300"
+              }
+            >
+              {verified ? "Yes" : "No"}
+            </span>
+          );
+        },
+      },
+      {
         id: "actions",
         header: "Action",
         searchable: false,
@@ -344,7 +374,19 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
                 <span className="shrink-0 font-semibold text-midnight_text dark:text-white">
                   {FIELD_LABELS[key] ?? key}:
                 </span>
-                <span className="text-midnight_text dark:text-gray-200">{formatValue(key, viewLead[key])}</span>
+                {key === "otp_verify" ? (
+                  <span
+                    className={
+                      isOtpVerified(viewLead)
+                        ? "inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700"
+                        : "inline-flex rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600"
+                    }
+                  >
+                    {formatValue(key, viewLead[key])}
+                  </span>
+                ) : (
+                  <span className="text-midnight_text dark:text-gray-200">{formatValue(key, viewLead[key])}</span>
+                )}
               </li>
             ))}
           </ul>

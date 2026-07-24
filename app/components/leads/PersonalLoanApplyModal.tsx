@@ -9,6 +9,7 @@ import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
 import { reportFormValidity } from "@/app/utils/formValidation";
+import { applyLead, leadIdFromResponse } from "@/app/utils/leadApi";
 import {
   amountToLoanAmtRange,
   sanitizeLeadNameInput,
@@ -18,7 +19,6 @@ import {
 } from "@/app/utils/leadForm";
 import { sanitizeMobileInput } from "@/app/utils/validation";
 
-const SERVICE_SLUG = "personal-loan";
 const DEFAULT_LOAN_AMOUNT = 5_00_000;
 const SUCCESS_MESSAGE =
   "Your Personal Loan application has been received. We'll contact you shortly.";
@@ -34,6 +34,8 @@ type PersonalLoanApplyModalProps = {
 export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanApplyModalProps) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
+  const [pendingLeadId, setPendingLeadId] = useState("");
+  const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -48,13 +50,14 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
     setPan("");
     setTermsAccepted(false);
     setFormError("");
+    setPendingLeadId("");
   }, []);
 
   const handleClose = useCallback(() => {
-    if (showOtpModal) return;
+    if (showOtpModal || isSubmittingForm) return;
     resetForm();
     onClose();
-  }, [onClose, resetForm, showOtpModal]);
+  }, [onClose, resetForm, showOtpModal, isSubmittingForm]);
 
   useEffect(() => {
     if (!open || showOtpModal) return;
@@ -76,14 +79,14 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !showOtpModal) handleClose();
+      if (e.key === "Escape" && !showOtpModal && !isSubmittingForm) handleClose();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, showOtpModal, handleClose]);
+  }, [open, showOtpModal, isSubmittingForm, handleClose]);
 
-  const handleSubmit = (form: HTMLFormElement) => {
-    if (!reportFormValidity(form)) return;
+  const handleSubmit = async (form: HTMLFormElement) => {
+    if (!reportFormValidity(form) || isSubmittingForm) return;
 
     const errors: LeadFieldErrors = validateLeadPanNameMobile({
       pan,
@@ -104,7 +107,35 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
     }
 
     setFormError("");
-    setShowOtpModal(true);
+    setIsSubmittingForm(true);
+
+    try {
+      const applyRes = await applyLead({
+        pan: pan.trim().toUpperCase(),
+        mobileNumber: mobile.replace(/\D/g, ""),
+        fullName: fullName.trim(),
+        category: "personal_loan",
+        loanAmt: amountToLoanAmtRange(loanAmount),
+      });
+
+      if (!applyRes.success) {
+        setFormError(applyRes.message || "Could not submit application.");
+        return;
+      }
+
+      const leadId = leadIdFromResponse(applyRes.data);
+      if (!leadId) {
+        setFormError("Could not submit application. Please try again.");
+        return;
+      }
+
+      setPendingLeadId(leadId);
+      setShowOtpModal(true);
+    } catch {
+      setFormError("Network error. Please try again.");
+    } finally {
+      setIsSubmittingForm(false);
+    }
   };
 
   if ((!open && !showSuccess && !showOtpModal) || typeof document === "undefined") {
@@ -147,7 +178,7 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                handleSubmit(e.currentTarget);
+                void handleSubmit(e.currentTarget);
               }}
               className="px-5 sm:px-8 py-6 sm:py-8 flex flex-col gap-5 sm:gap-6"
             >
@@ -220,9 +251,10 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
 
               <button
                 type="submit"
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl btn-gradient text-white text-sm sm:text-base font-semibold py-2.5 sm:py-3 px-4 transition-opacity shadow-md min-h-[44px]"
+                disabled={isSubmittingForm}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl btn-gradient text-white text-sm sm:text-base font-semibold py-2.5 sm:py-3 px-4 transition-opacity shadow-md min-h-[44px] disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Apply Now
+                {isSubmittingForm ? "Submitting…" : "Apply Now"}
               </button>
             </form>
           </div>
@@ -230,15 +262,9 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
       )}
 
       <LeadApplyModal
-        open={showOtpModal}
+        open={showOtpModal && Boolean(pendingLeadId)}
+        leadId={pendingLeadId}
         mobile={mobile.replace(/\D/g, "")}
-        details={{
-          fullName,
-          service: SERVICE_SLUG,
-          loanAmt: amountToLoanAmtRange(loanAmount),
-          insType: "",
-          pan,
-        }}
         onClose={() => setShowOtpModal(false)}
         onEditMobile={() => setShowOtpModal(false)}
         onSuccess={() => {
