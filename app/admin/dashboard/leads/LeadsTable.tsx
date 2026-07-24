@@ -33,7 +33,7 @@ const VIEW_FIELDS = [
   "pan",
   "category",
   "status",
-  "otp_verify",
+  "otp_verified",
   "pincode",
   "required_amount",
   "loan_amt",
@@ -58,7 +58,7 @@ const FIELD_LABELS: Record<string, string> = {
   ins_type: "Insurance type",
   category: "Product",
   status: "Status",
-  otp_verify: "Verified",
+  otp_verified: "Verified",
   notes: "Notes",
   is_active: "Active",
   created_at: "Created",
@@ -73,8 +73,8 @@ function categoryLabel(value: unknown): string {
 }
 
 function formatValue(key: string, value: unknown): string {
-  if (key === "otp_verify") {
-    return Number(value) === 1 ? "Yes" : "No";
+  if (key === "otp_verified") {
+    return value === true || value === 1 || value === "true" ? "Yes" : "No";
   }
   if (value == null || value === "") return "—";
   if (key === "category") return categoryLabel(value);
@@ -93,7 +93,7 @@ function formatValue(key: string, value: unknown): string {
 }
 
 function isOtpVerified(row: AdminLeadRow): boolean {
-  return Number(row.otp_verify) === 1;
+  return row.otp_verified === true || row.otp_verified === 1 || row.otp_verified === "true";
 }
 
 function cellText(row: AdminLeadRow, key: "full_name" | "mobile_number" | "category"): string {
@@ -216,7 +216,13 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         return;
       }
       if (data.data) {
-        setLeads((prev) => prev.map((l) => (l.id === data.data!.id ? data.data! : l)));
+        setLeads((prev) =>
+          prev.map((l) =>
+            l.id === data.data!.id
+              ? { ...l, ...data.data!, otp_verified: data.data!.otp_verified ?? l.otp_verified }
+              : l,
+          ),
+        );
       }
       closeModals();
       router.refresh();
@@ -293,7 +299,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         cell: (row) => amountOrInsuranceText(row),
       },
       {
-        id: "otp_verify",
+        id: "otp_verified",
         header: "Verified",
         sortable: true,
         sortValue: (row) => (isOtpVerified(row) ? 1 : 0),
@@ -374,7 +380,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
                 <span className="shrink-0 font-semibold text-midnight_text dark:text-white">
                   {FIELD_LABELS[key] ?? key}:
                 </span>
-                {key === "otp_verify" ? (
+                {key === "otp_verified" ? (
                   <span
                     className={
                       isOtpVerified(viewLead)

@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { ConfirmationResult } from "firebase/auth";
-import { markLeadOtpVerified } from "@/app/utils/leadApi";
 import {
   getFirebaseOtpSendErrorMessage,
   RECAPTCHA_CONTAINER_ID,
@@ -14,14 +13,6 @@ import {
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN_SEC = 60;
-
-export type LeadDetails = {
-  fullName: string;
-  service: string;
-  loanAmt: string;
-  insType: string;
-  pan: string;
-};
 
 type LeadApplyModalProps = {
   open: boolean;
@@ -44,7 +35,6 @@ export default function LeadApplyModal({
   const [error, setError] = useState("");
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [firebaseConfirmation, setFirebaseConfirmation] =
     useState<ConfirmationResult | null>(null);
@@ -117,32 +107,12 @@ export default function LeadApplyModal({
     };
   }, [open]);
 
-  const markVerified = async () => {
-    setIsSubmitting(true);
-    setError("");
-
-    try {
-      const res = await markLeadOtpVerified(leadId);
-      if (!res.success) {
-        setError(res.message || "Could not update verification status.");
-        return;
-      }
-
-      onSuccess();
-      onClose();
-      resetState();
-    } catch {
-      setError("Network error. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const verifyOtp = async (otp: string) => {
     if (otp.length !== OTP_LENGTH || isVerifyingOtp || !firebaseConfirmation) return;
     setIsVerifyingOtp(true);
     setError("");
 
+    // verify-firebase updates otp_sessions for this mobile
     const res = await verifyPhoneOtp(firebaseConfirmation, otp, mobileDigits);
     setIsVerifyingOtp(false);
 
@@ -153,7 +123,9 @@ export default function LeadApplyModal({
       return;
     }
 
-    await markVerified();
+    onSuccess();
+    onClose();
+    resetState();
   };
 
   const handleOtpChange = (index: number, value: string) => {
@@ -178,7 +150,7 @@ export default function LeadApplyModal({
 
   if (!open || typeof document === "undefined") return null;
 
-  const busy = isSendingOtp || isVerifyingOtp || isSubmitting;
+  const busy = isSendingOtp || isVerifyingOtp;
 
   return createPortal(
     <div
@@ -258,14 +230,8 @@ export default function LeadApplyModal({
             ))}
           </div>
 
-          {isSubmitting ? (
-            <p className="text-center text-sm text-gray-500 mb-3">
-              Confirming verification…
-            </p>
-          ) : (
-            (isSendingOtp || isVerifyingOtp) && (
-              <p className="text-center text-sm text-gray-500 mb-3">Please wait…</p>
-            )
+          {(isSendingOtp || isVerifyingOtp) && (
+            <p className="text-center text-sm text-gray-500 mb-3">Please wait…</p>
           )}
 
           <div className="text-center">

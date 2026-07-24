@@ -108,7 +108,7 @@ export function leadIdFromResponse(data: unknown): string | null {
 }
 
 /**
- * Save full lead BEFORE OTP (otp_verify = 0).
+ * Save full lead BEFORE OTP.
  * Rejects duplicate mobile / PAN.
  */
 export async function applyLead(
@@ -132,34 +132,6 @@ export async function applyLead(
     return parseLeadApiResponse(response, raw);
   } catch (error) {
     console.error("Error applying lead:", error);
-    return {
-      success: false,
-      message: "Network error. Please try again later.",
-    };
-  }
-}
-
-/** After Firebase OTP success — set otp_verify = 1 */
-export async function markLeadOtpVerified(
-  leadId: string
-): Promise<CreateLeadResponse> {
-  const endpoint = `${PUBLIC_API_BASE_URL}/api/leads/${encodeURIComponent(leadId)}/otp-verify`;
-
-  try {
-    const response = await fetch(endpoint, {
-      method: "PATCH",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      mode: "cors",
-      credentials: "omit",
-    });
-
-    const raw = await response.text();
-    return parseLeadApiResponse(response, raw);
-  } catch (error) {
-    console.error("Error marking lead OTP verified:", error);
     return {
       success: false,
       message: "Network error. Please try again later.",
