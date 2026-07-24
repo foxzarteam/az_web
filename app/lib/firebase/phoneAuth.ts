@@ -108,7 +108,7 @@ function ensureRecaptcha(containerId: string): RecaptchaVerifier {
 
 export async function requestOtpSendSlot(
   mobileDigits: string,
-): Promise<{ allowed: boolean; message?: string; remainingSends?: number }> {
+): Promise<{ allowed: boolean; message?: string; remainingSends?: number; dailyLimit?: boolean }> {
   const mobile = mobileDigits.replace(/\D/g, "");
   if (mobile.length !== 10) {
     return { allowed: false, message: "Invalid mobile number." };
@@ -123,30 +123,60 @@ export async function requestOtpSendSlot(
       },
       body: JSON.stringify({ mobileNumber: mobile }),
     });
-    const data = (await res.json()) as {
+
+    let data: {
       success?: boolean;
       message?: string;
       remainingSends?: number;
-    };
+      error?: string;
+      statusCode?: number;
+    } = {};
+    try {
+      data = (await res.json()) as typeof data;
+    } catch {
+      data = {};
+    }
 
-    if (!res.ok || data.success !== true) {
+    const msg = (data.message ?? "").trim();
+
+    // Endpoint not deployed yet (404) — don't block OTP; behave like before.
+    if (
+      res.status === 404 ||
+      /cannot post/i.test(msg) ||
+      data.error === "Not Found"
+    ) {
+      return { allowed: true, message: "Rate-limit API unavailable; allowing send." };
+    }
+
+    if (data.success === true) {
       return {
-        allowed: false,
-        message: data.message || MSG_OTP_DAILY_LIMIT,
+        allowed: true,
+        message: data.message,
         remainingSends: data.remainingSends,
       };
     }
 
-    return {
-      allowed: true,
-      message: data.message,
-      remainingSends: data.remainingSends,
-    };
-  } catch {
-    return {
-      allowed: false,
-      message: "OTP limit check failed. Please try again.",
-    };
+    // Real daily limit from server (exact message / flag only — never treat generic errors as limit)
+    const isDailyLimit =
+      /24 hours|limit \(5\)|puri ho chuki/i.test(msg) ||
+      (data.success === false && data.remainingSends === 0 && /otp|limit|hours/i.test(msg));
+
+    if (isDailyLimit) {
+      return {
+        allowed: false,
+        dailyLimit: true,
+        message: msg || MSG_OTP_DAILY_LIMIT,
+        remainingSends: 0,
+      };
+    }
+
+    // Session create / other API errors — fail open so OTP still works
+    console.warn("[OTP request-send]", res.status, msg || data);
+    return { allowed: true, message: msg || "Rate-limit check skipped." };
+  } catch (err) {
+    // Network failure — fail open
+    console.warn("[OTP request-send network]", err);
+    return { allowed: true, message: "Rate-limit check skipped (network)." };
   }
 }
 
@@ -161,7 +191,7 @@ export async function sendFirebasePhoneOtp(
   const slot = await requestOtpSendSlot(mobileDigits);
   if (!slot.allowed) {
     const err = new Error(slot.message || MSG_OTP_DAILY_LIMIT) as Error & { code?: string };
-    err.code = "otp/daily-limit";
+    err.code = slot.dailyLimit ? "otp/daily-limit" : "otp/send-blocked";
     throw err;
   }
 

@@ -80,10 +80,9 @@ export default function LeadApplyModal({
     } catch (err) {
       const message = getFirebaseOtpSendErrorMessage(err);
       setError(message);
-      if (
-        (err != null && typeof err === "object" && (err as { code?: string }).code === "otp/daily-limit") ||
-        /24 hours|limit \(5\)/i.test(message)
-      ) {
+      const code =
+        err != null && typeof err === "object" ? (err as { code?: string }).code : undefined;
+      if (code === "otp/daily-limit") {
         setRateLimited(true);
       }
     } finally {
