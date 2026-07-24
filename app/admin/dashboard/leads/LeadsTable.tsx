@@ -53,8 +53,8 @@ const FIELD_LABELS: Record<string, string> = {
   full_name: "Name",
   email: "Email",
   pincode: "Pincode",
-  required_amount: "Required amount",
-  loan_amt: "Loan amount range",
+  required_amount: "Loan amount",
+  loan_amt: "Loan amount range (legacy)",
   ins_type: "Insurance type",
   category: "Product",
   status: "Status",
@@ -72,9 +72,19 @@ function categoryLabel(value: unknown): string {
   return v ? v.replace(/_/g, " ") : "—";
 }
 
+function formatCurrencyInr(value: unknown): string {
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n)) return "—";
+  return `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+}
+
 function formatValue(key: string, value: unknown): string {
   if (key === "otp_verified") {
     return value === true || value === 1 || value === "true" ? "Yes" : "No";
+  }
+  if (key === "required_amount") {
+    if (value == null || value === "") return "—";
+    return formatCurrencyInr(value);
   }
   if (value == null || value === "") return "—";
   if (key === "category") return categoryLabel(value);
@@ -105,11 +115,17 @@ function cellText(row: AdminLeadRow, key: "full_name" | "mobile_number" | "categ
 
 function amountOrInsuranceText(row: AdminLeadRow): string {
   const category = String(row.category ?? "");
-  if (category === "personal_loan" && row.loan_amt) {
-    return loanAmountLabel(String(row.loan_amt));
+  if (category === "personal_loan") {
+    if (row.required_amount != null && row.required_amount !== "") {
+      return formatCurrencyInr(row.required_amount);
+    }
+    if (row.loan_amt) return loanAmountLabel(String(row.loan_amt));
   }
   if (category === "insurance" && row.ins_type) {
     return insuranceTypeLabel(String(row.ins_type));
+  }
+  if (row.required_amount != null && row.required_amount !== "") {
+    return formatCurrencyInr(row.required_amount);
   }
   if (row.loan_amt) return loanAmountLabel(String(row.loan_amt));
   if (row.ins_type) return insuranceTypeLabel(String(row.ins_type));
@@ -293,7 +309,13 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         id: "amount",
         header: "Amount / Type",
         sortable: true,
-        sortValue: (row) => amountOrInsuranceText(row),
+        sortValue: (row) => {
+          if (row.required_amount != null && row.required_amount !== "") {
+            const n = Number(row.required_amount);
+            return Number.isFinite(n) ? n : 0;
+          }
+          return amountOrInsuranceText(row);
+        },
         searchValue: (row) => amountOrInsuranceText(row),
         className: "max-w-[220px] truncate whitespace-nowrap",
         cell: (row) => amountOrInsuranceText(row),

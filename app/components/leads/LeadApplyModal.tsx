@@ -242,7 +242,7 @@ export default function LeadApplyModal({
               className="text-sm font-semibold text-primary disabled:text-gray-400 disabled:cursor-not-allowed hover:underline"
             >
               {rateLimited
-                ? "OTP limit reached — try after 24 hours"
+                ? "OTP limit reached — try again tomorrow"
                 : resendCooldown > 0
                   ? `Resend Code in ${resendCooldown}s`
                   : "Resend Code"}

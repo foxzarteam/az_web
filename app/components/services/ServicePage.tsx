@@ -12,7 +12,6 @@ import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
 import { applyLead, leadIdFromResponse, mapServiceToCategory } from "@/app/utils/leadApi";
 import {
-  amountToLoanAmtRange,
   INSURANCE_TYPE_OPTIONS,
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
@@ -133,7 +132,7 @@ export default function ServicePage({
         mobileNumber: mobile.replace(/\D/g, ""),
         fullName: fullName.trim(),
         category,
-        ...(category === "personal_loan" ? { loanAmt: amountToLoanAmtRange(loanAmount) } : {}),
+        ...(category === "personal_loan" ? { requiredAmount: loanAmount } : {}),
         ...(category === "insurance" ? { insType } : {}),
       });
 

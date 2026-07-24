@@ -11,7 +11,7 @@ import { firebaseWebConfig, isFirebaseWebConfigured } from "./config";
 const RECAPTCHA_CONTAINER_ID = "lead-recaptcha-container";
 
 const MSG_OTP_DAILY_LIMIT =
-  "Is mobile number par OTP ki limit (5) puri ho chuki hai. Kripya 24 hours baad dobara try karein.";
+  "OTP limit reached for this mobile number. Please try again tomorrow.";
 
 let recaptchaVerifier: RecaptchaVerifier | null = null;
 
@@ -114,8 +114,10 @@ export async function requestOtpSendSlot(
     return { allowed: false, message: "Invalid mobile number." };
   }
 
+  const endpoint = `${PUBLIC_API_BASE_URL}/api/otp/request-send`;
+
   try {
-    const res = await fetch(`${PUBLIC_API_BASE_URL}/api/otp/request-send`, {
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -128,6 +130,7 @@ export async function requestOtpSendSlot(
       success?: boolean;
       message?: string;
       remainingSends?: number;
+      retryNextDay?: boolean;
       error?: string;
       statusCode?: number;
     } = {};
@@ -137,18 +140,22 @@ export async function requestOtpSendSlot(
       data = {};
     }
 
-    const msg = (data.message ?? "").trim();
+    const msg = (data.message ?? data.error ?? "").toString().trim();
 
-    // Endpoint not deployed yet (404) — don't block OTP; behave like before.
+    // Endpoint missing on old deploy only
     if (
       res.status === 404 ||
       /cannot post/i.test(msg) ||
       data.error === "Not Found"
     ) {
-      return { allowed: true, message: "Rate-limit API unavailable; allowing send." };
+      console.warn("[OTP request-send] endpoint missing:", endpoint);
+      return {
+        allowed: false,
+        message: "OTP service is updating. Please try again in a minute.",
+      };
     }
 
-    if (data.success === true) {
+    if (res.ok && data.success === true) {
       return {
         allowed: true,
         message: data.message,
@@ -156,10 +163,11 @@ export async function requestOtpSendSlot(
       };
     }
 
-    // Real daily limit from server (exact message / flag only — never treat generic errors as limit)
     const isDailyLimit =
-      /24 hours|limit \(5\)|puri ho chuki/i.test(msg) ||
-      (data.success === false && data.remainingSends === 0 && /otp|limit|hours/i.test(msg));
+      data.retryNextDay === true ||
+      (data.success === false &&
+        (data.remainingSends === 0 ||
+          /otp limit reached|try again tomorrow/i.test(msg)));
 
     if (isDailyLimit) {
       return {
@@ -170,13 +178,17 @@ export async function requestOtpSendSlot(
       };
     }
 
-    // Session create / other API errors — fail open so OTP still works
-    console.warn("[OTP request-send]", res.status, msg || data);
-    return { allowed: true, message: msg || "Rate-limit check skipped." };
+    console.warn("[OTP request-send] blocked", res.status, msg || data);
+    return {
+      allowed: false,
+      message: msg || "Could not send OTP. Please try again.",
+    };
   } catch (err) {
-    // Network failure — fail open
     console.warn("[OTP request-send network]", err);
-    return { allowed: true, message: "Rate-limit check skipped (network)." };
+    return {
+      allowed: false,
+      message: "Network error while starting OTP. Please try again.",
+    };
   }
 }
 

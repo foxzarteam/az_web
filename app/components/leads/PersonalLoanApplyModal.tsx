@@ -11,7 +11,6 @@ import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/consta
 import { reportFormValidity } from "@/app/utils/formValidation";
 import { applyLead, leadIdFromResponse } from "@/app/utils/leadApi";
 import {
-  amountToLoanAmtRange,
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
   validateLeadPanNameMobile,
@@ -115,7 +114,7 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
         mobileNumber: mobile.replace(/\D/g, ""),
         fullName: fullName.trim(),
         category: "personal_loan",
-        loanAmt: amountToLoanAmtRange(loanAmount),
+        requiredAmount: loanAmount,
       });
 
       if (!applyRes.success) {
