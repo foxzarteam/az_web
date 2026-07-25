@@ -123,7 +123,7 @@ function IconOnline() {
 export const FEATURE_CARDS: FeatureCard[] = [
   {
     title: "Lowest Interest",
-    description: "Low Interest Rates",
+    description: "Get lower interest rates that make your EMI easy to pay.",
     icon: <IconPercent />,
     iconWrapClass: "bg-[#FFF1E7] text-[#F97316]",
   },
@@ -147,7 +147,7 @@ export const FEATURE_CARDS: FeatureCard[] = [
   },
   {
     title: "No Hidden Charges",
-    description: "Transparent process with no hidden charges.",
+    description: "100% Transparent process with no hidden charges.",
     icon: <IconShieldHeart />,
     iconWrapClass: "bg-[#FEF5E7] text-[#F59E0B]",
   },

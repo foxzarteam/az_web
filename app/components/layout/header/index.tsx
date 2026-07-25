@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import Logo from "./logo";
 import HeaderLink from "./navigation/HeaderLink";
 import MobileHeaderLink from "./navigation/MobileHeaderLink";
-import type { HeaderItem, SubmenuItem } from "@/app/types/layout/menu";
+import type { HeaderItem } from "@/app/types/layout/menu";
 import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
 import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
 import { serviceCardsToSubmenu } from "@/app/lib/services/submenu";

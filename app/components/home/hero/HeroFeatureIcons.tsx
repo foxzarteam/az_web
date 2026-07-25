@@ -48,7 +48,7 @@ export default function HeroFeatureIcons() {
     <div className="mt-4 sm:mt-5 flex flex-nowrap items-center gap-x-3 xs:gap-x-6 sm:gap-x-10">
       <FeatureItem icon={<DocumentIcon />} highlight="Minimal" text="Documents" />
       <FeatureItem icon={<ApprovalIcon />} highlight="Quick" text="Approval" />
-      <FeatureItem icon={<OnlineIcon />} highlight="100% Online" text="Process" />
+      <FeatureItem icon={<OnlineIcon />} highlight="Paperless" text="Process" />
     </div>
   );
 }

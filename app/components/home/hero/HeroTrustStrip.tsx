@@ -91,7 +91,7 @@ const STRIP_ITEMS: StripItem[] = [
   },
   {
     title: "Fast Processing",
-    description: "Quick processing to help you save time.",
+    description: "Quick verification and faster process.",
     icon: (
       <IconWell>
         <IconFastProcessing />

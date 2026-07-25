@@ -35,7 +35,7 @@ function ServiceVideo({ src, label }: { src: string; label: string }) {
           playsInline
           disablePictureInPicture
           controlsList="nodownload noplaybackrate noremoteplayback"
-          preload="auto"
+          preload="metadata"
           aria-label={label}
           tabIndex={-1}
         >
@@ -53,12 +53,12 @@ export default function Listing() {
       className="flex justify-center overflow-hidden bg-white py-12 sm:py-16 lg:py-20 dark:bg-semidark"
     >
       <div className="container mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md">
-        <h1
+        <h2
           className="mb-10 text-center text-xl font-bold text-midnight_text dark:text-white xs:text-2xl sm:mb-14 sm:text-3xl md:mb-16 md:text-4xl"
           data-aos="fade-up"
         >
           Our Products
-        </h1>
+        </h2>
 
         <div className="flex flex-col gap-14 lg:gap-20">
           {/* Personal loan: video left, copy right */}

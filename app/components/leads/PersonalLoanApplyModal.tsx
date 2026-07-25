@@ -66,11 +66,17 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
     document.body.style.paddingRight = scrollbarWidth ? `${scrollbarWidth}px` : "0";
     document.body.style.position = "fixed";
     document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
     return () => {
       document.body.style.overflow = "";
       document.body.style.paddingRight = "";
       document.body.style.position = "";
       document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
       window.scrollTo(0, scrollY);
     };
   }, [open, showOtpModal]);
@@ -145,7 +151,7 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
     <>
       {open && !showOtpModal && (
         <div
-          className="fixed inset-0 z-[99990] flex items-center justify-center px-3 sm:px-6 bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-[99990] flex items-center justify-center overflow-hidden p-3 sm:p-5 bg-black/50 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-labelledby="personal-loan-apply-title"
@@ -153,18 +159,25 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
             if (e.target === e.currentTarget) handleClose();
           }}
         >
-          <div className="bg-white dark:bg-darklight w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden max-h-[95vh] min-h-[min(640px,90vh)] overflow-y-auto">
-            <div className="flex items-center justify-between px-5 sm:px-8 pt-6 sm:pt-7 pb-4 border-b border-gray-100 dark:border-dark_border">
+          <div
+            className="flex w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-darklight"
+            style={{
+              width: "min(100%, 36rem)",
+              maxHeight: "min(100dvh - 1.5rem, 100%)",
+              height: "auto",
+            }}
+          >
+            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-4 pb-3 pt-4 sm:px-6 sm:pb-4 sm:pt-5 dark:border-dark_border">
               <h2
                 id="personal-loan-apply-title"
-                className="text-xl sm:text-2xl font-bold text-midnight_text dark:text-white"
+                className="text-lg font-bold text-midnight_text dark:text-white sm:text-xl"
               >
                 Apply for Personal Loan
               </h2>
               <button
                 type="button"
                 onClick={handleClose}
-                className="p-2 -m-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10"
+                className="rounded-lg p-2 -m-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10"
                 aria-label="Close"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -179,18 +192,20 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
                 e.preventDefault();
                 void handleSubmit(e.currentTarget);
               }}
-              className="px-5 sm:px-8 py-6 sm:py-8 flex flex-col gap-5 sm:gap-6"
+              className="flex min-h-0 flex-1 flex-col gap-3 overflow-x-hidden overflow-y-auto px-4 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-4 sm:px-6 sm:py-5"
             >
               {formError && (
-                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600 break-words">
+                <div className="shrink-0 rounded-lg border border-red-200 bg-red-50 p-2.5 text-sm text-red-600 break-words">
                   {formError}
                 </div>
               )}
 
-              <LoanAmountSlider value={loanAmount} onChange={setLoanAmount} />
+              <div className="min-h-0 shrink">
+                <LoanAmountSlider value={loanAmount} onChange={setLoanAmount} />
+              </div>
 
-              <div>
-                <label htmlFor="hero-pl-fullname" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+              <div className="shrink-0">
+                <label htmlFor="hero-pl-fullname" className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
                   Full Name *
                 </label>
                 <input
@@ -203,16 +218,16 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+              <div className="shrink-0">
+                <label className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
                   Mobile Number *
                 </label>
-                <div className="flex items-center rounded-lg sm:rounded-xl border border-gray-300 dark:border-dark_border overflow-hidden bg-white dark:bg-darkmode/80">
-                  <span className="pl-2.5 sm:pl-3 flex items-center shrink-0" aria-hidden>
+                <div className="flex items-center overflow-hidden rounded-lg border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80 sm:rounded-xl">
+                  <span className="flex shrink-0 items-center pl-2.5 sm:pl-3" aria-hidden>
                     <IndiaFlag />
                   </span>
-                  <span className="pl-1.5 sm:pl-2 pr-2 sm:pr-3 text-sm text-midnight_text dark:text-white font-medium">+91</span>
-                  <span className="h-5 sm:h-6 w-px bg-gray-300 dark:bg-dark_border" aria-hidden />
+                  <span className="pl-1.5 pr-2 text-sm font-medium text-midnight_text dark:text-white sm:pl-2 sm:pr-3">+91</span>
+                  <span className="h-5 w-px bg-gray-300 dark:bg-dark_border sm:h-6" aria-hidden />
                   <input
                     type="tel"
                     inputMode="numeric"
@@ -222,13 +237,13 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
                     value={mobile}
                     onChange={(e) => setMobile(sanitizeMobileInput(e.target.value))}
                     pattern="[0-9]*"
-                    className="flex-1 py-2.5 sm:py-3 px-2.5 sm:px-3 min-w-0 text-sm sm:text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none bg-transparent"
+                    className="min-w-0 flex-1 bg-transparent px-2.5 py-2.5 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none dark:text-white sm:px-3 sm:py-3 sm:text-base"
                   />
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="hero-pl-pan" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+              <div className="shrink-0">
+                <label htmlFor="hero-pl-pan" className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
                   PAN Card number *
                 </label>
                 <input
@@ -242,16 +257,18 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
                 />
               </div>
 
-              <TermsAgreementCheckbox
-                id="hero-pl-terms"
-                checked={termsAccepted}
-                onChange={setTermsAccepted}
-              />
+              <div className="shrink-0">
+                <TermsAgreementCheckbox
+                  id="hero-pl-terms"
+                  checked={termsAccepted}
+                  onChange={setTermsAccepted}
+                />
+              </div>
 
               <button
                 type="submit"
                 disabled={isSubmittingForm}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl btn-gradient text-white text-sm sm:text-base font-semibold py-2.5 sm:py-3 px-4 transition-opacity shadow-md min-h-[44px] disabled:opacity-70 disabled:cursor-not-allowed"
+                className="btn-gradient mt-auto inline-flex min-h-[44px] w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70 sm:rounded-2xl sm:py-3 sm:text-base"
               >
                 {isSubmittingForm ? "Submitting…" : "Apply Now"}
               </button>

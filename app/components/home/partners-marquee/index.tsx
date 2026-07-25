@@ -76,8 +76,11 @@ export default function PartnersMarquee() {
   }, []);
 
   useEffect(() => {
-    setActive(0);
-    setAnimating(true);
+    const frame = window.requestAnimationFrame(() => {
+      setActive(0);
+      setAnimating(true);
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [perView]);
 
   const goNext = useCallback(() => {

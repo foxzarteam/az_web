@@ -28,8 +28,47 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(PUBLIC_SITE_URL),
-  title: "Apni Zaroorat | Personal Loans & Insurance Online",
-  description: "Apni Zaroorat – Compare and apply for personal loans and insurance online. Quick approval, best rates, 100% digital.",
+  title: {
+    default: "Apni Zaroorat | Personal Loans & Insurance Online",
+    template: "%s | Apni Zaroorat",
+  },
+  description:
+    "Apply online for personal loans from ₹25,000 to ₹10 lakh and explore insurance options with Apni Zaroorat. Check EMI and indicative eligibility before applying.",
+  applicationName: "Apni Zaroorat",
+  keywords: [
+    "personal loan online",
+    "personal loan EMI calculator",
+    "personal loan eligibility",
+    "instant personal loan",
+    "insurance online",
+    "Apni Zaroorat",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "/",
+    siteName: "Apni Zaroorat",
+    title: "Apni Zaroorat | Personal Loans & Insurance Online",
+    description:
+      "Check personal loan EMI and indicative eligibility, then apply online through a quick and secure process.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Apni Zaroorat | Personal Loans & Insurance Online",
+    description:
+      "Check personal loan EMI and indicative eligibility, then apply online through a quick and secure process.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   icons: {
     icon: [{ url: "/favicon.png", type: "image/png" }],
     shortcut: "/favicon.png",

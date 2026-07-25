@@ -73,10 +73,6 @@ export default function AdminDashboardShell({
     return () => document.removeEventListener("keydown", onKey);
   }, [sidebarOpen]);
 
-  useEffect(() => {
-    closeSidebar();
-  }, [pathname]);
-
   return (
     <div className="flex min-h-[100dvh]" style={{ backgroundColor: ADMIN_UI.surface }}>
       <button

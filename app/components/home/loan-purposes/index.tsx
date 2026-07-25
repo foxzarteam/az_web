@@ -256,7 +256,7 @@ export default function LoanPurposes() {
             id="loan-purposes-heading"
             className="mt-2 text-xl font-bold text-midnight_text dark:text-white sm:text-2xl md:text-3xl lg:text-[2rem]"
           >
-            We&apos;ve Got You <span className="theme-gradient-text">Covered</span>
+            Where Can a Personal Loan <span className="theme-gradient-text">Help You?</span>
           </h2>
         </div>
 

@@ -1,15 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { DEFAULT_IMAGES } from "@/app/config/constants";
 import { scrollToElement } from "@/app/utils/scroll";
-import PersonalLoanApplyModal from "@/app/components/leads/PersonalLoanApplyModal";
 import HeroFeatureIcons from "./HeroFeatureIcons";
 import HeroTrustStrip from "./HeroTrustStrip";
 
+const PersonalLoanApplyModal = dynamic(
+  () => import("@/app/components/leads/PersonalLoanApplyModal"),
+  { ssr: false },
+);
+
 export default function Hero() {
   const [applyOpen, setApplyOpen] = useState(false);
+  const [applyModalMounted, setApplyModalMounted] = useState(false);
 
   return (
     <section
@@ -41,7 +47,10 @@ export default function Hero() {
             <div className="mt-6 sm:mt-7 flex flex-col xs:flex-row flex-wrap gap-3 sm:gap-4 w-full xs:w-auto">
               <button
                 type="button"
-                onClick={() => setApplyOpen(true)}
+                onClick={() => {
+                  setApplyModalMounted(true);
+                  setApplyOpen(true);
+                }}
                 className="btn-gradient btn-shine relative overflow-hidden inline-flex items-center justify-center gap-2 rounded-xl px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-[0_8px_24px_rgba(66,54,251,0.35)] transition duration-300"
               >
                 Apply for Personal Loan
@@ -51,14 +60,16 @@ export default function Hero() {
               </button>
               <button
                 type="button"
-                onClick={() => scrollToElement("emi-calculator")}
+                onClick={() => scrollToElement("eligibility-calculator")}
                 className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary/30 bg-white dark:bg-darklight px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-primary dark:text-white hover:border-primary hover:bg-primary/5 transition duration-300"
               >
-                EMI Calculator
+                Check Eligibility
               </button>
             </div>
 
-            <PersonalLoanApplyModal open={applyOpen} onClose={() => setApplyOpen(false)} />
+            {applyModalMounted && (
+              <PersonalLoanApplyModal open={applyOpen} onClose={() => setApplyOpen(false)} />
+            )}
 
             <p className="mt-4 sm:mt-5 flex items-center gap-2 text-xs sm:text-sm font-medium text-gray">
               <svg viewBox="0 0 20 20" className="h-4 w-4 sm:h-[18px] sm:w-[18px] shrink-0" fill="none" aria-hidden>
