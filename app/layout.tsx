@@ -59,14 +59,13 @@ export const metadata: Metadata = {
       "Check personal loan EMI and indicative eligibility, then apply online through a quick and secure process.",
   },
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
+    noarchive: true,
     googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
+      index: false,
+      follow: false,
+      noimageindex: true,
     },
   },
   icons: {
