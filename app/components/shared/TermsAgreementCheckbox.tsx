@@ -23,7 +23,7 @@ export default function TermsAgreementCheckbox({
   checked,
   onChange,
   className,
-  textClassName = "text-sm text-gray-700 dark:text-gray-300",
+  textClassName = "text-xs text-gray-700 dark:text-gray-300",
   required = true,
   showPrivacyPolicy = true,
 }: Props) {
@@ -46,7 +46,7 @@ export default function TermsAgreementCheckbox({
         />
         <span className={`${textClassName} leading-relaxed`}>
           <label htmlFor={id} className="cursor-pointer">
-            I agree to the{" "}
+            By proceeding, I agree to the{" "}
           </label>
           <Link
             href="/terms-and-conditions"
@@ -73,8 +73,10 @@ export default function TermsAgreementCheckbox({
                 Privacy Policy
               </Link>
             </>
-          ) : null}
-          .
+          ) : null}{" "}
+          <label htmlFor={id} className="cursor-pointer">
+            of Apni Zaroorat.
+          </label>
         </span>
       </div>
     </div>
