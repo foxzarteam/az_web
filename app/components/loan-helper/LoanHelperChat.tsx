@@ -5,14 +5,8 @@ import { Inter } from "next/font/google";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { sanitizeMobileInput, validateMobileNumber } from "@/app/utils/validation";
-import { createChatSession, updateChatSession } from "@/app/utils/chatApi";
-import { startLead, leadIdFromResponse } from "@/app/utils/leadApi";
-import { chatLoanAmountToRupees, type ChatAnswers } from "@/app/lib/chat/types";
+import { chatLoanAmountToRupees } from "@/app/lib/chat/types";
 
-const LeadApplyModal = dynamic(() => import("@/app/components/leads/LeadApplyModal"), {
-  ssr: false,
-});
 const PersonalLoanApplyModal = dynamic(
   () => import("@/app/components/leads/PersonalLoanApplyModal"),
   { ssr: false },
@@ -54,7 +48,7 @@ type EmploymentId = (typeof EMPLOYMENT_OPTIONS)[number]["id"];
 type SalaryId = (typeof SALARY_OPTIONS)[number]["id"];
 type EmiId = (typeof EMI_OPTIONS)[number]["id"];
 type LoanAmountId = (typeof LOAN_AMOUNT_OPTIONS)[number]["id"];
-type Step = "employment" | "salary" | "emi" | "loan_amount" | "mobile";
+type Step = "employment" | "salary" | "emi" | "loan_amount" | "done";
 
 function ChatIcon({ className }: { className?: string }) {
   return (
@@ -121,42 +115,26 @@ function DoubleTickIcon() {
   );
 }
 
-function AvatarCircle({ sizePx, alt = "" }: { sizePx: number; alt?: string }) {
+function AvatarCircle({ sizePx, alt }: { sizePx: number; alt: string }) {
   return (
-    <span
-      className="relative inline-block shrink-0 overflow-hidden rounded-full border border-[#e5e7eb] bg-[#f3f4f6] shadow-sm"
-      style={{
-        width: sizePx,
-        height: sizePx,
-        minWidth: sizePx,
-        minHeight: sizePx,
-      }}
+    <div
+      className="relative shrink-0 overflow-hidden rounded-full bg-[#e5e7eb] ring-2 ring-white"
+      style={{ width: sizePx, height: sizePx }}
     >
-      <Image
-        src={AVATAR_SRC}
-        alt={alt}
-        fill
-        sizes={`${sizePx}px`}
-        className="object-cover object-[50%_22%]"
-        aria-hidden={!alt}
-      />
-    </span>
+      <Image src={AVATAR_SRC} alt={alt} fill className="object-cover" sizes={`${sizePx}px`} />
+    </div>
   );
-}
-
-function BotAvatar() {
-  return <AvatarCircle sizePx={28} />;
 }
 
 function BotBubble({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex max-w-[88%] items-start gap-2">
-      <BotAvatar />
-      <div className="min-w-0 rounded-2xl rounded-tl-md bg-[#D4EDCE] px-3.5 py-2.5 text-[13px] leading-snug text-[#111827] shadow-sm">
-        {children}
-        <div className="mt-1 flex justify-end">
-          <span className="text-[10px] text-[#9ca3af]">{TIMESTAMP}</span>
+    <div className="flex max-w-[92%] items-end gap-2 self-start">
+      <AvatarCircle sizePx={28} alt="" />
+      <div className="min-w-0">
+        <div className="rounded-2xl rounded-bl-md bg-[#f3f4f6] px-3.5 py-2.5 text-[13px] leading-relaxed text-[#111827]">
+          {children}
         </div>
+        <p className="mt-1 pl-1 text-[10px] text-[#9ca3af]">{TIMESTAMP}</p>
       </div>
     </div>
   );
@@ -164,78 +142,45 @@ function BotBubble({ children }: { children: React.ReactNode }) {
 
 function UserBubble({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex justify-end">
-      <div className="max-w-[78%] rounded-2xl rounded-tr-md bg-[#1DA851] px-3.5 py-2.5 text-[13px] leading-snug text-white shadow-sm">
-        <p>{children}</p>
-        <div className="mt-1 flex items-center justify-end gap-1">
-          <span className="text-[10px] text-white/80">{TIMESTAMP}</span>
-          <DoubleTickIcon />
-        </div>
+    <div className="flex max-w-[85%] flex-col items-end self-end">
+      <div className="rounded-2xl rounded-br-md bg-[#1DA851] px-3.5 py-2.5 text-[13px] leading-relaxed text-white">
+        {children}
       </div>
+      <p className="mt-1 flex items-center gap-1 pr-1 text-[10px] text-[#9ca3af]">
+        {TIMESTAMP}
+        <DoubleTickIcon />
+      </p>
     </div>
-  );
-}
-
-function OptionButton({
-  label,
-  selected,
-  onClick,
-}: {
-  label: string;
-  selected?: boolean;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-full border px-4 py-2 text-[13px] font-medium transition-all duration-200 ${
-        selected
-          ? "border-[#1DA851] bg-white text-[#128C7E] shadow-sm"
-          : "border-[#e5e7eb] bg-white text-[#374151] hover:border-[#1DA851]/50 hover:shadow-sm"
-      }`}
-    >
-      {label}
-    </button>
   );
 }
 
 function OptionGroup({
   options,
   onSelect,
-  selectedId,
-  layout = "wrap",
+  layout = "row",
 }: {
   options: readonly { id: string; label: string }[];
   onSelect: (id: string) => void;
-  selectedId?: string | null;
-  layout?: "wrap" | "column";
+  layout?: "row" | "column";
 }) {
   return (
     <div
-      className={`flex gap-2 pl-9 animate-in-fade ${
-        layout === "column" ? "flex-col" : "flex-wrap"
+      className={`flex flex-wrap gap-2 self-start pl-9 ${
+        layout === "column" ? "flex-col items-stretch" : ""
       }`}
     >
       {options.map((opt) => (
-        <OptionButton
+        <button
           key={opt.id}
-          label={opt.label}
-          selected={selectedId === opt.id}
+          type="button"
           onClick={() => onSelect(opt.id)}
-        />
+          className="rounded-full border border-[#1DA851]/35 bg-white px-3.5 py-2 text-left text-[13px] font-medium text-[#111827] shadow-sm transition hover:border-[#1DA851] hover:bg-[#1DA851]/5 active:scale-[0.98]"
+        >
+          {opt.label}
+        </button>
       ))}
     </div>
   );
-}
-
-function pickOption<T extends string>(
-  options: readonly { id: T; label: string }[],
-  id: T | null,
-): { id: string; label: string } | null {
-  if (!id) return null;
-  const found = options.find((o) => o.id === id);
-  return found ? { id: found.id, label: found.label } : null;
 }
 
 export default function LoanHelperChat() {
@@ -246,16 +191,8 @@ export default function LoanHelperChat() {
   const [salary, setSalary] = useState<SalaryId | null>(null);
   const [emi, setEmi] = useState<EmiId | null>(null);
   const [loanAmount, setLoanAmount] = useState<LoanAmountId | null>(null);
-  const [mobileInput, setMobileInput] = useState("");
-  const [submittedMobile, setSubmittedMobile] = useState<string | null>(null);
-  const [mobileError, setMobileError] = useState("");
-  const [isSavingChat, setIsSavingChat] = useState(false);
-  const [chatId, setChatId] = useState<string | null>(null);
-  const [draftLeadId, setDraftLeadId] = useState<string | null>(null);
-  const [showOtp, setShowOtp] = useState(false);
   const [showApplyForm, setShowApplyForm] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatBodyRef = useRef<HTMLDivElement>(null);
 
   const handleFabClick = () => {
     setIsOpen((open) => !open);
@@ -270,7 +207,7 @@ export default function LoanHelperChat() {
       const t = window.setTimeout(scrollToBottom, 120);
       return () => window.clearTimeout(t);
     }
-  }, [isOpen, step, employment, salary, emi, loanAmount, submittedMobile, mobileError, scrollToBottom]);
+  }, [isOpen, step, employment, salary, emi, loanAmount, scrollToBottom]);
 
   const handleEmploymentSelect = (id: EmploymentId) => {
     setEmployment(id);
@@ -289,62 +226,12 @@ export default function LoanHelperChat() {
 
   const handleLoanAmountSelect = (id: LoanAmountId) => {
     setLoanAmount(id);
-    setStep("mobile");
-    setMobileInput("");
-    setMobileError("");
+    setStep("done");
   };
 
-  const buildAnswers = useCallback((): ChatAnswers | null => {
-    const employmentAns = pickOption(EMPLOYMENT_OPTIONS, employment);
-    const salaryAns = pickOption(SALARY_OPTIONS, salary);
-    const emiAns = pickOption(EMI_OPTIONS, emi);
-    const loanAns = pickOption(LOAN_AMOUNT_OPTIONS, loanAmount);
-    if (!employmentAns || !salaryAns || !emiAns || !loanAns) return null;
-    return {
-      employment: employmentAns,
-      salary: salaryAns,
-      existing_emi: emiAns,
-      loan_amount: loanAns,
-    };
-  }, [employment, salary, emi, loanAmount]);
-
-  const handleMobileSubmit = async () => {
-    if (isSavingChat) return;
-    const validation = validateMobileNumber(mobileInput);
-    if (!validation.isValid) {
-      setMobileError(validation.error ?? "Invalid mobile number.");
-      return;
-    }
-    const answers = buildAnswers();
-    if (!answers) {
-      setMobileError("Please complete all chat questions first.");
-      return;
-    }
-
-    const digits = mobileInput.replace(/\D/g, "");
-    setMobileError("");
-    setIsSavingChat(true);
-
-    try {
-      const saved = await createChatSession({ mobileNumber: digits, answers });
-      if (!saved.success) {
-        setMobileError(saved.message);
-        return;
-      }
-      setChatId(saved.id);
-      setSubmittedMobile(digits);
-      setIsOpen(false);
-      setShowOtp(true);
-    } finally {
-      setIsSavingChat(false);
-    }
-  };
-
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && step === "mobile") {
-      e.preventDefault();
-      void handleMobileSubmit();
-    }
+  const openApplyForm = () => {
+    setIsOpen(false);
+    setShowApplyForm(true);
   };
 
   const resetChatFlow = useCallback(() => {
@@ -353,12 +240,6 @@ export default function LoanHelperChat() {
     setSalary(null);
     setEmi(null);
     setLoanAmount(null);
-    setMobileInput("");
-    setSubmittedMobile(null);
-    setMobileError("");
-    setChatId(null);
-    setDraftLeadId(null);
-    setShowOtp(false);
     setShowApplyForm(false);
   }, []);
 
@@ -377,12 +258,6 @@ export default function LoanHelperChat() {
     employment === "self-employed"
       ? "Great! 👍\nAapka approx monthly business income kitna hai?"
       : "Great! 👍\nAapki monthly in-hand salary kitni hai approx?";
-
-  const inputEnabled = step === "mobile" && !isSavingChat;
-  const inputPlaceholder =
-    step === "mobile"
-      ? "Apna 10-digit mobile number likhein..."
-      : "Type your answer...";
 
   return (
     <div
@@ -414,10 +289,7 @@ export default function LoanHelperChat() {
             </button>
           </header>
 
-          <div
-            ref={chatBodyRef}
-            className="flex flex-1 flex-col gap-3 overflow-y-auto bg-white px-3 py-4"
-          >
+          <div className="flex flex-1 flex-col gap-3 overflow-y-auto bg-white px-3 py-4">
             <BotBubble>
               <p className="whitespace-pre-line">
                 Namaste! 👋{"\n"}
@@ -490,18 +362,21 @@ export default function LoanHelperChat() {
                           <>
                             <UserBubble>{loanAmountLabel}</UserBubble>
 
-                            {step === "mobile" && (
+                            {step === "done" && (
                               <BotBubble>
                                 <p className="whitespace-pre-line">
                                   Great 👍{"\n"}
                                   Aapka profile loan ke liye suitable lag raha hai.{"\n"}
-                                  Ab yahan apna mobile number type karke send karein.
+                                  Ab aap ye simple form fill karke apply karein.
                                 </p>
+                                <button
+                                  type="button"
+                                  onClick={openApplyForm}
+                                  className="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-[#1DA851] px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#189646] active:scale-[0.98]"
+                                >
+                                  Fill this form
+                                </button>
                               </BotBubble>
-                            )}
-
-                            {submittedMobile && (
-                              <UserBubble>{submittedMobile}</UserBubble>
                             )}
                           </>
                         )}
@@ -518,35 +393,21 @@ export default function LoanHelperChat() {
           <div className="shrink-0 border-t border-[#e5e7eb] bg-white px-3 pb-3 pt-2.5">
             <div className="flex items-center gap-2">
               <input
-                type="tel"
-                inputMode="numeric"
-                placeholder={inputPlaceholder}
-                value={mobileInput}
-                onChange={(e) => {
-                  setMobileInput(sanitizeMobileInput(e.target.value));
-                  if (mobileError) setMobileError("");
-                }}
-                onKeyDown={handleInputKeyDown}
-                readOnly={!inputEnabled}
-                className="h-11 min-w-0 flex-1 rounded-full border border-[#e5e7eb] bg-[#f9fafb] px-4 text-sm text-[#111827] outline-none transition-shadow placeholder:text-[#9ca3af] read-only:cursor-default focus:border-[#1DA851]/40 focus:ring-2 focus:ring-[#1DA851]/15"
-                aria-label={inputPlaceholder}
+                type="text"
+                placeholder="Select an option above…"
+                readOnly
+                className="h-11 min-w-0 flex-1 cursor-default rounded-full border border-[#e5e7eb] bg-[#f9fafb] px-4 text-sm text-[#111827] outline-none placeholder:text-[#9ca3af]"
+                aria-label="Chat options"
               />
               <button
                 type="button"
-                onClick={() => void handleMobileSubmit()}
-                disabled={step !== "mobile" || isSavingChat}
-                className="btn-gradient flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform duration-200 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                disabled
+                className="btn-gradient flex h-10 w-10 shrink-0 cursor-not-allowed items-center justify-center rounded-full text-white opacity-50 shadow-md"
                 aria-label="Send message"
               >
                 <SendIcon />
               </button>
             </div>
-            {mobileError ? (
-              <p className="mt-1.5 text-center text-[10px] text-red-600">{mobileError}</p>
-            ) : null}
-            {isSavingChat ? (
-              <p className="mt-1.5 text-center text-[10px] text-[#6b7280]">Saving… sending OTP</p>
-            ) : null}
             <p className="mt-2 flex items-center justify-center gap-1.5 text-[10px] text-[#6b7280]">
               <ShieldIcon />
               Your information is 100% secure with us.
@@ -585,61 +446,12 @@ export default function LoanHelperChat() {
         )}
       </button>
 
-      <LeadApplyModal
-        open={showOtp && Boolean(submittedMobile)}
-        mobile={submittedMobile ?? ""}
-        onClose={() => {
-          setShowOtp(false);
-          setIsOpen(true);
-          setStep("mobile");
-        }}
-        onEditMobile={() => {
-          setShowOtp(false);
-          setSubmittedMobile(null);
-          setDraftLeadId(null);
-          setIsOpen(true);
-          setStep("mobile");
-        }}
-        onSuccess={async () => {
-          const mobile = submittedMobile ?? "";
-          if (!mobile) {
-            throw new Error("Mobile number missing. Please try again.");
-          }
-
-          // Create/reuse draft lead row for this number, then open form to fill details.
-          const started = await startLead(mobile, "personal_loan");
-          if (!started.success) {
-            throw new Error(
-              started.message ||
-                "This mobile number already exists. Please use a different number.",
-            );
-          }
-
-          const leadId = leadIdFromResponse(started.data);
-          if (!leadId) {
-            throw new Error("Could not save mobile. Please try again.");
-          }
-
-          setDraftLeadId(leadId);
-          if (chatId) {
-            void updateChatSession(chatId, { status: "otp_verified" });
-          }
-          setShowOtp(false);
-          setShowApplyForm(true);
-        }}
-      />
-
       <PersonalLoanApplyModal
         open={showApplyForm}
         onClose={() => {
           setShowApplyForm(false);
           resetChatFlow();
         }}
-        initialMobile={submittedMobile ?? ""}
-        lockMobile
-        skipOtp
-        leadId={draftLeadId ?? undefined}
-        chatId={chatId ?? undefined}
         initialLoanAmount={
           loanAmount ? chatLoanAmountToRupees(loanAmount) : undefined
         }

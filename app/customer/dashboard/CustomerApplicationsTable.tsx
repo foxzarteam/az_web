@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CustomerLead } from "@/app/lib/customer/leadsByMobile";
 import CrmDataTable, {
@@ -130,13 +129,9 @@ export default function CustomerApplicationsTable({
 }: {
   initialApplications: CustomerLead[];
 }) {
-  const router = useRouter();
   const [rows, setRows] = useState(initialApplications);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [viewLead, setViewLead] = useState<CustomerLead | null>(null);
-  const [deleteLead, setDeleteLead] = useState<CustomerLead | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setRows(initialApplications);
@@ -144,19 +139,17 @@ export default function CustomerApplicationsTable({
 
   const closeModals = useCallback(() => {
     setViewLead(null);
-    setDeleteLead(null);
-    setError(null);
   }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeModals();
     };
-    if (viewLead || deleteLead) {
+    if (viewLead) {
       document.addEventListener("keydown", onKey);
       return () => document.removeEventListener("keydown", onKey);
     }
-  }, [viewLead, deleteLead, closeModals]);
+  }, [viewLead, closeModals]);
 
   const filteredRows = useMemo(() => {
     if (statusFilter === "all") return rows;
@@ -169,30 +162,6 @@ export default function CustomerApplicationsTable({
   const total = rows.length;
   const pending = rows.filter((a) => a.status === "pending" || !a.status).length;
   const approved = rows.filter((a) => a.status === "approved").length;
-
-  async function handleConfirmDelete() {
-    if (!deleteLead?.id) return;
-    setDeleting(true);
-    setError(null);
-    try {
-      const res = await fetch(
-        `/api/customer/applications/${encodeURIComponent(deleteLead.id)}`,
-        { method: "DELETE" },
-      );
-      const data = (await res.json()) as { success?: boolean; error?: string };
-      if (!res.ok) {
-        setError(data.error ?? "Delete failed");
-        return;
-      }
-      setRows((prev) => prev.filter((r) => r.id !== deleteLead.id));
-      closeModals();
-      router.refresh();
-    } catch {
-      setError("Network error. Try again.");
-    } finally {
-      setDeleting(false);
-    }
-  }
 
   const columns = useMemo<CrmColumn<CustomerLead>[]>(
     () => [
@@ -252,30 +221,12 @@ export default function CustomerApplicationsTable({
         header: "Action",
         searchable: false,
         cell: (row) => (
-          <div className="flex items-center gap-1.5">
-            <CrmActionButton label="View" onClick={() => setViewLead(row)}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-            </CrmActionButton>
-            <CrmActionButton
-              label="Delete"
-              variant="danger"
-              onClick={() => {
-                setDeleteLead(row);
-                setError(null);
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 6h18" />
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                <line x1="10" y1="11" x2="10" y2="17" />
-                <line x1="14" y1="11" x2="14" y2="17" />
-              </svg>
-            </CrmActionButton>
-          </div>
+          <CrmActionButton label="View" onClick={() => setViewLead(row)}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </CrmActionButton>
         ),
       },
     ],
@@ -381,36 +332,6 @@ export default function CustomerApplicationsTable({
                 <p className="text-sm font-semibold text-midnight_text">Status timeline</p>
                 <Timeline lead={viewLead} />
               </div>
-            </div>
-          </div>
-        </AppModal>
-      )}
-
-      {deleteLead && (
-        <AppModal title="Delete application" onClose={closeModals}>
-          <div className="p-6 sm:p-8">
-            <p className="text-sm text-midnight_text">
-              Delete application{" "}
-              <strong className="font-mono">{deleteLead.applicationNumber}</strong>? This cannot
-              be undone.
-            </p>
-            {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-            <div className="mt-8 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={closeModals}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-midnight_text hover:bg-slate-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => void handleConfirmDelete()}
-                disabled={deleting}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
-              >
-                {deleting ? "Deleting…" : "Delete"}
-              </button>
             </div>
           </div>
         </AppModal>
