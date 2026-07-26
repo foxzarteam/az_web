@@ -7,6 +7,7 @@ import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import { reportFormValidity } from "@/app/utils/formValidation";
 import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
+import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationStatusLink";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
@@ -48,7 +49,7 @@ function getSuccessMessage(title: string): string {
 const DEFAULT_LOAN_AMOUNT = 5_00_000;
 
 const inputClass =
-  "w-full px-3.5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode/80 text-sm sm:text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70";
+  "w-full px-3.5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode/80 text-sm sm:text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70";
 
 export default function ServicePage({
   title,
@@ -200,7 +201,7 @@ export default function ServicePage({
                   <SuccessPopup
                     message={getSuccessMessage(title)}
                     onClose={() => setShowSuccess(false)}
-                    autoCloseMs={3000}
+                    footer={<CheckApplicationStatusLink />}
                   />
                 )}
 
@@ -295,7 +296,7 @@ export default function ServicePage({
                         value={mobile}
                         onChange={(e) => setMobile(sanitizeMobileInput(e.target.value))}
                         pattern="[0-9]*"
-                        className="flex-1 py-2.5 sm:py-3 px-2.5 sm:px-3 min-w-0 text-sm sm:text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none bg-transparent"
+                        className="flex-1 py-2 sm:py-2.5 px-2.5 sm:px-3 min-w-0 text-sm sm:text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none bg-transparent"
                       />
                     </div>
                   </div>
@@ -329,6 +330,7 @@ export default function ServicePage({
                     >
                       {isSubmittingForm ? "Submitting…" : "Apply Now"}
                     </button>
+                    <CheckApplicationStatusLink className="mt-3" />
                   </div>
                 </form>
               </div>

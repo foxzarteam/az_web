@@ -36,6 +36,7 @@ export default function Footer() {
                 height={56}
                 className="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-white/25 sm:h-14 sm:w-14"
                 sizes="56px"
+                unoptimized
               />
               <span className="text-lg font-semibold tracking-tight text-white sm:text-xl md:text-2xl">
                 Apni Zaroorat
@@ -65,27 +66,45 @@ export default function Footer() {
             <div className="col-span-12 xs:col-span-6 min-w-0 lg:col-span-4">
               <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Quick Links</h4>
               <ul className="space-y-0.5">
-                <li><Link href="/contact" className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center">Contact</Link></li>
-                <li><Link href="/about" className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center">About</Link></li>
-                <li><Link href="/become-partner" className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center">Become a Partner</Link></li>
+                <li>
+                  <Link href="/contact/" className="flex min-h-[36px] items-center py-1 text-sm text-gray hover:text-white sm:text-base">
+                    Contact
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about/" className="flex min-h-[36px] items-center py-1 text-sm text-gray hover:text-white sm:text-base">
+                    About
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/become-partner/" className="flex min-h-[36px] items-center py-1 text-sm text-gray hover:text-white sm:text-base">
+                    Become a Partner
+                  </Link>
+                </li>
               </ul>
             </div>
             <div className="col-span-12 xs:col-span-6 min-w-0 lg:col-span-8">
               <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Products</h4>
-              {serviceLinks.length > 0 ? (
-                <ul className="flex flex-col space-y-0.5">
-                  {serviceLinks.map((s) => (
-                    <li key={s.slug ?? s.href}>
-                      <Link
-                        href={s.href}
-                        className="inline-block py-1 text-sm sm:text-base text-gray hover:text-white min-h-[36px] flex items-center"
-                      >
-                        {s.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
+              <ul className="flex flex-col space-y-0.5">
+                {serviceLinks.map((s) => (
+                  <li key={s.slug ?? s.href}>
+                    <Link
+                      href={s.href}
+                      className="flex min-h-[36px] items-center py-1 text-sm text-gray hover:text-white sm:text-base"
+                    >
+                      {s.label}
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <Link
+                    href="/customer/login/"
+                    className="flex min-h-[36px] items-center py-1 text-sm text-gray hover:text-white sm:text-base"
+                  >
+                    Check Application Status
+                  </Link>
+                </li>
+              </ul>
             </div>
           </div>
         </div>

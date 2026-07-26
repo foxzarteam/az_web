@@ -11,9 +11,18 @@ export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; 
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const path = usePathname();
 
+  const normalizePath = (p: string) => {
+    if (!p || p === "/") return "/";
+    const [pathnameOnly, hash = ""] = p.split("#");
+    const base = pathnameOnly.replace(/\/+$/, "") || "/";
+    return hash ? `${base}#${hash}` : base;
+  };
+  const current = normalizePath(path || "/");
   const isActive =
-    path === item.href ||
-    (item.submenu && item.submenu.length > 0 && item.submenu.some((s) => s.href === path));
+    normalizePath(item.href) === current ||
+    (item.submenu &&
+      item.submenu.length > 0 &&
+      item.submenu.some((s) => normalizePath(s.href) === current));
 
   return (
     <div className="relative w-full">
@@ -41,7 +50,7 @@ export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; 
             <div className="bg-white dark:bg-darkmode py-2 px-3 w-full space-y-1">
               {item.submenu.map((subItem, index) => {
                 const gradient = serviceSubmenuGradient(subItem, index);
-                const active = subItem.href === path;
+                const active = normalizePath(subItem.href) === current;
                 return (
                   <Link
                     key={subItem.slug ?? subItem.href}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -15,21 +15,19 @@ import { serviceCardsToSubmenu } from "@/app/lib/services/submenu";
 const HEADER_BASE: HeaderItem[] = [
   { label: "Home", href: "/" },
   { label: "Products", href: "/#featured" },
-  { label: "About", href: "/about" },
-  { label: "Contact Us", href: "/contact" },
+  { label: "About", href: "/about/" },
+  { label: "Contact Us", href: "/contact/" },
 ];
-
-const clientMountedSubscribe = () => () => {};
 
 export default function Header() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [navbarOpen, setNavbarOpen] = useState(false);
-  const [customerLoggedIn, setCustomerLoggedIn] = useState(false);
+  /** false on SSR + first client paint so theme UI matches server HTML */
+  const [mounted, setMounted] = useState(false);
   const fromLayout = useServiceCards();
   const { cards } = useRemoteServiceCards(fromLayout);
   const serviceSubmenu = useMemo(() => serviceCardsToSubmenu(cards), [cards]);
-  const mounted = useSyncExternalStore(clientMountedSubscribe, () => true, () => false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const headerNavItems = useMemo(
@@ -45,19 +43,8 @@ export default function Header() {
   );
 
   useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const res = await fetch("/api/customer/me", { credentials: "same-origin" });
-        if (!cancelled) setCustomerLoggedIn(res.ok);
-      } catch {
-        if (!cancelled) setCustomerLoggedIn(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [pathname]);
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -73,9 +60,6 @@ export default function Header() {
     return null;
   }
 
-  const statusHref = customerLoggedIn ? "/customer/dashboard" : "/customer/login";
-  const statusLabel = customerLoggedIn ? "My Application" : "Check Status";
-
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 w-full bg-white dark:bg-semidark shadow-sm transition-all duration-200"
@@ -83,25 +67,22 @@ export default function Header() {
       <div className="container mx-auto flex min-w-0 max-w-full items-center justify-between gap-2 px-3 xs:px-4 sm:px-6 md:max-w-screen-md md:px-6 lg:max-w-screen-xl h-16 sm:h-16 md:h-20">
         <Logo />
         <nav className="hidden lg:flex flex-grow items-center justify-center space-x-10 xl:space-x-12 min-w-0">
-          {headerNavItems.map((item, index) => (
-            <HeaderLink key={index} item={item} />
+          {headerNavItems.map((item) => (
+            <HeaderLink key={item.href + item.label} item={item} />
           ))}
         </nav>
         <div className="flex items-center gap-1 sm:gap-3 md:gap-4 shrink-0">
           <Link
-            href={statusHref}
-            className="hidden sm:inline-flex items-center px-3 py-2 text-xs sm:text-sm font-semibold text-midnight_text dark:text-white border border-gray-200 dark:border-dark_border rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-          >
-            {statusLabel}
-          </Link>
-          <Link
-            href="/become-partner"
+            href="/become-partner/"
             className="hidden sm:inline-flex items-center px-3 py-2 sm:px-4 text-xs sm:text-sm font-semibold text-white btn-gradient rounded-lg transition-all duration-300 btn-shine"
           >
             Become a Partner
           </Link>
-          <div className="flex h-10 w-10 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg text-midnight_text dark:text-white">
-            {mounted && (
+          <div
+            className="flex h-10 w-10 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg text-midnight_text dark:text-white"
+            suppressHydrationWarning
+          >
+            {mounted ? (
               <button
                 type="button"
                 aria-label="Toggle theme"
@@ -115,6 +96,8 @@ export default function Header() {
                   <path d="M16.6111 15.855C17.591 15.1394 18.3151 14.1979 18.7723 13.1623C16.4824 13.4065 14.1342 12.4631 12.6795 10.4711C11.2248 8.47905 11.0409 5.95516 11.9705 3.84818C10.8449 3.9685 9.72768 4.37162 8.74781 5.08719C5.7759 7.25747 5.12529 11.4308 7.29558 14.4028C9.46586 17.3747 13.6392 18.0253 16.6111 15.855Z" />
                 </svg>
               </button>
+            ) : (
+              <span className="h-9 w-9 sm:h-8 sm:w-8" aria-hidden />
             )}
           </div>
           <button
@@ -152,18 +135,11 @@ export default function Header() {
           </button>
         </div>
         <nav className="flex flex-col items-start p-4 sm:p-5 gap-1 w-full overflow-y-auto max-h-[calc(100vh-80px)]">
-          {headerNavItems.map((item, index) => (
-            <MobileHeaderLink key={index} item={item} onClose={() => setNavbarOpen(false)} />
+          {headerNavItems.map((item) => (
+            <MobileHeaderLink key={item.href + item.label} item={item} onClose={() => setNavbarOpen(false)} />
           ))}
           <Link
-            href={statusHref}
-            onClick={() => setNavbarOpen(false)}
-            className="w-full mt-2 px-4 py-2.5 text-sm font-semibold text-midnight_text dark:text-white border border-gray-200 dark:border-dark_border rounded-lg text-center"
-          >
-            {statusLabel}
-          </Link>
-          <Link
-            href="/become-partner"
+            href="/become-partner/"
             onClick={() => setNavbarOpen(false)}
             className="w-full mt-2 px-4 py-2.5 text-sm font-semibold text-white btn-gradient rounded-lg transition-all duration-300 text-center btn-shine"
           >

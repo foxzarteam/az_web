@@ -62,8 +62,9 @@ export default async function AdminDashboardPage() {
 
   return (
     <main className="px-4 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-3 lg:px-6 lg:pb-6 lg:pt-4">
-      <div className="space-y-2">
-        <section
+      {/* Use divs — global `section { py-* }` in globals.css adds huge gaps here */}
+      <div className="space-y-3">
+        <div
           className="flex flex-col gap-2.5 rounded-xl border bg-white p-3.5 sm:flex-row sm:items-center sm:justify-between sm:p-4 dark:border-dark_border dark:bg-darklight"
           style={{ borderColor: ADMIN_UI.border }}
         >
@@ -82,9 +83,9 @@ export default async function AdminDashboardPage() {
           >
             Open Leads
           </Link>
-        </section>
+        </div>
 
-        <section>
+        <div>
           <div className="mb-1.5 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-800 dark:text-white">Key metrics</h3>
           </div>
@@ -111,9 +112,9 @@ export default async function AdminDashboardPage() {
               icon={<PartnersIcon />}
             />
           </div>
-        </section>
+        </div>
 
-        <section
+        <div
           className="rounded-xl border bg-white p-3.5 sm:p-4 dark:border-dark_border dark:bg-darklight"
           style={{ borderColor: ADMIN_UI.border }}
         >
@@ -132,7 +133,7 @@ export default async function AdminDashboardPage() {
               </Link>
             ))}
           </div>
-        </section>
+        </div>
       </div>
     </main>
   );

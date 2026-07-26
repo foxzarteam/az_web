@@ -98,7 +98,7 @@ export default function AdminDashboardShell({
             borderColor: ADMIN_UI.sidebarBorder,
           }}
         >
-          <div className="flex h-[4.5rem] items-center gap-4 px-4 sm:px-6 lg:px-8">
+          <div className="flex h-[4.5rem] items-center gap-4 px-4 sm:px-6 lg:px-8" data-admin-topbar>
             <button
               type="button"
               onClick={toggleSidebar}

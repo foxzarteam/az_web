@@ -162,8 +162,7 @@ export default function CustomerLoginForm() {
           <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
             {notFound ? (
               <>
-                No application found for this number. Please fill the Personal Loan form
-                first.{" "}
+                No application found for this number.{" "}
                 <Link href="/products/personal-loan" className="font-semibold underline">
                   Apply now
                 </Link>
@@ -266,6 +265,24 @@ export default function CustomerLoginForm() {
             </div>
           </div>
         )}
+
+        <div className="mt-6 border-t border-gray-100 pt-4 text-center">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-primary"
+          >
+            <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden>
+              <path
+                d="M12.5 4.5 7 10l5.5 5.5"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Back to home
+          </Link>
+        </div>
       </div>
     </div>
   );

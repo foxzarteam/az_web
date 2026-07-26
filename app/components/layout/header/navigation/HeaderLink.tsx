@@ -19,8 +19,18 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
     setSubmenuOpen(false);
   };
 
+  const normalizePath = (p: string) => {
+    if (!p || p === "/") return "/";
+    const [pathnameOnly, hash = ""] = p.split("#");
+    const base = pathnameOnly.replace(/\/+$/, "") || "/";
+    return hash ? `${base}#${hash}` : base;
+  };
+  const current = normalizePath(path || "/");
   const isActive =
-    path === item.href || (item.submenu && item.submenu.length > 0 && item.submenu.some((s) => s.href === path));
+    normalizePath(item.href) === current ||
+    (item.submenu &&
+      item.submenu.length > 0 &&
+      item.submenu.some((s) => normalizePath(s.href) === current));
   const isProducts = item.label === "Products" && item.submenu && item.submenu.length > 0;
 
   return (
@@ -46,7 +56,7 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
             <Link
               key={index}
               href={subItem.href}
-              className={`block px-4 py-2 ${path === subItem.href ? "text-white btn-gradient" : "text-midnight_text dark:text-white hover:bg-section dark:hover:bg-semidark"}`}
+              className={`block px-4 py-2 ${normalizePath(subItem.href) === current ? "text-white btn-gradient" : "text-midnight_text dark:text-white hover:bg-section dark:hover:bg-semidark"}`}
             >
               {subItem.label}
             </Link>
@@ -63,14 +73,14 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
                   key={subItem.slug ?? subItem.href}
                   href={subItem.href}
                   className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors ${
-                    path === subItem.href
+                    normalizePath(subItem.href) === current
                       ? "btn-gradient text-white"
                       : "hover:bg-light dark:hover:bg-semidark text-midnight_text dark:text-white"
                   }`}
                 >
                   <div
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} shadow-sm ${
-                      path === subItem.href ? "ring-2 ring-white/30" : ""
+                      normalizePath(subItem.href) === current ? "ring-2 ring-white/30" : ""
                     }`}
                   >
                     <ServiceSubmenuIcon item={subItem} />

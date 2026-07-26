@@ -53,6 +53,7 @@ export default function CustomerDashboardShell({
               height={52}
               className="h-10 w-auto object-contain sm:h-11"
               priority
+              unoptimized
             />
           </Link>
           <div className="flex min-w-0 items-center gap-3 sm:gap-4">

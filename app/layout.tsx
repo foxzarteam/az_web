@@ -15,7 +15,7 @@ import {
 } from "@/app/lib/seo";
 import Header from "./components/layout/header";
 import Footer from "./components/layout/footer";
-import LoanHelperChat from "./components/loan-helper/LoanHelperChat";
+import LoanHelperChatLazy from "./components/loan-helper/LoanHelperChatLazy";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -122,7 +122,12 @@ export default async function RootLayout({
   return (
     <html lang="en-IN" suppressHydrationWarning className="min-h-[100dvh]">
       <body className={`${dmSans.className} min-h-[100dvh] min-w-0`} suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
           <Aoscompo>
             <ServiceCardsProvider cards={serviceCards}>
               <Header />
@@ -134,7 +139,7 @@ export default async function RootLayout({
               </div>
               <Footer />
             </ServiceCardsProvider>
-            <LoanHelperChat />
+            <LoanHelperChatLazy />
           </Aoscompo>
         </ThemeProvider>
       </body>

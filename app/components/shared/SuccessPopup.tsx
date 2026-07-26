@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 export type PopupVariant = "success" | "warning" | "danger";
@@ -10,6 +10,8 @@ type SuccessPopupProps = {
   onClose: () => void;
   autoCloseMs?: number;
   variant?: PopupVariant;
+  /** Actionable content below the message; disables auto-close so it stays clickable. */
+  footer?: ReactNode;
 };
 
 const variantConfig = {
@@ -56,8 +58,9 @@ const variantConfig = {
   },
 };
 
-export default function SuccessPopup({ message, onClose, autoCloseMs = 3000, variant = "success" }: SuccessPopupProps) {
+export default function SuccessPopup({ message, onClose, autoCloseMs = 3000, variant = "success", footer }: SuccessPopupProps) {
   const config = variantConfig[variant];
+  const autoCloses = !footer;
 
   // Freeze page at current scroll – body fixed at scrollY so page na hile
   useEffect(() => {
@@ -92,9 +95,10 @@ export default function SuccessPopup({ message, onClose, autoCloseMs = 3000, var
   }, []);
 
   useEffect(() => {
+    if (!autoCloses) return;
     const t = setTimeout(onClose, autoCloseMs);
     return () => clearTimeout(t);
-  }, [onClose, autoCloseMs]);
+  }, [onClose, autoCloseMs, autoCloses]);
 
   const popup = (
     <div
@@ -131,17 +135,23 @@ export default function SuccessPopup({ message, onClose, autoCloseMs = 3000, var
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
             {message}
           </p>
+          {footer ? (
+            <div className="mt-4 border-t border-gray-100 pt-4 dark:border-white/10">
+              {footer}
+            </div>
+          ) : null}
         </div>
 
-        {/* Auto-close progress bar */}
-        <div className="h-1 bg-gray-100 dark:bg-white/5">
-          <div
-            className={`h-full rounded-b-2xl ${config.progressBar}`}
-            style={{
-              animation: `success-progress-shrink ${autoCloseMs}ms linear forwards`,
-            }}
-          />
-        </div>
+        {autoCloses ? (
+          <div className="h-1 bg-gray-100 dark:bg-white/5">
+            <div
+              className={`h-full rounded-b-2xl ${config.progressBar}`}
+              style={{
+                animation: `success-progress-shrink ${autoCloseMs}ms linear forwards`,
+              }}
+            />
+          </div>
+        ) : null}
       </div>
     </div>
   );

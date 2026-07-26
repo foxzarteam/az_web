@@ -83,7 +83,7 @@ export default function LoanAmountSlider({
 
         {/* Amount input */}
         <div className="w-[118px] shrink-0 sm:w-[156px]">
-          <div className="rounded-xl border border-[#E2E8F0] bg-white px-2 py-1.5 shadow-[0_2px_12px_rgba(16,45,71,0.06)] dark:border-dark_border dark:bg-darkmode sm:rounded-2xl sm:px-3 sm:py-2.5">
+          <div className="rounded-xl border border-black bg-white px-2 py-1 shadow-[0_2px_12px_rgba(16,45,71,0.06)] dark:border-white dark:bg-darkmode sm:rounded-2xl sm:px-3 sm:py-2">
             <input
               id={`${id}-input`}
               type="text"

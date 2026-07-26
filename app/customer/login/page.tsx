@@ -27,6 +27,7 @@ export default async function CustomerLoginPage() {
             height={56}
             className="h-12 w-auto object-contain"
             priority
+            unoptimized
           />
         </Link>
         <div className="flex flex-1 items-center justify-center pb-12">

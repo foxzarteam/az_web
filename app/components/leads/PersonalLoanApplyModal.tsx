@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
+import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationStatusLink";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
@@ -23,7 +24,7 @@ import { sanitizeMobileInput } from "@/app/utils/validation";
 
 const DEFAULT_LOAN_AMOUNT = 5_00_000;
 const SUCCESS_FALLBACK =
-  "Your application was submitted. Use Check Status in the menu with your mobile number to open your dashboard.";
+  "Your application was submitted. Use “Check your application status” below the form with your mobile number to open your dashboard.";
 
 async function loginAndGoToDashboard(mobile: string, idToken: string): Promise<boolean> {
   const res = await customerLogin(mobile, idToken);
@@ -33,7 +34,7 @@ async function loginAndGoToDashboard(mobile: string, idToken: string): Promise<b
 }
 
 const inputClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80 dark:text-white sm:rounded-xl sm:px-3.5 sm:py-2.5 sm:text-base";
+  "w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80 dark:text-white sm:rounded-xl sm:px-3.5 sm:py-2 sm:text-base";
 
 type PersonalLoanApplyModalProps = {
   open: boolean;
@@ -318,7 +319,7 @@ export default function PersonalLoanApplyModal({
                       setMobile(sanitizeMobileInput(e.target.value));
                     }}
                     pattern="[0-9]*"
-                    className="min-w-0 flex-1 bg-transparent px-2.5 py-2 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 dark:text-white dark:disabled:bg-darkmode/60 sm:px-3 sm:py-2.5 sm:text-base"
+                    className="min-w-0 flex-1 bg-transparent px-2.5 py-1.5 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 dark:text-white dark:disabled:bg-darkmode/60 sm:px-3 sm:py-2 sm:text-base"
                   />
                 </div>
                 {lockMobile ? (
@@ -357,6 +358,8 @@ export default function PersonalLoanApplyModal({
               >
                 {isSubmittingForm ? "Submitting…" : "Apply Now"}
               </button>
+
+              <CheckApplicationStatusLink className="mt-3" onNavigate={handleClose} />
             </form>
           </div>
         </div>
@@ -385,7 +388,7 @@ export default function PersonalLoanApplyModal({
         <SuccessPopup
           message={SUCCESS_FALLBACK}
           onClose={() => setShowSuccess(false)}
-          autoCloseMs={4000}
+          footer={<CheckApplicationStatusLink />}
         />
       )}
     </>,
