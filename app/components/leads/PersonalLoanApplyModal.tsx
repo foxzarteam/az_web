@@ -12,7 +12,7 @@ import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/consta
 import { getCurrentFirebaseIdToken } from "@/app/lib/firebase/phoneAuth";
 import { reportFormValidity } from "@/app/utils/formValidation";
 import { customerLogin } from "@/app/utils/customerAuthApi";
-import { applyLead, leadIdFromResponse } from "@/app/utils/leadApi";
+import { applyLead, completeLead, leadIdFromResponse } from "@/app/utils/leadApi";
 import { updateChatSession } from "@/app/utils/chatApi";
 import {
   sanitizeLeadNameInput,
@@ -46,6 +46,8 @@ type PersonalLoanApplyModalProps = {
   lockMobile?: boolean;
   /** OTP already verified — submit lead only, skip OTP modal. */
   skipOtp?: boolean;
+  /** Existing draft/pending lead id (chat: created after OTP via /leads/start). */
+  leadId?: string;
   /** Chat session to mark lead_submitted after apply. */
   chatId?: string;
   /** Prefill loan slider (from chat answers). */
@@ -58,6 +60,7 @@ export default function PersonalLoanApplyModal({
   initialMobile = "",
   lockMobile = false,
   skipOtp = false,
+  leadId: existingLeadId,
   chatId,
   initialLoanAmount,
 }: PersonalLoanApplyModalProps) {
@@ -171,20 +174,36 @@ export default function PersonalLoanApplyModal({
     setIsSubmittingForm(true);
 
     try {
-      const applyRes = await applyLead({
-        pan: pan.trim().toUpperCase(),
-        mobileNumber: mobile.replace(/\D/g, ""),
-        fullName: fullName.trim(),
-        category: "personal_loan",
-        requiredAmount: loanAmount,
-      });
+      const mobileDigits = mobile.replace(/\D/g, "");
+      let applyRes;
+      if (skipOtp && existingLeadId) {
+        const idToken = await getCurrentFirebaseIdToken();
+        applyRes = await completeLead(
+          existingLeadId,
+          {
+            pan: pan.trim().toUpperCase(),
+            fullName: fullName.trim(),
+            category: "personal_loan",
+            requiredAmount: loanAmount,
+          },
+          idToken,
+        );
+      } else {
+        applyRes = await applyLead({
+          pan: pan.trim().toUpperCase(),
+          mobileNumber: mobileDigits,
+          fullName: fullName.trim(),
+          category: "personal_loan",
+          requiredAmount: loanAmount,
+        });
+      }
 
       if (!applyRes.success) {
         setFormError(applyRes.message || "Could not submit application.");
         return;
       }
 
-      const leadId = leadIdFromResponse(applyRes.data);
+      const leadId = leadIdFromResponse(applyRes.data) || existingLeadId || "";
       if (!leadId) {
         setFormError("Could not submit application. Please try again.");
         return;
@@ -195,7 +214,6 @@ export default function PersonalLoanApplyModal({
       }
 
       if (skipOtp) {
-        const mobileDigits = mobile.replace(/\D/g, "");
         const idToken = await getCurrentFirebaseIdToken();
         blurActiveElement();
         resetForm();

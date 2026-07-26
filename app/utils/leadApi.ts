@@ -109,7 +109,7 @@ export function leadIdFromResponse(data: unknown): string | null {
 
 /**
  * Save full lead BEFORE OTP.
- * Rejects duplicate mobile / PAN.
+ * Upgrades draft/pending row for the same mobile when one already exists.
  */
 export async function applyLead(
   leadData: CreateLeadRequest
@@ -132,6 +132,90 @@ export async function applyLead(
     return parseLeadApiResponse(response, raw);
   } catch (error) {
     console.error("Error applying lead:", error);
+    return {
+      success: false,
+      message: "Network error. Please try again later.",
+    };
+  }
+}
+
+/**
+ * After OTP: create (or reuse) a draft lead row for this mobile.
+ */
+export async function startLead(
+  mobileNumber: string,
+  category: CreateLeadRequest["category"] = "personal_loan",
+): Promise<CreateLeadResponse & { isDraft?: boolean }> {
+  const endpoint = `${PUBLIC_API_BASE_URL}/api/leads/start`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ mobileNumber, category }),
+      mode: "cors",
+      credentials: "omit",
+    });
+
+    const raw = await response.text();
+    const parsed = parseLeadApiResponse(response, raw);
+    let isDraft: boolean | undefined;
+    if (raw) {
+      try {
+        const data = JSON.parse(raw) as { isDraft?: boolean };
+        if (typeof data.isDraft === "boolean") isDraft = data.isDraft;
+      } catch {
+        /* ignore */
+      }
+    }
+    return { ...parsed, isDraft };
+  } catch (error) {
+    console.error("Error starting lead:", error);
+    return {
+      success: false,
+      message: "Network error. Please try again later.",
+    };
+  }
+}
+
+/**
+ * Fill remaining details on an existing draft/pending lead (chat form submit).
+ */
+export async function completeLead(
+  leadId: string,
+  body: {
+    pan: string;
+    fullName: string;
+    category?: CreateLeadRequest["category"];
+    requiredAmount?: number;
+    insType?: string;
+  },
+  idToken?: string | null,
+): Promise<CreateLeadResponse> {
+  const endpoint = `${PUBLIC_API_BASE_URL}/api/leads/${encodeURIComponent(leadId)}/complete`;
+
+  try {
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    };
+    if (idToken) headers["Authorization"] = `Bearer ${idToken}`;
+
+    const response = await fetch(endpoint, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify(body),
+      mode: "cors",
+      credentials: "omit",
+    });
+
+    const raw = await response.text();
+    return parseLeadApiResponse(response, raw);
+  } catch (error) {
+    console.error("Error completing lead:", error);
     return {
       success: false,
       message: "Network error. Please try again later.",

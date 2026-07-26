@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { sanitizeMobileInput, validateMobileNumber } from "@/app/utils/validation";
 import { createChatSession, updateChatSession } from "@/app/utils/chatApi";
+import { startLead, leadIdFromResponse } from "@/app/utils/leadApi";
 import { chatLoanAmountToRupees, type ChatAnswers } from "@/app/lib/chat/types";
 
 const LeadApplyModal = dynamic(() => import("@/app/components/leads/LeadApplyModal"), {
@@ -250,6 +251,7 @@ export default function LoanHelperChat() {
   const [mobileError, setMobileError] = useState("");
   const [isSavingChat, setIsSavingChat] = useState(false);
   const [chatId, setChatId] = useState<string | null>(null);
+  const [draftLeadId, setDraftLeadId] = useState<string | null>(null);
   const [showOtp, setShowOtp] = useState(false);
   const [showApplyForm, setShowApplyForm] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -355,6 +357,7 @@ export default function LoanHelperChat() {
     setSubmittedMobile(null);
     setMobileError("");
     setChatId(null);
+    setDraftLeadId(null);
     setShowOtp(false);
     setShowApplyForm(false);
   }, []);
@@ -593,15 +596,47 @@ export default function LoanHelperChat() {
         onEditMobile={() => {
           setShowOtp(false);
           setSubmittedMobile(null);
+          setDraftLeadId(null);
           setIsOpen(true);
           setStep("mobile");
         }}
         onSuccess={() => {
-          setShowOtp(false);
-          if (chatId) {
-            void updateChatSession(chatId, { status: "otp_verified" });
-          }
-          setShowApplyForm(true);
+          void (async () => {
+            setShowOtp(false);
+            const mobile = submittedMobile ?? "";
+            if (!mobile) {
+              setIsOpen(true);
+              setStep("mobile");
+              setMobileError("Mobile number missing. Please try again.");
+              return;
+            }
+
+            // Create/reuse draft lead row for this number, then open form to fill details.
+            const started = await startLead(mobile, "personal_loan");
+            if (!started.success) {
+              setIsOpen(true);
+              setStep("mobile");
+              setMobileError(
+                started.message ||
+                  "This mobile number already exists. Please use a different number.",
+              );
+              return;
+            }
+
+            const leadId = leadIdFromResponse(started.data);
+            if (!leadId) {
+              setIsOpen(true);
+              setStep("mobile");
+              setMobileError("Could not save mobile. Please try again.");
+              return;
+            }
+
+            setDraftLeadId(leadId);
+            if (chatId) {
+              void updateChatSession(chatId, { status: "otp_verified" });
+            }
+            setShowApplyForm(true);
+          })();
         }}
       />
 
@@ -614,6 +649,7 @@ export default function LoanHelperChat() {
         initialMobile={submittedMobile ?? ""}
         lockMobile
         skipOtp
+        leadId={draftLeadId ?? undefined}
         chatId={chatId ?? undefined}
         initialLoanAmount={
           loanAmount ? chatLoanAmountToRupees(loanAmount) : undefined
