@@ -509,7 +509,7 @@ export default function PartnersTable({
       )}
 
       {createOpen && (
-        <AdminModal title="Add partner" wide onClose={closeModals}>
+        <AdminModal title="Add partner" onClose={closeModals}>
           <form onSubmit={handleCreate} className="space-y-6 p-6 sm:p-8">
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <PartnerFormFields form={form} setForm={setForm} inputClass={inputClass} serviceOptions={serviceOptions} />
@@ -526,7 +526,7 @@ export default function PartnersTable({
       )}
 
       {editRow && (
-        <AdminModal title="Edit partner" wide onClose={closeModals}>
+        <AdminModal title="Edit partner" onClose={closeModals}>
           <form onSubmit={handleSaveEdit} className="space-y-6 p-6 sm:p-8">
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <PartnerFormFields form={form} setForm={setForm} inputClass={inputClass} serviceOptions={serviceOptions} />

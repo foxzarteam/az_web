@@ -28,13 +28,11 @@ const STATUSES = [
 
 const VIEW_FIELDS = [
   "full_name",
-  "email",
   "mobile_number",
   "pan",
   "category",
   "status",
   "otp_verified",
-  "pincode",
   "required_amount",
   "is_active",
   "created_at",
@@ -130,12 +128,10 @@ function amountOrInsuranceText(row: AdminLeadRow): string {
 
 type EditForm = {
   fullName: string;
-  email: string;
   mobileNumber: string;
   pan: string;
   category: string;
   status: string;
-  pincode: string;
   requiredAmount: string;
   notes: string;
 };
@@ -143,15 +139,116 @@ type EditForm = {
 function leadToEditForm(lead: AdminLeadRow): EditForm {
   return {
     fullName: String(lead.full_name ?? ""),
-    email: String(lead.email ?? ""),
     mobileNumber: String(lead.mobile_number ?? ""),
     pan: String(lead.pan ?? ""),
     category: String(lead.category ?? "personal_loan"),
     status: String(lead.status ?? "pending"),
-    pincode: String(lead.pincode ?? ""),
     requiredAmount: lead.required_amount != null ? String(lead.required_amount) : "",
     notes: String(lead.notes ?? ""),
   };
+}
+
+function emptyCreateForm(): EditForm {
+  return {
+    fullName: "",
+    mobileNumber: "",
+    pan: "",
+    category: "personal_loan",
+    status: "pending",
+    requiredAmount: "",
+    notes: "",
+  };
+}
+
+function LeadFormFields({
+  form,
+  setForm,
+  inputClass,
+}: {
+  form: EditForm;
+  setForm: (next: EditForm) => void;
+  inputClass: string;
+}) {
+  return (
+    <div className="grid gap-5 sm:grid-cols-2">
+      <label className="block sm:col-span-2">
+        <span className={ADMIN_LABEL}>Name</span>
+        <input
+          className={inputClass}
+          value={form.fullName}
+          onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+          required
+        />
+      </label>
+      <label className="block">
+        <span className={ADMIN_LABEL}>Phone</span>
+        <input
+          className={inputClass}
+          value={form.mobileNumber}
+          onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })}
+          required
+          maxLength={10}
+        />
+      </label>
+      <label className="block">
+        <span className={ADMIN_LABEL}>PAN</span>
+        <input
+          className={inputClass}
+          value={form.pan}
+          onChange={(e) => setForm({ ...form, pan: e.target.value.toUpperCase() })}
+          required
+          maxLength={10}
+        />
+      </label>
+      <label className="block">
+        <span className={ADMIN_LABEL}>Product</span>
+        <select
+          className={inputClass}
+          value={form.category}
+          onChange={(e) => setForm({ ...form, category: e.target.value })}
+        >
+          {CATEGORIES.map((c) => (
+            <option key={c.value} value={c.value}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="block">
+        <span className={ADMIN_LABEL}>Status</span>
+        <select
+          className={inputClass}
+          value={form.status}
+          onChange={(e) => setForm({ ...form, status: e.target.value })}
+        >
+          {STATUSES.map((s) => (
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="block">
+        <span className={ADMIN_LABEL}>Required amount</span>
+        <input
+          type="number"
+          min={0}
+          className={inputClass}
+          value={form.requiredAmount}
+          onChange={(e) => setForm({ ...form, requiredAmount: e.target.value })}
+        />
+      </label>
+      <label className="block sm:col-span-2">
+        <span className={ADMIN_LABEL}>Notes</span>
+        <textarea
+          className={inputClass}
+          rows={3}
+          value={form.notes}
+          onChange={(e) => setForm({ ...form, notes: e.target.value })}
+        />
+      </label>
+    </div>
+  );
 }
 
 export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRow[] }) {
@@ -160,6 +257,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
   const [viewLead, setViewLead] = useState<AdminLeadRow | null>(null);
   const [editLead, setEditLead] = useState<AdminLeadRow | null>(null);
   const [deleteLead, setDeleteLead] = useState<AdminLeadRow | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
   const [editForm, setEditForm] = useState<EditForm | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -173,6 +271,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     setViewLead(null);
     setEditLead(null);
     setDeleteLead(null);
+    setCreateOpen(false);
     setEditForm(null);
     setError(null);
   }, []);
@@ -181,16 +280,74 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeModals();
     };
-    if (viewLead || editLead || deleteLead) {
+    if (viewLead || editLead || deleteLead || createOpen) {
       document.addEventListener("keydown", onKey);
       return () => document.removeEventListener("keydown", onKey);
     }
-  }, [viewLead, editLead, deleteLead, closeModals]);
+  }, [viewLead, editLead, deleteLead, createOpen, closeModals]);
+
+  function openCreate() {
+    setCreateOpen(true);
+    setEditForm(emptyCreateForm());
+    setError(null);
+  }
 
   function openEdit(lead: AdminLeadRow) {
     setEditLead(lead);
     setEditForm(leadToEditForm(lead));
     setError(null);
+  }
+
+  function buildLeadPayload(form: EditForm): Record<string, unknown> {
+    const payload: Record<string, unknown> = {
+      fullName: form.fullName.trim(),
+      mobileNumber: form.mobileNumber.trim(),
+      pan: form.pan.trim().toUpperCase(),
+      category: form.category,
+      status: form.status,
+      notes: form.notes.trim(),
+    };
+    if (form.requiredAmount.trim()) {
+      payload.requiredAmount = Number(form.requiredAmount);
+    } else {
+      payload.requiredAmount = null;
+    }
+    return payload;
+  }
+
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editForm) return;
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/admin/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildLeadPayload(editForm)),
+      });
+      const data = (await res.json()) as {
+        success?: boolean;
+        data?: AdminLeadRow;
+        error?: string;
+        message?: string;
+      };
+      if (!res.ok) {
+        setError(data.error ?? data.message ?? "Create failed");
+        return;
+      }
+      if (data.data) {
+        setLeads((prev) => [data.data!, ...prev]);
+      }
+      closeModals();
+      router.refresh();
+    } catch {
+      setError("Network error. Try again.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleSaveEdit(e: React.FormEvent) {
@@ -200,21 +357,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     setSaving(true);
     setError(null);
 
-    const payload: Record<string, unknown> = {
-      fullName: editForm.fullName.trim(),
-      email: editForm.email.trim(),
-      mobileNumber: editForm.mobileNumber.trim(),
-      pan: editForm.pan.trim(),
-      category: editForm.category,
-      status: editForm.status,
-      pincode: editForm.pincode.trim(),
-      notes: editForm.notes.trim(),
-    };
-    if (editForm.requiredAmount.trim()) {
-      payload.requiredAmount = Number(editForm.requiredAmount);
-    } else {
-      payload.requiredAmount = null;
-    }
+    const payload = buildLeadPayload(editForm);
 
     try {
       const res = await fetch(`/api/admin/leads/${encodeURIComponent(String(editLead.id))}`, {
@@ -385,6 +528,11 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         getRowId={(row, i) => String(row.id ?? i)}
         searchPlaceholder="Search name, phone, product…"
         emptyMessage="No leads to display."
+        toolbarRight={
+          <button type="button" onClick={openCreate} className={ADMIN_BTN_PRIMARY}>
+            Add lead
+          </button>
+        }
       />
 
       {viewLead && (
@@ -417,60 +565,36 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         </AdminModal>
       )}
 
+      {createOpen && editForm && (
+        <AdminModal title="Add lead" wide onClose={closeModals}>
+          <form onSubmit={handleCreate} className="space-y-6 p-6 sm:p-8">
+            {error && <p className={ADMIN_ERROR}>{error}</p>}
+            <LeadFormFields
+              form={editForm}
+              setForm={(next) => setEditForm(next)}
+              inputClass={inputClass}
+            />
+            <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
+              <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
+                Cancel
+              </button>
+              <button type="submit" disabled={saving} className={ADMIN_BTN_PRIMARY}>
+                {saving ? "Saving…" : "Create"}
+              </button>
+            </div>
+          </form>
+        </AdminModal>
+      )}
+
       {editLead && editForm && (
         <AdminModal title="Edit lead" wide onClose={closeModals}>
           <form onSubmit={handleSaveEdit} className="space-y-6 p-6 sm:p-8">
             {error && <p className={ADMIN_ERROR}>{error}</p>}
-            <div className="grid gap-5 sm:grid-cols-2">
-              <label className="block sm:col-span-2">
-                <span className={ADMIN_LABEL}>Name</span>
-                <input className={inputClass} value={editForm.fullName} onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })} required />
-              </label>
-              <label className="block">
-                <span className={ADMIN_LABEL}>Email</span>
-                <input type="email" className={inputClass} value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
-              </label>
-              <label className="block">
-                <span className={ADMIN_LABEL}>Phone</span>
-                <input className={inputClass} value={editForm.mobileNumber} onChange={(e) => setEditForm({ ...editForm, mobileNumber: e.target.value })} required maxLength={10} />
-              </label>
-              <label className="block">
-                <span className={ADMIN_LABEL}>PAN</span>
-                <input className={inputClass} value={editForm.pan} onChange={(e) => setEditForm({ ...editForm, pan: e.target.value.toUpperCase() })} required maxLength={10} />
-              </label>
-              <label className="block">
-                <span className={ADMIN_LABEL}>Product</span>
-                <select className={inputClass} value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}>
-                  {CATEGORIES.map((c) => (
-                    <option key={c.value} value={c.value}>
-                      {c.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="block">
-                <span className={ADMIN_LABEL}>Status</span>
-                <select className={inputClass} value={editForm.status} onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}>
-                  {STATUSES.map((s) => (
-                    <option key={s.value} value={s.value}>
-                      {s.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="block">
-                <span className={ADMIN_LABEL}>Pincode</span>
-                <input className={inputClass} value={editForm.pincode} onChange={(e) => setEditForm({ ...editForm, pincode: e.target.value })} maxLength={6} />
-              </label>
-              <label className="block">
-                <span className={ADMIN_LABEL}>Required amount</span>
-                <input type="number" min={0} className={inputClass} value={editForm.requiredAmount} onChange={(e) => setEditForm({ ...editForm, requiredAmount: e.target.value })} />
-              </label>
-              <label className="block sm:col-span-2">
-                <span className={ADMIN_LABEL}>Notes</span>
-                <textarea className={inputClass} rows={3} value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} />
-              </label>
-            </div>
+            <LeadFormFields
+              form={editForm}
+              setForm={(next) => setEditForm(next)}
+              inputClass={inputClass}
+            />
             <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
               <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
                 Cancel
