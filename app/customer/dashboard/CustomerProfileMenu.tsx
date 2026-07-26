@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import AdminModal from "@/app/admin/dashboard/AdminModal";
+import AppModal from "@/app/components/shared/crm/AppModal";
 
 type CustomerProfile = {
   name: string;
@@ -190,7 +190,7 @@ export default function CustomerProfileMenu({
       </div>
 
       {mode === "view" && (
-        <AdminModal title="My profile" onClose={closeModal}>
+        <AppModal title="My profile" onClose={closeModal}>
           <div className="p-6 sm:p-8">
             {loading && <p className="text-sm text-gray-500">Loading…</p>}
             {error && <p className="text-sm text-red-600">{error}</p>}
@@ -246,11 +246,11 @@ export default function CustomerProfileMenu({
               </>
             )}
           </div>
-        </AdminModal>
+        </AppModal>
       )}
 
       {mode === "edit" && (
-        <AdminModal title="Edit profile" onClose={closeModal}>
+        <AppModal title="Edit profile" onClose={closeModal}>
           <form onSubmit={handleSave} className="p-6 sm:p-8" noValidate>
             {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
             <div className="space-y-5">
@@ -310,7 +310,7 @@ export default function CustomerProfileMenu({
               </button>
             </div>
           </form>
-        </AdminModal>
+        </AppModal>
       )}
     </>
   );

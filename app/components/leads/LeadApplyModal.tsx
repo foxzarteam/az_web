@@ -10,6 +10,7 @@ import {
   sendFirebasePhoneOtp,
   verifyPhoneOtp,
 } from "@/app/lib/firebase/phoneAuth";
+import { useBodyScrollLock } from "@/app/utils/useBodyScrollLock";
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN_SEC = 60;
@@ -96,22 +97,7 @@ export default function LeadApplyModal({
     return () => clearTimeout(t);
   }, [resendCooldown]);
 
-  useEffect(() => {
-    if (!open) return;
-    const scrollY = window.scrollY;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    document.body.style.overflow = "hidden";
-    document.body.style.paddingRight = scrollbarWidth ? `${scrollbarWidth}px` : "0";
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    return () => {
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
-      document.body.style.position = "";
-      document.body.style.top = "";
-      window.scrollTo(0, scrollY);
-    };
-  }, [open]);
+  useBodyScrollLock(open);
 
   const verifyOtp = async (otp: string) => {
     if (otp.length !== OTP_LENGTH || isVerifyingOtp || !firebaseConfirmation) return;

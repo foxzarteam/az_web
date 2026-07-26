@@ -57,15 +57,10 @@ export function sanitizeLeadNameInput(raw: string): string {
   return raw.replace(/[^a-zA-Z\s.]/g, "");
 }
 
-export function sanitizeLeadAadhaarInput(raw: string): string {
-  return raw.replace(/\D/g, "").slice(0, 12);
-}
-
 export type LeadFieldErrors = Partial<{
   pan: string;
   mobile: string;
   fullName: string;
-  aadhaar: string;
   service: string;
   loanAmt: string;
   insType: string;
@@ -103,16 +98,11 @@ export function validateLeadApplicantDetails(params: {
   pan: string;
   mobileDigits: string;
   fullName: string;
-  aadhaar: string;
   service: string;
   loanAmt?: string;
   insType?: string;
 }): LeadFieldErrors {
   const errors = validateLeadPanNameMobile(params);
-
-  const a = params.aadhaar.replace(/\D/g, "");
-  if (!a) errors.aadhaar = "Aadhaar is required";
-  else if (a.length !== 12) errors.aadhaar = "Enter valid 12-digit Aadhaar number";
 
   if (!params.service.trim()) errors.service = "Please select a product";
 

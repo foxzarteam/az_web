@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
@@ -21,6 +21,7 @@ import {
   type LeadFieldErrors,
 } from "@/app/utils/leadForm";
 import { sanitizeMobileInput } from "@/app/utils/validation";
+import { blurActiveElement, useBodyScrollLock } from "@/app/utils/useBodyScrollLock";
 
 const DEFAULT_LOAN_AMOUNT = 5_00_000;
 const SUCCESS_FALLBACK =
@@ -111,32 +112,30 @@ export default function PersonalLoanApplyModal({
 
   const handleClose = useCallback(() => {
     if (showOtpModal || isSubmittingForm) return;
+    blurActiveElement();
     resetForm();
     onClose();
   }, [onClose, resetForm, showOtpModal, isSubmittingForm]);
 
+  // Keep page scroll frozen while modal is open (including OTP step).
+  // overflow:hidden only — no position:fixed — so close does not jump the page.
+  useBodyScrollLock(open);
+
+  const previousFocusRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
-    if (!open || showOtpModal) return;
-    const scrollY = window.scrollY;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    document.body.style.overflow = "hidden";
-    document.body.style.paddingRight = scrollbarWidth ? `${scrollbarWidth}px` : "0";
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.width = "100%";
+    if (!open) return;
+    previousFocusRef.current = document.activeElement as HTMLElement | null;
     return () => {
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.width = "";
-      window.scrollTo(0, scrollY);
+      const el = previousFocusRef.current;
+      if (el && typeof el.focus === "function") {
+        try {
+          el.focus({ preventScroll: true });
+        } catch {
+          /* ignore */
+        }
+      }
     };
-  }, [open, showOtpModal]);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -198,6 +197,7 @@ export default function PersonalLoanApplyModal({
       if (skipOtp) {
         const mobileDigits = mobile.replace(/\D/g, "");
         const idToken = await getCurrentFirebaseIdToken();
+        blurActiveElement();
         resetForm();
         onClose();
         if (idToken && (await loginAndGoToDashboard(mobileDigits, idToken))) {
@@ -347,7 +347,7 @@ export default function PersonalLoanApplyModal({
                   id="hero-pl-terms"
                   checked={termsAccepted}
                   onChange={setTermsAccepted}
-                  textClassName="text-xs text-gray-700 dark:text-gray-300 sm:text-sm"
+                  textClassName="text-[11px] leading-snug text-gray-600 dark:text-gray-400"
                 />
               </div>
 

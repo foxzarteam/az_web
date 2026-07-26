@@ -21,6 +21,7 @@ export default function AgentLeadForm({ agentName }: Props) {
 
   const [formData, setFormData] = useState(emptyForm);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
   const [productError, setProductError] = useState<string | undefined>();
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -47,7 +48,7 @@ export default function AgentLeadForm({ agentName }: Props) {
     if (!PUBLIC_FORM_SUBMIT_AJAX_URL) {
       console.error("Set NEXT_PUBLIC_FORM_SUBMIT_AJAX_URL in .env.local for form submissions.");
       setLoading(false);
-      setShowSuccess(true);
+      setFormError("Form submission is not configured. Please try again later.");
       return;
     }
 
@@ -71,16 +72,17 @@ export default function AgentLeadForm({ agentName }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await response.json();
-      if (data.success) {
+      const data = (await response.json().catch(() => ({}))) as { success?: boolean; message?: string };
+      if (response.ok && data.success) {
         setFormData(emptyForm);
         setTermsAccepted(false);
+        setFormError("");
         setShowSuccess(true);
       } else {
-        setShowSuccess(true);
+        setFormError(data.message || "Could not submit. Please try again.");
       }
     } catch {
-      setShowSuccess(true);
+      setFormError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -108,6 +110,11 @@ export default function AgentLeadForm({ agentName }: Props) {
         <p className="mt-2 text-sm leading-relaxed text-gray dark:text-gray-300">
           Get in touch — <span className="font-semibold text-primary dark:text-sky-200">{agentName}</span> will get back to you soon.
         </p>
+        {formError ? (
+          <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+            {formError}
+          </p>
+        ) : null}
 
         <div className="mt-8 flex flex-col gap-5">
           <div>

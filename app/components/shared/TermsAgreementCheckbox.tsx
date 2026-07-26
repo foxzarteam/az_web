@@ -63,7 +63,7 @@ export default function TermsAgreementCheckbox({
               {" "}
               and{" "}
               <Link
-                href="/terms-and-conditions"
+                href="/privacy-policy"
                 className="text-primary hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"

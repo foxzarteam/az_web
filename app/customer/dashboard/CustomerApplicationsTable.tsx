@@ -7,8 +7,8 @@ import type { CustomerLead } from "@/app/lib/customer/leadsByMobile";
 import CrmDataTable, {
   CrmActionButton,
   type CrmColumn,
-} from "@/app/admin/dashboard/CrmDataTable";
-import AdminModal from "@/app/admin/dashboard/AdminModal";
+} from "@/app/components/shared/crm/DataTable";
+import AppModal from "@/app/components/shared/crm/AppModal";
 
 type StatusFilter = "all" | "pending" | "approved" | "rejected";
 
@@ -341,7 +341,7 @@ export default function CustomerApplicationsTable({
       )}
 
       {viewLead && (
-        <AdminModal title="Application details" wide onClose={closeModals}>
+        <AppModal title="Application details" wide onClose={closeModals}>
           <div className="overflow-hidden">
             <div className="border-b border-black/5 bg-gradient-to-r from-primary/[0.06] to-[#ff7a1a]/[0.06] px-5 py-4 sm:px-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -383,11 +383,11 @@ export default function CustomerApplicationsTable({
               </div>
             </div>
           </div>
-        </AdminModal>
+        </AppModal>
       )}
 
       {deleteLead && (
-        <AdminModal title="Delete application" onClose={closeModals}>
+        <AppModal title="Delete application" onClose={closeModals}>
           <div className="p-6 sm:p-8">
             <p className="text-sm text-midnight_text">
               Delete application{" "}
@@ -413,7 +413,7 @@ export default function CustomerApplicationsTable({
               </button>
             </div>
           </div>
-        </AdminModal>
+        </AppModal>
       )}
     </div>
   );

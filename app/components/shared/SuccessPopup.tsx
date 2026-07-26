@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useBodyScrollLock } from "@/app/utils/useBodyScrollLock";
 
 export type PopupVariant = "success" | "warning" | "danger";
 
@@ -62,37 +63,8 @@ export default function SuccessPopup({ message, onClose, autoCloseMs = 3000, var
   const config = variantConfig[variant];
   const autoCloses = !footer;
 
-  // Freeze page at current scroll – body fixed at scrollY so page na hile
-  useEffect(() => {
-    const scrollY = window.scrollY;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    const prevStyle = {
-      overflow: document.body.style.overflow,
-      paddingRight: document.body.style.paddingRight,
-      position: document.body.style.position,
-      top: document.body.style.top,
-      left: document.body.style.left,
-      right: document.body.style.right,
-      width: document.body.style.width,
-    };
-    document.body.style.overflow = "hidden";
-    document.body.style.paddingRight = scrollbarWidth ? `${scrollbarWidth}px` : "0";
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.width = "100%";
-    return () => {
-      document.body.style.overflow = prevStyle.overflow;
-      document.body.style.paddingRight = prevStyle.paddingRight;
-      document.body.style.position = prevStyle.position;
-      document.body.style.top = prevStyle.top;
-      document.body.style.left = prevStyle.left;
-      document.body.style.right = prevStyle.right;
-      document.body.style.width = prevStyle.width;
-      window.scrollTo(0, scrollY);
-    };
-  }, []);
+  // Freeze page scroll without position:fixed (avoids jump on close)
+  useBodyScrollLock(true);
 
   useEffect(() => {
     if (!autoCloses) return;

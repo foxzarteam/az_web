@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
-import { insuranceTypeLabel, loanAmountLabel } from "@/app/utils/leadForm";
+import { insuranceTypeLabel, loanAmountLabel, INSURANCE_TYPE_OPTIONS } from "@/app/utils/leadForm";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import { PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
 import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
@@ -137,6 +137,7 @@ type EditForm = {
   category: string;
   status: string;
   requiredAmount: number;
+  insType: string;
 };
 
 function clampLoanAmount(value: unknown): number {
@@ -156,6 +157,7 @@ function leadToEditForm(lead: AdminLeadRow): EditForm {
     category: String(lead.category ?? "personal_loan"),
     status: String(lead.status ?? "pending"),
     requiredAmount: clampLoanAmount(lead.required_amount ?? DEFAULT_LOAN_AMOUNT),
+    insType: String(lead.ins_type ?? "life_insurance"),
   };
 }
 
@@ -167,6 +169,7 @@ function emptyCreateForm(): EditForm {
     category: "personal_loan",
     status: "pending",
     requiredAmount: DEFAULT_LOAN_AMOUNT,
+    insType: "life_insurance",
   };
 }
 
@@ -225,13 +228,30 @@ function LeadFormFields({
 
   return (
     <div className="grid gap-5 sm:grid-cols-2">
-      <div className="sm:col-span-2">
-        <LoanAmountSlider
-          id="admin-lead-loan-amount"
-          value={form.requiredAmount}
-          onChange={(value) => setForm({ ...form, requiredAmount: value })}
-        />
-      </div>
+      {form.category === "personal_loan" ? (
+        <div className="sm:col-span-2">
+          <LoanAmountSlider
+            id="admin-lead-loan-amount"
+            value={form.requiredAmount}
+            onChange={(value) => setForm({ ...form, requiredAmount: value })}
+          />
+        </div>
+      ) : (
+        <label className="block sm:col-span-2">
+          <span className={ADMIN_LABEL}>Insurance type</span>
+          <select
+            className={inputClass}
+            value={form.insType}
+            onChange={(e) => setForm({ ...form, insType: e.target.value })}
+          >
+            {INSURANCE_TYPE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       <label className="block sm:col-span-2">
         <span className={ADMIN_LABEL}>Name</span>
         <input
@@ -391,8 +411,16 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
       mobileNumber: form.mobileNumber.trim(),
       category: form.category,
       status: form.status,
-      requiredAmount: form.requiredAmount,
     };
+    if (form.category === "personal_loan") {
+      payload.requiredAmount = form.requiredAmount;
+      payload.insType = null;
+      payload.loanAmt = null;
+    } else if (form.category === "insurance") {
+      payload.insType = form.insType;
+      payload.requiredAmount = null;
+      payload.loanAmt = null;
+    }
     const pan = form.pan.trim().toUpperCase();
     if (!(opts?.omitMaskedPan && isMaskedPanValue(pan))) {
       payload.pan = pan;
