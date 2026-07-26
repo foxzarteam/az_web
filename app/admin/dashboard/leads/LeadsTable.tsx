@@ -170,14 +170,42 @@ function emptyCreateForm(): EditForm {
   };
 }
 
+type FieldErrors = {
+  mobileNumber?: string;
+  pan?: string;
+};
+
+const PHONE_PATTERN = /^[6-9]\d{9}$/;
+const PAN_PATTERN = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
+
+function validateLeadForm(form: EditForm): FieldErrors {
+  const errors: FieldErrors = {};
+  if (!PHONE_PATTERN.test(form.mobileNumber.trim())) {
+    errors.mobileNumber = "Enter a valid 10-digit mobile number";
+  }
+  if (!PAN_PATTERN.test(form.pan.trim().toUpperCase())) {
+    errors.pan = "Enter a valid PAN (e.g. ABCDE1234F)";
+  }
+  return errors;
+}
+
+function FieldErrorText({ message }: { message?: string }) {
+  if (!message) return null;
+  return <span className="mt-1 block text-xs text-red-600 dark:text-red-400">{message}</span>;
+}
+
 function LeadFormFields({
   form,
   setForm,
   inputClass,
+  fieldErrors,
+  clearFieldError,
 }: {
   form: EditForm;
   setForm: (next: EditForm) => void;
   inputClass: string;
+  fieldErrors: FieldErrors;
+  clearFieldError: (key: keyof FieldErrors) => void;
 }) {
   return (
     <div className="grid gap-5 sm:grid-cols-2">
@@ -203,20 +231,31 @@ function LeadFormFields({
         <input
           className={inputClass}
           value={form.mobileNumber}
-          onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, mobileNumber: e.target.value.replace(/\D/g, "") });
+            clearFieldError("mobileNumber");
+          }}
+          placeholder="enter phone number"
+          inputMode="numeric"
           required
           maxLength={10}
         />
+        <FieldErrorText message={fieldErrors.mobileNumber} />
       </label>
       <label className="block">
         <span className={ADMIN_LABEL}>PAN</span>
         <input
           className={inputClass}
           value={form.pan}
-          onChange={(e) => setForm({ ...form, pan: e.target.value.toUpperCase() })}
+          onChange={(e) => {
+            setForm({ ...form, pan: e.target.value.toUpperCase() });
+            clearFieldError("pan");
+          }}
+          placeholder="enter PAN number"
           required
           maxLength={10}
         />
+        <FieldErrorText message={fieldErrors.pan} />
       </label>
       <label className="block">
         <span className={ADMIN_LABEL}>Product</span>
@@ -261,6 +300,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   useEffect(() => {
     setLeads(initialLeads);
@@ -273,6 +313,11 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     setCreateOpen(false);
     setEditForm(null);
     setError(null);
+    setFieldErrors({});
+  }, []);
+
+  const clearFieldError = useCallback((key: keyof FieldErrors) => {
+    setFieldErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
   }, []);
 
   useEffect(() => {
@@ -289,12 +334,14 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     setCreateOpen(true);
     setEditForm(emptyCreateForm());
     setError(null);
+    setFieldErrors({});
   }
 
   function openEdit(lead: AdminLeadRow) {
     setEditLead(lead);
     setEditForm(leadToEditForm(lead));
     setError(null);
+    setFieldErrors({});
   }
 
   function buildLeadPayload(form: EditForm): Record<string, unknown> {
@@ -312,8 +359,15 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     e.preventDefault();
     if (!editForm) return;
 
+    const validationErrors = validateLeadForm(editForm);
+    if (validationErrors.mobileNumber || validationErrors.pan) {
+      setFieldErrors(validationErrors);
+      return;
+    }
+
     setSaving(true);
     setError(null);
+    setFieldErrors({});
 
     try {
       const res = await fetch("/api/admin/leads", {
@@ -326,9 +380,15 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         data?: AdminLeadRow;
         error?: string;
         message?: string;
+        field?: string;
       };
       if (!res.ok) {
-        setError(data.error ?? data.message ?? "Create failed");
+        const message = data.error ?? data.message ?? "Create failed";
+        if (data.field === "mobileNumber" || data.field === "pan") {
+          setFieldErrors({ [data.field]: message });
+        } else {
+          setError(message);
+        }
         return;
       }
       if (data.data) {
@@ -347,8 +407,15 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     e.preventDefault();
     if (!editLead?.id || !editForm) return;
 
+    const validationErrors = validateLeadForm(editForm);
+    if (validationErrors.mobileNumber || validationErrors.pan) {
+      setFieldErrors(validationErrors);
+      return;
+    }
+
     setSaving(true);
     setError(null);
+    setFieldErrors({});
 
     const payload = buildLeadPayload(editForm);
 
@@ -560,12 +627,14 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
 
       {createOpen && editForm && (
         <AdminModal title="Add lead" onClose={closeModals}>
-          <form onSubmit={handleCreate} className="space-y-6 p-6 sm:p-8">
+          <form onSubmit={handleCreate} className="space-y-6 p-6 sm:p-8" noValidate>
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <LeadFormFields
               form={editForm}
               setForm={(next) => setEditForm(next)}
               inputClass={inputClass}
+              fieldErrors={fieldErrors}
+              clearFieldError={clearFieldError}
             />
             <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
               <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
@@ -581,12 +650,14 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
 
       {editLead && editForm && (
         <AdminModal title="Edit lead" onClose={closeModals}>
-          <form onSubmit={handleSaveEdit} className="space-y-6 p-6 sm:p-8">
+          <form onSubmit={handleSaveEdit} className="space-y-6 p-6 sm:p-8" noValidate>
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <LeadFormFields
               form={editForm}
               setForm={(next) => setEditForm(next)}
               inputClass={inputClass}
+              fieldErrors={fieldErrors}
+              clearFieldError={clearFieldError}
             />
             <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
               <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>

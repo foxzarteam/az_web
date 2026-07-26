@@ -1,16 +1,24 @@
 import { NextResponse } from "next/server";
 import { PUBLIC_API_BASE_URL } from "@/app/config/publicEnv";
 import { adminInternalHeaders } from "@/app/lib/admin/adminInternalKey";
-import { getAdminSession } from "@/app/lib/admin/session";
+import { getCustomerSession } from "@/app/lib/customer/session";
 
 function apiBase(): string {
   return PUBLIC_API_BASE_URL.trim().replace(/\/+$/, "");
 }
 
-export async function POST(request: Request) {
-  const session = await getAdminSession();
-  if (!session) {
+export async function DELETE(
+  _request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  const session = await getCustomerSession();
+  if (!session?.sub) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await context.params;
+  if (!id?.trim()) {
+    return NextResponse.json({ error: "Missing application id" }, { status: 400 });
   }
 
   const base = apiBase();
@@ -18,21 +26,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "API not configured" }, { status: 503 });
   }
 
-  let body: unknown;
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
-
-  try {
-    const res = await fetch(`${base}/api/leads/admin`, {
-      method: "POST",
+    const res = await fetch(`${base}/api/customer/applications/${encodeURIComponent(id)}`, {
+      method: "DELETE",
       headers: adminInternalHeaders(true),
-      body: JSON.stringify(body),
+      body: JSON.stringify({ mobileNumber: session.sub }),
       cache: "no-store",
     });
-
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       return NextResponse.json(
@@ -40,24 +40,12 @@ export async function POST(request: Request) {
           error:
             (data as { message?: string; error?: string }).message ??
             (data as { error?: string }).error ??
-            "Create failed",
+            "Delete failed",
         },
         { status: res.status },
       );
     }
-
-    if ((data as { success?: boolean }).success === false) {
-      return NextResponse.json(
-        {
-          error:
-            (data as { message?: string }).message ?? "Failed to create lead",
-          field: (data as { field?: string }).field,
-        },
-        { status: 400 },
-      );
-    }
-
-    return NextResponse.json(data, { status: 201 });
+    return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "Cannot reach API" }, { status: 503 });
   }
