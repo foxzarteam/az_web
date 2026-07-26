@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { customerLogout } from "@/app/utils/customerAuthApi";
+import CustomerProfileMenu from "./CustomerProfileMenu";
 
 type CustomerDashboardShellProps = {
   name: string;
@@ -57,10 +58,7 @@ export default function CustomerDashboardShell({
             />
           </Link>
           <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-            <div className="hidden min-w-0 text-right sm:block">
-              <p className="truncate text-sm font-semibold text-midnight_text">{name}</p>
-              <p className="text-xs text-gray-500">+91 {mobile}</p>
-            </div>
+            <CustomerProfileMenu name={name} mobile={mobile} />
             <button
               type="button"
               onClick={() => void handleLogout()}
