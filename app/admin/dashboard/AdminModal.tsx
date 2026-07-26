@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { ADMIN_UI } from "./adminUi";
 
 type Props = {
@@ -13,7 +14,10 @@ type Props = {
 };
 
 export default function AdminModal({ title, onClose, children, wide = false, footer }: Props) {
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
@@ -21,8 +25,10 @@ export default function AdminModal({ title, onClose, children, wide = false, foo
     };
   }, []);
 
-  return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-6 lg:p-8">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[99990] flex items-center justify-center p-3 sm:p-6 lg:p-8">
       <button
         type="button"
         className="absolute inset-0 bg-slate-900/45 backdrop-blur-[2px]"
@@ -82,6 +88,7 @@ export default function AdminModal({ title, onClose, children, wide = false, foo
           </div>
         ) : null}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
