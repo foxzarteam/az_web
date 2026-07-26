@@ -14,6 +14,8 @@ const MSG_OTP_DAILY_LIMIT =
   "OTP limit reached for this mobile number. Please try again tomorrow.";
 
 let recaptchaVerifier: RecaptchaVerifier | null = null;
+/** True after a verifier was used — next send needs a short DOM settle. */
+let recaptchaNeedsSettle = false;
 
 function parseFirebaseError(error: unknown): { code: string; message: string } {
   if (error == null) return { code: "", message: "Unknown error" };
@@ -84,6 +86,16 @@ function getFirebaseAuth() {
   return getAuth();
 }
 
+/** Warm Firebase Auth early so first OTP is not paying cold-init cost. */
+export function warmFirebaseAuth(): void {
+  try {
+    if (!isFirebaseWebConfigured()) return;
+    getFirebaseAuth();
+  } catch {
+    /* ignore */
+  }
+}
+
 export function resetRecaptcha(containerId = RECAPTCHA_CONTAINER_ID): void {
   if (recaptchaVerifier) {
     try {
@@ -97,11 +109,34 @@ export function resetRecaptcha(containerId = RECAPTCHA_CONTAINER_ID): void {
   if (el) el.innerHTML = "";
 }
 
-function ensureRecaptcha(containerId: string): RecaptchaVerifier {
+/**
+ * Fresh invisible reCAPTCHA for each send/resend.
+ * Settle delay only after a previous widget was used (resend) — first send stays fast.
+ */
+async function createRecaptchaVerifier(containerId: string): Promise<RecaptchaVerifier> {
   resetRecaptcha(containerId);
+
+  const el = document.getElementById(containerId);
+  if (!el) {
+    throw new Error("auth/missing-recaptcha Recaptcha container is not in the page.");
+  }
+  el.innerHTML = "";
+
+  if (recaptchaNeedsSettle) {
+    await new Promise<void>((resolve) => {
+      window.setTimeout(resolve, 120);
+    });
+  }
+
   const auth = getFirebaseAuth();
   recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
     size: "invisible",
+    callback: () => {
+      /* solved — signInWithPhoneNumber continues */
+    },
+    "expired-callback": () => {
+      resetRecaptcha(containerId);
+    },
   });
   return recaptchaVerifier;
 }
@@ -142,7 +177,6 @@ export async function requestOtpSendSlot(
 
     const msg = (data.message ?? data.error ?? "").toString().trim();
 
-    // Endpoint missing on old deploy only
     if (
       res.status === 404 ||
       /cannot post/i.test(msg) ||
@@ -200,27 +234,67 @@ export async function sendFirebasePhoneOtp(
     throw new Error("auth/missing-web-app-id Firebase Web app ID is not configured.");
   }
 
-  const slot = await requestOtpSendSlot(mobileDigits);
+  const auth = getFirebaseAuth();
+
+  // Run rate-limit slot + recaptcha prep in parallel (biggest send speedup).
+  const [slot, verifier] = await Promise.all([
+    requestOtpSendSlot(mobileDigits),
+    (async () => {
+      try {
+        if (auth.currentUser) await auth.signOut();
+      } catch {
+        /* ignore */
+      }
+      return createRecaptchaVerifier(containerId);
+    })(),
+  ]);
+
   if (!slot.allowed) {
+    resetRecaptcha(containerId);
     const err = new Error(slot.message || MSG_OTP_DAILY_LIMIT) as Error & { code?: string };
     err.code = slot.dailyLimit ? "otp/daily-limit" : "otp/send-blocked";
     throw err;
   }
 
-  const auth = getFirebaseAuth();
-  const verifier = ensureRecaptcha(containerId);
-  await verifier.render();
-  return signInWithPhoneNumber(auth, `+91${mobileDigits}`, verifier);
+  try {
+    const confirmation = await signInWithPhoneNumber(
+      auth,
+      `+91${mobileDigits}`,
+      verifier,
+    );
+    recaptchaNeedsSettle = true;
+    return confirmation;
+  } catch (error) {
+    resetRecaptcha(containerId);
+    recaptchaNeedsSettle = true;
+    throw error;
+  }
 }
+
+export type VerifyPhoneOtpOptions = {
+  /**
+   * When false, only Firebase confirm runs (no Nest /otp/verify-firebase).
+   * Use when the next call (e.g. customer login) already verifies the idToken.
+   */
+  syncServer?: boolean;
+};
 
 export async function verifyPhoneOtp(
   confirmation: ConfirmationResult,
   otp: string,
   mobileDigits: string,
+  options: VerifyPhoneOtpOptions = {},
 ): Promise<{ success: boolean; message?: string; idToken?: string }> {
+  const syncServer = options.syncServer !== false;
   try {
     const result = await confirmation.confirm(otp);
-    const idToken = await result.user.getIdToken();
+    // Prefer cached token right after confirm — avoids an extra network round-trip.
+    const idToken = await result.user.getIdToken(/* forceRefresh */ false);
+
+    if (!syncServer) {
+      return { success: true, idToken };
+    }
+
     const res = await fetch(`${PUBLIC_API_BASE_URL}/api/otp/verify-firebase`, {
       method: "POST",
       headers: {
@@ -241,7 +315,7 @@ export async function verifyPhoneOtp(
     console.error("[Firebase OTP verify failed]", error);
     return {
       success: false,
-      message: formatOtpError(error, OTP_SEND_HINTS, "Invalid OTP. Please try again."),
+      message: "Invalid OTP. Please try again.",
     };
   }
 }
@@ -252,7 +326,7 @@ export async function getCurrentFirebaseIdToken(): Promise<string | null> {
     if (!isFirebaseWebConfigured()) return null;
     const user = getFirebaseAuth().currentUser;
     if (!user) return null;
-    return await user.getIdToken();
+    return await user.getIdToken(false);
   } catch {
     return null;
   }

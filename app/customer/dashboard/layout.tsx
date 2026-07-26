@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getCustomerSession } from "@/app/lib/customer/session";
-import { fetchLeadsByMobile } from "@/app/lib/customer/leadsByMobile";
 import CustomerDashboardShell from "./CustomerDashboardShell";
 
 export default async function CustomerDashboardLayout({
@@ -11,11 +10,9 @@ export default async function CustomerDashboardLayout({
   const session = await getCustomerSession();
   if (!session) redirect("/customer/login");
 
-  const applications = await fetchLeadsByMobile(session.sub);
-  const name = session.name || applications[0]?.full_name || "Customer";
-
+  // Session only here — applications load once in page.tsx (was double-fetched before).
   return (
-    <CustomerDashboardShell name={name} mobile={session.sub}>
+    <CustomerDashboardShell name={session.name || "Customer"} mobile={session.sub}>
       {children}
     </CustomerDashboardShell>
   );

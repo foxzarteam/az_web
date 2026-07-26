@@ -9,6 +9,7 @@ import {
   resetRecaptcha,
   sendFirebasePhoneOtp,
   verifyPhoneOtp,
+  warmFirebaseAuth,
 } from "@/app/lib/firebase/phoneAuth";
 import { useBodyScrollLock } from "@/app/utils/useBodyScrollLock";
 
@@ -28,6 +29,12 @@ type LeadApplyModalProps = {
   onClose: () => void;
   onSuccess: (result: LeadOtpSuccess) => void;
   onEditMobile?: () => void;
+  /**
+   * When false, skips Nest /otp/verify-firebase (faster).
+   * Use when the next step (e.g. customer login) already verifies the Firebase token.
+   * Keep true for chat → /leads/start which needs a recent OTP session row.
+   */
+  syncServerVerify?: boolean;
 };
 
 export default function LeadApplyModal({
@@ -37,6 +44,7 @@ export default function LeadApplyModal({
   onClose,
   onSuccess,
   onEditMobile,
+  syncServerVerify = true,
 }: LeadApplyModalProps) {
   const [otpDigits, setOtpDigits] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [error, setError] = useState("");
@@ -48,6 +56,7 @@ export default function LeadApplyModal({
   const [rateLimited, setRateLimited] = useState(false);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const autoSentRef = useRef(false);
   const mobileDigits = mobile.replace(/\D/g, "");
 
   const resetState = useCallback(() => {
@@ -56,19 +65,27 @@ export default function LeadApplyModal({
     setResendCooldown(0);
     setFirebaseConfirmation(null);
     setRateLimited(false);
+    autoSentRef.current = false;
     resetRecaptcha(RECAPTCHA_CONTAINER_ID);
   }, []);
 
-  const sendOtp = useCallback(async () => {
+  const sendOtp = useCallback(async (opts?: { isResend?: boolean }) => {
     if (mobileDigits.length !== 10 || rateLimited) return;
     setIsSendingOtp(true);
     setError("");
+    if (opts?.isResend) {
+      setOtpDigits(Array(OTP_LENGTH).fill(""));
+      setFirebaseConfirmation(null);
+    }
 
     try {
       const confirmation = await sendFirebasePhoneOtp(mobileDigits);
       setFirebaseConfirmation(confirmation);
       setResendCooldown(RESEND_COOLDOWN_SEC);
       setRateLimited(false);
+      if (opts?.isResend) {
+        inputRefs.current[0]?.focus();
+      }
     } catch (err) {
       const message = getFirebaseOtpSendErrorMessage(err);
       setError(message);
@@ -87,7 +104,9 @@ export default function LeadApplyModal({
       resetState();
       return;
     }
-    if (mobileDigits.length !== 10) return;
+    warmFirebaseAuth();
+    if (mobileDigits.length !== 10 || autoSentRef.current) return;
+    autoSentRef.current = true;
     void sendOtp();
   }, [open, mobileDigits, resetState, sendOtp]);
 
@@ -105,7 +124,9 @@ export default function LeadApplyModal({
     setError("");
 
     // verify-firebase updates otp_sessions for this mobile
-    const res = await verifyPhoneOtp(firebaseConfirmation, otp, mobileDigits);
+    const res = await verifyPhoneOtp(firebaseConfirmation, otp, mobileDigits, {
+      syncServer: syncServerVerify,
+    });
     setIsVerifyingOtp(false);
 
     if (!res.success || !res.idToken) {
@@ -230,7 +251,7 @@ export default function LeadApplyModal({
             <button
               type="button"
               disabled={rateLimited || resendCooldown > 0 || busy}
-              onClick={() => void sendOtp()}
+              onClick={() => void sendOtp({ isResend: true })}
               className="text-sm font-semibold text-primary disabled:text-gray-400 disabled:cursor-not-allowed hover:underline"
             >
               {rateLimited

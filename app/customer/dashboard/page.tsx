@@ -1,13 +1,16 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { getCustomerSession } from "@/app/lib/customer/session";
 import { fetchLeadsByMobile } from "@/app/lib/customer/leadsByMobile";
 import CustomerApplicationsTable from "./CustomerApplicationsTable";
 
+const getApplicationsCached = cache(async (mobile: string) => fetchLeadsByMobile(mobile));
+
 export default async function CustomerDashboardPage() {
   const session = await getCustomerSession();
   if (!session) redirect("/customer/login");
 
-  const applications = await fetchLeadsByMobile(session.sub);
+  const applications = await getApplicationsCached(session.sub);
   const name = session.name || applications[0]?.full_name || "Customer";
 
   return (

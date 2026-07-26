@@ -11,6 +11,7 @@ import {
   resetRecaptcha,
   sendFirebasePhoneOtp,
   verifyPhoneOtp,
+  warmFirebaseAuth,
 } from "@/app/lib/firebase/phoneAuth";
 import { checkCustomerMobile, customerLogin } from "@/app/utils/customerAuthApi";
 import { sanitizeMobileInput } from "@/app/utils/validation";
@@ -38,20 +39,31 @@ export default function CustomerLoginForm() {
   const mobileDigits = mobile.replace(/\D/g, "");
 
   useEffect(() => {
+    warmFirebaseAuth();
+  }, []);
+
+  useEffect(() => {
     if (resendCooldown <= 0) return;
     const t = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
     return () => clearTimeout(t);
   }, [resendCooldown]);
 
-  const sendOtp = useCallback(async () => {
+  const sendOtp = useCallback(async (opts?: { isResend?: boolean }) => {
     if (mobileDigits.length !== 10 || rateLimited) return;
     setBusy(true);
     setError("");
+    if (opts?.isResend) {
+      setOtpDigits(Array(OTP_LENGTH).fill(""));
+      setFirebaseConfirmation(null);
+    }
     try {
       const confirmation = await sendFirebasePhoneOtp(mobileDigits, "customer-track-recaptcha");
       setFirebaseConfirmation(confirmation);
       setResendCooldown(RESEND_COOLDOWN_SEC);
       setStep("otp");
+      if (opts?.isResend) {
+        inputRefs.current[0]?.focus();
+      }
     } catch (err) {
       const message = getFirebaseOtpSendErrorMessage(err);
       setError(message);
@@ -96,7 +108,9 @@ export default function CustomerLoginForm() {
     setBusy(true);
     setError("");
 
-    const res = await verifyPhoneOtp(firebaseConfirmation, otp, mobileDigits);
+    const res = await verifyPhoneOtp(firebaseConfirmation, otp, mobileDigits, {
+      syncServer: false,
+    });
     if (!res.success || !res.idToken) {
       setBusy(false);
       setError(res.message || "Invalid OTP. Please try again.");
@@ -238,7 +252,7 @@ export default function CustomerLoginForm() {
               <button
                 type="button"
                 disabled={rateLimited || resendCooldown > 0 || busy}
-                onClick={() => void sendOtp()}
+                onClick={() => void sendOtp({ isResend: true })}
                 className="text-sm font-semibold text-primary disabled:cursor-not-allowed disabled:text-gray-400 hover:underline"
               >
                 {rateLimited

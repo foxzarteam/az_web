@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
@@ -9,7 +10,7 @@ import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationS
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
-import { getCurrentFirebaseIdToken } from "@/app/lib/firebase/phoneAuth";
+import { getCurrentFirebaseIdToken, warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
 import { reportFormValidity } from "@/app/utils/formValidation";
 import { customerLogin } from "@/app/utils/customerAuthApi";
 import { applyLead, completeLead, leadIdFromResponse } from "@/app/utils/leadApi";
@@ -27,10 +28,14 @@ const DEFAULT_LOAN_AMOUNT = 5_00_000;
 const SUCCESS_FALLBACK =
   "Your application was submitted. Use “Check your application status” below the form with your mobile number to open your dashboard.";
 
-async function loginAndGoToDashboard(mobile: string, idToken: string): Promise<boolean> {
+async function loginAndGoToDashboard(
+  mobile: string,
+  idToken: string,
+  go: (href: string) => void,
+): Promise<boolean> {
   const res = await customerLogin(mobile, idToken);
   if (!res.ok) return false;
-  window.location.assign("/customer/dashboard");
+  go("/customer/dashboard");
   return true;
 }
 
@@ -64,6 +69,7 @@ export default function PersonalLoanApplyModal({
   chatId,
   initialLoanAmount,
 }: PersonalLoanApplyModalProps) {
+  const router = useRouter();
   const [showSuccess, setShowSuccess] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [pendingLeadId, setPendingLeadId] = useState("");
@@ -83,6 +89,7 @@ export default function PersonalLoanApplyModal({
 
   useEffect(() => {
     if (!open) return;
+    warmFirebaseAuth();
     const digits = initialMobile.replace(/\D/g, "").slice(0, 10);
     if (digits) setMobile(digits);
     if (
@@ -218,7 +225,13 @@ export default function PersonalLoanApplyModal({
         blurActiveElement();
         resetForm();
         onClose();
-        if (idToken && (await loginAndGoToDashboard(mobileDigits, idToken))) {
+        if (
+          idToken &&
+          (await loginAndGoToDashboard(mobileDigits, idToken, (href) => {
+            router.replace(href);
+            router.refresh();
+          }))
+        ) {
           return;
         }
         setShowSuccess(true);
@@ -390,12 +403,20 @@ export default function PersonalLoanApplyModal({
           mobile={mobile.replace(/\D/g, "")}
           onClose={() => setShowOtpModal(false)}
           onEditMobile={() => setShowOtpModal(false)}
+          syncServerVerify={false}
           onSuccess={(result) => {
             void (async () => {
               resetForm();
               setShowOtpModal(false);
               onClose();
-              if (await loginAndGoToDashboard(result.mobile, result.idToken)) return;
+              if (
+                await loginAndGoToDashboard(result.mobile, result.idToken, (href) => {
+                  router.replace(href);
+                  router.refresh();
+                })
+              ) {
+                return;
+              }
               setShowSuccess(true);
             })();
           }}

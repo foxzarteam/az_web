@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import { reportFormValidity } from "@/app/utils/formValidation";
@@ -60,6 +60,7 @@ export default function ServicePage({
   serviceSlug: serviceSlugProp,
 }: ServicePageProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const pageServiceSlug = useMemo(
     () => (serviceSlugProp?.trim() || slugFromPathname(pathname) || "").trim(),
     [serviceSlugProp, pathname],
@@ -211,13 +212,15 @@ export default function ServicePage({
                   mobile={mobile.replace(/\D/g, "")}
                   onClose={() => setShowApplyModal(false)}
                   onEditMobile={() => setShowApplyModal(false)}
+                  syncServerVerify={false}
                   onSuccess={(result) => {
                     void (async () => {
                       resetForm();
                       setShowApplyModal(false);
                       const login = await customerLogin(result.mobile, result.idToken);
                       if (login.ok) {
-                        window.location.assign("/customer/dashboard");
+                        router.replace("/customer/dashboard");
+                        router.refresh();
                         return;
                       }
                       setShowSuccess(true);
