@@ -46,7 +46,7 @@ export default function TermsAgreementCheckbox({
         />
         <span className={`${textClassName} leading-relaxed`}>
           <label htmlFor={id} className="cursor-pointer">
-            I agree to{" "}
+            I agree to the{" "}
           </label>
           <Link
             href="/terms-and-conditions"
@@ -60,7 +60,8 @@ export default function TermsAgreementCheckbox({
           </Link>
           {showPrivacyPolicy ? (
             <>
-              ,{" "}
+              {" "}
+              and{" "}
               <Link
                 href="/terms-and-conditions"
                 className="text-primary hover:underline"
@@ -73,6 +74,7 @@ export default function TermsAgreementCheckbox({
               </Link>
             </>
           ) : null}
+          .
         </span>
       </div>
     </div>

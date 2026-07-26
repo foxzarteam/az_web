@@ -177,13 +177,21 @@ type FieldErrors = {
 
 const PHONE_PATTERN = /^[6-9]\d{9}$/;
 const PAN_PATTERN = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
+const PAN_MASK_PATTERN = /^[A-Z]{5}\*{4}[A-Z]$/;
 
-function validateLeadForm(form: EditForm): FieldErrors {
+function isMaskedPanValue(value: string): boolean {
+  return PAN_MASK_PATTERN.test(value.trim().toUpperCase());
+}
+
+function validateLeadForm(form: EditForm, opts?: { allowMaskedPan?: boolean }): FieldErrors {
   const errors: FieldErrors = {};
   if (!PHONE_PATTERN.test(form.mobileNumber.trim())) {
     errors.mobileNumber = "Enter a valid 10-digit mobile number";
   }
-  if (!PAN_PATTERN.test(form.pan.trim().toUpperCase())) {
+  const pan = form.pan.trim().toUpperCase();
+  if (opts?.allowMaskedPan && isMaskedPanValue(pan)) {
+    // keep existing encrypted PAN
+  } else if (!PAN_PATTERN.test(pan)) {
     errors.pan = "Enter a valid PAN (e.g. ABCDE1234F)";
   }
   return errors;
@@ -200,13 +208,21 @@ function LeadFormFields({
   inputClass,
   fieldErrors,
   clearFieldError,
+  panMode = "create",
+  onRevealPan,
+  revealingPan,
 }: {
   form: EditForm;
   setForm: (next: EditForm) => void;
   inputClass: string;
   fieldErrors: FieldErrors;
   clearFieldError: (key: keyof FieldErrors) => void;
+  panMode?: "create" | "edit";
+  onRevealPan?: () => void;
+  revealingPan?: boolean;
 }) {
+  const panLocked = panMode === "edit" && isMaskedPanValue(form.pan);
+
   return (
     <div className="grid gap-5 sm:grid-cols-2">
       <div className="sm:col-span-2">
@@ -242,21 +258,40 @@ function LeadFormFields({
         />
         <FieldErrorText message={fieldErrors.mobileNumber} />
       </label>
-      <label className="block">
+      <div className="block">
         <span className={ADMIN_LABEL}>PAN</span>
-        <input
-          className={inputClass}
-          value={form.pan}
-          onChange={(e) => {
-            setForm({ ...form, pan: e.target.value.toUpperCase() });
-            clearFieldError("pan");
-          }}
-          placeholder="enter PAN number"
-          required
-          maxLength={10}
-        />
+        <div className="flex gap-2">
+          <input
+            className={`${inputClass} font-mono tracking-wide`}
+            value={form.pan}
+            onChange={(e) => {
+              setForm({ ...form, pan: e.target.value.toUpperCase() });
+              clearFieldError("pan");
+            }}
+            placeholder="enter PAN number"
+            required={panMode === "create"}
+            maxLength={10}
+            readOnly={panLocked}
+          />
+          {panMode === "edit" && onRevealPan ? (
+            <button
+              type="button"
+              onClick={onRevealPan}
+              disabled={revealingPan || !panLocked}
+              className={ADMIN_BTN_SECONDARY}
+              title={panLocked ? "Reveal full PAN (audited)" : "PAN already revealed"}
+            >
+              {revealingPan ? "…" : panLocked ? "Reveal" : "Shown"}
+            </button>
+          ) : null}
+        </div>
+        {panLocked ? (
+          <span className="mt-1 block text-xs text-slate-500">
+            Masked by default. Reveal is audited with your admin account.
+          </span>
+        ) : null}
         <FieldErrorText message={fieldErrors.pan} />
-      </label>
+      </div>
       <label className="block">
         <span className={ADMIN_LABEL}>Product</span>
         <select
@@ -301,6 +336,8 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [revealingPan, setRevealingPan] = useState(false);
+  const [viewPanFull, setViewPanFull] = useState<string | null>(null);
 
   useEffect(() => {
     setLeads(initialLeads);
@@ -314,6 +351,8 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     setEditForm(null);
     setError(null);
     setFieldErrors({});
+    setViewPanFull(null);
+    setRevealingPan(false);
   }, []);
 
   const clearFieldError = useCallback((key: keyof FieldErrors) => {
@@ -335,6 +374,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     setEditForm(emptyCreateForm());
     setError(null);
     setFieldErrors({});
+    setViewPanFull(null);
   }
 
   function openEdit(lead: AdminLeadRow) {
@@ -342,17 +382,45 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     setEditForm(leadToEditForm(lead));
     setError(null);
     setFieldErrors({});
+    setViewPanFull(null);
   }
 
-  function buildLeadPayload(form: EditForm): Record<string, unknown> {
-    return {
+  function buildLeadPayload(form: EditForm, opts?: { omitMaskedPan?: boolean }): Record<string, unknown> {
+    const payload: Record<string, unknown> = {
       fullName: form.fullName.trim(),
       mobileNumber: form.mobileNumber.trim(),
-      pan: form.pan.trim().toUpperCase(),
       category: form.category,
       status: form.status,
       requiredAmount: form.requiredAmount,
     };
+    const pan = form.pan.trim().toUpperCase();
+    if (!(opts?.omitMaskedPan && isMaskedPanValue(pan))) {
+      payload.pan = pan;
+    }
+    return payload;
+  }
+
+  async function revealPan(leadId: string): Promise<string | null> {
+    setRevealingPan(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/leads/${encodeURIComponent(leadId)}/pan/reveal`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: "admin_panel_reveal" }),
+      });
+      const data = (await res.json()) as { pan?: string; error?: string };
+      if (!res.ok || !data.pan) {
+        setError(data.error ?? "Could not reveal PAN");
+        return null;
+      }
+      return data.pan;
+    } catch {
+      setError("Network error. Try again.");
+      return null;
+    } finally {
+      setRevealingPan(false);
+    }
   }
 
   async function handleCreate(e: React.FormEvent) {
@@ -407,7 +475,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     e.preventDefault();
     if (!editLead?.id || !editForm) return;
 
-    const validationErrors = validateLeadForm(editForm);
+    const validationErrors = validateLeadForm(editForm, { allowMaskedPan: true });
     if (validationErrors.mobileNumber || validationErrors.pan) {
       setFieldErrors(validationErrors);
       return;
@@ -417,7 +485,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     setError(null);
     setFieldErrors({});
 
-    const payload = buildLeadPayload(editForm);
+    const payload = buildLeadPayload(editForm, { omitMaskedPan: true });
 
     try {
       const res = await fetch(`/api/admin/leads/${encodeURIComponent(String(editLead.id))}`, {
@@ -546,7 +614,14 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         searchable: false,
         cell: (row) => (
           <div className="flex items-center gap-1.5">
-            <CrmActionButton label="View" onClick={() => setViewLead(row)}>
+            <CrmActionButton
+              label="View"
+              onClick={() => {
+                setViewPanFull(null);
+                setError(null);
+                setViewLead(row);
+              }}
+            >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                 <circle cx="12" cy="12" r="3" />
@@ -596,7 +671,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
       />
 
       {viewLead && (
-        <AdminModal title="Lead details" wide onClose={() => setViewLead(null)}>
+        <AdminModal title="Lead details" wide onClose={closeModals}>
           <ul className="grid grid-cols-1 gap-x-8 gap-y-5 p-6 sm:grid-cols-2 sm:p-8">
             {VIEW_FIELDS.map((key) => (
               <li
@@ -616,12 +691,34 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
                   >
                     {formatValue(key, viewLead[key])}
                   </span>
+                ) : key === "pan" ? (
+                  <span className="inline-flex flex-wrap items-center gap-2">
+                    <span className="font-mono tracking-wide text-midnight_text dark:text-gray-200">
+                      {viewPanFull ?? formatValue(key, viewLead[key])}
+                    </span>
+                    {!viewPanFull && viewLead.id ? (
+                      <button
+                        type="button"
+                        disabled={revealingPan}
+                        onClick={() => {
+                          void (async () => {
+                            const full = await revealPan(String(viewLead.id));
+                            if (full) setViewPanFull(full);
+                          })();
+                        }}
+                        className="text-xs font-semibold text-[#4236FB] hover:underline disabled:opacity-60"
+                      >
+                        {revealingPan ? "Revealing…" : "Reveal"}
+                      </button>
+                    ) : null}
+                  </span>
                 ) : (
                   <span className="text-midnight_text dark:text-gray-200">{formatValue(key, viewLead[key])}</span>
                 )}
               </li>
             ))}
           </ul>
+          {error && <p className={`px-6 pb-4 sm:px-8 ${ADMIN_ERROR}`}>{error}</p>}
         </AdminModal>
       )}
 
@@ -635,6 +732,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
               inputClass={inputClass}
               fieldErrors={fieldErrors}
               clearFieldError={clearFieldError}
+              panMode="create"
             />
             <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
               <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
@@ -658,6 +756,15 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
               inputClass={inputClass}
               fieldErrors={fieldErrors}
               clearFieldError={clearFieldError}
+              panMode="edit"
+              revealingPan={revealingPan}
+              onRevealPan={() => {
+                if (!editLead.id) return;
+                void (async () => {
+                  const full = await revealPan(String(editLead.id));
+                  if (full && editForm) setEditForm({ ...editForm, pan: full });
+                })();
+              }}
             />
             <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
               <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
