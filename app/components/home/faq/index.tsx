@@ -111,12 +111,13 @@ export default function FaqSection({ items = FAQ_ITEMS }: FaqSectionProps) {
           <div className="w-full lg:col-span-3">
             <div className="relative w-full">
               <Image
-                src="/images/hero/faq.png"
+                src="/images/hero/faq.webp"
                 alt="Frequently asked questions illustration"
                 width={320}
                 height={320}
                 className="h-auto w-full object-contain"
                 sizes="(max-width: 1024px) 100vw, 30vw"
+                loading="lazy"
               />
             </div>
           </div>

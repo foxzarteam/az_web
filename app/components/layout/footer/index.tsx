@@ -35,6 +35,7 @@ export default function Footer() {
                 width={56}
                 height={56}
                 className="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-white/25 sm:h-14 sm:w-14"
+                sizes="56px"
               />
               <span className="text-lg font-semibold tracking-tight text-white sm:text-xl md:text-2xl">
                 Apni Zaroorat

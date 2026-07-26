@@ -4,7 +4,11 @@ import { useState } from "react";
 import Image from "next/image";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 
-const STEP_IMAGES = ["/images/mobile/m1.png", "/images/mobile/m2.png", "/images/mobile/m3.png"];
+const STEP_IMAGES = [
+  "/images/mobile/m1.webp",
+  "/images/mobile/m2.webp",
+  "/images/mobile/m3.webp",
+];
 
 export default function ThreeSteps() {
   const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
@@ -85,7 +89,7 @@ export default function ThreeSteps() {
             >
               <span className="relative flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center shrink-0">
                 <Image
-                  src="/images/plays.png"
+                  src="/images/plays.webp"
                   alt="Google Play"
                   width={28}
                   height={28}

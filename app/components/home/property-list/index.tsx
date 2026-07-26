@@ -35,7 +35,7 @@ function ServiceVideo({ src, label }: { src: string; label: string }) {
           playsInline
           disablePictureInPicture
           controlsList="nodownload noplaybackrate noremoteplayback"
-          preload="metadata"
+          preload="none"
           aria-label={label}
           tabIndex={-1}
         >

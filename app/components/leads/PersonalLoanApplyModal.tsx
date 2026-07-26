@@ -10,6 +10,7 @@ import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
 import { reportFormValidity } from "@/app/utils/formValidation";
 import { applyLead, leadIdFromResponse } from "@/app/utils/leadApi";
+import { updateChatSession } from "@/app/utils/chatApi";
 import {
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
@@ -28,9 +29,27 @@ const inputClass =
 type PersonalLoanApplyModalProps = {
   open: boolean;
   onClose: () => void;
+  /** Prefill mobile (e.g. from chatbox after OTP). */
+  initialMobile?: string;
+  /** When true, mobile field is read-only. */
+  lockMobile?: boolean;
+  /** OTP already verified — submit lead only, skip OTP modal. */
+  skipOtp?: boolean;
+  /** Chat session to mark lead_submitted after apply. */
+  chatId?: string;
+  /** Prefill loan slider (from chat answers). */
+  initialLoanAmount?: number;
 };
 
-export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanApplyModalProps) {
+export default function PersonalLoanApplyModal({
+  open,
+  onClose,
+  initialMobile = "",
+  lockMobile = false,
+  skipOtp = false,
+  chatId,
+  initialLoanAmount,
+}: PersonalLoanApplyModalProps) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [pendingLeadId, setPendingLeadId] = useState("");
@@ -42,15 +61,37 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
   const [pan, setPan] = useState("");
   const [formError, setFormError] = useState("");
 
+  useEffect(() => {
+    if (!open) return;
+    const digits = initialMobile.replace(/\D/g, "").slice(0, 10);
+    if (digits) setMobile(digits);
+    if (
+      typeof initialLoanAmount === "number" &&
+      Number.isFinite(initialLoanAmount) &&
+      initialLoanAmount >= PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT
+    ) {
+      setLoanAmount(
+        Math.min(PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT, Math.round(initialLoanAmount)),
+      );
+    }
+  }, [open, initialMobile, initialLoanAmount]);
+
   const resetForm = useCallback(() => {
     setFullName("");
-    setMobile("");
-    setLoanAmount(DEFAULT_LOAN_AMOUNT);
+    setMobile(lockMobile ? initialMobile.replace(/\D/g, "").slice(0, 10) : "");
+    setLoanAmount(
+      typeof initialLoanAmount === "number" && Number.isFinite(initialLoanAmount)
+        ? Math.min(
+            PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT,
+            Math.max(PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT, Math.round(initialLoanAmount)),
+          )
+        : DEFAULT_LOAN_AMOUNT,
+    );
     setPan("");
     setTermsAccepted(false);
     setFormError("");
     setPendingLeadId("");
-  }, []);
+  }, [initialLoanAmount, initialMobile, lockMobile]);
 
   const handleClose = useCallback(() => {
     if (showOtpModal || isSubmittingForm) return;
@@ -131,6 +172,17 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
       const leadId = leadIdFromResponse(applyRes.data);
       if (!leadId) {
         setFormError("Could not submit application. Please try again.");
+        return;
+      }
+
+      if (chatId) {
+        void updateChatSession(chatId, { status: "lead_submitted", leadId });
+      }
+
+      if (skipOtp) {
+        resetForm();
+        onClose();
+        setShowSuccess(true);
         return;
       }
 
@@ -222,7 +274,11 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
                 <label className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
                   Mobile Number *
                 </label>
-                <div className="flex items-center overflow-hidden rounded-lg border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80 sm:rounded-xl">
+                <div
+                  className={`flex items-center overflow-hidden rounded-lg border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80 sm:rounded-xl ${
+                    lockMobile ? "opacity-90" : ""
+                  }`}
+                >
                   <span className="flex shrink-0 items-center pl-2.5 sm:pl-3" aria-hidden>
                     <IndiaFlag />
                   </span>
@@ -235,11 +291,19 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
                     maxLength={MOBILE_VALIDATION.MAX_LENGTH}
                     placeholder="Mobile Number"
                     value={mobile}
-                    onChange={(e) => setMobile(sanitizeMobileInput(e.target.value))}
+                    readOnly={lockMobile}
+                    disabled={lockMobile}
+                    onChange={(e) => {
+                      if (lockMobile) return;
+                      setMobile(sanitizeMobileInput(e.target.value));
+                    }}
                     pattern="[0-9]*"
-                    className="min-w-0 flex-1 bg-transparent px-2.5 py-2.5 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none dark:text-white sm:px-3 sm:py-3 sm:text-base"
+                    className="min-w-0 flex-1 bg-transparent px-2.5 py-2.5 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 dark:text-white dark:disabled:bg-darkmode/60 sm:px-3 sm:py-3 sm:text-base"
                   />
                 </div>
+                {lockMobile ? (
+                  <p className="mt-1 text-xs text-gray">Verified mobile number</p>
+                ) : null}
               </div>
 
               <div className="shrink-0">
@@ -277,19 +341,21 @@ export default function PersonalLoanApplyModal({ open, onClose }: PersonalLoanAp
         </div>
       )}
 
-      <LeadApplyModal
-        open={showOtpModal && Boolean(pendingLeadId)}
-        leadId={pendingLeadId}
-        mobile={mobile.replace(/\D/g, "")}
-        onClose={() => setShowOtpModal(false)}
-        onEditMobile={() => setShowOtpModal(false)}
-        onSuccess={() => {
-          resetForm();
-          setShowOtpModal(false);
-          onClose();
-          setShowSuccess(true);
-        }}
-      />
+      {!skipOtp && (
+        <LeadApplyModal
+          open={showOtpModal && Boolean(pendingLeadId)}
+          leadId={pendingLeadId}
+          mobile={mobile.replace(/\D/g, "")}
+          onClose={() => setShowOtpModal(false)}
+          onEditMobile={() => setShowOtpModal(false)}
+          onSuccess={() => {
+            resetForm();
+            setShowOtpModal(false);
+            onClose();
+            setShowSuccess(true);
+          }}
+        />
+      )}
 
       {showSuccess && (
         <SuccessPopup

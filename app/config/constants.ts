@@ -73,7 +73,7 @@ export const MOBILE_VALIDATION = {
 export const SCROLL_THRESHOLD = 300;
 
 export const DEFAULT_IMAGES = {
-  HERO: "/images/hero/hero.png",
+  HERO: "/images/hero/hero.webp",
 } as const;
 
 export const FEATURED_SERVICES = [

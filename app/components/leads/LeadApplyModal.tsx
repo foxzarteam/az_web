@@ -16,7 +16,8 @@ const RESEND_COOLDOWN_SEC = 60;
 
 type LeadApplyModalProps = {
   open: boolean;
-  leadId: string;
+  /** Optional — OTP can run before a lead exists (chatbox flow). */
+  leadId?: string;
   mobile: string;
   onClose: () => void;
   onSuccess: () => void;
@@ -25,7 +26,7 @@ type LeadApplyModalProps = {
 
 export default function LeadApplyModal({
   open,
-  leadId,
+  leadId: _leadId,
   mobile,
   onClose,
   onSuccess,
@@ -80,9 +81,9 @@ export default function LeadApplyModal({
       resetState();
       return;
     }
-    if (!leadId) return;
+    if (mobileDigits.length !== 10) return;
     void sendOtp();
-  }, [open, leadId, resetState, sendOtp]);
+  }, [open, mobileDigits, resetState, sendOtp]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;

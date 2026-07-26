@@ -31,7 +31,7 @@ export default function HomeLoanPage() {
       <ServicePage
         title="Home Loan"
         subtitle="Turn your dream home into reality with the right home loan – low interest rates, higher eligibility and smooth processing."
-        imageSrc="/images/service/home.png"
+        imageSrc="/images/service/home.webp"
         badge="Make your dream home happen"
         hideHeader
       />

@@ -12,11 +12,13 @@ export default function CtaBanner() {
         <div className="hidden shrink-0 items-center self-center lg:flex lg:py-6">
           <div className="flex h-[190px] w-[190px] items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_8px_28px_rgba(16,45,71,0.1)] xl:h-[210px] xl:w-[210px]">
             <Image
-              src="/images/hero/about_foot.png"
+              src="/images/hero/about_foot.webp"
               alt=""
               width={320}
               height={320}
               className="block h-full w-full object-contain object-center p-3"
+              sizes="210px"
+              loading="lazy"
             />
           </div>
         </div>

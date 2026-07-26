@@ -3,18 +3,57 @@ import ServicePage from "@/app/components/services/ServicePage";
 import HowItWorks from "@/app/components/products/personal-loan/HowItWorks";
 import FaqSection from "@/app/components/home/faq";
 import { PERSONAL_LOAN_FAQ_ITEMS } from "@/app/components/home/faq/faq-data";
+import {
+  breadcrumbJsonLd,
+  buildPageMetadata,
+  faqPageJsonLd,
+  financialServiceJsonLd,
+  graphJsonLd,
+  jsonLdScript,
+  organizationJsonLd,
+} from "@/app/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Personal Loan | Apni Zaroorat",
-  description: "Apply for quick personal loans with Apni Zaroorat. 100% digital, fast approval and best rates from top lenders.",
-};
+export const metadata: Metadata = buildPageMetadata({
+  title: "Personal Loan Online — Fast Approval",
+  description:
+    "Apply for a quick personal loan with Apni Zaroorat. 100% digital process, fast approval, and competitive rates from top lenders. Amounts from ₹25,000 to ₹10 lakh.",
+  path: "/products/personal-loan",
+  image: "/images/service/personal.webp",
+  imageAlt: "Apply for a personal loan online with Apni Zaroorat",
+  keywords: [
+    "personal loan online",
+    "instant personal loan",
+    "personal loan India",
+    "personal loan eligibility",
+    "low interest personal loan",
+    "Apni Zaroorat personal loan",
+  ],
+});
+
+const structuredData = graphJsonLd(
+  organizationJsonLd(),
+  financialServiceJsonLd({
+    name: "Personal Loan",
+    description:
+      "Quick personal loans from ₹25,000 to ₹10 lakh with digital application and competitive rates.",
+    path: "/products/personal-loan",
+    serviceType: "Personal loan",
+  }),
+  faqPageJsonLd(PERSONAL_LOAN_FAQ_ITEMS),
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Personal Loan", path: "/products/personal-loan" },
+  ]),
+);
 
 export default function PersonalLoanPage() {
   return (
     <>
-      <section
-        className="pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 text-white theme-gradient-bg"
-      >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(structuredData) }}
+      />
+      <section className="pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 text-white theme-gradient-bg">
         <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md max-w-full">
           <div className="max-w-3xl mx-auto text-center">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/10 text-[10px] sm:text-xs font-semibold px-3 sm:px-4 py-1 mb-3 sm:mb-4 border border-white/20">
@@ -34,7 +73,7 @@ export default function PersonalLoanPage() {
       <ServicePage
         title="Personal Loan"
         subtitle="Get a quick personal loan at the lowest interest rate."
-        imageSrc="/images/service/personal.png"
+        imageSrc="/images/service/personal.webp"
         badge="Instant personal loan assistance"
         hideHeader
       />

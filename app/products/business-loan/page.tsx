@@ -31,7 +31,7 @@ export default function BusinessLoanPage() {
       <ServicePage
         title="Business Loan"
         subtitle="Manage working capital, expansion and equipment purchase with flexible business loans from leading banks and NBFCs."
-        imageSrc="/images/service/business.png"
+        imageSrc="/images/service/business.webp"
         badge="Fuel your business growth"
         hideHeader
       />

@@ -21,12 +21,14 @@ export default function Features() {
           <div className="mb-4 sm:mb-5 md:mb-0 shrink-0 w-full max-w-full md:max-w-[min(100%,26rem)] lg:max-w-[min(100%,30rem)] xl:max-w-[min(100%,34rem)]">
             <div className="relative max-w-full" data-aos="fade-right">
               <Image
-                src="/images/features/features_iimage.jpg"
-                alt="property"
+                src="/images/features/features_iimage.webp"
+                alt="Why choose Apni Zaroorat for loans and insurance"
                 width={640}
                 height={615}
                 className="w-full h-auto object-cover rounded-lg"
                 style={{ maxWidth: "100%" }}
+                sizes="(max-width: 768px) 100vw, 34rem"
+                loading="lazy"
               />
               {UNCHECKED_PROPERTY && (
                 <div className="absolute bottom-0 left-1/2 w-[min(94%,20rem)] xs:w-[min(92%,22rem)] sm:w-[20rem] md:w-[22rem] lg:w-[26rem] xl:w-[28rem] -translate-x-1/2">

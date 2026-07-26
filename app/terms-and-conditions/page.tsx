@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { buildPageMetadata } from "@/app/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Terms and Conditions | Apni Zaroorat",
-  description: "Terms and conditions for Apni Zaroorat products.",
-};
+export const metadata: Metadata = buildPageMetadata({
+  title: "Terms and Conditions",
+  description: "Terms and conditions for Apni Zaroorat personal loan and insurance products.",
+  path: "/terms-and-conditions",
+  noIndex: true,
+});
 
 export default function TermsAndConditionsPage() {
   return (

@@ -324,6 +324,8 @@ export default function ServicePage({
               width={640}
               height={480}
               className="block h-auto w-full max-w-[560px] object-contain lg:max-w-none"
+              sizes="(max-width: 1024px) 100vw, 560px"
+              priority
             />
           </div>
         </div>

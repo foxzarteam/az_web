@@ -159,11 +159,12 @@ export default function ContactForm() {
           </div>
           <div className="md:col-span-6 h-[280px] sm:h-[360px] md:h-[480px] lg:h-[600px] relative w-full min-h-0 order-first md:order-none">
             <Image
-              src="/images/contact-page/contact.jpg"
-              alt="Contact"
+              src="/images/contact-page/contact.webp"
+              alt="Contact Apni Zaroorat office"
               fill
               className="object-cover rounded-lg"
               sizes="(max-width: 768px) 100vw, 50vw"
+              priority
             />
           </div>
         </div>

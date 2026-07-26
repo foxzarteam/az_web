@@ -125,11 +125,11 @@ function computeEligibility(monthlyIncome: number, employment: Profession, exist
 
   let closing: string;
   if (score >= 80 && !hasWeakPoints) {
-    closing = "Excellent profile! Apply with Apni Zaroorat to explore suitable offers through a quick, paperless process.";
+    closing = "Excellent profile! Apply with Apni Zaroorat and get your personal loan with a quick, paperless process.";
   } else if (score >= 60) {
-    closing = "Good profile. Apply with Apni Zaroorat to check suitable personal loan offers for your needs.";
+    closing = "Good profile. Apply with Apni Zaroorat and get a personal loan that fits your needs.";
   } else if (score >= 40) {
-    closing = "A few points may need work. Apply with Apni Zaroorat to check available options with our partners.";
+    closing = "Your profile looks okay. Apply with Apni Zaroorat and get a personal loan matched to your needs.";
   } else {
     closing = "Every profile is different. Fill the form and Apni Zaroorat will check the best options for you.";
   }

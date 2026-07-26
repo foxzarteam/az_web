@@ -1,0 +1,22 @@
+{
+  "name": "Apni Zaroorat",
+  "short_name": "Apni Zaroorat",
+  "description": "Personal loans and insurance online — apply, check EMI and eligibility with Apni Zaroorat.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF8FF",
+  "theme_color": "#4236FB",
+  "lang": "en-IN",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/logo/app_icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

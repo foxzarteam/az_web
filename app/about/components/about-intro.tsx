@@ -110,7 +110,7 @@ export default function AboutIntro() {
             data-aos="fade-left"
           >
             <Image
-              src="/images/hero/about.png"
+              src="/images/hero/about.webp"
               alt="Apni Zaroorat - simplifying your loan journey"
               width={696}
               height={848}

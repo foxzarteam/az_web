@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
-import { CONTACT, PUBLIC_SITE_URL } from "./config/constants";
+import {
+  buildPageMetadata,
+  breadcrumbJsonLd,
+  faqPageJsonLd,
+  graphJsonLd,
+  jsonLdScript,
+  organizationJsonLd,
+  websiteJsonLd,
+} from "@/app/lib/seo";
 import Hero from "./components/home/hero";
 import LoanPurposes from "./components/home/loan-purposes";
 import EligibilityCalculator from "./components/home/eligibility-calculator";
@@ -12,60 +20,35 @@ import { FAQ_ITEMS } from "./components/home/faq/faq-data";
 const Calculator = dynamic(() => import("./components/home/calculator"));
 
 export const metadata: Metadata = {
-  title: "Personal Loan & Insurance Online",
-  description:
-    "Apply online for personal loans from ₹25,000 to ₹10 lakh and explore insurance options. Use our EMI calculator and indicative eligibility check before applying.",
-  alternates: {
-    canonical: "/",
-  },
+  ...buildPageMetadata({
+    title: "Personal Loan & Insurance Online",
+    description:
+      "Apply online for personal loans from ₹25,000 to ₹10 lakh and explore insurance options. Use our EMI calculator and indicative eligibility check before applying.",
+    path: "/",
+    keywords: [
+      "personal loan online",
+      "personal loan India",
+      "EMI calculator",
+      "loan eligibility check",
+      "insurance online",
+      "Apni Zaroorat",
+    ],
+  }),
 };
 
-const structuredData = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": `${PUBLIC_SITE_URL}/#organization`,
-      name: "Apni Zaroorat",
-      url: PUBLIC_SITE_URL,
-      email: CONTACT.EMAIL,
-      telephone: CONTACT.PHONE,
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: CONTACT.ADDRESS,
-        addressCountry: "IN",
-      },
-    },
-    {
-      "@type": "WebSite",
-      "@id": `${PUBLIC_SITE_URL}/#website`,
-      url: PUBLIC_SITE_URL,
-      name: "Apni Zaroorat",
-      publisher: { "@id": `${PUBLIC_SITE_URL}/#organization` },
-      inLanguage: "en-IN",
-    },
-    {
-      "@type": "FAQPage",
-      mainEntity: FAQ_ITEMS.map((item) => ({
-        "@type": "Question",
-        name: item.question,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: item.answer,
-        },
-      })),
-    },
-  ],
-};
+const structuredData = graphJsonLd(
+  organizationJsonLd(),
+  websiteJsonLd(),
+  faqPageJsonLd(FAQ_ITEMS),
+  breadcrumbJsonLd([{ name: "Home", path: "/" }]),
+);
 
 export default function Home() {
   return (
     <main>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
-        }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(structuredData) }}
       />
       <Hero />
       <Calculator />

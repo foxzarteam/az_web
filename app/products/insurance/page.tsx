@@ -3,18 +3,56 @@ import ServicePage from "@/app/components/services/ServicePage";
 import HowItWorks from "@/app/components/products/insurance/HowItWorks";
 import FaqSection from "@/app/components/home/faq";
 import { INSURANCE_FAQ_ITEMS } from "@/app/components/home/faq/faq-data";
+import {
+  breadcrumbJsonLd,
+  buildPageMetadata,
+  faqPageJsonLd,
+  financialServiceJsonLd,
+  graphJsonLd,
+  jsonLdScript,
+  organizationJsonLd,
+} from "@/app/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Insurance | Apni Zaroorat",
-  description: "Protect your life, health and assets with the right insurance plans. Compare and apply with Apni Zaroorat.",
-};
+export const metadata: Metadata = buildPageMetadata({
+  title: "Insurance Plans Online",
+  description:
+    "Protect your life, health and assets with the right insurance plans. Compare and apply online with Apni Zaroorat.",
+  path: "/products/insurance",
+  image: "/images/service/insurance.webp",
+  imageAlt: "Insurance plans with Apni Zaroorat",
+  keywords: [
+    "insurance online",
+    "life insurance",
+    "health insurance",
+    "insurance plans India",
+    "Apni Zaroorat insurance",
+  ],
+});
+
+const structuredData = graphJsonLd(
+  organizationJsonLd(),
+  financialServiceJsonLd({
+    name: "Insurance",
+    description:
+      "Compare and apply for life, health and other insurance covers with Apni Zaroorat.",
+    path: "/products/insurance",
+    serviceType: "Insurance",
+  }),
+  faqPageJsonLd(INSURANCE_FAQ_ITEMS),
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Insurance", path: "/products/insurance" },
+  ]),
+);
 
 export default function InsurancePage() {
   return (
     <>
-      <section
-        className="pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 text-white px-4 sm:px-6 theme-gradient-bg"
-      >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(structuredData) }}
+      />
+      <section className="pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 text-white px-4 sm:px-6 theme-gradient-bg">
         <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md max-w-full">
           <div className="max-w-3xl mx-auto text-center">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/10 text-[10px] sm:text-xs font-semibold px-3 sm:px-4 py-1 mb-3 sm:mb-4 border border-white/20">
@@ -34,7 +72,7 @@ export default function InsurancePage() {
       <ServicePage
         title="Insurance"
         subtitle="Get the right insurance cover at the lowest premium."
-        imageSrc="/images/service/insurance.png"
+        imageSrc="/images/service/insurance.webp"
         badge="Protect what matters most"
         hideHeader
       />

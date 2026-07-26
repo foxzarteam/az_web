@@ -2,16 +2,27 @@
 
 import Image from "next/image";
 import { Inter } from "next/font/google";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { sanitizeMobileInput, validateMobileNumber } from "@/app/utils/validation";
+import { createChatSession, updateChatSession } from "@/app/utils/chatApi";
+import { chatLoanAmountToRupees, type ChatAnswers } from "@/app/lib/chat/types";
+
+const LeadApplyModal = dynamic(() => import("@/app/components/leads/LeadApplyModal"), {
+  ssr: false,
+});
+const PersonalLoanApplyModal = dynamic(
+  () => import("@/app/components/leads/PersonalLoanApplyModal"),
+  { ssr: false },
+);
 
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
 });
 
-const AVATAR_SRC = "/images/loan-helper/avatar.png";
+const AVATAR_SRC = "/images/loan-helper/avatar.webp";
 const TIMESTAMP = "10:30 AM";
 
 const EMPLOYMENT_OPTIONS = [
@@ -42,13 +53,7 @@ type EmploymentId = (typeof EMPLOYMENT_OPTIONS)[number]["id"];
 type SalaryId = (typeof SALARY_OPTIONS)[number]["id"];
 type EmiId = (typeof EMI_OPTIONS)[number]["id"];
 type LoanAmountId = (typeof LOAN_AMOUNT_OPTIONS)[number]["id"];
-type Step =
-  | "employment"
-  | "salary"
-  | "emi"
-  | "loan_amount"
-  | "mobile"
-  | "complete";
+type Step = "employment" | "salary" | "emi" | "loan_amount" | "mobile";
 
 function ChatIcon({ className }: { className?: string }) {
   return (
@@ -223,6 +228,15 @@ function OptionGroup({
   );
 }
 
+function pickOption<T extends string>(
+  options: readonly { id: T; label: string }[],
+  id: T | null,
+): { id: string; label: string } | null {
+  if (!id) return null;
+  const found = options.find((o) => o.id === id);
+  return found ? { id: found.id, label: found.label } : null;
+}
+
 export default function LoanHelperChat() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
@@ -234,8 +248,13 @@ export default function LoanHelperChat() {
   const [mobileInput, setMobileInput] = useState("");
   const [submittedMobile, setSubmittedMobile] = useState<string | null>(null);
   const [mobileError, setMobileError] = useState("");
+  const [isSavingChat, setIsSavingChat] = useState(false);
+  const [chatId, setChatId] = useState<string | null>(null);
+  const [showOtp, setShowOtp] = useState(false);
+  const [showApplyForm, setShowApplyForm] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatBodyRef = useRef<HTMLDivElement>(null);
+
   const handleFabClick = () => {
     setIsOpen((open) => !open);
   };
@@ -249,17 +268,7 @@ export default function LoanHelperChat() {
       const t = window.setTimeout(scrollToBottom, 120);
       return () => window.clearTimeout(t);
     }
-  }, [
-    isOpen,
-    step,
-    employment,
-    salary,
-    emi,
-    loanAmount,
-    submittedMobile,
-    mobileError,
-    scrollToBottom,
-  ]);
+  }, [isOpen, step, employment, salary, emi, loanAmount, submittedMobile, mobileError, scrollToBottom]);
 
   const handleEmploymentSelect = (id: EmploymentId) => {
     setEmployment(id);
@@ -283,23 +292,72 @@ export default function LoanHelperChat() {
     setMobileError("");
   };
 
-  const handleMobileSubmit = () => {
+  const buildAnswers = useCallback((): ChatAnswers | null => {
+    const employmentAns = pickOption(EMPLOYMENT_OPTIONS, employment);
+    const salaryAns = pickOption(SALARY_OPTIONS, salary);
+    const emiAns = pickOption(EMI_OPTIONS, emi);
+    const loanAns = pickOption(LOAN_AMOUNT_OPTIONS, loanAmount);
+    if (!employmentAns || !salaryAns || !emiAns || !loanAns) return null;
+    return {
+      employment: employmentAns,
+      salary: salaryAns,
+      existing_emi: emiAns,
+      loan_amount: loanAns,
+    };
+  }, [employment, salary, emi, loanAmount]);
+
+  const handleMobileSubmit = async () => {
+    if (isSavingChat) return;
     const validation = validateMobileNumber(mobileInput);
     if (!validation.isValid) {
       setMobileError(validation.error ?? "Invalid mobile number.");
       return;
     }
+    const answers = buildAnswers();
+    if (!answers) {
+      setMobileError("Please complete all chat questions first.");
+      return;
+    }
+
+    const digits = mobileInput.replace(/\D/g, "");
     setMobileError("");
-    setSubmittedMobile(mobileInput);
-    setStep("complete");
+    setIsSavingChat(true);
+
+    try {
+      const saved = await createChatSession({ mobileNumber: digits, answers });
+      if (!saved.success) {
+        setMobileError(saved.message);
+        return;
+      }
+      setChatId(saved.id);
+      setSubmittedMobile(digits);
+      setIsOpen(false);
+      setShowOtp(true);
+    } finally {
+      setIsSavingChat(false);
+    }
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && step === "mobile") {
       e.preventDefault();
-      handleMobileSubmit();
+      void handleMobileSubmit();
     }
   };
+
+  const resetChatFlow = useCallback(() => {
+    setStep("employment");
+    setEmployment(null);
+    setSalary(null);
+    setEmi(null);
+    setLoanAmount(null);
+    setMobileInput("");
+    setSubmittedMobile(null);
+    setMobileError("");
+    setChatId(null);
+    setShowOtp(false);
+    setShowApplyForm(false);
+  }, []);
 
   if (pathname?.startsWith("/admin")) {
     return null;
@@ -317,7 +375,7 @@ export default function LoanHelperChat() {
       ? "Great! 👍\nAapka approx monthly business income kitna hai?"
       : "Great! 👍\nAapki monthly in-hand salary kitni hai approx?";
 
-  const inputEnabled = step === "mobile";
+  const inputEnabled = step === "mobile" && !isSavingChat;
   const inputPlaceholder =
     step === "mobile"
       ? "Apna 10-digit mobile number likhein..."
@@ -429,28 +487,18 @@ export default function LoanHelperChat() {
                           <>
                             <UserBubble>{loanAmountLabel}</UserBubble>
 
-                            {(step === "mobile" || step === "complete") && (
+                            {step === "mobile" && (
                               <BotBubble>
                                 <p className="whitespace-pre-line">
                                   Great 👍{"\n"}
                                   Aapka profile kaafi lenders ke liye suitable lag raha hai.{"\n"}
-                                  Detailed lender matches dekhne ke liye mobile number verify
-                                  karein.
+                                  OTP verify karne ke liye apna mobile number likhein.
                                 </p>
                               </BotBubble>
                             )}
 
                             {submittedMobile && (
-                              <>
-                                <UserBubble>{submittedMobile}</UserBubble>
-                                <BotBubble>
-                                  <p className="whitespace-pre-line">
-                                    Shukriya! 🙏{"\n"}
-                                    Aapka number receive ho gaya. Hum jald hi aapko best lender
-                                    matches ke saath contact karenge.
-                                  </p>
-                                </BotBubble>
-                              </>
+                              <UserBubble>{submittedMobile}</UserBubble>
                             )}
                           </>
                         )}
@@ -482,8 +530,8 @@ export default function LoanHelperChat() {
               />
               <button
                 type="button"
-                onClick={() => step === "mobile" && handleMobileSubmit()}
-                disabled={step !== "mobile"}
+                onClick={() => void handleMobileSubmit()}
+                disabled={step !== "mobile" || isSavingChat}
                 className="btn-gradient flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform duration-200 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                 aria-label="Send message"
               >
@@ -492,6 +540,9 @@ export default function LoanHelperChat() {
             </div>
             {mobileError ? (
               <p className="mt-1.5 text-center text-[10px] text-red-600">{mobileError}</p>
+            ) : null}
+            {isSavingChat ? (
+              <p className="mt-1.5 text-center text-[10px] text-[#6b7280]">Saving… sending OTP</p>
             ) : null}
             <p className="mt-2 flex items-center justify-center gap-1.5 text-[10px] text-[#6b7280]">
               <ShieldIcon />
@@ -530,6 +581,44 @@ export default function LoanHelperChat() {
           <ChatIcon className="h-6 w-6" />
         )}
       </button>
+
+      <LeadApplyModal
+        open={showOtp && Boolean(submittedMobile)}
+        mobile={submittedMobile ?? ""}
+        onClose={() => {
+          setShowOtp(false);
+          setIsOpen(true);
+          setStep("mobile");
+        }}
+        onEditMobile={() => {
+          setShowOtp(false);
+          setSubmittedMobile(null);
+          setIsOpen(true);
+          setStep("mobile");
+        }}
+        onSuccess={() => {
+          setShowOtp(false);
+          if (chatId) {
+            void updateChatSession(chatId, { status: "otp_verified" });
+          }
+          setShowApplyForm(true);
+        }}
+      />
+
+      <PersonalLoanApplyModal
+        open={showApplyForm}
+        onClose={() => {
+          setShowApplyForm(false);
+          resetChatFlow();
+        }}
+        initialMobile={submittedMobile ?? ""}
+        lockMobile
+        skipOtp
+        chatId={chatId ?? undefined}
+        initialLoanAmount={
+          loanAmount ? chatLoanAmountToRupees(loanAmount) : undefined
+        }
+      />
     </div>
   );
 }

@@ -6,6 +6,13 @@ import Aoscompo from "@/utils/aos";
 import { PUBLIC_SITE_URL } from "@/app/config/constants";
 import { getActiveServices } from "@/app/data/getActiveServices";
 import { ServiceCardsProvider } from "@/app/components/providers/ServiceCardsProvider";
+import {
+  DEFAULT_OG_IMAGE,
+  DEFAULT_OG_IMAGE_ALT,
+  SEO_INDEXING_ENABLED,
+  SITE_NAME,
+  SITE_TAGLINE,
+} from "@/app/lib/seo";
 import Header from "./components/layout/header";
 import Footer from "./components/layout/footer";
 import LoanHelperChat from "./components/loan-helper/LoanHelperChat";
@@ -29,12 +36,16 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(PUBLIC_SITE_URL),
   title: {
-    default: "Apni Zaroorat | Personal Loans & Insurance Online",
-    template: "%s | Apni Zaroorat",
+    default: `${SITE_NAME} | ${SITE_TAGLINE}`,
+    template: `%s | ${SITE_NAME}`,
   },
   description:
     "Apply online for personal loans from ₹25,000 to ₹10 lakh and explore insurance options with Apni Zaroorat. Check EMI and indicative eligibility before applying.",
-  applicationName: "Apni Zaroorat",
+  applicationName: SITE_NAME,
+  authors: [{ name: SITE_NAME, url: PUBLIC_SITE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  category: "finance",
   keywords: [
     "personal loan online",
     "personal loan EMI calculator",
@@ -47,31 +58,57 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     url: "/",
-    siteName: "Apni Zaroorat",
-    title: "Apni Zaroorat | Personal Loans & Insurance Online",
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} | ${SITE_TAGLINE}`,
     description:
       "Check personal loan EMI and indicative eligibility, then apply online through a quick and secure process.",
+    images: [
+      {
+        url: DEFAULT_OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: DEFAULT_OG_IMAGE_ALT,
+      },
+    ],
   },
   twitter: {
-    card: "summary",
-    title: "Apni Zaroorat | Personal Loans & Insurance Online",
+    card: "summary_large_image",
+    title: `${SITE_NAME} | ${SITE_TAGLINE}`,
     description:
       "Check personal loan EMI and indicative eligibility, then apply online through a quick and secure process.",
+    images: [DEFAULT_OG_IMAGE],
   },
-  robots: {
-    index: false,
-    follow: false,
-    noarchive: true,
-    googleBot: {
-      index: false,
-      follow: false,
-      noimageindex: true,
-    },
-  },
+  robots: SEO_INDEXING_ENABLED
+    ? {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+          "max-video-preview": -1,
+        },
+      }
+    : {
+        index: false,
+        follow: false,
+        noarchive: true,
+        googleBot: {
+          index: false,
+          follow: false,
+          noimageindex: true,
+        },
+      },
   icons: {
-    icon: [{ url: "/favicon.png", type: "image/png" }],
+    icon: [{ url: "/favicon.png", type: "image/png", sizes: "64x64" }],
     shortcut: "/favicon.png",
-    apple: "/favicon.png",
+    apple: [{ url: "/images/logo/app_icon.png", sizes: "192x192", type: "image/png" }],
+  },
+  manifest: "/site.webmanifest",
+  other: {
+    "geo.region": "IN-RJ",
+    "geo.placename": "Jaipur",
   },
 };
 
@@ -83,7 +120,7 @@ export default async function RootLayout({
   const serviceCards = await getActiveServices();
 
   return (
-    <html lang="en" suppressHydrationWarning className="min-h-[100dvh]">
+    <html lang="en-IN" suppressHydrationWarning className="min-h-[100dvh]">
       <body className={`${dmSans.className} min-h-[100dvh] min-w-0`} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <Aoscompo>

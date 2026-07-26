@@ -31,7 +31,7 @@ export default function CreditCardPage() {
       <ServicePage
         title="Credit Card"
         subtitle="Choose from top bank credit cards with rewards, cashback and lifestyle benefits that match the way you spend."
-        imageSrc="/images/service/credit.png"
+        imageSrc="/images/service/credit.webp"
         badge="Smart cards, smarter rewards"
         hideHeader
       />
