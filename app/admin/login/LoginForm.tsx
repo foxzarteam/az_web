@@ -5,9 +5,16 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { PUBLIC_API_BASE_URL } from "@/app/config/constants";
 
+/** Dev-only prefill from NEXT_PUBLIC_ADMIN_LOGIN_PREFILL_* — never hardcode passwords. */
 const LOGIN_PREFILL = {
-  email: "info@apnizaroorat.com",
-  password: "admin@123",
+  email:
+    process.env.NODE_ENV !== "production"
+      ? (process.env.NEXT_PUBLIC_ADMIN_LOGIN_PREFILL_EMAIL ?? "").trim()
+      : "",
+  password:
+    process.env.NODE_ENV !== "production"
+      ? (process.env.NEXT_PUBLIC_ADMIN_LOGIN_PREFILL_PASSWORD ?? "").trim()
+      : "",
 };
 
 type NestLoginJson = {

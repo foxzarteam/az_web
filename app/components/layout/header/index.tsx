@@ -25,6 +25,7 @@ export default function Header() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [navbarOpen, setNavbarOpen] = useState(false);
+  const [customerLoggedIn, setCustomerLoggedIn] = useState(false);
   const fromLayout = useServiceCards();
   const { cards } = useRemoteServiceCards(fromLayout);
   const serviceSubmenu = useMemo(() => serviceCardsToSubmenu(cards), [cards]);
@@ -44,6 +45,21 @@ export default function Header() {
   );
 
   useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch("/api/customer/me", { credentials: "same-origin" });
+        if (!cancelled) setCustomerLoggedIn(res.ok);
+      } catch {
+        if (!cancelled) setCustomerLoggedIn(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname]);
+
+  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target as Node) && navbarOpen) {
         setNavbarOpen(false);
@@ -53,9 +69,12 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [navbarOpen]);
 
-  if (pathname?.startsWith("/admin")) {
+  if (pathname?.startsWith("/admin") || pathname?.startsWith("/customer")) {
     return null;
   }
+
+  const statusHref = customerLoggedIn ? "/customer/dashboard" : "/customer/login";
+  const statusLabel = customerLoggedIn ? "My Application" : "Check Status";
 
   return (
     <header
@@ -69,6 +88,12 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-1 sm:gap-3 md:gap-4 shrink-0">
+          <Link
+            href={statusHref}
+            className="hidden sm:inline-flex items-center px-3 py-2 text-xs sm:text-sm font-semibold text-midnight_text dark:text-white border border-gray-200 dark:border-dark_border rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+          >
+            {statusLabel}
+          </Link>
           <Link
             href="/become-partner"
             className="hidden sm:inline-flex items-center px-3 py-2 sm:px-4 text-xs sm:text-sm font-semibold text-white btn-gradient rounded-lg transition-all duration-300 btn-shine"
@@ -130,6 +155,13 @@ export default function Header() {
           {headerNavItems.map((item, index) => (
             <MobileHeaderLink key={index} item={item} onClose={() => setNavbarOpen(false)} />
           ))}
+          <Link
+            href={statusHref}
+            onClick={() => setNavbarOpen(false)}
+            className="w-full mt-2 px-4 py-2.5 text-sm font-semibold text-midnight_text dark:text-white border border-gray-200 dark:border-dark_border rounded-lg text-center"
+          >
+            {statusLabel}
+          </Link>
           <Link
             href="/become-partner"
             onClick={() => setNavbarOpen(false)}

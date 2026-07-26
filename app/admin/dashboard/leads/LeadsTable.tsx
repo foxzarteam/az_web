@@ -36,10 +36,6 @@ const VIEW_FIELDS = [
   "otp_verified",
   "pincode",
   "required_amount",
-  "loan_amt",
-  "ins_type",
-  "notes",
-  "user_id",
   "is_active",
   "created_at",
   "updated_at",
@@ -397,7 +393,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
             {VIEW_FIELDS.map((key) => (
               <li
                 key={key}
-                className={`flex flex-wrap items-baseline gap-1 text-sm ${key === "notes" ? "sm:col-span-2" : ""}`}
+                className="flex flex-wrap items-baseline gap-1 text-sm"
               >
                 <span className="shrink-0 font-semibold text-midnight_text dark:text-white">
                   {FIELD_LABELS[key] ?? key}:

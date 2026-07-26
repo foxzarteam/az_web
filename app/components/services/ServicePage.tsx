@@ -10,6 +10,7 @@ import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
+import { customerLogin } from "@/app/utils/customerAuthApi";
 import { applyLead, leadIdFromResponse, mapServiceToCategory } from "@/app/utils/leadApi";
 import {
   INSURANCE_TYPE_OPTIONS,
@@ -75,6 +76,12 @@ export default function ServicePage({
   const [insType, setInsType] = useState("");
   const [pan, setPan] = useState("");
   const [formError, setFormError] = useState("");
+
+  useEffect(() => {
+    if (!formError) return;
+    const t = window.setTimeout(() => setFormError(""), 3000);
+    return () => window.clearTimeout(t);
+  }, [formError]);
 
   const service = pageServiceSlug;
   const selectedCategory = mapServiceToCategory(service);
@@ -157,7 +164,10 @@ export default function ServicePage({
   };
 
   return (
-    <section className="pt-16 sm:pt-20 md:pt-24 lg:pt-28 pb-12 sm:pb-16 bg-gradient-to-b from-light to-white dark:from-darkmode dark:to-semidark">
+    <section
+      id="apply"
+      className="pt-16 sm:pt-20 md:pt-24 lg:pt-28 pb-12 sm:pb-16 bg-gradient-to-b from-light to-white dark:from-darkmode dark:to-semidark scroll-mt-24"
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md max-w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-stretch">
           <div className="min-w-0 flex flex-col w-full order-1 lg:order-1 lg:col-span-6 lg:justify-center" data-aos="fade-right">
@@ -200,9 +210,17 @@ export default function ServicePage({
                   mobile={mobile.replace(/\D/g, "")}
                   onClose={() => setShowApplyModal(false)}
                   onEditMobile={() => setShowApplyModal(false)}
-                  onSuccess={() => {
-                    resetForm();
-                    setShowSuccess(true);
+                  onSuccess={(result) => {
+                    void (async () => {
+                      resetForm();
+                      setShowApplyModal(false);
+                      const login = await customerLogin(result.mobile, result.idToken);
+                      if (login.ok) {
+                        window.location.assign("/customer/dashboard");
+                        return;
+                      }
+                      setShowSuccess(true);
+                    })();
                   }}
                 />
 

@@ -1,7 +1,12 @@
 const DEFAULT_ADMIN_INTERNAL_KEY = "az-admin-internal-dev-key";
 
 export function adminInternalKey(): string {
-  return (process.env.ADMIN_INTERNAL_KEY ?? "").trim() || DEFAULT_ADMIN_INTERNAL_KEY;
+  const fromEnv = (process.env.ADMIN_INTERNAL_KEY ?? "").trim();
+  if (fromEnv) return fromEnv;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_INTERNAL_KEY is required in production");
+  }
+  return DEFAULT_ADMIN_INTERNAL_KEY;
 }
 
 export function adminInternalHeaders(json = false): HeadersInit {

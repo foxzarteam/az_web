@@ -15,7 +15,7 @@ export default function Footer() {
   const { cards } = useRemoteServiceCards(fromLayout);
   const serviceLinks = useMemo(() => serviceCardsToSubmenu(cards), [cards]);
 
-  if (pathname?.startsWith("/admin")) {
+  if (pathname?.startsWith("/admin") || pathname?.startsWith("/customer")) {
     return null;
   }
 

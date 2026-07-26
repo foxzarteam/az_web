@@ -23,16 +23,3 @@ export function serviceSubmenuGradient(item: SubmenuItem, index: number): string
   if (s && GRADIENT_BY_SLUG[s]) return GRADIENT_BY_SLUG[s];
   return FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length];
 }
-
-/** @deprecated Use ServiceSubmenuIcon component instead */
-export function serviceSubmenuIcon(item: SubmenuItem): string {
-  const slug = (item.slug ?? "").toLowerCase();
-  const label = item.label.toLowerCase();
-  if (slug.includes("personal") || label.includes("personal")) return "₹";
-  if (slug.includes("business") || label.includes("business")) return "🏢";
-  if (slug.includes("home") || (label.includes("home") && label.includes("loan"))) return "🏠";
-  if (slug.includes("credit") || label.includes("credit")) return "💳";
-  if (slug.includes("insurance") || label.includes("insurance")) return "🛡️";
-  if (slug.includes("vehicle") || label.includes("vehicle")) return "🚗";
-  return "📋";
-}

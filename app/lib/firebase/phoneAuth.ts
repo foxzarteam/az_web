@@ -217,7 +217,7 @@ export async function verifyPhoneOtp(
   confirmation: ConfirmationResult,
   otp: string,
   mobileDigits: string,
-): Promise<{ success: boolean; message?: string }> {
+): Promise<{ success: boolean; message?: string; idToken?: string }> {
   try {
     const result = await confirmation.confirm(otp);
     const idToken = await result.user.getIdToken();
@@ -236,13 +236,25 @@ export async function verifyPhoneOtp(
         message: data.message || `Verification failed (HTTP ${res.status}).`,
       };
     }
-    return { success: true, message: data.message };
+    return { success: true, message: data.message, idToken };
   } catch (error) {
     console.error("[Firebase OTP verify failed]", error);
     return {
       success: false,
       message: formatOtpError(error, OTP_SEND_HINTS, "Invalid OTP. Please try again."),
     };
+  }
+}
+
+/** Current Firebase user idToken after a recent phone OTP (e.g. chat → skipOtp apply). */
+export async function getCurrentFirebaseIdToken(): Promise<string | null> {
+  try {
+    if (!isFirebaseWebConfigured()) return null;
+    const user = getFirebaseAuth().currentUser;
+    if (!user) return null;
+    return await user.getIdToken();
+  } catch {
+    return null;
   }
 }
 

@@ -3,6 +3,7 @@ import ServicePage from "@/app/components/services/ServicePage";
 import HowItWorks from "@/app/components/products/personal-loan/HowItWorks";
 import FaqSection from "@/app/components/home/faq";
 import { PERSONAL_LOAN_FAQ_ITEMS } from "@/app/components/home/faq/faq-data";
+import CtaBanner from "@/app/about/components/cta-banner";
 import {
   breadcrumbJsonLd,
   buildPageMetadata,
@@ -80,6 +81,15 @@ export default function PersonalLoanPage() {
 
       <HowItWorks />
       <FaqSection items={PERSONAL_LOAN_FAQ_ITEMS} />
+
+      <CtaBanner
+        title="Your Personal Loan Is One Step Away"
+        description="Share a few details and we’ll help you move forward — a quick, simple, and secure process."
+        primaryHref="#apply"
+        primaryLabel="Apply Now"
+        secondaryHref="/#eligibility-calculator"
+        secondaryLabel="Check Eligibility"
+      />
     </>
   );
 }

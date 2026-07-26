@@ -359,7 +359,7 @@ export default function LoanHelperChat() {
     setShowApplyForm(false);
   }, []);
 
-  if (pathname?.startsWith("/admin")) {
+  if (pathname?.startsWith("/admin") || pathname?.startsWith("/customer")) {
     return null;
   }
 
@@ -491,8 +491,8 @@ export default function LoanHelperChat() {
                               <BotBubble>
                                 <p className="whitespace-pre-line">
                                   Great 👍{"\n"}
-                                  Aapka profile kaafi lenders ke liye suitable lag raha hai.{"\n"}
-                                  OTP verify karne ke liye apna mobile number likhein.
+                                  Aapka profile loan ke liye suitable lag raha hai.{"\n"}
+                                  Ab yahan apna mobile number type karke send karein.
                                 </p>
                               </BotBubble>
                             )}

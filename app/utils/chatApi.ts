@@ -1,15 +1,20 @@
+import { PUBLIC_API_BASE_URL } from "@/app/config/constants";
 import type { ChatAnswers, ChatStatus } from "@/app/lib/chat/types";
 
 type ChatApiOk = { success: true; id: string; status?: ChatStatus };
 type ChatApiFail = { success: false; message: string };
 export type ChatApiResult = ChatApiOk | ChatApiFail;
 
+function chatApiBase(): string {
+  return PUBLIC_API_BASE_URL.replace(/\/+$/, "");
+}
+
 export async function createChatSession(input: {
   mobileNumber: string;
   answers: ChatAnswers;
 }): Promise<ChatApiResult> {
   try {
-    const res = await fetch("/api/chat/", {
+    const res = await fetch(`${chatApiBase()}/api/chat`, {
       method: "POST",
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -42,7 +47,7 @@ export async function updateChatSession(
   patch: { status?: ChatStatus; leadId?: string },
 ): Promise<ChatApiResult> {
   try {
-    const res = await fetch(`/api/chat/${encodeURIComponent(chatId)}/`, {
+    const res = await fetch(`${chatApiBase()}/api/chat/${encodeURIComponent(chatId)}`, {
       method: "PATCH",
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -214,29 +214,31 @@ function PartnerFormFields({
         />
         <p className="mt-1 text-xs text-gray dark:text-gray-400">Open dropdown and select one or more products</p>
       </div>
-      <label className="block">
-        <span className={ADMIN_LABEL}>Payout type</span>
-        <select className={inputClass} value={form.payoutType} onChange={(e) => setForm({ ...form, payoutType: e.target.value })}>
-          {PAYOUT_TYPES.map((p) => (
-            <option key={p.value} value={p.value}>
-              {p.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="block">
-        <span className={ADMIN_LABEL}>Commission value</span>
-        <input
-          type="number"
-          min={0}
-          step="any"
-          className={inputClass}
-          value={form.commissionValue}
-          onChange={(e) => setForm({ ...form, commissionValue: e.target.value })}
-          placeholder={form.payoutType === "PERCENTAGE" ? "e.g. 2.5" : "e.g. 1500"}
-          required
-        />
-      </label>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <label className="block min-w-0">
+          <span className={ADMIN_LABEL}>Payout type</span>
+          <select className={inputClass} value={form.payoutType} onChange={(e) => setForm({ ...form, payoutType: e.target.value })}>
+            {PAYOUT_TYPES.map((p) => (
+              <option key={p.value} value={p.value}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block min-w-0">
+          <span className={ADMIN_LABEL}>Commission value</span>
+          <input
+            type="number"
+            min={0}
+            step="any"
+            className={inputClass}
+            value={form.commissionValue}
+            onChange={(e) => setForm({ ...form, commissionValue: e.target.value })}
+            placeholder={form.payoutType === "PERCENTAGE" ? "e.g. 2.5" : "e.g. 1500"}
+            required
+          />
+        </label>
+      </div>
     </div>
   );
 }

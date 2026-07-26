@@ -31,8 +31,8 @@ const STEPS: HowItWorksStep[] = [
   },
   {
     num: 3,
-    title: "Lender Review",
-    description: "Our lending partners will review your application.",
+    title: "Check Eligibility",
+    description: "Check if you are eligible for a personal loan.",
     iconWrapClass: "bg-[#E7F8F1] text-[#10B981]",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>

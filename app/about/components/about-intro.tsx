@@ -6,7 +6,7 @@ const FEATURES = [
     description: "Your data is 100% safe with us",
     iconWrapClass: "bg-[#EEF0FF] text-[#4236FB]",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden>
+      <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden>
         <path
           d="M12 3 5 6v6c0 4.2 2.9 7.9 7 9 4.1-1.1 7-4.8 7-9V6l-7-3Z"
           fill="currentColor"
@@ -27,7 +27,7 @@ const FEATURES = [
     description: "Quick application and approval",
     iconWrapClass: "bg-[#FEF5E7] text-[#F59E0B]",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden>
+      <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden>
         <path
           d="M13 2 5 13.5h5.5L11 22l8-11.5h-5.5L13 2Z"
           fill="currentColor"
@@ -47,7 +47,7 @@ const FEATURES = [
     description: "No hidden charges, no surprises",
     iconWrapClass: "bg-[#FDEBEC] text-[#EF4444]",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden>
+      <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden>
         <circle cx="9" cy="8.5" r="3" fill="currentColor" opacity="0.2" />
         <circle cx="9" cy="8.5" r="3" stroke="currentColor" strokeWidth="1.5" />
         <path d="M3.5 19c.6-3 2.9-4.5 5.5-4.5s4.9 1.5 5.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -70,9 +70,9 @@ export default function AboutIntro() {
               About Us
             </span>
 
-            <h2 className="mt-2 !text-[1.625rem] xs:!text-3xl sm:!text-[2.5rem] md:!text-[2.75rem] !leading-[1.35] font-bold text-midnight_text dark:text-white">
-              We Are Here to Simplify
-              <span className="mt-2 block sm:mt-3">
+            <h2 className="mt-2 max-w-full font-bold !leading-[1.25] text-midnight_text dark:text-white !text-[clamp(1.125rem,4.8vw+0.25rem,2.75rem)]">
+              <span className="block whitespace-nowrap">We Are Here to Simplify</span>
+              <span className="mt-1 block whitespace-nowrap sm:mt-1.5">
                 Your <span className="theme-gradient-text">Loan Journey</span>
               </span>
             </h2>
@@ -83,19 +83,19 @@ export default function AboutIntro() {
               ease, transparency and security.
             </p>
 
-            <div className="mt-7 grid grid-cols-3 gap-2.5 sm:mt-9 sm:gap-4">
+            <div className="mt-6 flex flex-nowrap items-start gap-1.5 sm:mt-8 sm:gap-2.5">
               {FEATURES.map((feature) => (
-                <div key={feature.title} className="flex min-w-0 items-start gap-2 sm:gap-3">
+                <div key={feature.title} className="flex min-w-0 flex-1 items-start gap-1.5 sm:gap-2">
                   <span
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg sm:h-11 sm:w-11 sm:rounded-xl ${feature.iconWrapClass}`}
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full sm:h-8 sm:w-8 ${feature.iconWrapClass}`}
                   >
                     {feature.icon}
                   </span>
                   <span className="min-w-0 pt-0.5">
-                    <span className="block text-xs font-bold leading-tight text-midnight_text dark:text-white sm:text-[15px]">
+                    <span className="block text-[11px] font-bold leading-tight text-midnight_text dark:text-white sm:text-sm">
                       {feature.title}
                     </span>
-                    <span className="mt-0.5 block text-[10px] leading-snug text-gray sm:mt-1 sm:text-[13px] sm:leading-relaxed">
+                    <span className="mt-0.5 block text-[9px] leading-snug text-gray sm:text-[11px] sm:leading-snug">
                       {feature.description}
                     </span>
                   </span>

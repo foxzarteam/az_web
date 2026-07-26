@@ -8,7 +8,9 @@ import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
+import { getCurrentFirebaseIdToken } from "@/app/lib/firebase/phoneAuth";
 import { reportFormValidity } from "@/app/utils/formValidation";
+import { customerLogin } from "@/app/utils/customerAuthApi";
 import { applyLead, leadIdFromResponse } from "@/app/utils/leadApi";
 import { updateChatSession } from "@/app/utils/chatApi";
 import {
@@ -20,11 +22,18 @@ import {
 import { sanitizeMobileInput } from "@/app/utils/validation";
 
 const DEFAULT_LOAN_AMOUNT = 5_00_000;
-const SUCCESS_MESSAGE =
-  "Your Personal Loan application has been received. We'll contact you shortly.";
+const SUCCESS_FALLBACK =
+  "Your application was submitted. Use Check Status in the menu with your mobile number to open your dashboard.";
+
+async function loginAndGoToDashboard(mobile: string, idToken: string): Promise<boolean> {
+  const res = await customerLogin(mobile, idToken);
+  if (!res.ok) return false;
+  window.location.assign("/customer/dashboard");
+  return true;
+}
 
 const inputClass =
-  "w-full px-3.5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode/80 text-sm sm:text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70";
+  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80 dark:text-white sm:rounded-xl sm:px-3.5 sm:py-2.5 sm:text-base";
 
 type PersonalLoanApplyModalProps = {
   open: boolean;
@@ -60,6 +69,12 @@ export default function PersonalLoanApplyModal({
   const [loanAmount, setLoanAmount] = useState(DEFAULT_LOAN_AMOUNT);
   const [pan, setPan] = useState("");
   const [formError, setFormError] = useState("");
+
+  useEffect(() => {
+    if (!formError) return;
+    const t = window.setTimeout(() => setFormError(""), 3000);
+    return () => window.clearTimeout(t);
+  }, [formError]);
 
   useEffect(() => {
     if (!open) return;
@@ -180,8 +195,13 @@ export default function PersonalLoanApplyModal({
       }
 
       if (skipOtp) {
+        const mobileDigits = mobile.replace(/\D/g, "");
+        const idToken = await getCurrentFirebaseIdToken();
         resetForm();
         onClose();
+        if (idToken && (await loginAndGoToDashboard(mobileDigits, idToken))) {
+          return;
+        }
         setShowSuccess(true);
         return;
       }
@@ -203,7 +223,7 @@ export default function PersonalLoanApplyModal({
     <>
       {open && !showOtpModal && (
         <div
-          className="fixed inset-0 z-[99990] flex items-center justify-center overflow-hidden p-3 sm:p-5 bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-[99990] flex items-center justify-center overflow-hidden p-2 sm:p-5 bg-black/50 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-labelledby="personal-loan-apply-title"
@@ -215,14 +235,14 @@ export default function PersonalLoanApplyModal({
             className="flex w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-darklight"
             style={{
               width: "min(100%, 36rem)",
-              maxHeight: "min(100dvh - 1.5rem, 100%)",
+              maxHeight: "min(100dvh - 0.75rem, 100%)",
               height: "auto",
             }}
           >
-            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-4 pb-3 pt-4 sm:px-6 sm:pb-4 sm:pt-5 dark:border-dark_border">
+            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-3.5 py-2.5 sm:px-6 sm:pb-4 sm:pt-5 dark:border-dark_border">
               <h2
                 id="personal-loan-apply-title"
-                className="text-lg font-bold text-midnight_text dark:text-white sm:text-xl"
+                className="text-base font-bold text-midnight_text dark:text-white sm:text-xl"
               >
                 Apply for Personal Loan
               </h2>
@@ -244,20 +264,20 @@ export default function PersonalLoanApplyModal({
                 e.preventDefault();
                 void handleSubmit(e.currentTarget);
               }}
-              className="flex min-h-0 flex-1 flex-col gap-3 overflow-x-hidden overflow-y-auto px-4 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-4 sm:px-6 sm:py-5"
+              className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-x-hidden overflow-y-auto overscroll-contain px-3.5 py-3 sm:gap-4 sm:px-6 sm:py-5"
             >
               {formError && (
-                <div className="shrink-0 rounded-lg border border-red-200 bg-red-50 p-2.5 text-sm text-red-600 break-words">
+                <div className="shrink-0 rounded-lg border border-red-200 bg-red-50 p-2 text-sm text-red-600 break-words sm:p-2.5">
                   {formError}
                 </div>
               )}
 
-              <div className="min-h-0 shrink">
+              <div className="shrink-0">
                 <LoanAmountSlider value={loanAmount} onChange={setLoanAmount} />
               </div>
 
               <div className="shrink-0">
-                <label htmlFor="hero-pl-fullname" className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                <label htmlFor="hero-pl-fullname" className="mb-1 block text-xs font-medium text-midnight_text dark:text-gray-300 sm:text-sm">
                   Full Name *
                 </label>
                 <input
@@ -271,7 +291,7 @@ export default function PersonalLoanApplyModal({
               </div>
 
               <div className="shrink-0">
-                <label className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                <label className="mb-1 block text-xs font-medium text-midnight_text dark:text-gray-300 sm:text-sm">
                   Mobile Number *
                 </label>
                 <div
@@ -298,7 +318,7 @@ export default function PersonalLoanApplyModal({
                       setMobile(sanitizeMobileInput(e.target.value));
                     }}
                     pattern="[0-9]*"
-                    className="min-w-0 flex-1 bg-transparent px-2.5 py-2.5 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 dark:text-white dark:disabled:bg-darkmode/60 sm:px-3 sm:py-3 sm:text-base"
+                    className="min-w-0 flex-1 bg-transparent px-2.5 py-2 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 dark:text-white dark:disabled:bg-darkmode/60 sm:px-3 sm:py-2.5 sm:text-base"
                   />
                 </div>
                 {lockMobile ? (
@@ -307,7 +327,7 @@ export default function PersonalLoanApplyModal({
               </div>
 
               <div className="shrink-0">
-                <label htmlFor="hero-pl-pan" className="mb-1 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                <label htmlFor="hero-pl-pan" className="mb-1 block text-xs font-medium text-midnight_text dark:text-gray-300 sm:text-sm">
                   PAN Card number *
                 </label>
                 <input
@@ -326,13 +346,14 @@ export default function PersonalLoanApplyModal({
                   id="hero-pl-terms"
                   checked={termsAccepted}
                   onChange={setTermsAccepted}
+                  textClassName="text-xs text-gray-700 dark:text-gray-300 sm:text-sm"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmittingForm}
-                className="btn-gradient mt-auto inline-flex min-h-[44px] w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70 sm:rounded-2xl sm:py-3 sm:text-base"
+                className="btn-gradient mt-1 inline-flex min-h-[42px] w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70 sm:mt-2 sm:min-h-[44px] sm:rounded-2xl sm:py-3 sm:text-base"
               >
                 {isSubmittingForm ? "Submitting…" : "Apply Now"}
               </button>
@@ -348,20 +369,23 @@ export default function PersonalLoanApplyModal({
           mobile={mobile.replace(/\D/g, "")}
           onClose={() => setShowOtpModal(false)}
           onEditMobile={() => setShowOtpModal(false)}
-          onSuccess={() => {
-            resetForm();
-            setShowOtpModal(false);
-            onClose();
-            setShowSuccess(true);
+          onSuccess={(result) => {
+            void (async () => {
+              resetForm();
+              setShowOtpModal(false);
+              onClose();
+              if (await loginAndGoToDashboard(result.mobile, result.idToken)) return;
+              setShowSuccess(true);
+            })();
           }}
         />
       )}
 
       {showSuccess && (
         <SuccessPopup
-          message={SUCCESS_MESSAGE}
+          message={SUCCESS_FALLBACK}
           onClose={() => setShowSuccess(false)}
-          autoCloseMs={3000}
+          autoCloseMs={4000}
         />
       )}
     </>,

@@ -26,6 +26,10 @@ const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
     title: "Partners",
     subtitle: "Manage lending and insurance partners",
   },
+  "/admin/dashboard/contacts": {
+    title: "Contact",
+    subtitle: "Messages from the website contact form",
+  },
 };
 
 function resolvePageMeta(pathname: string) {

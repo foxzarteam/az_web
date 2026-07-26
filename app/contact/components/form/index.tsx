@@ -4,8 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
+import { PUBLIC_API_BASE_URL } from "@/app/config/constants";
 import { reportFormValidity } from "@/app/utils/formValidation";
-import { PUBLIC_FORM_SUBMIT_AJAX_URL } from "@/app/config/constants";
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -17,6 +17,7 @@ export default function ContactForm() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -28,35 +29,38 @@ export default function ContactForm() {
       ...prevData,
       [name]: next,
     }));
+    if (formError) setFormError("");
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!reportFormValidity(e.currentTarget)) return;
     setLoading(true);
-
-    if (!PUBLIC_FORM_SUBMIT_AJAX_URL) {
-      console.error("Set NEXT_PUBLIC_CONTACT_EMAIL in .env.local for form submissions.");
-      setLoading(false);
-      return;
-    }
+    setFormError("");
 
     try {
-      const response = await fetch(PUBLIC_FORM_SUBMIT_AJAX_URL, {
+      const response = await fetch(`${PUBLIC_API_BASE_URL.replace(/\/+$/, "")}/api/contact`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
-      if (data.success) {
-        setFormData({ name: "", email: "", phone: "", message: "" });
-        setTermsAccepted(false);
-        setShowSuccess(true);
+      const data = (await response.json().catch(() => ({}))) as {
+        success?: boolean;
+        message?: string;
+      };
+
+      if (!response.ok || data.success !== true) {
+        setFormError(data.message || "Could not send your message. Please try again.");
+        return;
       }
+
+      setFormData({ name: "", email: "", phone: "", message: "" });
+      setTermsAccepted(false);
+      setShowSuccess(true);
     } catch (error) {
       console.error("Error submitting form:", error);
-      setShowSuccess(true);
+      setFormError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -78,6 +82,11 @@ export default function ContactForm() {
               />
             )}
             <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-4 bg-white dark:bg-darklight border border-border dark:border-dark_border rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
+              {formError ? (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-2.5 text-sm text-red-600">
+                  {formError}
+                </div>
+              ) : null}
               <div>
                 <label htmlFor="name" className="pb-3 inline-block text-base font-medium text-midnight_text dark:text-white">
                   Name*
@@ -104,7 +113,7 @@ export default function ContactForm() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full min-w-0 text-sm sm:text-base px-3 sm:px-4 py-2.5 rounded-lg border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="w-full text-base px-4 rounded-lg py-2.5 border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
                 <div className="min-w-0">
@@ -114,16 +123,15 @@ export default function ContactForm() {
                   <input
                     id="phone"
                     type="tel"
-                    inputMode="numeric"
-                    autoComplete="tel"
                     name="phone"
+                    inputMode="numeric"
                     value={formData.phone}
                     onChange={handleChange}
                     required
                     maxLength={10}
-                    pattern="[0-9]*"
-                    placeholder="10 digits"
-                    className="w-full min-w-0 text-sm sm:text-base px-3 sm:px-4 py-2.5 rounded-lg border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    pattern="[6-9][0-9]{9}"
+                    title="Enter a valid 10-digit mobile number"
+                    className="w-full text-base px-4 rounded-lg py-2.5 border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
@@ -134,11 +142,11 @@ export default function ContactForm() {
                 <textarea
                   id="message"
                   name="message"
+                  rows={4}
                   value={formData.message}
                   onChange={handleChange}
                   required
-                  rows={4}
-                  className="w-full text-base px-4 py-2.5 rounded-lg border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                  className="w-full text-base px-4 rounded-lg py-2.5 border border-border dark:border-dark_border bg-gray-50 dark:bg-darkmode text-midnight_text dark:text-white transition-all duration-500 focus:border-primary dark:focus:border-primary focus:bg-white dark:focus:bg-darklight focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
               <TermsAgreementCheckbox

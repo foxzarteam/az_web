@@ -61,10 +61,10 @@ export default async function AdminDashboardPage() {
   const stats = await fetchDashboardStats();
 
   return (
-    <main className="p-4 sm:p-5 lg:p-6">
-      <div className="space-y-3">
+    <main className="px-4 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-3 lg:px-6 lg:pb-6 lg:pt-4">
+      <div className="space-y-2">
         <section
-          className="flex flex-col gap-3 rounded-xl border bg-white p-4 sm:flex-row sm:items-center sm:justify-between sm:p-4 dark:border-dark_border dark:bg-darklight"
+          className="flex flex-col gap-2.5 rounded-xl border bg-white p-3.5 sm:flex-row sm:items-center sm:justify-between sm:p-4 dark:border-dark_border dark:bg-darklight"
           style={{ borderColor: ADMIN_UI.border }}
         >
           <div>
@@ -85,7 +85,7 @@ export default async function AdminDashboardPage() {
         </section>
 
         <section>
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-1.5 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-800 dark:text-white">Key metrics</h3>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -114,12 +114,12 @@ export default async function AdminDashboardPage() {
         </section>
 
         <section
-          className="rounded-xl border bg-white p-4 dark:border-dark_border dark:bg-darklight"
+          className="rounded-xl border bg-white p-3.5 sm:p-4 dark:border-dark_border dark:bg-darklight"
           style={{ borderColor: ADMIN_UI.border }}
         >
           <h3 className="text-sm font-semibold text-slate-800 dark:text-white">Quick actions</h3>
           <p className="mt-0.5 text-sm text-slate-500 dark:text-gray-400">Jump into daily workflows</p>
-          <div className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-2.5 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
             {quickLinks.map((item) => (
               <Link
                 key={item.href}

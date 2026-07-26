@@ -1,5 +1,7 @@
 declare namespace NodeJS {
   interface ProcessEnv {
+    /** HMAC secret for customer_session cookie (min 16 chars). */
+    CUSTOMER_SESSION_SECRET?: string;
     NEXT_PUBLIC_API_URL?: string;
     NEXT_PUBLIC_SITE_URL?: string;
     NEXT_PUBLIC_CONTACT_EMAIL?: string;

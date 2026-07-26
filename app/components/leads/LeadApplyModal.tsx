@@ -14,13 +14,18 @@ import {
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN_SEC = 60;
 
+export type LeadOtpSuccess = {
+  mobile: string;
+  idToken: string;
+};
+
 type LeadApplyModalProps = {
   open: boolean;
   /** Optional — OTP can run before a lead exists (chatbox flow). */
   leadId?: string;
   mobile: string;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (result: LeadOtpSuccess) => void;
   onEditMobile?: () => void;
 };
 
@@ -117,14 +122,14 @@ export default function LeadApplyModal({
     const res = await verifyPhoneOtp(firebaseConfirmation, otp, mobileDigits);
     setIsVerifyingOtp(false);
 
-    if (!res.success) {
+    if (!res.success || !res.idToken) {
       setError(res.message || "Invalid OTP. Please try again.");
       setOtpDigits(Array(OTP_LENGTH).fill(""));
       inputRefs.current[0]?.focus();
       return;
     }
 
-    onSuccess();
+    onSuccess({ mobile: mobileDigits, idToken: res.idToken });
     onClose();
     resetState();
   };
