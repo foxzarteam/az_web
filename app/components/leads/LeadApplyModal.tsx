@@ -27,7 +27,8 @@ type LeadApplyModalProps = {
   leadId?: string;
   mobile: string;
   onClose: () => void;
-  onSuccess: (result: LeadOtpSuccess) => void;
+  /** May be async — modal stays open until it resolves (e.g. login → dashboard). */
+  onSuccess: (result: LeadOtpSuccess) => void | Promise<void>;
   onEditMobile?: () => void;
   /**
    * When false, skips Nest /otp/verify-firebase (faster).
@@ -50,6 +51,7 @@ export default function LeadApplyModal({
   const [error, setError] = useState("");
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [firebaseConfirmation, setFirebaseConfirmation] =
     useState<ConfirmationResult | null>(null);
@@ -65,12 +67,13 @@ export default function LeadApplyModal({
     setResendCooldown(0);
     setFirebaseConfirmation(null);
     setRateLimited(false);
+    setIsFinishing(false);
     autoSentRef.current = false;
     resetRecaptcha(RECAPTCHA_CONTAINER_ID);
   }, []);
 
   const sendOtp = useCallback(async (opts?: { isResend?: boolean }) => {
-    if (mobileDigits.length !== 10 || rateLimited) return;
+    if (mobileDigits.length !== 10 || rateLimited || isFinishing) return;
     setIsSendingOtp(true);
     setError("");
     if (opts?.isResend) {
@@ -97,7 +100,7 @@ export default function LeadApplyModal({
     } finally {
       setIsSendingOtp(false);
     }
-  }, [mobileDigits, rateLimited]);
+  }, [mobileDigits, rateLimited, isFinishing]);
 
   useEffect(() => {
     if (!open) {
@@ -119,26 +122,35 @@ export default function LeadApplyModal({
   useBodyScrollLock(open);
 
   const verifyOtp = async (otp: string) => {
-    if (otp.length !== OTP_LENGTH || isVerifyingOtp || !firebaseConfirmation) return;
+    if (otp.length !== OTP_LENGTH || isVerifyingOtp || isFinishing || !firebaseConfirmation) {
+      return;
+    }
     setIsVerifyingOtp(true);
     setError("");
 
-    // verify-firebase updates otp_sessions for this mobile
     const res = await verifyPhoneOtp(firebaseConfirmation, otp, mobileDigits, {
       syncServer: syncServerVerify,
     });
-    setIsVerifyingOtp(false);
 
     if (!res.success || !res.idToken) {
+      setIsVerifyingOtp(false);
       setError(res.message || "Invalid OTP. Please try again.");
       setOtpDigits(Array(OTP_LENGTH).fill(""));
       inputRefs.current[0]?.focus();
       return;
     }
 
-    onSuccess({ mobile: mobileDigits, idToken: res.idToken });
-    onClose();
-    resetState();
+    // Keep modal open with progress until parent finishes login/navigation.
+    setIsFinishing(true);
+    setIsVerifyingOtp(false);
+    try {
+      await Promise.resolve(onSuccess({ mobile: mobileDigits, idToken: res.idToken }));
+    } catch {
+      setIsFinishing(false);
+      setError("Could not open your dashboard. Please try again.");
+      return;
+    }
+    // Parent navigates away; if still here, leave finishing state (page will unmount).
   };
 
   const handleOtpChange = (index: number, value: string) => {
@@ -163,7 +175,7 @@ export default function LeadApplyModal({
 
   if (!open || typeof document === "undefined") return null;
 
-  const busy = isSendingOtp || isVerifyingOtp;
+  const busy = isSendingOtp || isVerifyingOtp || isFinishing;
 
   return createPortal(
     <div
@@ -176,18 +188,30 @@ export default function LeadApplyModal({
         className="fixed left-0 top-0 h-px w-px overflow-hidden opacity-0 pointer-events-none"
         aria-hidden
       />
-      <div className="bg-white dark:bg-darklight w-full max-w-md rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] overflow-y-auto">
+      <div className="relative bg-white dark:bg-darklight w-full max-w-md rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] overflow-y-auto">
+        {isFinishing && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/95 px-6 text-center dark:bg-darklight/95">
+            <div className="mb-3 h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <p className="text-sm font-semibold text-midnight_text dark:text-white">
+              Please wait…
+            </p>
+            <p className="mt-1 text-xs text-gray-500">Finishing up</p>
+          </div>
+        )}
+
         <div className="flex items-center justify-between px-4 sm:px-6 pt-5 sm:pt-6 pb-3 border-b border-gray-100 dark:border-dark_border">
           <h2 className="text-lg sm:text-xl font-bold text-midnight_text dark:text-white">
             Verify OTP
           </h2>
           <button
             type="button"
+            disabled={busy}
             onClick={() => {
+              if (busy) return;
               onClose();
               resetState();
             }}
-            className="p-2 -m-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10"
+            className="p-2 -m-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 disabled:opacity-40"
             aria-label="Close"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -212,8 +236,9 @@ export default function LeadApplyModal({
             {onEditMobile && (
               <button
                 type="button"
+                disabled={busy}
                 onClick={onEditMobile}
-                className="ml-1 inline-flex text-primary hover:underline"
+                className="ml-1 inline-flex text-primary hover:underline disabled:opacity-40"
                 aria-label="Edit mobile number"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
@@ -243,7 +268,7 @@ export default function LeadApplyModal({
             ))}
           </div>
 
-          {(isSendingOtp || isVerifyingOtp) && (
+          {(isSendingOtp || isVerifyingOtp) && !isFinishing && (
             <p className="text-center text-sm text-gray-500 mb-3">Please wait…</p>
           )}
 

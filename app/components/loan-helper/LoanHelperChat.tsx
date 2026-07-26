@@ -528,7 +528,7 @@ export default function LoanHelperChat() {
                 }}
                 onKeyDown={handleInputKeyDown}
                 readOnly={!inputEnabled}
-                className="h-10 min-w-0 flex-1 rounded-full border border-[#e5e7eb] bg-[#f9fafb] px-4 text-[13px] text-[#111827] outline-none transition-shadow placeholder:text-[#9ca3af] read-only:cursor-default focus:border-[#1DA851]/40 focus:ring-2 focus:ring-[#1DA851]/15"
+                className="h-11 min-w-0 flex-1 rounded-full border border-[#e5e7eb] bg-[#f9fafb] px-4 text-sm text-[#111827] outline-none transition-shadow placeholder:text-[#9ca3af] read-only:cursor-default focus:border-[#1DA851]/40 focus:ring-2 focus:ring-[#1DA851]/15"
                 aria-label={inputPlaceholder}
               />
               <button
@@ -600,43 +600,32 @@ export default function LoanHelperChat() {
           setIsOpen(true);
           setStep("mobile");
         }}
-        onSuccess={() => {
-          void (async () => {
-            setShowOtp(false);
-            const mobile = submittedMobile ?? "";
-            if (!mobile) {
-              setIsOpen(true);
-              setStep("mobile");
-              setMobileError("Mobile number missing. Please try again.");
-              return;
-            }
+        onSuccess={async () => {
+          const mobile = submittedMobile ?? "";
+          if (!mobile) {
+            throw new Error("Mobile number missing. Please try again.");
+          }
 
-            // Create/reuse draft lead row for this number, then open form to fill details.
-            const started = await startLead(mobile, "personal_loan");
-            if (!started.success) {
-              setIsOpen(true);
-              setStep("mobile");
-              setMobileError(
-                started.message ||
-                  "This mobile number already exists. Please use a different number.",
-              );
-              return;
-            }
+          // Create/reuse draft lead row for this number, then open form to fill details.
+          const started = await startLead(mobile, "personal_loan");
+          if (!started.success) {
+            throw new Error(
+              started.message ||
+                "This mobile number already exists. Please use a different number.",
+            );
+          }
 
-            const leadId = leadIdFromResponse(started.data);
-            if (!leadId) {
-              setIsOpen(true);
-              setStep("mobile");
-              setMobileError("Could not save mobile. Please try again.");
-              return;
-            }
+          const leadId = leadIdFromResponse(started.data);
+          if (!leadId) {
+            throw new Error("Could not save mobile. Please try again.");
+          }
 
-            setDraftLeadId(leadId);
-            if (chatId) {
-              void updateChatSession(chatId, { status: "otp_verified" });
-            }
-            setShowApplyForm(true);
-          })();
+          setDraftLeadId(leadId);
+          if (chatId) {
+            void updateChatSession(chatId, { status: "otp_verified" });
+          }
+          setShowOtp(false);
+          setShowApplyForm(true);
         }}
       />
 

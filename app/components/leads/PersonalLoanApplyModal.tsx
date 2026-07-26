@@ -40,7 +40,13 @@ async function loginAndGoToDashboard(
 }
 
 const inputClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80 dark:text-white sm:rounded-xl sm:px-3.5 sm:py-2 sm:text-base";
+  "w-full min-h-12 rounded-xl border border-gray-300 bg-white px-3.5 py-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80 dark:text-white";
+
+const mobileShellClass =
+  "flex min-h-12 items-center overflow-hidden rounded-xl border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80";
+
+const mobileInputClass =
+  "min-h-12 min-w-0 flex-1 bg-transparent px-3 py-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 dark:text-white dark:disabled:bg-darkmode/60";
 
 type PersonalLoanApplyModalProps = {
   open: boolean;
@@ -74,6 +80,7 @@ export default function PersonalLoanApplyModal({
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [pendingLeadId, setPendingLeadId] = useState("");
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
+  const [isOpeningDashboard, setIsOpeningDashboard] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -121,15 +128,15 @@ export default function PersonalLoanApplyModal({
   }, [initialLoanAmount, initialMobile, lockMobile]);
 
   const handleClose = useCallback(() => {
-    if (showOtpModal || isSubmittingForm) return;
+    if (showOtpModal || isSubmittingForm || isOpeningDashboard) return;
     blurActiveElement();
     resetForm();
     onClose();
-  }, [onClose, resetForm, showOtpModal, isSubmittingForm]);
+  }, [onClose, resetForm, showOtpModal, isSubmittingForm, isOpeningDashboard]);
 
   // Keep page scroll frozen while modal is open (including OTP step).
   // overflow:hidden only — no position:fixed — so close does not jump the page.
-  useBodyScrollLock(open);
+  useBodyScrollLock(open || isOpeningDashboard);
 
   const previousFocusRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
@@ -150,14 +157,21 @@ export default function PersonalLoanApplyModal({
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !showOtpModal && !isSubmittingForm) handleClose();
+      if (
+        e.key === "Escape" &&
+        !showOtpModal &&
+        !isSubmittingForm &&
+        !isOpeningDashboard
+      ) {
+        handleClose();
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, showOtpModal, isSubmittingForm, handleClose]);
+  }, [open, showOtpModal, isSubmittingForm, isOpeningDashboard, handleClose]);
 
   const handleSubmit = async (form: HTMLFormElement) => {
-    if (!reportFormValidity(form) || isSubmittingForm) return;
+    if (!reportFormValidity(form) || isSubmittingForm || isOpeningDashboard) return;
 
     const errors: LeadFieldErrors = validateLeadPanNameMobile({
       pan,
@@ -221,10 +235,9 @@ export default function PersonalLoanApplyModal({
       }
 
       if (skipOtp) {
+        // Keep form modal open with loader until dashboard opens (no blank gap).
+        setIsOpeningDashboard(true);
         const idToken = await getCurrentFirebaseIdToken();
-        blurActiveElement();
-        resetForm();
-        onClose();
         if (
           idToken &&
           (await loginAndGoToDashboard(mobileDigits, idToken, (href) => {
@@ -234,6 +247,7 @@ export default function PersonalLoanApplyModal({
         ) {
           return;
         }
+        setIsOpeningDashboard(false);
         setShowSuccess(true);
         return;
       }
@@ -242,6 +256,7 @@ export default function PersonalLoanApplyModal({
       setShowOtpModal(true);
     } catch {
       setFormError("Network error. Please try again.");
+      setIsOpeningDashboard(false);
     } finally {
       setIsSubmittingForm(false);
     }
@@ -264,13 +279,22 @@ export default function PersonalLoanApplyModal({
           }}
         >
           <div
-            className="flex w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-darklight"
+            className="relative flex w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-darklight"
             style={{
               width: "min(100%, 36rem)",
               maxHeight: "min(100dvh - 0.75rem, 100%)",
               height: "auto",
             }}
           >
+            {isOpeningDashboard && (
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/95 px-6 text-center dark:bg-darklight/95">
+                <div className="mb-3 h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <p className="text-sm font-semibold text-midnight_text dark:text-white">
+                  Opening your dashboard…
+                </p>
+                <p className="mt-1 text-xs text-gray-500">Please wait</p>
+              </div>
+            )}
             <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-3.5 py-2.5 sm:px-6 sm:pb-4 sm:pt-5 dark:border-dark_border">
               <h2
                 id="personal-loan-apply-title"
@@ -280,8 +304,9 @@ export default function PersonalLoanApplyModal({
               </h2>
               <button
                 type="button"
+                disabled={isSubmittingForm || isOpeningDashboard}
                 onClick={handleClose}
-                className="rounded-lg p-2 -m-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10"
+                className="rounded-lg p-2 -m-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 disabled:opacity-40"
                 aria-label="Close"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -327,21 +352,21 @@ export default function PersonalLoanApplyModal({
                   Mobile Number *
                 </label>
                 <div
-                  className={`flex items-center overflow-hidden rounded-lg border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80 sm:rounded-xl ${
-                    lockMobile ? "opacity-90" : ""
-                  }`}
+                  className={`${mobileShellClass} ${lockMobile ? "opacity-90" : ""}`}
                 >
-                  <span className="flex shrink-0 items-center pl-2.5 sm:pl-3" aria-hidden>
+                  <span className="flex shrink-0 items-center pl-3" aria-hidden>
                     <IndiaFlag />
                   </span>
-                  <span className="pl-1.5 pr-2 text-sm font-medium text-midnight_text dark:text-white sm:pl-2 sm:pr-3">+91</span>
-                  <span className="h-5 w-px bg-gray-300 dark:bg-dark_border sm:h-6" aria-hidden />
+                  <span className="px-2 text-base font-semibold text-midnight_text dark:text-white">
+                    +91
+                  </span>
+                  <span className="h-6 w-px shrink-0 bg-gray-300 dark:bg-dark_border" aria-hidden />
                   <input
                     type="tel"
                     inputMode="numeric"
                     autoComplete="tel"
                     maxLength={MOBILE_VALIDATION.MAX_LENGTH}
-                    placeholder="Mobile Number"
+                    placeholder="10-digit mobile"
                     value={mobile}
                     readOnly={lockMobile}
                     disabled={lockMobile}
@@ -350,7 +375,7 @@ export default function PersonalLoanApplyModal({
                       setMobile(sanitizeMobileInput(e.target.value));
                     }}
                     pattern="[0-9]*"
-                    className="min-w-0 flex-1 bg-transparent px-2.5 py-1.5 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 dark:text-white dark:disabled:bg-darkmode/60 sm:px-3 sm:py-2 sm:text-base"
+                    className={mobileInputClass}
                   />
                 </div>
                 {lockMobile ? (
@@ -401,24 +426,20 @@ export default function PersonalLoanApplyModal({
           open={showOtpModal && Boolean(pendingLeadId)}
           leadId={pendingLeadId}
           mobile={mobile.replace(/\D/g, "")}
-          onClose={() => setShowOtpModal(false)}
+          onClose={() => {
+            if (isOpeningDashboard) return;
+            setShowOtpModal(false);
+          }}
           onEditMobile={() => setShowOtpModal(false)}
           syncServerVerify={false}
-          onSuccess={(result) => {
-            void (async () => {
-              resetForm();
-              setShowOtpModal(false);
-              onClose();
-              if (
-                await loginAndGoToDashboard(result.mobile, result.idToken, (href) => {
-                  router.replace(href);
-                  router.refresh();
-                })
-              ) {
-                return;
-              }
-              setShowSuccess(true);
-            })();
+          onSuccess={async (result) => {
+            const ok = await loginAndGoToDashboard(result.mobile, result.idToken, (href) => {
+              router.replace(href);
+              router.refresh();
+            });
+            if (!ok) {
+              throw new Error("Login failed");
+            }
           }}
         />
       )}

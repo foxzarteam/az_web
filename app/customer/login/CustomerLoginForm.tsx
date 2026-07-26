@@ -193,12 +193,12 @@ export default function CustomerLoginForm() {
               <label className="mb-1.5 block text-sm font-medium text-midnight_text">
                 Mobile number
               </label>
-              <div className="flex items-center overflow-hidden rounded-xl border border-gray-300 bg-white">
+              <div className="flex min-h-12 items-center overflow-hidden rounded-xl border border-gray-300 bg-white">
                 <span className="flex shrink-0 items-center pl-3" aria-hidden>
                   <IndiaFlag />
                 </span>
-                <span className="px-2 text-sm font-medium text-midnight_text">+91</span>
-                <span className="h-5 w-px bg-gray-300" aria-hidden />
+                <span className="px-2 text-base font-semibold text-midnight_text">+91</span>
+                <span className="h-6 w-px shrink-0 bg-gray-300" aria-hidden />
                 <input
                   type="tel"
                   inputMode="numeric"
@@ -211,7 +211,7 @@ export default function CustomerLoginForm() {
                     setNotFound(false);
                     setError("");
                   }}
-                  className="min-w-0 flex-1 bg-transparent px-3 py-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none"
+                  className="min-h-12 min-w-0 flex-1 bg-transparent px-3 py-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none"
                 />
               </div>
             </div>

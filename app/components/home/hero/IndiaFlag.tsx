@@ -1,6 +1,10 @@
 export default function IndiaFlag() {
   return (
-    <svg viewBox="0 0 24 16" className="w-6 h-4 rounded-sm overflow-hidden" aria-label="India">
+    <svg
+      viewBox="0 0 24 16"
+      className="h-5 w-7 shrink-0 overflow-hidden rounded-sm"
+      aria-label="India"
+    >
       <rect width="24" height="16" fill="#FF9933" />
       <rect y="5.33" width="24" height="5.33" fill="#fff" />
       <rect y="10.67" width="24" height="5.33" fill="#138808" />
