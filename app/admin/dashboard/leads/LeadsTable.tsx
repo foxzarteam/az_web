@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
 import { insuranceTypeLabel, loanAmountLabel } from "@/app/utils/leadForm";
+import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
+import { PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
 import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
 import AdminModal from "../AdminModal";
 import {
@@ -14,6 +16,8 @@ import {
   ADMIN_INPUT,
   ADMIN_LABEL,
 } from "../adminUi";
+
+const DEFAULT_LOAN_AMOUNT = 5_00_000;
 
 const CATEGORIES = [
   { value: "personal_loan", label: "Personal Loan" },
@@ -132,9 +136,17 @@ type EditForm = {
   pan: string;
   category: string;
   status: string;
-  requiredAmount: string;
-  notes: string;
+  requiredAmount: number;
 };
+
+function clampLoanAmount(value: unknown): number {
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n)) return DEFAULT_LOAN_AMOUNT;
+  return Math.min(
+    PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT,
+    Math.max(PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT, Math.round(n)),
+  );
+}
 
 function leadToEditForm(lead: AdminLeadRow): EditForm {
   return {
@@ -143,8 +155,7 @@ function leadToEditForm(lead: AdminLeadRow): EditForm {
     pan: String(lead.pan ?? ""),
     category: String(lead.category ?? "personal_loan"),
     status: String(lead.status ?? "pending"),
-    requiredAmount: lead.required_amount != null ? String(lead.required_amount) : "",
-    notes: String(lead.notes ?? ""),
+    requiredAmount: clampLoanAmount(lead.required_amount ?? DEFAULT_LOAN_AMOUNT),
   };
 }
 
@@ -155,8 +166,7 @@ function emptyCreateForm(): EditForm {
     pan: "",
     category: "personal_loan",
     status: "pending",
-    requiredAmount: "",
-    notes: "",
+    requiredAmount: DEFAULT_LOAN_AMOUNT,
   };
 }
 
@@ -171,12 +181,20 @@ function LeadFormFields({
 }) {
   return (
     <div className="grid gap-5 sm:grid-cols-2">
+      <div className="sm:col-span-2">
+        <LoanAmountSlider
+          id="admin-lead-loan-amount"
+          value={form.requiredAmount}
+          onChange={(value) => setForm({ ...form, requiredAmount: value })}
+        />
+      </div>
       <label className="block sm:col-span-2">
         <span className={ADMIN_LABEL}>Name</span>
         <input
           className={inputClass}
           value={form.fullName}
           onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+          placeholder="enter name"
           required
         />
       </label>
@@ -227,25 +245,6 @@ function LeadFormFields({
             </option>
           ))}
         </select>
-      </label>
-      <label className="block">
-        <span className={ADMIN_LABEL}>Required amount</span>
-        <input
-          type="number"
-          min={0}
-          className={inputClass}
-          value={form.requiredAmount}
-          onChange={(e) => setForm({ ...form, requiredAmount: e.target.value })}
-        />
-      </label>
-      <label className="block sm:col-span-2">
-        <span className={ADMIN_LABEL}>Notes</span>
-        <textarea
-          className={inputClass}
-          rows={3}
-          value={form.notes}
-          onChange={(e) => setForm({ ...form, notes: e.target.value })}
-        />
       </label>
     </div>
   );
@@ -299,20 +298,14 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
   }
 
   function buildLeadPayload(form: EditForm): Record<string, unknown> {
-    const payload: Record<string, unknown> = {
+    return {
       fullName: form.fullName.trim(),
       mobileNumber: form.mobileNumber.trim(),
       pan: form.pan.trim().toUpperCase(),
       category: form.category,
       status: form.status,
-      notes: form.notes.trim(),
+      requiredAmount: form.requiredAmount,
     };
-    if (form.requiredAmount.trim()) {
-      payload.requiredAmount = Number(form.requiredAmount);
-    } else {
-      payload.requiredAmount = null;
-    }
-    return payload;
   }
 
   async function handleCreate(e: React.FormEvent) {
@@ -566,7 +559,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
       )}
 
       {createOpen && editForm && (
-        <AdminModal title="Add lead" wide onClose={closeModals}>
+        <AdminModal title="Add lead" onClose={closeModals}>
           <form onSubmit={handleCreate} className="space-y-6 p-6 sm:p-8">
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <LeadFormFields
@@ -587,7 +580,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
       )}
 
       {editLead && editForm && (
-        <AdminModal title="Edit lead" wide onClose={closeModals}>
+        <AdminModal title="Edit lead" onClose={closeModals}>
           <form onSubmit={handleSaveEdit} className="space-y-6 p-6 sm:p-8">
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <LeadFormFields

@@ -203,7 +203,13 @@ function PartnerFormFields({
     <div className="grid gap-5">
       <label className="block">
         <span className={ADMIN_LABEL}>Name</span>
-        <input className={inputClass} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+        <input
+          className={inputClass}
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          placeholder="enter name"
+          required
+        />
       </label>
       <div className="block">
         <span className={ADMIN_LABEL}>Products</span>
