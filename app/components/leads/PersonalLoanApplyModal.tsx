@@ -91,7 +91,7 @@ export default function PersonalLoanApplyModal({
   leadId: existingLeadId,
   chatId,
   initialLoanAmount,
-  initialEmploymentType = "",
+  initialEmploymentType,
   initialNetMonthlyIncome,
 }: PersonalLoanApplyModalProps) {
   const router = useRouter();
