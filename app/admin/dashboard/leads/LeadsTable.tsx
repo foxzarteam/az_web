@@ -280,9 +280,9 @@ function LeadFormFields({
       </label>
       <div className="block">
         <span className={ADMIN_LABEL}>PAN</span>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <input
-            className={`${inputClass} font-mono tracking-wide`}
+            className={`${inputClass} min-w-0 flex-1 font-mono tracking-wide`}
             value={form.pan}
             onChange={(e) => {
               setForm({ ...form, pan: e.target.value.toUpperCase() });
@@ -298,7 +298,7 @@ function LeadFormFields({
               type="button"
               onClick={onRevealPan}
               disabled={revealingPan || !panLocked}
-              className={ADMIN_BTN_SECONDARY}
+              className={`${ADMIN_BTN_SECONDARY} shrink-0 whitespace-nowrap`}
               title={panLocked ? "Reveal full PAN (audited)" : "PAN already revealed"}
             >
               {revealingPan ? "…" : panLocked ? "Reveal" : "Shown"}

@@ -40,13 +40,13 @@ async function loginAndGoToDashboard(
 }
 
 const inputClass =
-  "w-full min-h-10 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70 sm:min-h-11 sm:px-3.5 sm:py-2.5 sm:text-base dark:border-dark_border dark:bg-darkmode/80 dark:text-white";
+  "w-full min-h-12 rounded-xl border border-gray-300 bg-white px-3.5 py-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80 dark:text-white";
 
 const mobileShellClass =
-  "flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white sm:min-h-11 dark:border-dark_border dark:bg-darkmode/80";
+  "flex min-h-12 items-center overflow-hidden rounded-xl border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80";
 
 const mobileInputClass =
-  "min-h-10 min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 sm:min-h-11 sm:py-2.5 sm:text-base dark:text-white dark:disabled:bg-darkmode/60";
+  "min-h-12 min-w-0 flex-1 bg-transparent px-3 py-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 dark:text-white dark:disabled:bg-darkmode/60";
 
 type PersonalLoanApplyModalProps = {
   open: boolean;
@@ -270,7 +270,7 @@ export default function PersonalLoanApplyModal({
     <>
       {open && !showOtpModal && (
         <div
-          className="fixed inset-0 z-[99990] flex items-center justify-center overflow-hidden p-2 sm:p-4 bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-[99990] flex items-center justify-center overflow-hidden p-3 sm:p-5 bg-black/50 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-labelledby="personal-loan-apply-title"
@@ -282,7 +282,7 @@ export default function PersonalLoanApplyModal({
             className="relative flex w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-darklight"
             style={{
               width: "min(100%, 36rem)",
-              maxHeight: "calc(100dvh - 1rem)",
+              maxHeight: "calc(100dvh - 1.5rem)",
             }}
           >
             {isOpeningDashboard && (
@@ -294,10 +294,10 @@ export default function PersonalLoanApplyModal({
                 <p className="mt-1 text-xs text-gray-500">Please wait</p>
               </div>
             )}
-            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-3.5 py-2 sm:px-6 sm:py-3.5 dark:border-dark_border [@media(max-height:700px)]:py-1.5">
+            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-4 py-3.5 sm:px-6 sm:pb-4 sm:pt-5 dark:border-dark_border">
               <h2
                 id="personal-loan-apply-title"
-                className="text-base font-bold text-midnight_text dark:text-white sm:text-lg"
+                className="text-lg font-bold text-midnight_text dark:text-white sm:text-xl"
               >
                 Apply for Personal Loan
               </h2>
@@ -320,10 +320,10 @@ export default function PersonalLoanApplyModal({
                 e.preventDefault();
                 void handleSubmit(e.currentTarget);
               }}
-              className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden px-3.5 py-2.5 sm:gap-3 sm:px-6 sm:py-4 [@media(max-height:700px)]:gap-1.5 [@media(max-height:700px)]:py-2"
+              className="flex min-h-0 flex-1 flex-col gap-3.5 overflow-x-hidden overflow-y-auto overscroll-contain px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             >
               {formError && (
-                <div className="shrink-0 rounded-lg border border-red-200 bg-red-50 p-2 text-xs text-red-600 break-words sm:text-sm">
+                <div className="shrink-0 rounded-lg border border-red-200 bg-red-50 p-2.5 text-sm text-red-600 break-words">
                   {formError}
                 </div>
               )}
@@ -333,7 +333,7 @@ export default function PersonalLoanApplyModal({
               </div>
 
               <div className="shrink-0">
-                <label htmlFor="hero-pl-fullname" className="mb-0.5 block text-xs font-medium text-midnight_text dark:text-gray-300 sm:mb-1 sm:text-sm">
+                <label htmlFor="hero-pl-fullname" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
                   Full Name *
                 </label>
                 <input
@@ -347,7 +347,7 @@ export default function PersonalLoanApplyModal({
               </div>
 
               <div className="shrink-0">
-                <label className="mb-0.5 block text-xs font-medium text-midnight_text dark:text-gray-300 sm:mb-1 sm:text-sm">
+                <label className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
                   Mobile Number *
                 </label>
                 <div
@@ -356,10 +356,10 @@ export default function PersonalLoanApplyModal({
                   <span className="flex shrink-0 items-center pl-3" aria-hidden>
                     <IndiaFlag />
                   </span>
-                  <span className="px-2 text-sm font-semibold text-midnight_text sm:text-base dark:text-white">
+                  <span className="px-2 text-base font-semibold text-midnight_text dark:text-white">
                     +91
                   </span>
-                  <span className="h-5 w-px shrink-0 bg-gray-300 sm:h-6 dark:bg-dark_border" aria-hidden />
+                  <span className="h-6 w-px shrink-0 bg-gray-300 dark:bg-dark_border" aria-hidden />
                   <input
                     type="tel"
                     inputMode="numeric"
@@ -378,12 +378,12 @@ export default function PersonalLoanApplyModal({
                   />
                 </div>
                 {lockMobile ? (
-                  <p className="mt-0.5 text-[11px] text-gray">Verified mobile number</p>
+                  <p className="mt-1 text-xs text-gray">Verified mobile number</p>
                 ) : null}
               </div>
 
               <div className="shrink-0">
-                <label htmlFor="hero-pl-pan" className="mb-0.5 block text-xs font-medium text-midnight_text dark:text-gray-300 sm:mb-1 sm:text-sm">
+                <label htmlFor="hero-pl-pan" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
                   PAN Card number *
                 </label>
                 <input
@@ -402,19 +402,19 @@ export default function PersonalLoanApplyModal({
                   id="hero-pl-terms"
                   checked={termsAccepted}
                   onChange={setTermsAccepted}
-                  textClassName="text-[11px] leading-snug text-gray-600 dark:text-gray-400"
+                  textClassName="text-xs leading-snug text-gray-600 dark:text-gray-400 sm:text-[13px]"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmittingForm}
-                className="btn-gradient mt-0.5 inline-flex min-h-[40px] w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70 sm:min-h-[44px] sm:rounded-2xl sm:py-2.5 sm:text-base"
+                className="btn-gradient mt-1 inline-flex min-h-[44px] w-full shrink-0 items-center justify-center gap-2 rounded-2xl px-4 py-3 text-base font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isSubmittingForm ? "Submitting…" : "Apply Now"}
               </button>
 
-              <CheckApplicationStatusLink className="mt-1 shrink-0" onNavigate={handleClose} />
+              <CheckApplicationStatusLink className="mt-2 shrink-0" onNavigate={handleClose} />
             </form>
           </div>
         </div>
