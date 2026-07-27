@@ -79,6 +79,7 @@ export default function LeadApplyModal({
     if (opts?.isResend) {
       setOtpDigits(Array(OTP_LENGTH).fill(""));
       setFirebaseConfirmation(null);
+      resetRecaptcha(RECAPTCHA_CONTAINER_ID);
     }
 
     try {
@@ -92,6 +93,7 @@ export default function LeadApplyModal({
     } catch (err) {
       const message = getFirebaseOtpSendErrorMessage(err);
       setError(message);
+      resetRecaptcha(RECAPTCHA_CONTAINER_ID);
       const code =
         err != null && typeof err === "object" ? (err as { code?: string }).code : undefined;
       if (code === "otp/daily-limit") {
@@ -223,32 +225,66 @@ export default function LeadApplyModal({
 
         <div className="px-4 sm:px-6 py-5 sm:py-6">
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600 break-words">
+            <div
+              className={`mb-4 rounded-lg border p-3 text-sm break-words ${
+                rateLimited
+                  ? "border-amber-200 bg-amber-50 text-amber-800"
+                  : "border-red-200 bg-red-50 text-red-600"
+              }`}
+              role="alert"
+            >
               {error}
             </div>
           )}
 
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
-            We have sent a {OTP_LENGTH} digit verification code to{" "}
-            <span className="font-semibold text-midnight_text dark:text-white">
-              {mobileDigits}
-            </span>
-            {onEditMobile && (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={onEditMobile}
-                className="ml-1 inline-flex text-primary hover:underline disabled:opacity-40"
-                aria-label="Edit mobile number"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
-                  <path d="M12 20h9" />
-                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                </svg>
-              </button>
+            {rateLimited ? (
+              <>
+                OTP cannot be sent to{" "}
+                <span className="font-semibold text-midnight_text dark:text-white">
+                  {mobileDigits}
+                </span>{" "}
+                right now — daily limit reached.
+                {onEditMobile && (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={onEditMobile}
+                    className="ml-1 inline-flex text-primary hover:underline disabled:opacity-40"
+                    aria-label="Edit mobile number"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                    </svg>
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                We have sent a {OTP_LENGTH} digit verification code to{" "}
+                <span className="font-semibold text-midnight_text dark:text-white">
+                  {mobileDigits}
+                </span>
+                {onEditMobile && (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={onEditMobile}
+                    className="ml-1 inline-flex text-primary hover:underline disabled:opacity-40"
+                    aria-label="Edit mobile number"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                    </svg>
+                  </button>
+                )}
+              </>
             )}
           </p>
 
+          {!rateLimited && (
           <div className="flex justify-center gap-2 sm:gap-3 my-6">
             {otpDigits.map((digit, i) => (
               <input
@@ -267,12 +303,13 @@ export default function LeadApplyModal({
               />
             ))}
           </div>
+          )}
 
           {(isSendingOtp || isVerifyingOtp) && !isFinishing && (
             <p className="text-center text-sm text-gray-500 mb-3">Please wait…</p>
           )}
 
-          <div className="text-center">
+          <div className={`text-center ${rateLimited ? "mt-4" : ""}`}>
             <button
               type="button"
               disabled={rateLimited || resendCooldown > 0 || busy}
@@ -280,7 +317,7 @@ export default function LeadApplyModal({
               className="text-sm font-semibold text-primary disabled:text-gray-400 disabled:cursor-not-allowed hover:underline"
             >
               {rateLimited
-                ? "OTP limit reached — try again tomorrow"
+                ? "Daily OTP limit reached — try again tomorrow"
                 : resendCooldown > 0
                   ? `Resend Code in ${resendCooldown}s`
                   : "Resend Code"}

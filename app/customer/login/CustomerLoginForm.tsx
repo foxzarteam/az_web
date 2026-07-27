@@ -256,7 +256,7 @@ export default function CustomerLoginForm() {
                 className="text-sm font-semibold text-primary disabled:cursor-not-allowed disabled:text-gray-400 hover:underline"
               >
                 {rateLimited
-                  ? "OTP limit reached — try again tomorrow"
+                  ? "Daily OTP limit reached — try again tomorrow"
                   : resendCooldown > 0
                     ? `Resend Code in ${resendCooldown}s`
                     : "Resend Code"}

@@ -461,7 +461,7 @@ export default function PersonalLoanApplyModal({
             setShowOtpModal(false);
           }}
           onEditMobile={() => setShowOtpModal(false)}
-          syncServerVerify={false}
+          syncServerVerify
           onSuccess={async (result) => {
             const ok = await loginAndGoToDashboard(result.mobile, result.idToken, (href) => {
               router.replace(href);

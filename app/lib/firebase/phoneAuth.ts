@@ -10,8 +10,9 @@ import { firebaseWebConfig, isFirebaseWebConfigured } from "./config";
 
 const RECAPTCHA_CONTAINER_ID = "lead-recaptcha-container";
 
+const OTP_DAILY_LIMIT = 5;
 const MSG_OTP_DAILY_LIMIT =
-  "OTP limit reached for this mobile number. Please try again tomorrow.";
+  `Daily OTP limit reached for this mobile number (max ${OTP_DAILY_LIMIT} OTPs per day). Please try again tomorrow.`;
 
 let recaptchaVerifier: RecaptchaVerifier | null = null;
 /** True after a verifier was used — next send needs a short DOM settle. */
@@ -71,8 +72,21 @@ export function getFirebaseOtpSendErrorMessage(error: unknown): string {
   }
   if (error != null && typeof error === "object") {
     const e = error as { code?: string; message?: string };
-    if (e.code === "otp/daily-limit") {
-      return e.message?.trim() || MSG_OTP_DAILY_LIMIT;
+    const msg = (e.message ?? "").trim();
+    if (
+      e.code === "otp/daily-limit" ||
+      /otp limit reached|daily otp limit|try again tomorrow/i.test(msg)
+    ) {
+      return msg || MSG_OTP_DAILY_LIMIT;
+    }
+    if (e.code === "otp/send-blocked" && msg) {
+      return msg;
+    }
+  }
+  if (error instanceof Error) {
+    const msg = error.message.trim();
+    if (/otp limit reached|daily otp limit|try again tomorrow/i.test(msg)) {
+      return msg || MSG_OTP_DAILY_LIMIT;
     }
   }
   console.error("[Firebase OTP send failed]", error);
@@ -109,35 +123,76 @@ export function resetRecaptcha(containerId = RECAPTCHA_CONTAINER_ID): void {
   if (el) el.innerHTML = "";
 }
 
+/** Replace the container node so Firebase cannot reuse a half-cleared widget. */
+function replaceRecaptchaContainer(containerId: string): HTMLElement {
+  const el = document.getElementById(containerId);
+  if (!el || !el.parentNode) {
+    throw new Error("auth/missing-recaptcha Recaptcha container is not in the page.");
+  }
+  const next = el.cloneNode(false) as HTMLElement;
+  next.id = containerId;
+  el.parentNode.replaceChild(next, el);
+  return next;
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
 /**
  * Fresh invisible reCAPTCHA for each send/resend.
- * Settle delay only after a previous widget was used (resend) — first send stays fast.
+ * Always clears + replaces the DOM node to avoid "already been rendered".
  */
 async function createRecaptchaVerifier(containerId: string): Promise<RecaptchaVerifier> {
   resetRecaptcha(containerId);
+  replaceRecaptchaContainer(containerId);
+
+  // Resend / retry: give grecaptcha time to detach from the old node.
+  if (recaptchaNeedsSettle) {
+    await delay(450);
+  } else {
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve());
+    });
+  }
 
   const el = document.getElementById(containerId);
   if (!el) {
     throw new Error("auth/missing-recaptcha Recaptcha container is not in the page.");
   }
-  el.innerHTML = "";
-
-  if (recaptchaNeedsSettle) {
-    await new Promise<void>((resolve) => {
-      window.setTimeout(resolve, 120);
-    });
-  }
 
   const auth = getFirebaseAuth();
-  recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
+  recaptchaVerifier = new RecaptchaVerifier(auth, el, {
     size: "invisible",
     callback: () => {
       /* solved — signInWithPhoneNumber continues */
     },
     "expired-callback": () => {
       resetRecaptcha(containerId);
+      recaptchaNeedsSettle = true;
     },
   });
+
+  // Force widget init so the next render cannot collide mid-flight.
+  try {
+    await recaptchaVerifier.render();
+  } catch {
+    resetRecaptcha(containerId);
+    const fresh = replaceRecaptchaContainer(containerId);
+    await delay(500);
+    recaptchaVerifier = new RecaptchaVerifier(auth, fresh, {
+      size: "invisible",
+      callback: () => {},
+      "expired-callback": () => {
+        resetRecaptcha(containerId);
+        recaptchaNeedsSettle = true;
+      },
+    });
+    await recaptchaVerifier.render();
+  }
+
   return recaptchaVerifier;
 }
 
@@ -201,7 +256,7 @@ export async function requestOtpSendSlot(
       data.retryNextDay === true ||
       (data.success === false &&
         (data.remainingSends === 0 ||
-          /otp limit reached|try again tomorrow/i.test(msg)));
+          /otp limit reached|daily otp limit|try again tomorrow/i.test(msg)));
 
     if (isDailyLimit) {
       return {
@@ -236,25 +291,23 @@ export async function sendFirebasePhoneOtp(
 
   const auth = getFirebaseAuth();
 
-  // Run rate-limit slot + recaptcha prep in parallel (biggest send speedup).
-  const [slot, verifier] = await Promise.all([
-    requestOtpSendSlot(mobileDigits),
-    (async () => {
-      try {
-        if (auth.currentUser) await auth.signOut();
-      } catch {
-        /* ignore */
-      }
-      return createRecaptchaVerifier(containerId);
-    })(),
-  ]);
+  try {
+    if (auth.currentUser) await auth.signOut();
+  } catch {
+    /* ignore */
+  }
 
+  // Clear any previous widget before requesting a send slot (avoids resend race).
+  resetRecaptcha(containerId);
+
+  const slot = await requestOtpSendSlot(mobileDigits);
   if (!slot.allowed) {
-    resetRecaptcha(containerId);
     const err = new Error(slot.message || MSG_OTP_DAILY_LIMIT) as Error & { code?: string };
     err.code = slot.dailyLimit ? "otp/daily-limit" : "otp/send-blocked";
     throw err;
   }
+
+  const verifier = await createRecaptchaVerifier(containerId);
 
   try {
     const confirmation = await signInWithPhoneNumber(

@@ -218,7 +218,7 @@ export default function ServicePage({
                   mobile={mobile.replace(/\D/g, "")}
                   onClose={() => setShowApplyModal(false)}
                   onEditMobile={() => setShowApplyModal(false)}
-                  syncServerVerify={false}
+                  syncServerVerify
                   onSuccess={async (result) => {
                     const login = await customerLogin(result.mobile, result.idToken);
                     if (!login.ok) {
