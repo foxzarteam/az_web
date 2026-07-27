@@ -109,7 +109,8 @@ export function leadIdFromResponse(data: unknown): string | null {
 
 /**
  * Save full lead BEFORE OTP.
- * Upgrades draft/pending row for the same mobile when one already exists.
+ * Same mobile/PAN can apply once per category (e.g. personal_loan and insurance).
+ * Upgrades draft for that mobile+category when one already exists.
  */
 export async function applyLead(
   leadData: CreateLeadRequest
