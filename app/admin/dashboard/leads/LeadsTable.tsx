@@ -699,33 +699,6 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         cell: (row) => amountOrInsuranceText(row),
       },
       {
-        id: "employment_type",
-        header: "Employment",
-        sortable: true,
-        sortValue: (row) =>
-          row.employment_type ? employmentTypeLabel(String(row.employment_type)) : "",
-        searchValue: (row) =>
-          row.employment_type ? employmentTypeLabel(String(row.employment_type)) : "",
-        cell: (row) =>
-          String(row.category ?? "") === "personal_loan" && row.employment_type
-            ? employmentTypeLabel(String(row.employment_type))
-            : "—",
-      },
-      {
-        id: "net_monthly_income",
-        header: "Monthly income",
-        sortable: true,
-        sortValue: (row) => {
-          const n = Number(row.net_monthly_income);
-          return Number.isFinite(n) ? n : 0;
-        },
-        searchValue: (row) => formatValue("net_monthly_income", row.net_monthly_income),
-        cell: (row) =>
-          String(row.category ?? "") === "personal_loan"
-            ? formatValue("net_monthly_income", row.net_monthly_income)
-            : "—",
-      },
-      {
         id: "otp_verified",
         header: "Verified",
         sortable: true,
