@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CustomerLead } from "@/app/lib/customer/leadsByMobile";
+import { insuranceTypeLabel } from "@/app/utils/leadForm";
 import CrmDataTable, {
   CrmActionButton,
   type CrmColumn,
@@ -187,11 +188,26 @@ export default function CustomerApplicationsTable({
       },
       {
         id: "amount",
-        header: "Amount",
+        header: "Amount / Type",
         sortable: true,
-        sortValue: (row) => row.required_amount ?? 0,
-        searchValue: (row) => formatInr(row.required_amount),
-        cell: (row) => formatInr(row.required_amount),
+        sortValue: (row) => {
+          if (row.category === "insurance") {
+            return row.ins_type ? insuranceTypeLabel(row.ins_type) : "";
+          }
+          return row.required_amount ?? 0;
+        },
+        searchValue: (row) =>
+          row.category === "insurance"
+            ? row.ins_type
+              ? insuranceTypeLabel(row.ins_type)
+              : ""
+            : formatInr(row.required_amount),
+        cell: (row) =>
+          row.category === "insurance"
+            ? row.ins_type
+              ? insuranceTypeLabel(row.ins_type)
+              : "—"
+            : formatInr(row.required_amount),
       },
       {
         id: "created_at",
@@ -316,8 +332,16 @@ export default function CustomerApplicationsTable({
                   <span className="text-right font-medium">{categoryLabel(viewLead.category)}</span>
                 </div>
                 <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
-                  <span className="text-gray-500">Requested amount</span>
-                  <span className="font-medium">{formatInr(viewLead.required_amount)}</span>
+                  <span className="text-gray-500">
+                    {viewLead.category === "insurance" ? "Insurance type" : "Requested amount"}
+                  </span>
+                  <span className="text-right font-medium">
+                    {viewLead.category === "insurance"
+                      ? viewLead.ins_type
+                        ? insuranceTypeLabel(viewLead.ins_type)
+                        : "—"
+                      : formatInr(viewLead.required_amount)}
+                  </span>
                 </div>
                 <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
                   <span className="text-gray-500">Submitted</span>

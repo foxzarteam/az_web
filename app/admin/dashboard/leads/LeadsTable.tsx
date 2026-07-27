@@ -113,14 +113,14 @@ function cellText(row: AdminLeadRow, key: "full_name" | "mobile_number" | "categ
 
 function amountOrInsuranceText(row: AdminLeadRow): string {
   const category = String(row.category ?? "");
+  if (category === "insurance") {
+    return row.ins_type ? insuranceTypeLabel(String(row.ins_type)) : "—";
+  }
   if (category === "personal_loan") {
     if (row.required_amount != null && row.required_amount !== "") {
       return formatCurrencyInr(row.required_amount);
     }
     if (row.loan_amt) return loanAmountLabel(String(row.loan_amt));
-  }
-  if (category === "insurance" && row.ins_type) {
-    return insuranceTypeLabel(String(row.ins_type));
   }
   if (row.required_amount != null && row.required_amount !== "") {
     return formatCurrencyInr(row.required_amount);
@@ -701,9 +701,14 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
       {viewLead && (
         <AdminModal title="Lead details" wide onClose={closeModals}>
           <ul className="grid grid-cols-1 gap-x-8 gap-y-5 p-6 sm:grid-cols-2 sm:p-8">
-            {VIEW_FIELDS.map((key) => (
+            {VIEW_FIELDS.map((rawKey) => {
+              const key =
+                rawKey === "required_amount" && String(viewLead.category ?? "") === "insurance"
+                  ? "ins_type"
+                  : rawKey;
+              return (
               <li
-                key={key}
+                key={rawKey}
                 className="flex flex-wrap items-baseline gap-1 text-sm"
               >
                 <span className="shrink-0 font-semibold text-midnight_text dark:text-white">
@@ -744,7 +749,8 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
                   <span className="text-midnight_text dark:text-gray-200">{formatValue(key, viewLead[key])}</span>
                 )}
               </li>
-            ))}
+              );
+            })}
           </ul>
           {error && <p className={`px-6 pb-4 sm:px-8 ${ADMIN_ERROR}`}>{error}</p>}
         </AdminModal>

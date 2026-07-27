@@ -10,6 +10,7 @@ export type CustomerLead = {
   category: string;
   status: string;
   required_amount: number | null;
+  ins_type: string | null;
   created_at: string | null;
   updated_at: string | null;
   otp_verified: boolean;
@@ -47,6 +48,7 @@ function asCustomerLead(row: unknown): CustomerLead | null {
     category: String(r.category ?? "").trim() || "personal_loan",
     status: String(r.status ?? "").trim().toLowerCase() || "pending",
     required_amount: amount,
+    ins_type: String(r.ins_type ?? "").trim() || null,
     created_at: r.created_at != null ? String(r.created_at) : null,
     updated_at: r.updated_at != null ? String(r.updated_at) : null,
     otp_verified: r.otp_verified === true,
