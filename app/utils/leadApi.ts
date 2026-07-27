@@ -11,6 +11,8 @@ export interface CreateLeadRequest {
   requiredAmount?: number;
   loanAmt?: string;
   insType?: string;
+  employmentType?: "salaried" | "self_employed";
+  netMonthlyIncome?: number;
 }
 
 export interface CreateLeadResponse {
@@ -193,6 +195,8 @@ export async function completeLead(
     category?: CreateLeadRequest["category"];
     requiredAmount?: number;
     insType?: string;
+    employmentType?: "salaried" | "self_employed";
+    netMonthlyIncome?: number;
   },
   idToken?: string | null,
 ): Promise<CreateLeadResponse> {

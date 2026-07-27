@@ -25,7 +25,7 @@ export default function TermsAgreementCheckbox({
   checked,
   onChange,
   className,
-  textClassName = "text-xs text-gray-700 dark:text-gray-300",
+  textClassName = "text-sm text-gray-700 dark:text-gray-300",
   required = true,
   showPrivacyPolicy = true,
   compact = false,
@@ -90,7 +90,7 @@ export default function TermsAgreementCheckbox({
           ) : (
             <>
               <label htmlFor={id} className="cursor-pointer">
-                By proceeding, I agree to the{" "}
+                I agree to the{" "}
               </label>
               <Link
                 href="/terms-and-conditions"

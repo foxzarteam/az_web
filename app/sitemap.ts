@@ -17,6 +17,9 @@ const ROUTES: SitemapEntry[] = [
   { path: "/become-partner", changeFrequency: "monthly", priority: 0.75 },
   { path: "/agent", changeFrequency: "monthly", priority: 0.7 },
   { path: "/terms-and-conditions", changeFrequency: "yearly", priority: 0.3 },
+  { path: "/privacy-policy", changeFrequency: "yearly", priority: 0.3 },
+  { path: "/refund-policy", changeFrequency: "yearly", priority: 0.3 },
+  { path: "/disclaimer", changeFrequency: "yearly", priority: 0.3 },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

@@ -19,6 +19,7 @@ import {
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
   validateLeadPanNameMobile,
+  EMPLOYMENT_TYPE_OPTIONS,
   type LeadFieldErrors,
 } from "@/app/utils/leadForm";
 import { sanitizeMobileInput } from "@/app/utils/validation";
@@ -75,6 +76,10 @@ type PersonalLoanApplyModalProps = {
   chatId?: string;
   /** Prefill loan slider (from chat answers). */
   initialLoanAmount?: number;
+  /** Prefill employment type (`salaried` | `self_employed`). */
+  initialEmploymentType?: "salaried" | "self_employed";
+  /** Prefill net monthly income (rupees). */
+  initialNetMonthlyIncome?: number;
 };
 
 export default function PersonalLoanApplyModal({
@@ -86,6 +91,8 @@ export default function PersonalLoanApplyModal({
   leadId: existingLeadId,
   chatId,
   initialLoanAmount,
+  initialEmploymentType = "",
+  initialNetMonthlyIncome,
 }: PersonalLoanApplyModalProps) {
   const router = useRouter();
   const [showSuccess, setShowSuccess] = useState(false);
@@ -97,6 +104,8 @@ export default function PersonalLoanApplyModal({
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
   const [loanAmount, setLoanAmount] = useState(DEFAULT_LOAN_AMOUNT);
+  const [employmentType, setEmploymentType] = useState("");
+  const [netMonthlyIncome, setNetMonthlyIncome] = useState("");
   const [pan, setPan] = useState("");
   const [formError, setFormError] = useState("");
 
@@ -120,7 +129,17 @@ export default function PersonalLoanApplyModal({
         Math.min(PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT, Math.round(initialLoanAmount)),
       );
     }
-  }, [open, initialMobile, initialLoanAmount]);
+    if (initialEmploymentType === "salaried" || initialEmploymentType === "self_employed") {
+      setEmploymentType(initialEmploymentType);
+    }
+    if (
+      typeof initialNetMonthlyIncome === "number" &&
+      Number.isFinite(initialNetMonthlyIncome) &&
+      initialNetMonthlyIncome > 0
+    ) {
+      setNetMonthlyIncome(String(Math.round(initialNetMonthlyIncome)));
+    }
+  }, [open, initialMobile, initialLoanAmount, initialEmploymentType, initialNetMonthlyIncome]);
 
   const resetForm = useCallback(() => {
     setFullName("");
@@ -133,11 +152,29 @@ export default function PersonalLoanApplyModal({
           )
         : DEFAULT_LOAN_AMOUNT,
     );
+    setEmploymentType(
+      initialEmploymentType === "salaried" || initialEmploymentType === "self_employed"
+        ? initialEmploymentType
+        : "",
+    );
+    setNetMonthlyIncome(
+      typeof initialNetMonthlyIncome === "number" &&
+        Number.isFinite(initialNetMonthlyIncome) &&
+        initialNetMonthlyIncome > 0
+        ? String(Math.round(initialNetMonthlyIncome))
+        : "",
+    );
     setPan("");
     setTermsAccepted(false);
     setFormError("");
     setPendingLeadId("");
-  }, [initialLoanAmount, initialMobile, lockMobile]);
+  }, [
+    initialLoanAmount,
+    initialMobile,
+    lockMobile,
+    initialEmploymentType,
+    initialNetMonthlyIncome,
+  ]);
 
   const handleClose = useCallback(() => {
     if (showOtpModal || isSubmittingForm || isOpeningDashboard) return;
@@ -196,6 +233,13 @@ export default function PersonalLoanApplyModal({
     ) {
       errors.loanAmt = `Loan amount must be between ₹${PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT.toLocaleString("en-IN")} and ₹${PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT.toLocaleString("en-IN")}`;
     }
+    if (!employmentType) {
+      errors.loanAmt = errors.loanAmt || "Please select employment type";
+    }
+    const incomeNum = Number(netMonthlyIncome.replace(/,/g, ""));
+    if (!netMonthlyIncome.trim() || !Number.isFinite(incomeNum) || incomeNum <= 0) {
+      errors.loanAmt = errors.loanAmt || "Enter a valid net monthly income";
+    }
 
     const firstError = Object.values(errors)[0];
     if (firstError) {
@@ -208,6 +252,10 @@ export default function PersonalLoanApplyModal({
 
     try {
       const mobileDigits = mobile.replace(/\D/g, "");
+      const employmentPayload = {
+        employmentType: employmentType as "salaried" | "self_employed",
+        netMonthlyIncome: incomeNum,
+      };
       let applyRes;
       if (skipOtp && existingLeadId) {
         const idToken = await getCurrentFirebaseIdToken();
@@ -218,6 +266,7 @@ export default function PersonalLoanApplyModal({
             fullName: fullName.trim(),
             category: "personal_loan",
             requiredAmount: loanAmount,
+            ...employmentPayload,
           },
           idToken,
         );
@@ -228,6 +277,7 @@ export default function PersonalLoanApplyModal({
           fullName: fullName.trim(),
           category: "personal_loan",
           requiredAmount: loanAmount,
+          ...employmentPayload,
         });
       }
 
@@ -352,22 +402,42 @@ export default function PersonalLoanApplyModal({
                 <LoanAmountSlider value={loanAmount} onChange={setLoanAmount} />
               </div>
 
-              <div className="shrink-0">
-                <label
-                  htmlFor="hero-pl-fullname"
-                  className="block text-sm font-medium text-midnight_text dark:text-gray-300"
-                  style={{ marginBottom: "var(--pl-label-mb)" }}
-                >
-                  Full Name *
-                </label>
-                <input
-                  id="hero-pl-fullname"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(sanitizeLeadNameInput(e.target.value))}
-                  placeholder="Full Name (As per PAN)"
-                  className={inputClass}
-                />
+              <div className="grid shrink-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                <div>
+                  <label
+                    htmlFor="hero-pl-fullname"
+                    className="block text-sm font-medium text-midnight_text dark:text-gray-300"
+                    style={{ marginBottom: "var(--pl-label-mb)" }}
+                  >
+                    Full Name *
+                  </label>
+                  <input
+                    id="hero-pl-fullname"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(sanitizeLeadNameInput(e.target.value))}
+                    placeholder="Full Name (As per PAN)"
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="hero-pl-pan"
+                    className="block text-sm font-medium text-midnight_text dark:text-gray-300"
+                    style={{ marginBottom: "var(--pl-label-mb)" }}
+                  >
+                    PAN Card number *
+                  </label>
+                  <input
+                    id="hero-pl-pan"
+                    type="text"
+                    value={pan}
+                    onChange={(e) => setPan(sanitizeLeadPanInput(e.target.value))}
+                    maxLength={10}
+                    placeholder="e.g. ABCDE1234F"
+                    className={inputClass}
+                  />
+                </div>
               </div>
 
               <div className="shrink-0">
@@ -409,23 +479,51 @@ export default function PersonalLoanApplyModal({
                 ) : null}
               </div>
 
-              <div className="shrink-0">
-                <label
-                  htmlFor="hero-pl-pan"
-                  className="block text-sm font-medium text-midnight_text dark:text-gray-300"
-                  style={{ marginBottom: "var(--pl-label-mb)" }}
-                >
-                  PAN Card number *
-                </label>
-                <input
-                  id="hero-pl-pan"
-                  type="text"
-                  value={pan}
-                  onChange={(e) => setPan(sanitizeLeadPanInput(e.target.value))}
-                  maxLength={10}
-                  placeholder="e.g. ABCDE1234F"
-                  className={inputClass}
-                />
+              <div className="grid shrink-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                <div>
+                  <label
+                    htmlFor="hero-pl-employment"
+                    className="block text-sm font-medium text-midnight_text dark:text-gray-300"
+                    style={{ marginBottom: "var(--pl-label-mb)" }}
+                  >
+                    Employment Type *
+                  </label>
+                  <select
+                    id="hero-pl-employment"
+                    value={employmentType}
+                    onChange={(e) => setEmploymentType(e.target.value)}
+                    className={inputClass}
+                    required
+                  >
+                    <option value="">Select employment type</option>
+                    {EMPLOYMENT_TYPE_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="hero-pl-income"
+                    className="block text-sm font-medium text-midnight_text dark:text-gray-300"
+                    style={{ marginBottom: "var(--pl-label-mb)" }}
+                  >
+                    Net Monthly Income *
+                  </label>
+                  <input
+                    id="hero-pl-income"
+                    type="text"
+                    inputMode="numeric"
+                    value={netMonthlyIncome}
+                    onChange={(e) =>
+                      setNetMonthlyIncome(e.target.value.replace(/[^\d]/g, ""))
+                    }
+                    placeholder="e.g. 50000"
+                    className={inputClass}
+                    required
+                  />
+                </div>
               </div>
 
               <div className="shrink-0">
@@ -433,7 +531,7 @@ export default function PersonalLoanApplyModal({
                   id="hero-pl-terms"
                   checked={termsAccepted}
                   onChange={setTermsAccepted}
-                  textClassName="text-[11px] leading-snug text-gray-600 dark:text-gray-400 sm:whitespace-nowrap sm:text-xs sm:leading-none"
+                  textClassName="text-xs leading-snug text-gray-600 dark:text-gray-400 sm:whitespace-nowrap sm:text-sm sm:leading-snug"
                 />
               </div>
 

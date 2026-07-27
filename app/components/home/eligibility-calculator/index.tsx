@@ -426,7 +426,20 @@ export default function EligibilityCalculator() {
               </p>
 
               {applyModalMounted && (
-                <PersonalLoanApplyModal open={applyOpen} onClose={() => setApplyOpen(false)} />
+                <PersonalLoanApplyModal
+                  open={applyOpen}
+                  onClose={() => setApplyOpen(false)}
+                  initialEmploymentType={
+                    employment === "salaried" || employment === "self_employed"
+                      ? employment
+                      : undefined
+                  }
+                  initialNetMonthlyIncome={
+                    Number.isFinite(monthlyIncome) && monthlyIncome > 0
+                      ? monthlyIncome
+                      : undefined
+                  }
+                />
               )}
             </div>
 

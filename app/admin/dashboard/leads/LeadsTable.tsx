@@ -3,7 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
-import { insuranceTypeLabel, loanAmountLabel, INSURANCE_TYPE_OPTIONS } from "@/app/utils/leadForm";
+import {
+  EMPLOYMENT_TYPE_OPTIONS,
+  employmentTypeLabel,
+  insuranceTypeLabel,
+  loanAmountLabel,
+  INSURANCE_TYPE_OPTIONS,
+} from "@/app/utils/leadForm";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import { PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
 import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
@@ -38,6 +44,8 @@ const VIEW_FIELDS = [
   "status",
   "otp_verified",
   "required_amount",
+  "employment_type",
+  "net_monthly_income",
   "is_active",
   "created_at",
   "updated_at",
@@ -52,6 +60,8 @@ const FIELD_LABELS: Record<string, string> = {
   email: "Email",
   pincode: "Pincode",
   required_amount: "Loan amount",
+  employment_type: "Employment type",
+  net_monthly_income: "Net monthly income",
   loan_amt: "Loan amount range (legacy)",
   ins_type: "Insurance type",
   category: "Product",
@@ -80,12 +90,13 @@ function formatValue(key: string, value: unknown): string {
   if (key === "otp_verified") {
     return value === true || value === 1 || value === "true" ? "Yes" : "No";
   }
-  if (key === "required_amount") {
+  if (key === "required_amount" || key === "net_monthly_income") {
     if (value == null || value === "") return "—";
     return formatCurrencyInr(value);
   }
   if (value == null || value === "") return "—";
   if (key === "category") return categoryLabel(value);
+  if (key === "employment_type") return employmentTypeLabel(String(value));
   if (key === "loan_amt") return loanAmountLabel(String(value));
   if (key === "ins_type") return insuranceTypeLabel(String(value));
   if (key === "status") return String(value).replace(/_/g, " ");
@@ -138,6 +149,8 @@ type EditForm = {
   status: string;
   requiredAmount: number;
   insType: string;
+  employmentType: string;
+  netMonthlyIncome: string;
 };
 
 function clampLoanAmount(value: unknown): number {
@@ -158,6 +171,11 @@ function leadToEditForm(lead: AdminLeadRow): EditForm {
     status: String(lead.status ?? "pending"),
     requiredAmount: clampLoanAmount(lead.required_amount ?? DEFAULT_LOAN_AMOUNT),
     insType: String(lead.ins_type ?? "life_insurance"),
+    employmentType: String(lead.employment_type ?? ""),
+    netMonthlyIncome:
+      lead.net_monthly_income != null && lead.net_monthly_income !== ""
+        ? String(lead.net_monthly_income)
+        : "",
   };
 }
 
@@ -170,12 +188,16 @@ function emptyCreateForm(): EditForm {
     status: "pending",
     requiredAmount: DEFAULT_LOAN_AMOUNT,
     insType: "life_insurance",
+    employmentType: "",
+    netMonthlyIncome: "",
   };
 }
 
 type FieldErrors = {
   mobileNumber?: string;
   pan?: string;
+  employmentType?: string;
+  netMonthlyIncome?: string;
 };
 
 const PHONE_PATTERN = /^[6-9]\d{9}$/;
@@ -196,6 +218,15 @@ function validateLeadForm(form: EditForm, opts?: { allowMaskedPan?: boolean }): 
     // keep existing encrypted PAN
   } else if (!PAN_PATTERN.test(pan)) {
     errors.pan = "Enter a valid PAN (e.g. ABCDE1234F)";
+  }
+  if (form.category === "personal_loan") {
+    if (!form.employmentType) {
+      errors.employmentType = "Select employment type";
+    }
+    const income = Number(form.netMonthlyIncome);
+    if (!form.netMonthlyIncome.trim() || !Number.isFinite(income) || income <= 0) {
+      errors.netMonthlyIncome = "Enter a valid net monthly income";
+    }
   }
   return errors;
 }
@@ -229,13 +260,50 @@ function LeadFormFields({
   return (
     <div className="grid gap-5 sm:grid-cols-2">
       {form.category === "personal_loan" ? (
-        <div className="sm:col-span-2">
-          <LoanAmountSlider
-            id="admin-lead-loan-amount"
-            value={form.requiredAmount}
-            onChange={(value) => setForm({ ...form, requiredAmount: value })}
-          />
-        </div>
+        <>
+          <div className="sm:col-span-2">
+            <LoanAmountSlider
+              id="admin-lead-loan-amount"
+              value={form.requiredAmount}
+              onChange={(value) => setForm({ ...form, requiredAmount: value })}
+            />
+          </div>
+          <label className="block">
+            <span className={ADMIN_LABEL}>Employment type *</span>
+            <select
+              className={inputClass}
+              value={form.employmentType}
+              onChange={(e) => {
+                setForm({ ...form, employmentType: e.target.value });
+                clearFieldError("employmentType");
+              }}
+              required
+            >
+              <option value="">Select employment type</option>
+              {EMPLOYMENT_TYPE_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+            <FieldErrorText message={fieldErrors.employmentType} />
+          </label>
+          <label className="block">
+            <span className={ADMIN_LABEL}>Net monthly income *</span>
+            <input
+              className={inputClass}
+              value={form.netMonthlyIncome}
+              onChange={(e) => {
+                setForm({ ...form, netMonthlyIncome: e.target.value.replace(/[^\d]/g, "") });
+                clearFieldError("netMonthlyIncome");
+              }}
+              placeholder="e.g. 50000"
+              inputMode="numeric"
+              required
+            />
+            <FieldErrorText message={fieldErrors.netMonthlyIncome} />
+          </label>
+        </>
       ) : (
         <label className="block sm:col-span-2">
           <span className={ADMIN_LABEL}>Insurance type</span>
@@ -416,10 +484,15 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
       payload.requiredAmount = form.requiredAmount;
       payload.insType = null;
       payload.loanAmt = null;
+      payload.employmentType = form.employmentType || null;
+      const income = Number(form.netMonthlyIncome);
+      payload.netMonthlyIncome = Number.isFinite(income) && income > 0 ? income : null;
     } else if (form.category === "insurance") {
       payload.insType = form.insType;
       payload.requiredAmount = null;
       payload.loanAmt = null;
+      payload.employmentType = null;
+      payload.netMonthlyIncome = null;
     }
     const pan = form.pan.trim().toUpperCase();
     if (!(opts?.omitMaskedPan && isMaskedPanValue(pan))) {
@@ -456,7 +529,12 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     if (!editForm) return;
 
     const validationErrors = validateLeadForm(editForm);
-    if (validationErrors.mobileNumber || validationErrors.pan) {
+    if (
+      validationErrors.mobileNumber ||
+      validationErrors.pan ||
+      validationErrors.employmentType ||
+      validationErrors.netMonthlyIncome
+    ) {
       setFieldErrors(validationErrors);
       return;
     }
@@ -504,7 +582,12 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
     if (!editLead?.id || !editForm) return;
 
     const validationErrors = validateLeadForm(editForm, { allowMaskedPan: true });
-    if (validationErrors.mobileNumber || validationErrors.pan) {
+    if (
+      validationErrors.mobileNumber ||
+      validationErrors.pan ||
+      validationErrors.employmentType ||
+      validationErrors.netMonthlyIncome
+    ) {
       setFieldErrors(validationErrors);
       return;
     }
@@ -616,6 +699,33 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         cell: (row) => amountOrInsuranceText(row),
       },
       {
+        id: "employment_type",
+        header: "Employment",
+        sortable: true,
+        sortValue: (row) =>
+          row.employment_type ? employmentTypeLabel(String(row.employment_type)) : "",
+        searchValue: (row) =>
+          row.employment_type ? employmentTypeLabel(String(row.employment_type)) : "",
+        cell: (row) =>
+          String(row.category ?? "") === "personal_loan" && row.employment_type
+            ? employmentTypeLabel(String(row.employment_type))
+            : "—",
+      },
+      {
+        id: "net_monthly_income",
+        header: "Monthly income",
+        sortable: true,
+        sortValue: (row) => {
+          const n = Number(row.net_monthly_income);
+          return Number.isFinite(n) ? n : 0;
+        },
+        searchValue: (row) => formatValue("net_monthly_income", row.net_monthly_income),
+        cell: (row) =>
+          String(row.category ?? "") === "personal_loan"
+            ? formatValue("net_monthly_income", row.net_monthly_income)
+            : "—",
+      },
+      {
         id: "otp_verified",
         header: "Verified",
         sortable: true,
@@ -702,6 +812,12 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         <AdminModal title="Lead details" wide onClose={closeModals}>
           <ul className="grid grid-cols-1 gap-x-8 gap-y-5 p-6 sm:grid-cols-2 sm:p-8">
             {VIEW_FIELDS.map((rawKey) => {
+              if (
+                (rawKey === "employment_type" || rawKey === "net_monthly_income") &&
+                String(viewLead.category ?? "") !== "personal_loan"
+              ) {
+                return null;
+              }
               const key =
                 rawKey === "required_amount" && String(viewLead.category ?? "") === "insurance"
                   ? "ins_type"

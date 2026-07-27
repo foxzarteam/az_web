@@ -14,6 +14,7 @@ import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/consta
 import { customerLogin } from "@/app/utils/customerAuthApi";
 import { applyLead, leadIdFromResponse, mapServiceToCategory } from "@/app/utils/leadApi";
 import {
+  EMPLOYMENT_TYPE_OPTIONS,
   INSURANCE_TYPE_OPTIONS,
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
@@ -82,6 +83,8 @@ export default function ServicePage({
   const [mobile, setMobile] = useState("");
   const [loanAmount, setLoanAmount] = useState(DEFAULT_LOAN_AMOUNT);
   const [insType, setInsType] = useState("");
+  const [employmentType, setEmploymentType] = useState("");
+  const [netMonthlyIncome, setNetMonthlyIncome] = useState("");
   const [pan, setPan] = useState("");
   const [formError, setFormError] = useState("");
 
@@ -98,6 +101,8 @@ export default function ServicePage({
 
   useEffect(() => {
     setInsType("");
+    setEmploymentType("");
+    setNetMonthlyIncome("");
     setLoanAmount(DEFAULT_LOAN_AMOUNT);
   }, [pageServiceSlug]);
 
@@ -106,6 +111,8 @@ export default function ServicePage({
     setMobile("");
     setLoanAmount(DEFAULT_LOAN_AMOUNT);
     setInsType("");
+    setEmploymentType("");
+    setNetMonthlyIncome("");
     setPan("");
     setTermsAccepted(false);
     setFormError("");
@@ -130,6 +137,13 @@ export default function ServicePage({
       }
     }
     if (showInsuranceType && !insType.trim()) errors.insType = "Please select insurance type";
+    if (showLoanAmount) {
+      if (!employmentType) errors.loanAmt = errors.loanAmt || "Please select employment type";
+      const incomeNum = Number(netMonthlyIncome.replace(/,/g, ""));
+      if (!netMonthlyIncome.trim() || !Number.isFinite(incomeNum) || incomeNum <= 0) {
+        errors.loanAmt = errors.loanAmt || "Enter a valid net monthly income";
+      }
+    }
 
     const firstError = Object.values(errors)[0];
     if (firstError) {
@@ -142,12 +156,19 @@ export default function ServicePage({
 
     try {
       const category = mapServiceToCategory(service);
+      const incomeNum = Number(netMonthlyIncome.replace(/,/g, ""));
       const applyRes = await applyLead({
         pan: pan.trim().toUpperCase(),
         mobileNumber: mobile.replace(/\D/g, ""),
         fullName: fullName.trim(),
         category,
-        ...(category === "personal_loan" ? { requiredAmount: loanAmount } : {}),
+        ...(category === "personal_loan"
+          ? {
+              requiredAmount: loanAmount,
+              employmentType: employmentType as "salaried" | "self_employed",
+              netMonthlyIncome: incomeNum,
+            }
+          : {}),
         ...(category === "insurance" ? { insType } : {}),
       });
 
@@ -267,18 +288,34 @@ export default function ServicePage({
                     </div>
                   )}
 
-                  <div>
-                    <label htmlFor="service-fullname" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
-                      Full Name *
-                    </label>
-                    <input
-                      id="service-fullname"
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(sanitizeLeadNameInput(e.target.value))}
-                      placeholder="Full Name (As per PAN)"
-                      className={inputClass}
-                    />
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                    <div>
+                      <label htmlFor="service-fullname" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+                        Full Name *
+                      </label>
+                      <input
+                        id="service-fullname"
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(sanitizeLeadNameInput(e.target.value))}
+                        placeholder="Full Name (As per PAN)"
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="service-pan" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+                        PAN Card number *
+                      </label>
+                      <input
+                        id="service-pan"
+                        type="text"
+                        value={pan}
+                        onChange={(e) => setPan(sanitizeLeadPanInput(e.target.value))}
+                        maxLength={10}
+                        placeholder="e.g. ABCDE1234F"
+                        className={inputClass}
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -307,26 +344,58 @@ export default function ServicePage({
                     </div>
                   </div>
 
-                  <div>
-                    <label htmlFor="service-pan" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
-                      PAN Card number *
-                    </label>
-                    <input
-                      id="service-pan"
-                      type="text"
-                      value={pan}
-                      onChange={(e) => setPan(sanitizeLeadPanInput(e.target.value))}
-                      maxLength={10}
-                      placeholder="e.g. ABCDE1234F"
-                      className={inputClass}
-                    />
-                  </div>
+                  {showLoanAmount && (
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                      <div>
+                        <label
+                          htmlFor="service-employment"
+                          className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                        >
+                          Employment Type *
+                        </label>
+                        <select
+                          id="service-employment"
+                          value={employmentType}
+                          onChange={(e) => setEmploymentType(e.target.value)}
+                          className={inputClass}
+                          required
+                        >
+                          <option value="">Select employment type</option>
+                          {EMPLOYMENT_TYPE_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="service-income"
+                          className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                        >
+                          Net Monthly Income *
+                        </label>
+                        <input
+                          id="service-income"
+                          type="text"
+                          inputMode="numeric"
+                          value={netMonthlyIncome}
+                          onChange={(e) =>
+                            setNetMonthlyIncome(e.target.value.replace(/[^\d]/g, ""))
+                          }
+                          placeholder="e.g. 50000"
+                          className={inputClass}
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   <TermsAgreementCheckbox
                     id="service-terms"
                     checked={termsAccepted}
                     onChange={setTermsAccepted}
-                    textClassName="text-[11px] leading-snug text-gray-600 dark:text-gray-400 sm:text-xs"
+                    textClassName="text-xs leading-snug text-gray-600 dark:text-gray-400 sm:text-sm"
                   />
 
                   <div className="mt-auto w-full pt-2 sm:pt-3">

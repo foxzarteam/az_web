@@ -50,6 +50,25 @@ type EmiId = (typeof EMI_OPTIONS)[number]["id"];
 type LoanAmountId = (typeof LOAN_AMOUNT_OPTIONS)[number]["id"];
 type Step = "employment" | "salary" | "emi" | "loan_amount" | "done";
 
+function chatSalaryToIncome(id: SalaryId | null): number | undefined {
+  if (!id) return undefined;
+  const map: Record<SalaryId, number> = {
+    "under-20k": 15_000,
+    "20-40k": 30_000,
+    "40-70k": 55_000,
+    "above-70k": 80_000,
+  };
+  return map[id];
+}
+
+function chatEmploymentToApi(
+  id: EmploymentId | null,
+): "salaried" | "self_employed" | undefined {
+  if (id === "salaried") return "salaried";
+  if (id === "self-employed") return "self_employed";
+  return undefined;
+}
+
 function ChatIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -455,6 +474,8 @@ export default function LoanHelperChat() {
         initialLoanAmount={
           loanAmount ? chatLoanAmountToRupees(loanAmount) : undefined
         }
+        initialEmploymentType={chatEmploymentToApi(employment)}
+        initialNetMonthlyIncome={chatSalaryToIncome(salary)}
       />
     </div>
   );

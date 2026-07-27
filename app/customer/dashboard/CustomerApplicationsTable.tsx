@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CustomerLead } from "@/app/lib/customer/leadsByMobile";
-import { insuranceTypeLabel } from "@/app/utils/leadForm";
+import { employmentTypeLabel, insuranceTypeLabel } from "@/app/utils/leadForm";
 import CrmDataTable, {
   CrmActionButton,
   type CrmColumn,
@@ -210,6 +210,30 @@ export default function CustomerApplicationsTable({
             : formatInr(row.required_amount),
       },
       {
+        id: "employment",
+        header: "Employment",
+        sortable: true,
+        sortValue: (row) =>
+          row.employment_type ? employmentTypeLabel(row.employment_type) : "",
+        searchValue: (row) =>
+          row.employment_type ? employmentTypeLabel(row.employment_type) : "",
+        cell: (row) =>
+          row.category === "personal_loan" && row.employment_type
+            ? employmentTypeLabel(row.employment_type)
+            : "—",
+      },
+      {
+        id: "income",
+        header: "Monthly income",
+        sortable: true,
+        sortValue: (row) => row.net_monthly_income ?? 0,
+        searchValue: (row) => formatInr(row.net_monthly_income),
+        cell: (row) =>
+          row.category === "personal_loan"
+            ? formatInr(row.net_monthly_income)
+            : "—",
+      },
+      {
         id: "created_at",
         header: "Submitted",
         sortable: true,
@@ -343,6 +367,24 @@ export default function CustomerApplicationsTable({
                       : formatInr(viewLead.required_amount)}
                   </span>
                 </div>
+                {viewLead.category === "personal_loan" ? (
+                  <>
+                    <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
+                      <span className="text-gray-500">Employment type</span>
+                      <span className="text-right font-medium">
+                        {viewLead.employment_type
+                          ? employmentTypeLabel(viewLead.employment_type)
+                          : "—"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
+                      <span className="text-gray-500">Net monthly income</span>
+                      <span className="text-right font-medium">
+                        {formatInr(viewLead.net_monthly_income)}
+                      </span>
+                    </div>
+                  </>
+                ) : null}
                 <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
                   <span className="text-gray-500">Submitted</span>
                   <span className="font-medium">{formatDate(viewLead.created_at)}</span>

@@ -11,6 +11,8 @@ export type CustomerLead = {
   status: string;
   required_amount: number | null;
   ins_type: string | null;
+  employment_type: string | null;
+  net_monthly_income: number | null;
   created_at: string | null;
   updated_at: string | null;
   otp_verified: boolean;
@@ -40,6 +42,12 @@ function asCustomerLead(row: unknown): CustomerLead | null {
     typeof r.required_amount === "number" && Number.isFinite(r.required_amount)
       ? r.required_amount
       : null;
+  const income =
+    typeof r.net_monthly_income === "number" && Number.isFinite(r.net_monthly_income)
+      ? r.net_monthly_income
+      : typeof r.net_monthly_income === "string" && r.net_monthly_income.trim()
+        ? Number(r.net_monthly_income)
+        : null;
   return {
     id,
     applicationNumber: String(r.applicationNumber ?? "").trim() || `AZ-${id.slice(-8).toUpperCase()}`,
@@ -49,6 +57,8 @@ function asCustomerLead(row: unknown): CustomerLead | null {
     status: String(r.status ?? "").trim().toLowerCase() || "pending",
     required_amount: amount,
     ins_type: String(r.ins_type ?? "").trim() || null,
+    employment_type: String(r.employment_type ?? "").trim() || null,
+    net_monthly_income: income != null && Number.isFinite(income) ? income : null,
     created_at: r.created_at != null ? String(r.created_at) : null,
     updated_at: r.updated_at != null ? String(r.updated_at) : null,
     otp_verified: r.otp_verified === true,

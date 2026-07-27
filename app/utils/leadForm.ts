@@ -24,6 +24,11 @@ export const INSURANCE_TYPE_OPTIONS = [
   { value: "motor_insurance", label: "Motor Insurance" },
 ] as const;
 
+export const EMPLOYMENT_TYPE_OPTIONS = [
+  { value: "salaried", label: "Salaried" },
+  { value: "self_employed", label: "Self-Employed" },
+] as const;
+
 export function loanAmountLabel(value: string): string {
   return LOAN_AMOUNT_OPTIONS.find((o) => o.value === value)?.label ?? value;
 }
@@ -44,6 +49,10 @@ export function amountToLoanAmtRange(amount: number): string {
 
 export function insuranceTypeLabel(value: string): string {
   return INSURANCE_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+export function employmentTypeLabel(value: string): string {
+  return EMPLOYMENT_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? value;
 }
 
 export const LEAD_PAN_PATTERN = /^[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}$/;
