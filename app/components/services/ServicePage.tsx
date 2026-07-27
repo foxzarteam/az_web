@@ -49,13 +49,13 @@ function getSuccessMessage(title: string): string {
 const DEFAULT_LOAN_AMOUNT = 5_00_000;
 
 const inputClass =
-  "w-full min-h-12 px-3.5 py-3 rounded-xl border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode/80 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70";
+  "w-full min-h-11 px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode/80 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70";
 
 const mobileShellClass =
-  "flex min-h-12 items-center overflow-hidden rounded-xl border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80";
+  "flex min-h-11 items-center overflow-hidden rounded-xl border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80";
 
 const mobileInputClass =
-  "min-h-12 min-w-0 flex-1 bg-transparent px-3 py-3 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none";
+  "min-h-11 min-w-0 flex-1 bg-transparent px-3 py-2.5 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none";
 
 export default function ServicePage({
   title,
@@ -197,7 +197,7 @@ export default function ServicePage({
             )}
 
             <div className="bg-gradient-to-r from-primary to-[#ff7a1a] p-[1px] rounded-2xl sm:rounded-3xl shadow-xl w-full min-w-0 flex flex-col">
-              <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-5 sm:py-6 lg:py-7 px-4 sm:px-5 md:px-6 flex flex-1 flex-col min-h-0">
+              <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-4 sm:py-6 lg:py-7 px-3.5 sm:px-5 md:px-6 flex flex-1 flex-col min-h-0 min-w-0">
                 <div className="mb-3">
                   <h2 className="text-lg sm:text-xl font-semibold text-midnight_text dark:text-white">
                     Apply for {title}
@@ -234,7 +234,7 @@ export default function ServicePage({
                     e.preventDefault();
                     void handleSubmit(e.currentTarget);
                   }}
-                  className="mt-3 flex flex-1 flex-col gap-4 min-h-0"
+                  className="mt-3 flex flex-1 flex-col gap-3 min-h-0 sm:gap-4"
                 >
                   {formError && (
                     <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600 break-words">
@@ -326,6 +326,7 @@ export default function ServicePage({
                     id="service-terms"
                     checked={termsAccepted}
                     onChange={setTermsAccepted}
+                    textClassName="text-[11px] leading-snug text-gray-600 dark:text-gray-400 sm:text-xs"
                   />
 
                   <div className="mt-auto w-full pt-2 sm:pt-3">

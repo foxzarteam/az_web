@@ -44,14 +44,14 @@ export default function Hero() {
 
             <HeroFeatureIcons />
 
-            <div className="mt-6 sm:mt-7 flex flex-col xs:flex-row flex-wrap gap-3 sm:gap-4 w-full xs:w-auto">
+            <div className="mt-6 flex w-full flex-col gap-3 sm:mt-7 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-4">
               <button
                 type="button"
                 onClick={() => {
                   setApplyModalMounted(true);
                   setApplyOpen(true);
                 }}
-                className="btn-gradient btn-shine relative overflow-hidden inline-flex items-center justify-center gap-2 rounded-xl px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-[0_8px_24px_rgba(66,54,251,0.35)] transition duration-300"
+                className="btn-gradient btn-shine relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-6 py-3.5 text-sm font-bold text-white shadow-[0_8px_24px_rgba(66,54,251,0.35)] transition duration-300 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 Apply for Personal Loan
                 <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden>
@@ -61,7 +61,7 @@ export default function Hero() {
               <button
                 type="button"
                 onClick={() => scrollToElement("eligibility-calculator")}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary/30 bg-white dark:bg-darklight px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-primary dark:text-white hover:border-primary hover:bg-primary/5 transition duration-300"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-primary/30 bg-white px-6 py-3.5 text-sm font-bold text-primary transition duration-300 hover:border-primary hover:bg-primary/5 dark:bg-darklight dark:text-white sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 Check Eligibility
               </button>

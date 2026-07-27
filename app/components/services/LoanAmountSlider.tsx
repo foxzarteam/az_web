@@ -48,13 +48,13 @@ export default function LoanAmountSlider({
 
   return (
     <div>
-      <label htmlFor={`${id}-input`} className="mb-1.5 block text-xs font-medium text-midnight_text dark:text-gray-300 sm:mb-3 sm:text-sm">
+      <label htmlFor={`${id}-input`} className="mb-1 block text-xs font-medium text-midnight_text dark:text-gray-300 sm:mb-2 sm:text-sm">
         Select Loan Amount *
       </label>
 
-      <div className="flex items-center gap-2.5 sm:gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         {/* Slider / progress — py keeps thumb from overlapping next fields */}
-        <div className="min-w-0 flex-1 py-1.5 sm:py-2">
+        <div className="min-w-0 flex-1 py-1 sm:py-1.5">
           <input
             id={id}
             type="range"
@@ -75,15 +75,15 @@ export default function LoanAmountSlider({
             aria-valuenow={value}
             aria-label="Loan amount slider"
           />
-          <div className="mt-0.5 flex justify-between text-[10px] text-gray sm:mt-1 sm:text-[11px]">
-            <span>{formatRupee(min)}</span>
-            <span>{formatRupee(max)}</span>
+          <div className="mt-0.5 flex justify-between gap-1 text-[10px] text-gray sm:text-[11px]">
+            <span className="shrink-0">{formatRupee(min)}</span>
+            <span className="shrink-0 text-right">{formatRupee(max)}</span>
           </div>
         </div>
 
         {/* Amount input */}
-        <div className="w-[118px] shrink-0 sm:w-[156px]">
-          <div className="rounded-xl border border-black bg-white px-2 py-1.5 shadow-[0_2px_12px_rgba(16,45,71,0.06)] dark:border-white dark:bg-darkmode sm:rounded-2xl sm:px-3 sm:py-2">
+        <div className="w-[100px] shrink-0 xs:w-[110px] sm:w-[156px]">
+          <div className="rounded-xl border border-black bg-white px-1.5 py-1 shadow-[0_2px_12px_rgba(16,45,71,0.06)] dark:border-white dark:bg-darkmode xs:px-2 sm:rounded-2xl sm:px-3 sm:py-1.5">
             <input
               id={`${id}-input`}
               type="text"
@@ -109,10 +109,10 @@ export default function LoanAmountSlider({
                   (e.target as HTMLInputElement).blur();
                 }
               }}
-              className="w-full border-0 bg-transparent text-center text-sm font-bold tracking-wide text-midnight_text outline-none dark:text-white sm:text-base"
+              className="w-full min-w-0 border-0 bg-transparent text-center text-sm font-bold tracking-wide text-midnight_text outline-none dark:text-white sm:text-base"
               aria-label={`Enter loan amount between ${formatRupee(min)} and ${formatRupee(max)}`}
             />
-            <div className="mx-auto mt-0.5 h-[2px] w-[70%] rounded-full bg-primary sm:mt-1 sm:h-[2.5px]" aria-hidden />
+            <div className="mx-auto mt-0.5 h-[2px] w-[70%] rounded-full bg-primary sm:h-[2.5px]" aria-hidden />
           </div>
         </div>
       </div>

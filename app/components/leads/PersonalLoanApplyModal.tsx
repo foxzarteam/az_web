@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
@@ -40,13 +40,24 @@ async function loginAndGoToDashboard(
 }
 
 const inputClass =
-  "w-full min-h-12 rounded-xl border border-gray-300 bg-white px-3.5 py-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80 dark:text-white";
+  "w-full min-h-11 rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80 dark:text-white";
 
 const mobileShellClass =
-  "flex min-h-12 items-center overflow-hidden rounded-xl border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80";
+  "flex min-h-11 items-center overflow-hidden rounded-xl border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80";
 
 const mobileInputClass =
-  "min-h-12 min-w-0 flex-1 bg-transparent px-3 py-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 dark:text-white dark:disabled:bg-darkmode/60";
+  "min-h-11 min-w-0 flex-1 bg-transparent px-3 py-2.5 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 dark:text-white dark:disabled:bg-darkmode/60";
+
+/** Gaps/padding scale with viewport; inputs stay fixed. Scroll only if content overflows. */
+const modalFitVars: CSSProperties = {
+  ["--pl-gap"]: "clamp(0.625rem, 1.5dvh, 1rem)",
+  ["--pl-pad-y"]: "clamp(0.75rem, 1.8dvh, 1.25rem)",
+  ["--pl-pad-x"]: "clamp(0.875rem, 2.5vw, 1.5rem)",
+  ["--pl-label-mb"]: "clamp(0.375rem, 0.8dvh, 0.5rem)",
+  ["--pl-header-py"]: "clamp(0.625rem, 1.5dvh, 1.15rem)",
+  width: "min(100%, 36rem)",
+  maxHeight: "calc(100dvh - 1rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))",
+};
 
 type PersonalLoanApplyModalProps = {
   open: boolean;
@@ -270,7 +281,7 @@ export default function PersonalLoanApplyModal({
     <>
       {open && !showOtpModal && (
         <div
-          className="fixed inset-0 z-[99990] flex items-center justify-center overflow-hidden p-3 sm:p-5 bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-[99990] flex items-center justify-center overflow-hidden p-2 sm:p-4 bg-black/50 backdrop-blur-sm pt-[max(0.5rem,env(safe-area-inset-top))] pb-[max(0.5rem,env(safe-area-inset-bottom))]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="personal-loan-apply-title"
@@ -280,10 +291,7 @@ export default function PersonalLoanApplyModal({
         >
           <div
             className="relative flex w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-darklight"
-            style={{
-              width: "min(100%, 36rem)",
-              maxHeight: "calc(100dvh - 1.5rem)",
-            }}
+            style={modalFitVars}
           >
             {isOpeningDashboard && (
               <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/95 px-6 text-center dark:bg-darklight/95">
@@ -294,10 +302,16 @@ export default function PersonalLoanApplyModal({
                 <p className="mt-1 text-xs text-gray-500">Please wait</p>
               </div>
             )}
-            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-4 py-3.5 sm:px-6 sm:pb-4 sm:pt-5 dark:border-dark_border">
+            <div
+              className="flex shrink-0 items-center justify-between border-b border-gray-100 dark:border-dark_border"
+              style={{
+                paddingInline: "var(--pl-pad-x)",
+                paddingBlock: "var(--pl-header-py)",
+              }}
+            >
               <h2
                 id="personal-loan-apply-title"
-                className="text-lg font-bold text-midnight_text dark:text-white sm:text-xl"
+                className="min-w-0 pr-2 text-base font-bold text-midnight_text dark:text-white sm:text-xl"
               >
                 Apply for Personal Loan
               </h2>
@@ -320,20 +334,29 @@ export default function PersonalLoanApplyModal({
                 e.preventDefault();
                 void handleSubmit(e.currentTarget);
               }}
-              className="flex min-h-0 flex-1 flex-col gap-3.5 overflow-x-hidden overflow-y-auto overscroll-contain px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+              className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-contain"
+              style={{
+                gap: "var(--pl-gap)",
+                paddingInline: "var(--pl-pad-x)",
+                paddingBlock: "var(--pl-pad-y)",
+              }}
             >
               {formError && (
-                <div className="shrink-0 rounded-lg border border-red-200 bg-red-50 p-2.5 text-sm text-red-600 break-words">
+                <div className="shrink-0 rounded-lg border border-red-200 bg-red-50 p-2 text-sm text-red-600 break-words">
                   {formError}
                 </div>
               )}
 
-              <div className="shrink-0">
+              <div className="shrink-0 [&_label]:mb-[var(--pl-label-mb)]">
                 <LoanAmountSlider value={loanAmount} onChange={setLoanAmount} />
               </div>
 
               <div className="shrink-0">
-                <label htmlFor="hero-pl-fullname" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                <label
+                  htmlFor="hero-pl-fullname"
+                  className="block text-sm font-medium text-midnight_text dark:text-gray-300"
+                  style={{ marginBottom: "var(--pl-label-mb)" }}
+                >
                   Full Name *
                 </label>
                 <input
@@ -347,7 +370,10 @@ export default function PersonalLoanApplyModal({
               </div>
 
               <div className="shrink-0">
-                <label className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                <label
+                  className="block text-sm font-medium text-midnight_text dark:text-gray-300"
+                  style={{ marginBottom: "var(--pl-label-mb)" }}
+                >
                   Mobile Number *
                 </label>
                 <div
@@ -383,7 +409,11 @@ export default function PersonalLoanApplyModal({
               </div>
 
               <div className="shrink-0">
-                <label htmlFor="hero-pl-pan" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                <label
+                  htmlFor="hero-pl-pan"
+                  className="block text-sm font-medium text-midnight_text dark:text-gray-300"
+                  style={{ marginBottom: "var(--pl-label-mb)" }}
+                >
                   PAN Card number *
                 </label>
                 <input
@@ -402,19 +432,19 @@ export default function PersonalLoanApplyModal({
                   id="hero-pl-terms"
                   checked={termsAccepted}
                   onChange={setTermsAccepted}
-                  textClassName="text-xs leading-snug text-gray-600 dark:text-gray-400 sm:text-[13px]"
+                  textClassName="text-[11px] leading-snug text-gray-600 dark:text-gray-400 sm:whitespace-nowrap sm:text-xs sm:leading-none"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmittingForm}
-                className="btn-gradient mt-1 inline-flex min-h-[44px] w-full shrink-0 items-center justify-center gap-2 rounded-2xl px-4 py-3 text-base font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70"
+                className="btn-gradient inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-base font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isSubmittingForm ? "Submitting…" : "Apply Now"}
               </button>
 
-              <CheckApplicationStatusLink className="mt-2 shrink-0" onNavigate={handleClose} />
+              <CheckApplicationStatusLink className="shrink-0" onNavigate={handleClose} />
             </form>
           </div>
         </div>

@@ -10,6 +10,8 @@ type Props = {
   textClassName?: string;
   required?: boolean;
   showPrivacyPolicy?: boolean;
+  /** Shorter single-line copy for tight layouts (e.g. modals). */
+  compact?: boolean;
 };
 
 const VALIDITY_MESSAGE = "Please agree to the terms and conditions to continue.";
@@ -26,10 +28,11 @@ export default function TermsAgreementCheckbox({
   textClassName = "text-xs text-gray-700 dark:text-gray-300",
   required = true,
   showPrivacyPolicy = true,
+  compact = false,
 }: Props) {
   return (
     <div className={className}>
-      <div className="flex items-start gap-2.5">
+      <div className={`flex gap-2 ${compact ? "items-center" : "items-start gap-2.5"}`}>
         <input
           id={id}
           type="checkbox"
@@ -42,41 +45,84 @@ export default function TermsAgreementCheckbox({
             e.currentTarget.setCustomValidity(VALIDITY_MESSAGE);
           }}
           required={required}
-          className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-primary focus:ring-primary/80"
+          className={
+            compact
+              ? "h-3.5 w-3.5 shrink-0 rounded border-gray-300 text-primary focus:ring-primary/80"
+              : "mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-primary focus:ring-primary/80"
+          }
         />
-        <span className={`${textClassName} leading-relaxed`}>
-          <label htmlFor={id} className="cursor-pointer">
-            By proceeding, I agree to the{" "}
-          </label>
-          <Link
-            href="/terms-and-conditions"
-            className="text-primary hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={stopLinkToggle}
-            onMouseDown={stopLinkToggle}
-          >
-            Terms &amp; Conditions
-          </Link>
-          {showPrivacyPolicy ? (
+        <span className={`leading-relaxed ${textClassName}`}>
+          {compact ? (
             <>
-              {" "}
-              and{" "}
+              <label htmlFor={id} className="cursor-pointer">
+                I agree to the{" "}
+              </label>
               <Link
-                href="/privacy-policy"
+                href="/terms-and-conditions"
                 className="text-primary hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={stopLinkToggle}
                 onMouseDown={stopLinkToggle}
               >
-                Privacy Policy
+                Terms
               </Link>
+              {showPrivacyPolicy ? (
+                <>
+                  {" "}
+                  &amp;{" "}
+                  <Link
+                    href="/privacy-policy"
+                    className="text-primary hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={stopLinkToggle}
+                    onMouseDown={stopLinkToggle}
+                  >
+                    Privacy Policy
+                  </Link>
+                </>
+              ) : null}
+              <label htmlFor={id} className="cursor-pointer">
+                .
+              </label>
             </>
-          ) : null}{" "}
-          <label htmlFor={id} className="cursor-pointer">
-            of Apni Zaroorat.
-          </label>
+          ) : (
+            <>
+              <label htmlFor={id} className="cursor-pointer">
+                By proceeding, I agree to the{" "}
+              </label>
+              <Link
+                href="/terms-and-conditions"
+                className="text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={stopLinkToggle}
+                onMouseDown={stopLinkToggle}
+              >
+                Terms &amp; Conditions
+              </Link>
+              {showPrivacyPolicy ? (
+                <>
+                  {" "}
+                  and{" "}
+                  <Link
+                    href="/privacy-policy"
+                    className="text-primary hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={stopLinkToggle}
+                    onMouseDown={stopLinkToggle}
+                  >
+                    Privacy Policy
+                  </Link>
+                </>
+              ) : null}{" "}
+              <label htmlFor={id} className="cursor-pointer">
+                of Apni Zaroorat.
+              </label>
+            </>
+          )}
         </span>
       </div>
     </div>
