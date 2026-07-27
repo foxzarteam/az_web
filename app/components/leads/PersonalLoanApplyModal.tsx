@@ -49,15 +49,16 @@ const mobileInputClass =
   "min-h-11 min-w-0 flex-1 bg-transparent px-3 py-2.5 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 dark:text-white dark:disabled:bg-darkmode/60";
 
 /** Gaps/padding scale with viewport; inputs stay fixed. Scroll only if content overflows. */
-const modalFitVars: CSSProperties = {
+const modalFitVars = {
   ["--pl-gap"]: "clamp(0.625rem, 1.5dvh, 1rem)",
   ["--pl-pad-y"]: "clamp(0.75rem, 1.8dvh, 1.25rem)",
   ["--pl-pad-x"]: "clamp(0.875rem, 2.5vw, 1.5rem)",
   ["--pl-label-mb"]: "clamp(0.375rem, 0.8dvh, 0.5rem)",
   ["--pl-header-py"]: "clamp(0.625rem, 1.5dvh, 1.15rem)",
   width: "min(100%, 36rem)",
-  maxHeight: "calc(100dvh - 1rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))",
-};
+  maxHeight:
+    "calc(100dvh - 1rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))",
+} as CSSProperties;
 
 type PersonalLoanApplyModalProps = {
   open: boolean;
