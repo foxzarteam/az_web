@@ -134,7 +134,7 @@ export const FEATURE_CARDS: FeatureCard[] = [
     iconWrapClass: "bg-[#E7F8F1] text-[#10B981]",
   },
   {
-    title: "Minimal Documents",
+    title: "Minimal Documentation",
     description: "Paperless process with minimal documentation.",
     icon: <IconDocsCheck />,
     iconWrapClass: "bg-[#EEF0FF] text-[#4236FB]",

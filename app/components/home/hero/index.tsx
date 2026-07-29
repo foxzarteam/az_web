@@ -28,13 +28,13 @@ export default function Hero() {
           <div className="flex flex-col justify-center items-start min-w-0 order-1">
             <span className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-[0.18em] text-primary mb-2 sm:mb-3">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
-              Personal Loan
+              Personal Loan for Every Need
             </span>
 
             <h1 className="!text-[1.75rem] xs:!text-[2rem] sm:!text-[clamp(2.25rem,3.5vw+0.5rem,3.25rem)] !leading-[1.12] font-bold text-midnight_text dark:text-white">
-              Personal Loan
+              Instant Personal Loan
               <br />
-              For Your <span className="theme-gradient-text">Every Need</span>
+              up to <span className="theme-gradient-text">₹10 Lakh</span>
             </h1>
 
             <p className="mt-3 sm:mt-4 max-w-xl text-sm sm:text-base md:text-lg text-gray leading-relaxed">

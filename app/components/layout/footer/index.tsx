@@ -144,6 +144,12 @@ export default function Footer() {
             </ul>
           </div>
         </div>
+
+        <div className="mt-8 border-t border-white/10 pt-5 sm:mt-10">
+          <p className="text-center text-xs text-gray sm:text-sm">
+            © 2026 Apni Zaroorat. All rights reserved.
+          </p>
+        </div>
       </div>
     </footer>
   );

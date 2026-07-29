@@ -81,7 +81,7 @@ const STRIP_ITEMS: StripItem[] = [
     ),
   },
   {
-    title: "Minimal Documents",
+    title: "Minimal Documentation",
     description: "Simple process with minimal paperwork.",
     icon: (
       <IconWell>
