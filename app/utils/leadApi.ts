@@ -1,107 +1,12 @@
-import { PUBLIC_API_BASE_URL } from "@/app/config/constants";
+import {
+  getLeadsApiBase,
+  type CreateLeadRequest,
+  type CreateLeadResponse,
+  type LeadRecord,
+} from "@/app/lib/leads/types";
+import { parseLeadApiResponse } from "@/app/lib/leads/parseLeadApiResponse";
 
-export interface CreateLeadRequest {
-  pan: string;
-  mobileNumber: string;
-  fullName: string;
-  category: 'personal_loan' | 'home_loan' | 'business_loan' | 'credit_card' | 'insurance' | 'vehicle_loan';
-  userId?: string;
-  email?: string;
-  pincode?: string;
-  requiredAmount?: number;
-  loanAmt?: string;
-  insType?: string;
-  employmentType?: "salaried" | "self_employed";
-  netMonthlyIncome?: number;
-}
-
-export interface CreateLeadResponse {
-  success: boolean;
-  data?: unknown;
-  message?: string;
-}
-
-export type LeadRecord = {
-  id?: string;
-  mobile_number?: string;
-  full_name?: string;
-  pan?: string;
-  category?: string;
-};
-
-function parseLeadApiResponse(
-  response: Response,
-  raw: string
-): CreateLeadResponse {
-  let data: {
-    success?: boolean | string | number;
-    message?: string | string[];
-    data?: unknown;
-    error?: string | string[];
-    statusCode?: number;
-  } = {};
-  if (raw) {
-    try {
-      data = JSON.parse(raw) as typeof data;
-    } catch {
-      const looksLikeHtml = /^\s*</.test(raw);
-      return {
-        success: false,
-        message: looksLikeHtml
-          ? `Lead API returned a web page (HTTP ${response.status}), not JSON. Usually NEXT_PUBLIC_API_URL is wrong or missing at build time — set it to your backend (e.g. https://your-api.vercel.app) and rebuild.`
-          : `Server returned an invalid response (HTTP ${response.status}). Check NEXT_PUBLIC_API_URL.`,
-      };
-    }
-  }
-
-  const pickMsg = (m: unknown): string | undefined => {
-    if (typeof m === "string" && m.trim()) return m;
-    if (Array.isArray(m)) {
-      const s = m.filter((x) => typeof x === "string").join(". ");
-      return s || undefined;
-    }
-    return undefined;
-  };
-
-  if (!response.ok) {
-    const msg =
-      pickMsg(data.message) ||
-      pickMsg(data.error) ||
-      `Request failed (HTTP ${response.status}).`;
-    return { success: false, message: msg };
-  }
-
-  const successFlag = data.success;
-  const explicitFailure = successFlag === false || successFlag === "false";
-  const explicitSuccess =
-    successFlag === true || successFlag === "true" || successFlag === 1;
-  const implicitSuccess =
-    (response.status === 201 || response.status === 200) &&
-    data.data != null &&
-    typeof data.data === "object";
-
-  if (explicitFailure) {
-    return {
-      success: false,
-      message: pickMsg(data.message) || pickMsg(data.error) || "Could not save your details.",
-    };
-  }
-
-  if (explicitSuccess || implicitSuccess) {
-    return {
-      success: true,
-      data: data.data,
-    };
-  }
-
-  return {
-    success: false,
-    message:
-      pickMsg(data.message) ||
-      pickMsg(data.error) ||
-      "Unexpected response from server. Please try again.",
-  };
-}
+export type { CreateLeadRequest, CreateLeadResponse, LeadRecord } from "@/app/lib/leads/types";
 
 export function leadIdFromResponse(data: unknown): string | null {
   if (data == null || typeof data !== "object") return null;
@@ -112,15 +17,12 @@ export function leadIdFromResponse(data: unknown): string | null {
 /**
  * Save full lead BEFORE OTP.
  * Same mobile/PAN can apply once per category (e.g. personal_loan and insurance).
- * Upgrades draft for that mobile+category when one already exists.
  */
 export async function applyLead(
-  leadData: CreateLeadRequest
+  leadData: CreateLeadRequest,
 ): Promise<CreateLeadResponse> {
-  const endpoint = `${PUBLIC_API_BASE_URL}/api/leads/apply`;
-
   try {
-    const response = await fetch(endpoint, {
+    const response = await fetch(`${getLeadsApiBase()}/apply`, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -130,15 +32,10 @@ export async function applyLead(
       mode: "cors",
       credentials: "omit",
     });
-
-    const raw = await response.text();
-    return parseLeadApiResponse(response, raw);
+    return parseLeadApiResponse(response, await response.text());
   } catch (error) {
     console.error("Error applying lead:", error);
-    return {
-      success: false,
-      message: "Network error. Please try again later.",
-    };
+    return { success: false, message: "Network error. Please try again later." };
   }
 }
 
@@ -149,10 +46,8 @@ export async function startLead(
   mobileNumber: string,
   category: CreateLeadRequest["category"] = "personal_loan",
 ): Promise<CreateLeadResponse & { isDraft?: boolean }> {
-  const endpoint = `${PUBLIC_API_BASE_URL}/api/leads/start`;
-
   try {
-    const response = await fetch(endpoint, {
+    const response = await fetch(`${getLeadsApiBase()}/start`, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -162,7 +57,6 @@ export async function startLead(
       mode: "cors",
       credentials: "omit",
     });
-
     const raw = await response.text();
     const parsed = parseLeadApiResponse(response, raw);
     let isDraft: boolean | undefined;
@@ -177,16 +71,11 @@ export async function startLead(
     return { ...parsed, isDraft };
   } catch (error) {
     console.error("Error starting lead:", error);
-    return {
-      success: false,
-      message: "Network error. Please try again later.",
-    };
+    return { success: false, message: "Network error. Please try again later." };
   }
 }
 
-/**
- * Fill remaining details on an existing draft/pending lead (chat form submit).
- */
+/** Fill remaining details on an existing draft/pending lead. */
 export async function completeLead(
   leadId: string,
   body: {
@@ -200,43 +89,39 @@ export async function completeLead(
   },
   idToken?: string | null,
 ): Promise<CreateLeadResponse> {
-  const endpoint = `${PUBLIC_API_BASE_URL}/api/leads/${encodeURIComponent(leadId)}/complete`;
-
   try {
     const headers: Record<string, string> = {
       Accept: "application/json",
       "Content-Type": "application/json",
     };
-    if (idToken) headers["Authorization"] = `Bearer ${idToken}`;
+    if (idToken) headers.Authorization = `Bearer ${idToken}`;
 
-    const response = await fetch(endpoint, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify(body),
-      mode: "cors",
-      credentials: "omit",
-    });
-
-    const raw = await response.text();
-    return parseLeadApiResponse(response, raw);
+    const response = await fetch(
+      `${getLeadsApiBase()}/${encodeURIComponent(leadId)}/complete`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify(body),
+        mode: "cors",
+        credentials: "omit",
+      },
+    );
+    return parseLeadApiResponse(response, await response.text());
   } catch (error) {
     console.error("Error completing lead:", error);
-    return {
-      success: false,
-      message: "Network error. Please try again later.",
-    };
+    return { success: false, message: "Network error. Please try again later." };
   }
 }
 
-// Map service value to API category
-export function mapServiceToCategory(service: string): CreateLeadRequest['category'] {
-  const mapping: Record<string, CreateLeadRequest['category']> = {
-    'personal-loan': 'personal_loan',
-    'home-loan': 'home_loan',
-    'business-loan': 'business_loan',
-    'credit-card': 'credit_card',
-    'insurance': 'insurance',
+export function mapServiceToCategory(
+  service: string,
+): CreateLeadRequest["category"] {
+  const mapping: Record<string, CreateLeadRequest["category"]> = {
+    "personal-loan": "personal_loan",
+    "home-loan": "home_loan",
+    "business-loan": "business_loan",
+    "credit-card": "credit_card",
+    insurance: "insurance",
   };
-  
-  return mapping[service] || 'personal_loan';
+  return mapping[service] || "personal_loan";
 }

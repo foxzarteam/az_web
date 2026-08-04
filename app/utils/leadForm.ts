@@ -73,7 +73,36 @@ export type LeadFieldErrors = Partial<{
   service: string;
   loanAmt: string;
   insType: string;
+  employmentType: string;
+  netMonthlyIncome: string;
 }>;
+
+/** Personal-loan employment + net monthly income (shared apply forms). */
+export function validatePersonalLoanEmployment(
+  employmentType: string,
+  netMonthlyIncome: string,
+): Pick<LeadFieldErrors, "employmentType" | "netMonthlyIncome"> {
+  const errors: Pick<LeadFieldErrors, "employmentType" | "netMonthlyIncome"> = {};
+  if (!employmentType.trim()) {
+    errors.employmentType = "Please select employment type";
+  } else if (
+    employmentType !== "salaried" &&
+    employmentType !== "self_employed"
+  ) {
+    errors.employmentType = "Invalid employment type";
+  }
+
+  const incomeNum = Number(String(netMonthlyIncome).replace(/,/g, "").trim());
+  if (
+    !String(netMonthlyIncome).trim() ||
+    !Number.isFinite(incomeNum) ||
+    incomeNum <= 0
+  ) {
+    errors.netMonthlyIncome = "Enter a valid net monthly income";
+  }
+
+  return errors;
+}
 
 export function validateLeadPanNameMobile(params: {
   pan: string;

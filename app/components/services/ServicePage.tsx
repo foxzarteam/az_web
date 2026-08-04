@@ -10,11 +10,16 @@ import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationStatusLink";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
+import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
 import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
 import { customerLogin } from "@/app/utils/customerAuthApi";
 import { applyLead, leadIdFromResponse, mapServiceToCategory } from "@/app/utils/leadApi";
 import {
-  EMPLOYMENT_TYPE_OPTIONS,
+  firstLeadFieldError,
+  personalLoanApplyPayload,
+  validatePersonalLoanApplyForm,
+} from "@/app/lib/leads/personalLoanApply";
+import {
   INSURANCE_TYPE_OPTIONS,
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
@@ -129,23 +134,21 @@ export default function ServicePage({
     });
     if (!service.trim()) errors.service = "Product could not be detected for this page";
     if (showLoanAmount) {
-      if (
-        loanAmount < PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT ||
-        loanAmount > PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT
-      ) {
-        errors.loanAmt = `Loan amount must be between ₹${PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT.toLocaleString("en-IN")} and ₹${PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT.toLocaleString("en-IN")}`;
-      }
+      Object.assign(
+        errors,
+        validatePersonalLoanApplyForm({
+          pan,
+          mobile,
+          fullName,
+          loanAmount,
+          employmentType,
+          netMonthlyIncome,
+        }),
+      );
     }
     if (showInsuranceType && !insType.trim()) errors.insType = "Please select insurance type";
-    if (showLoanAmount) {
-      if (!employmentType) errors.loanAmt = errors.loanAmt || "Please select employment type";
-      const incomeNum = Number(netMonthlyIncome.replace(/,/g, ""));
-      if (!netMonthlyIncome.trim() || !Number.isFinite(incomeNum) || incomeNum <= 0) {
-        errors.loanAmt = errors.loanAmt || "Enter a valid net monthly income";
-      }
-    }
 
-    const firstError = Object.values(errors)[0];
+    const firstError = firstLeadFieldError(errors);
     if (firstError) {
       setFormError(firstError);
       return;
@@ -156,17 +159,27 @@ export default function ServicePage({
 
     try {
       const category = mapServiceToCategory(service);
-      const incomeNum = Number(netMonthlyIncome.replace(/,/g, ""));
+      const pl =
+        category === "personal_loan"
+          ? personalLoanApplyPayload({
+              pan,
+              mobile,
+              fullName,
+              loanAmount,
+              employmentType,
+              netMonthlyIncome,
+            })
+          : null;
       const applyRes = await applyLead({
         pan: pan.trim().toUpperCase(),
         mobileNumber: mobile.replace(/\D/g, ""),
         fullName: fullName.trim(),
         category,
-        ...(category === "personal_loan"
+        ...(pl
           ? {
-              requiredAmount: loanAmount,
-              employmentType: employmentType as "salaried" | "self_employed",
-              netMonthlyIncome: incomeNum,
+              requiredAmount: pl.requiredAmount,
+              employmentType: pl.employmentType,
+              netMonthlyIncome: pl.netMonthlyIncome,
             }
           : {}),
         ...(category === "insurance" ? { insType } : {}),
@@ -345,50 +358,15 @@ export default function ServicePage({
                   </div>
 
                   {showLoanAmount && (
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                      <div>
-                        <label
-                          htmlFor="service-employment"
-                          className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
-                        >
-                          Employment Type *
-                        </label>
-                        <select
-                          id="service-employment"
-                          value={employmentType}
-                          onChange={(e) => setEmploymentType(e.target.value)}
-                          className={inputClass}
-                          required
-                        >
-                          <option value="">Select employment type</option>
-                          {EMPLOYMENT_TYPE_OPTIONS.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="service-income"
-                          className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
-                        >
-                          Net Monthly Income *
-                        </label>
-                        <input
-                          id="service-income"
-                          type="text"
-                          inputMode="numeric"
-                          value={netMonthlyIncome}
-                          onChange={(e) =>
-                            setNetMonthlyIncome(e.target.value.replace(/[^\d]/g, ""))
-                          }
-                          placeholder="e.g. 50000"
-                          className={inputClass}
-                          required
-                        />
-                      </div>
-                    </div>
+                    <EmploymentIncomeFields
+                      idPrefix="service"
+                      employmentType={employmentType}
+                      netMonthlyIncome={netMonthlyIncome}
+                      onEmploymentChange={setEmploymentType}
+                      onIncomeChange={setNetMonthlyIncome}
+                      inputClassName={inputClass}
+                      labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                    />
                   )}
 
                   <TermsAgreementCheckbox

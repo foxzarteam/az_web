@@ -1,5 +1,5 @@
 import { getPublicServicesListUrl } from "@/app/lib/services/serviceListUrl";
-import { parseServicesFetchResult } from "@/app/lib/services/parseServicesFetchResult";
+import { servicesResultFromHttp } from "@/app/lib/services/servicesResultFromHttp";
 import type {
   FetchActiveServicesResult,
   ServiceSliderCard,
@@ -22,19 +22,7 @@ async function fetchFromApi(): Promise<FetchActiveServicesResult> {
       mode: "cors",
       credentials: "omit",
     });
-
-    const raw = await response.text();
-    let parsed: unknown = null;
-    if (raw) {
-      try {
-        parsed = JSON.parse(raw) as unknown;
-      } catch {
-        console.warn("[services] API returned non-JSON");
-        return { cards: [], status: "error" };
-      }
-    }
-
-    return parseServicesFetchResult(parsed, response.ok);
+    return servicesResultFromHttp(response.ok, await response.text());
   } catch (e) {
     console.warn("[services] fetch failed:", e);
     return { cards: [], status: "error" };

@@ -9,6 +9,7 @@ import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationStatusLink";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
+import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
 import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
 import { getCurrentFirebaseIdToken, warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
 import { reportFormValidity } from "@/app/utils/formValidation";
@@ -18,10 +19,12 @@ import { updateChatSession } from "@/app/utils/chatApi";
 import {
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
-  validateLeadPanNameMobile,
-  EMPLOYMENT_TYPE_OPTIONS,
-  type LeadFieldErrors,
 } from "@/app/utils/leadForm";
+import {
+  firstLeadFieldError,
+  personalLoanApplyPayload,
+  validatePersonalLoanApplyForm,
+} from "@/app/lib/leads/personalLoanApply";
 import { sanitizeMobileInput } from "@/app/utils/validation";
 import { blurActiveElement, useBodyScrollLock } from "@/app/utils/useBodyScrollLock";
 
@@ -222,26 +225,16 @@ export default function PersonalLoanApplyModal({
   const handleSubmit = async (form: HTMLFormElement) => {
     if (!reportFormValidity(form) || isSubmittingForm || isOpeningDashboard) return;
 
-    const errors: LeadFieldErrors = validateLeadPanNameMobile({
+    const errors = validatePersonalLoanApplyForm({
       pan,
-      mobileDigits: mobile.replace(/\D/g, ""),
+      mobile,
       fullName,
+      loanAmount,
+      employmentType,
+      netMonthlyIncome,
     });
-    if (
-      loanAmount < PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT ||
-      loanAmount > PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT
-    ) {
-      errors.loanAmt = `Loan amount must be between ₹${PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT.toLocaleString("en-IN")} and ₹${PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT.toLocaleString("en-IN")}`;
-    }
-    if (!employmentType) {
-      errors.loanAmt = errors.loanAmt || "Please select employment type";
-    }
-    const incomeNum = Number(netMonthlyIncome.replace(/,/g, ""));
-    if (!netMonthlyIncome.trim() || !Number.isFinite(incomeNum) || incomeNum <= 0) {
-      errors.loanAmt = errors.loanAmt || "Enter a valid net monthly income";
-    }
 
-    const firstError = Object.values(errors)[0];
+    const firstError = firstLeadFieldError(errors);
     if (firstError) {
       setFormError(firstError);
       return;
@@ -251,34 +244,31 @@ export default function PersonalLoanApplyModal({
     setIsSubmittingForm(true);
 
     try {
-      const mobileDigits = mobile.replace(/\D/g, "");
-      const employmentPayload = {
-        employmentType: employmentType as "salaried" | "self_employed",
-        netMonthlyIncome: incomeNum,
-      };
+      const payload = personalLoanApplyPayload({
+        pan,
+        mobile,
+        fullName,
+        loanAmount,
+        employmentType,
+        netMonthlyIncome,
+      });
       let applyRes;
       if (skipOtp && existingLeadId) {
         const idToken = await getCurrentFirebaseIdToken();
         applyRes = await completeLead(
           existingLeadId,
           {
-            pan: pan.trim().toUpperCase(),
-            fullName: fullName.trim(),
+            pan: payload.pan,
+            fullName: payload.fullName,
             category: "personal_loan",
-            requiredAmount: loanAmount,
-            ...employmentPayload,
+            requiredAmount: payload.requiredAmount,
+            employmentType: payload.employmentType,
+            netMonthlyIncome: payload.netMonthlyIncome,
           },
           idToken,
         );
       } else {
-        applyRes = await applyLead({
-          pan: pan.trim().toUpperCase(),
-          mobileNumber: mobileDigits,
-          fullName: fullName.trim(),
-          category: "personal_loan",
-          requiredAmount: loanAmount,
-          ...employmentPayload,
-        });
+        applyRes = await applyLead(payload);
       }
 
       if (!applyRes.success) {
@@ -302,7 +292,7 @@ export default function PersonalLoanApplyModal({
         const idToken = await getCurrentFirebaseIdToken();
         if (
           idToken &&
-          (await loginAndGoToDashboard(mobileDigits, idToken, (href) => {
+          (await loginAndGoToDashboard(payload.mobileNumber, idToken, (href) => {
             router.replace(href);
             router.refresh();
           }))
@@ -479,52 +469,17 @@ export default function PersonalLoanApplyModal({
                 ) : null}
               </div>
 
-              <div className="grid shrink-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                <div>
-                  <label
-                    htmlFor="hero-pl-employment"
-                    className="block text-sm font-medium text-midnight_text dark:text-gray-300"
-                    style={{ marginBottom: "var(--pl-label-mb)" }}
-                  >
-                    Employment Type *
-                  </label>
-                  <select
-                    id="hero-pl-employment"
-                    value={employmentType}
-                    onChange={(e) => setEmploymentType(e.target.value)}
-                    className={inputClass}
-                    required
-                  >
-                    <option value="">Select employment type</option>
-                    {EMPLOYMENT_TYPE_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label
-                    htmlFor="hero-pl-income"
-                    className="block text-sm font-medium text-midnight_text dark:text-gray-300"
-                    style={{ marginBottom: "var(--pl-label-mb)" }}
-                  >
-                    Net Monthly Income *
-                  </label>
-                  <input
-                    id="hero-pl-income"
-                    type="text"
-                    inputMode="numeric"
-                    value={netMonthlyIncome}
-                    onChange={(e) =>
-                      setNetMonthlyIncome(e.target.value.replace(/[^\d]/g, ""))
-                    }
-                    placeholder="e.g. 50000"
-                    className={inputClass}
-                    required
-                  />
-                </div>
-              </div>
+              <EmploymentIncomeFields
+                idPrefix="hero-pl"
+                employmentType={employmentType}
+                netMonthlyIncome={netMonthlyIncome}
+                onEmploymentChange={setEmploymentType}
+                onIncomeChange={setNetMonthlyIncome}
+                inputClassName={inputClass}
+                labelClassName="block text-sm font-medium text-midnight_text dark:text-gray-300"
+                labelStyle={{ marginBottom: "var(--pl-label-mb)" }}
+                gridClassName="grid shrink-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4"
+              />
 
               <div className="shrink-0">
                 <TermsAgreementCheckbox

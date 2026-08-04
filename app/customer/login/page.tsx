@@ -1,8 +1,22 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import { getCustomerSession } from "@/app/lib/customer/session";
+import { buildPageMetadata } from "@/app/lib/seo";
 import CustomerLoginForm from "./CustomerLoginForm";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Check Application Status",
+  description:
+    "Log in with your mobile number and OTP to view personal loan and insurance application status on Apni Zaroorat.",
+  path: "/customer/login",
+  keywords: [
+    "loan application status",
+    "check personal loan status",
+    "Apni Zaroorat login",
+  ],
+});
 
 export default async function CustomerLoginPage() {
   const session = await getCustomerSession();

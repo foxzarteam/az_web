@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { CONTACT, SOCIAL_LINKS } from "@/app/config/constants";
-import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
 import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
 import { serviceCardsToSubmenu } from "@/app/lib/services/submenu";
 
@@ -26,8 +25,7 @@ const LEGAL_LINKS = [
 
 export default function Footer() {
   const pathname = usePathname();
-  const fromLayout = useServiceCards();
-  const { cards } = useRemoteServiceCards(fromLayout);
+  const { cards } = useRemoteServiceCards();
   const serviceLinks = useMemo(() => serviceCardsToSubmenu(cards), [cards]);
 
   if (pathname?.startsWith("/admin") || pathname?.startsWith("/customer")) {
@@ -83,13 +81,23 @@ export default function Footer() {
             <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Quick Links</h4>
             <ul className="space-y-0.5">
               <li>
-                <Link href="/contact/" className={linkClass}>
-                  Contact
+                <Link href="/about/" className={linkClass}>
+                  About Company
                 </Link>
               </li>
               <li>
-                <Link href="/about/" className={linkClass}>
-                  About
+                <Link href="/products/personal-loan/" className={linkClass}>
+                  Personal Loan
+                </Link>
+              </li>
+              <li>
+                <Link href="/products/insurance/" className={linkClass}>
+                  Insurance
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact/" className={linkClass}>
+                  Contact Us
                 </Link>
               </li>
               <li>

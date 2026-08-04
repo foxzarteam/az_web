@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
 import { fetchActiveServiceCards } from "@/app/utils/fetchActiveServiceCards";
 import type {
   FetchActiveServicesResult,
@@ -15,12 +16,20 @@ export type RemoteServiceCardsState = {
 };
 
 /**
- * Uses `source` when non-empty (SSR from layout). Otherwise one client GET + shared cache.
+ * Prefers root-layout SSR cards (via context / optional override).
+ * Falls back to one browser GET (session-cached) only when layout had none.
  */
 export function useRemoteServiceCards(
-  source: ServiceSliderCard[]
+  source?: ServiceSliderCard[],
 ): RemoteServiceCardsState {
-  const serverBacked = source.length > 0;
+  const fromLayout = useServiceCards();
+  const seed =
+    source && source.length > 0
+      ? source
+      : fromLayout.length > 0
+        ? fromLayout
+        : null;
+  const serverBacked = seed != null && seed.length > 0;
   const [client, setClient] = useState<FetchActiveServicesResult | null>(null);
 
   useEffect(() => {
@@ -34,8 +43,8 @@ export function useRemoteServiceCards(
     };
   }, [serverBacked]);
 
-  if (serverBacked) {
-    return { cards: source, status: "ok", isLoading: false };
+  if (serverBacked && seed) {
+    return { cards: seed, status: "ok", isLoading: false };
   }
   if (!client) {
     return { cards: [], status: "ok", isLoading: true };

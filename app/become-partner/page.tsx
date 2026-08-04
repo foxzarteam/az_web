@@ -16,7 +16,7 @@ const IndiaMap = dynamic(() => import("./components/india-map"));
 export const metadata: Metadata = buildPageMetadata({
   title: "Become a Partner",
   description:
-    "Join Apni Zaroorat as a partner and help customers find the best personal loans and insurance. Earn by sharing financial products.",
+    "Partner with Apni Zaroorat to distribute personal loans and insurance and grow your business with a trusted financial platform.",
   path: "/become-partner",
   keywords: [
     "loan partner",

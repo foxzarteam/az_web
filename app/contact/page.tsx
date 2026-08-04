@@ -15,10 +15,16 @@ import {
 export const metadata: Metadata = buildPageMetadata({
   title: "Contact Us",
   description:
-    "Get in touch with Apni Zaroorat for personal loans and insurance. Call, email, or visit our Jaipur office for instant support.",
+    "Email, call, or visit Apni Zaroorat in Jaipur. Get support for personal loans, insurance, and application status.",
   path: "/contact",
   image: "/images/contact-page/contact.webp",
   imageAlt: "Contact Apni Zaroorat",
+  keywords: [
+    "contact Apni Zaroorat",
+    "personal loan support Jaipur",
+    "insurance helpline",
+    "Apni Zaroorat phone",
+  ],
 });
 
 const structuredData = graphJsonLd(

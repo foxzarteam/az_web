@@ -8,7 +8,6 @@ import Logo from "./logo";
 import HeaderLink from "./navigation/HeaderLink";
 import MobileHeaderLink from "./navigation/MobileHeaderLink";
 import type { HeaderItem } from "@/app/types/layout/menu";
-import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
 import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
 import { serviceCardsToSubmenu } from "@/app/lib/services/submenu";
 
@@ -25,8 +24,7 @@ export default function Header() {
   const [navbarOpen, setNavbarOpen] = useState(false);
   /** false on SSR + first client paint so theme UI matches server HTML */
   const [mounted, setMounted] = useState(false);
-  const fromLayout = useServiceCards();
-  const { cards } = useRemoteServiceCards(fromLayout);
+  const { cards } = useRemoteServiceCards();
   const serviceSubmenu = useMemo(() => serviceCardsToSubmenu(cards), [cards]);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 

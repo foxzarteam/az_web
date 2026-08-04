@@ -1,6 +1,15 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { getCustomerSession } from "@/app/lib/customer/session";
 import CustomerDashboardShell from "./CustomerDashboardShell";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false, noimageindex: true },
+  },
+};
 
 export default async function CustomerDashboardLayout({
   children,

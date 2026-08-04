@@ -17,12 +17,18 @@ import CtaBanner from "./components/cta-banner";
 const Features = dynamic(() => import("../components/shared/features"));
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "About Us",
+  title: "About Company",
   description:
-    "Learn about Apni Zaroorat — your trusted partner for personal loans and insurance. We help you make informed financial decisions with a secure, transparent process.",
+    "Apni Zaroorat is your trusted partner for personal loans and insurance — secure, transparent digital process, and support for customers across India.",
   path: "/about",
   image: "/images/hero/about.webp",
   imageAlt: "About Apni Zaroorat — simplifying your loan journey",
+  keywords: [
+    "About Apni Zaroorat",
+    "Apni Zaroorat company",
+    "personal loan partner India",
+    "insurance partner Jaipur",
+  ],
 });
 
 const org = organizationJsonLd();
@@ -58,10 +64,10 @@ export default function AboutPage() {
               Your trusted financial partner
             </span>
             <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 sm:mb-4">
-              About Us
+              About Company
             </h1>
             <p className="text-white/90 text-base sm:text-lg max-w-2xl mx-auto">
-              Your trusted partner for loans and insurance.
+              Trusted partner for personal loans and insurance across India.
             </p>
           </div>
         </div>

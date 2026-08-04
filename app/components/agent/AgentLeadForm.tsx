@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import { reportFormValidity } from "@/app/utils/formValidation";
-import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
 import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
 import { PUBLIC_FORM_SUBMIT_AJAX_URL } from "@/app/config/constants";
 
@@ -15,8 +14,7 @@ type Props = {
 const emptyForm = { name: "", email: "", phone: "", product: "" };
 
 export default function AgentLeadForm({ agentName }: Props) {
-  const fromLayout = useServiceCards();
-  const { cards: serviceRows, isLoading: servicesLoading } = useRemoteServiceCards(fromLayout);
+  const { cards: serviceRows, isLoading: servicesLoading } = useRemoteServiceCards();
   const serviceOptions = useMemo(() => serviceRows.filter((c) => c.title?.trim() && c.href), [serviceRows]);
 
   const [formData, setFormData] = useState(emptyForm);

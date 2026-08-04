@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
+import JsonLd from "@/app/components/seo/JsonLd";
 import {
   buildPageMetadata,
   breadcrumbJsonLd,
   faqPageJsonLd,
   graphJsonLd,
-  jsonLdScript,
   organizationJsonLd,
+  serviceCatalogJsonLd,
+  siteNavigationJsonLd,
   websiteJsonLd,
+  SITE_NAME,
+  SITE_TAGLINE,
+  SITE_DEFAULT_DESCRIPTION,
 } from "@/app/lib/seo";
 import Hero from "./components/home/hero";
 import HomeDisclaimerBanner from "./components/home/HomeDisclaimerBanner";
@@ -22,10 +27,10 @@ const Calculator = dynamic(() => import("./components/home/calculator"));
 
 export const metadata: Metadata = {
   ...buildPageMetadata({
-    title: "Personal Loan & Insurance Online",
-    description:
-      "Apply online for personal loans from ₹25,000 to ₹10 lakh and explore insurance options. Use our EMI calculator and indicative eligibility check before applying.",
+    title: `${SITE_NAME} | ${SITE_TAGLINE}`,
+    description: SITE_DEFAULT_DESCRIPTION,
     path: "/",
+    absoluteTitle: true,
     keywords: [
       "personal loan online",
       "personal loan India",
@@ -33,6 +38,8 @@ export const metadata: Metadata = {
       "loan eligibility check",
       "insurance online",
       "Apni Zaroorat",
+      "instant personal loan",
+      "Jaipur personal loan",
     ],
   }),
 };
@@ -40,6 +47,8 @@ export const metadata: Metadata = {
 const structuredData = graphJsonLd(
   organizationJsonLd(),
   websiteJsonLd(),
+  siteNavigationJsonLd(),
+  serviceCatalogJsonLd(),
   faqPageJsonLd(FAQ_ITEMS),
   breadcrumbJsonLd([{ name: "Home", path: "/" }]),
 );
@@ -47,10 +56,7 @@ const structuredData = graphJsonLd(
 export default function Home() {
   return (
     <main>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScript(structuredData) }}
-      />
+      <JsonLd data={structuredData} />
       <Hero />
       <Calculator />
       <LoanPurposes />

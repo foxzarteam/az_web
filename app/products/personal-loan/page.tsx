@@ -15,9 +15,9 @@ import {
 } from "@/app/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Personal Loan Online — Fast Approval",
+  title: "Personal Loan",
   description:
-    "Apply for a quick personal loan with Apni Zaroorat. 100% digital process, fast approval, and competitive rates from top lenders. Amounts from ₹25,000 to ₹10 lakh.",
+    "Instant personal loan online up to ₹10 lakh with Apni Zaroorat. Digital process, minimal documentation, and guided application from ₹25,000.",
   path: "/products/personal-loan",
   image: "/images/service/personal.webp",
   imageAlt: "Apply for a personal loan online with Apni Zaroorat",
@@ -28,6 +28,7 @@ export const metadata: Metadata = buildPageMetadata({
     "personal loan eligibility",
     "low interest personal loan",
     "Apni Zaroorat personal loan",
+    "personal loan Jaipur",
   ],
 });
 

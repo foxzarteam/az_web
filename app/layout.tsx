@@ -9,7 +9,7 @@ import { ServiceCardsProvider } from "@/app/components/providers/ServiceCardsPro
 import {
   DEFAULT_OG_IMAGE,
   DEFAULT_OG_IMAGE_ALT,
-  SEO_INDEXING_ENABLED,
+  SITE_DEFAULT_DESCRIPTION,
   SITE_NAME,
   SITE_TAGLINE,
 } from "@/app/lib/seo";
@@ -39,8 +39,7 @@ export const metadata: Metadata = {
     default: `${SITE_NAME} | ${SITE_TAGLINE}`,
     template: `%s | ${SITE_NAME}`,
   },
-  description:
-    "Apply online for personal loans from ₹25,000 to ₹10 lakh and explore insurance options with Apni Zaroorat. Check EMI and indicative eligibility before applying.",
+  description: SITE_DEFAULT_DESCRIPTION,
   applicationName: SITE_NAME,
   authors: [{ name: SITE_NAME, url: PUBLIC_SITE_URL }],
   creator: SITE_NAME,
@@ -60,8 +59,7 @@ export const metadata: Metadata = {
     url: "/",
     siteName: SITE_NAME,
     title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-    description:
-      "Check personal loan EMI and indicative eligibility, then apply online through a quick and secure process.",
+    description: SITE_DEFAULT_DESCRIPTION,
     images: [
       {
         url: DEFAULT_OG_IMAGE,
@@ -74,32 +72,20 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-    description:
-      "Check personal loan EMI and indicative eligibility, then apply online through a quick and secure process.",
+    description: SITE_DEFAULT_DESCRIPTION,
     images: [DEFAULT_OG_IMAGE],
   },
-  robots: SEO_INDEXING_ENABLED
-    ? {
-        index: true,
-        follow: true,
-        googleBot: {
-          index: true,
-          follow: true,
-          "max-image-preview": "large",
-          "max-snippet": -1,
-          "max-video-preview": -1,
-        },
-      }
-    : {
-        index: false,
-        follow: false,
-        noarchive: true,
-        googleBot: {
-          index: false,
-          follow: false,
-          noimageindex: true,
-        },
-      },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   icons: {
     icon: [{ url: "/favicon.png", type: "image/png", sizes: "64x64" }],
     shortcut: "/favicon.png",
@@ -109,6 +95,8 @@ export const metadata: Metadata = {
   other: {
     "geo.region": "IN-RJ",
     "geo.placename": "Jaipur",
+    "geo.position": "26.9124;75.7873",
+    ICBM: "26.9124, 75.7873",
   },
 };
 
