@@ -20,7 +20,6 @@ import {
   cellText,
   amountOrInsuranceText,
   formatCurrencyInr,
-  formatIpLocationCell,
   formatValue,
   isOtpVerified,
 } from "./leadDisplay";
@@ -353,23 +352,6 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
             : "—",
       },
       {
-        id: "pincode",
-        header: "Pincode",
-        sortable: true,
-        sortValue: (row) => String(row.pincode ?? ""),
-        searchValue: (row) => String(row.pincode ?? ""),
-        cell: (row) => (row.pincode != null && row.pincode !== "" ? String(row.pincode) : "—"),
-      },
-      {
-        id: "ip",
-        header: "Location",
-        sortable: true,
-        sortValue: (row) => formatIpLocationCell(row),
-        searchValue: (row) => formatIpLocationCell(row),
-        className: "max-w-[260px] truncate text-xs whitespace-nowrap",
-        cell: (row) => formatIpLocationCell(row),
-      },
-      {
         id: "otp_verified",
         header: "Verified",
         sortable: true,
@@ -443,7 +425,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         rows={leads}
         columns={columns}
         getRowId={(row, i) => String(row.id ?? i)}
-        searchPlaceholder="Search name, phone, product, income, PIN, location, IP…"
+        searchPlaceholder="Search name, phone, product, income…"
         emptyMessage="No leads to display."
         toolbarRight={
           <button type="button" onClick={openCreate} className={ADMIN_BTN_PRIMARY}>
