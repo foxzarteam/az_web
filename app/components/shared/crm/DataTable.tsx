@@ -289,19 +289,22 @@ export function CrmActionButton({
   label: string;
   onClick: () => void;
   children: React.ReactNode;
-  variant?: "default" | "danger";
+  variant?: "default" | "view" | "danger";
 }) {
+  const styles =
+    variant === "danger"
+      ? "border-red-200 bg-red-50/60 text-red-600 hover:border-red-300 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50"
+      : variant === "view"
+        ? "border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm shadow-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 hover:shadow-md hover:shadow-emerald-500/15 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
+        : "border-slate-200 text-slate-600 hover:border-[#4236FB]/30 hover:bg-[#EEF0FF] hover:text-[#4236FB] dark:border-dark_border dark:text-gray-200 dark:hover:bg-white/10";
+
   return (
     <button
       type="button"
       title={label}
       aria-label={label}
       onClick={onClick}
-      className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border transition ${
-        variant === "danger"
-          ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/40"
-          : "border-slate-200 text-slate-600 hover:border-[#4236FB]/30 hover:bg-[#EEF0FF] hover:text-[#4236FB] dark:border-dark_border dark:text-gray-200 dark:hover:bg-white/10"
-      }`}
+      className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border transition ${styles}`}
     >
       {children}
     </button>

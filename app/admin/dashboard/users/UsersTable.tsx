@@ -221,7 +221,7 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
         searchable: false,
         cell: (row) => (
           <div className="flex items-center gap-1.5">
-            <CrmActionButton label="View" onClick={() => setViewUser(row)}>
+            <CrmActionButton label="View" variant="view" onClick={() => setViewUser(row)}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                 <circle cx="12" cy="12" r="3" />

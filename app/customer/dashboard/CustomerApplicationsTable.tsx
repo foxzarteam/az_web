@@ -210,30 +210,6 @@ export default function CustomerApplicationsTable({
             : formatInr(row.required_amount),
       },
       {
-        id: "employment",
-        header: "Employment",
-        sortable: true,
-        sortValue: (row) =>
-          row.employment_type ? employmentTypeLabel(row.employment_type) : "",
-        searchValue: (row) =>
-          row.employment_type ? employmentTypeLabel(row.employment_type) : "",
-        cell: (row) =>
-          row.category === "personal_loan" && row.employment_type
-            ? employmentTypeLabel(row.employment_type)
-            : "—",
-      },
-      {
-        id: "income",
-        header: "Monthly income",
-        sortable: true,
-        sortValue: (row) => row.net_monthly_income ?? 0,
-        searchValue: (row) => formatInr(row.net_monthly_income),
-        cell: (row) =>
-          row.category === "personal_loan"
-            ? formatInr(row.net_monthly_income)
-            : "—",
-      },
-      {
         id: "created_at",
         header: "Submitted",
         sortable: true,
@@ -261,7 +237,7 @@ export default function CustomerApplicationsTable({
         header: "Action",
         searchable: false,
         cell: (row) => (
-          <CrmActionButton label="View" onClick={() => setViewLead(row)}>
+          <CrmActionButton label="View" variant="view" onClick={() => setViewLead(row)}>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
               <circle cx="12" cy="12" r="3" />

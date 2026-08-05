@@ -380,6 +380,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
           <div className="flex items-center gap-1.5">
             <CrmActionButton
               label="View"
+              variant="view"
               onClick={() => {
                 setViewPanFull(null);
                 setError(null);
