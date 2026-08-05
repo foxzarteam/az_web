@@ -1,6 +1,7 @@
 import type { CreateLeadRequest } from "@/app/lib/leads/types";
 import {
   validateLeadPanNameMobile,
+  validateLeadPincode,
   validatePersonalLoanEmployment,
   type LeadFieldErrors,
 } from "@/app/utils/leadForm";
@@ -10,6 +11,7 @@ export type PersonalLoanFormValues = {
   pan: string;
   mobile: string;
   fullName: string;
+  pincode: string;
   loanAmount: number;
   employmentType: string;
   netMonthlyIncome: string;
@@ -24,6 +26,9 @@ export function validatePersonalLoanApplyForm(
     mobileDigits: values.mobile.replace(/\D/g, ""),
     fullName: values.fullName,
   });
+
+  const pinErr = validateLeadPincode(values.pincode);
+  if (pinErr) errors.pincode = pinErr;
 
   if (
     values.loanAmount < PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT ||
@@ -48,6 +53,7 @@ export function personalLoanApplyPayload(
     pan: values.pan.trim().toUpperCase(),
     mobileNumber: values.mobile.replace(/\D/g, ""),
     fullName: values.fullName.trim(),
+    pincode: values.pincode.replace(/\D/g, ""),
     category: "personal_loan",
     requiredAmount: values.loanAmount,
     employmentType: values.employmentType as "salaried" | "self_employed",

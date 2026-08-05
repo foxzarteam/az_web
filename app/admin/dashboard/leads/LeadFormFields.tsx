@@ -116,6 +116,21 @@ export default function LeadFormFields({
         />
         <FieldErrorText message={fieldErrors.mobileNumber} />
       </label>
+      <label className="block">
+        <span className={ADMIN_LABEL}>Pincode</span>
+        <input
+          className={inputClass}
+          value={form.pincode}
+          onChange={(e) => {
+            setForm({ ...form, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) });
+            clearFieldError("pincode");
+          }}
+          placeholder="6-digit pincode"
+          inputMode="numeric"
+          maxLength={6}
+        />
+        <FieldErrorText message={fieldErrors.pincode} />
+      </label>
       <div className="block">
         <span className={ADMIN_LABEL}>PAN</span>
         <div className="flex items-center gap-2">

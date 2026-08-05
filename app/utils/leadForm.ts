@@ -57,6 +57,8 @@ export function employmentTypeLabel(value: string): string {
 
 export const LEAD_PAN_PATTERN = /^[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}$/;
 export const LEAD_NAME_PATTERN = /^[a-zA-Z\s.]+$/;
+/** India PIN: 6 digits, first digit 1–9 (not 000000 / starting with 0). */
+export const LEAD_PINCODE_PATTERN = /^[1-9][0-9]{5}$/;
 
 export function sanitizeLeadPanInput(raw: string): string {
   return raw.replace(/[^A-Za-z0-9]/g, "").slice(0, 10).toUpperCase();
@@ -64,6 +66,10 @@ export function sanitizeLeadPanInput(raw: string): string {
 
 export function sanitizeLeadNameInput(raw: string): string {
   return raw.replace(/[^a-zA-Z\s.]/g, "");
+}
+
+export function sanitizeLeadPincodeInput(raw: string): string {
+  return raw.replace(/\D/g, "").slice(0, 6);
 }
 
 export type LeadFieldErrors = Partial<{
@@ -75,7 +81,18 @@ export type LeadFieldErrors = Partial<{
   insType: string;
   employmentType: string;
   netMonthlyIncome: string;
+  pincode: string;
 }>;
+
+export function validateLeadPincode(pincode: string): string | undefined {
+  const pin = pincode.replace(/\D/g, "");
+  if (!pin) return "Pincode is required";
+  if (pin.length !== 6) return "Pincode must be 6 digits";
+  if (!LEAD_PINCODE_PATTERN.test(pin)) {
+    return "Enter a valid Indian pincode (e.g. 302002)";
+  }
+  return undefined;
+}
 
 /** Personal-loan employment + net monthly income (shared apply forms). */
 export function validatePersonalLoanEmployment(

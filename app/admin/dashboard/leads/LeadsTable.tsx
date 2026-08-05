@@ -19,9 +19,12 @@ import {
   categoryLabel,
   cellText,
   amountOrInsuranceText,
+  formatCurrencyInr,
+  formatIpLocationCell,
   formatValue,
   isOtpVerified,
 } from "./leadDisplay";
+import { employmentTypeLabel } from "@/app/utils/leadForm";
 import {
   type EditForm,
   type FieldErrors,
@@ -98,6 +101,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
       mobileNumber: form.mobileNumber.trim(),
       category: form.category,
       status: form.status,
+      pincode: form.pincode.trim() || null,
     };
     if (form.category === "personal_loan") {
       payload.requiredAmount = form.requiredAmount;
@@ -152,7 +156,8 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
       validationErrors.mobileNumber ||
       validationErrors.pan ||
       validationErrors.employmentType ||
-      validationErrors.netMonthlyIncome
+      validationErrors.netMonthlyIncome ||
+      validationErrors.pincode
     ) {
       setFieldErrors(validationErrors);
       return;
@@ -205,7 +210,8 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
       validationErrors.mobileNumber ||
       validationErrors.pan ||
       validationErrors.employmentType ||
-      validationErrors.netMonthlyIncome
+      validationErrors.netMonthlyIncome ||
+      validationErrors.pincode
     ) {
       setFieldErrors(validationErrors);
       return;
@@ -314,8 +320,54 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
           return amountOrInsuranceText(row);
         },
         searchValue: (row) => amountOrInsuranceText(row),
-        className: "max-w-[220px] truncate whitespace-nowrap",
+        className: "max-w-[160px] truncate whitespace-nowrap",
         cell: (row) => amountOrInsuranceText(row),
+      },
+      {
+        id: "employment_type",
+        header: "Employment",
+        sortable: true,
+        sortValue: (row) =>
+          row.employment_type ? employmentTypeLabel(String(row.employment_type)) : "",
+        searchValue: (row) =>
+          row.employment_type ? employmentTypeLabel(String(row.employment_type)) : "",
+        className: "max-w-[130px] truncate whitespace-nowrap",
+        cell: (row) =>
+          String(row.category ?? "") === "personal_loan" && row.employment_type
+            ? employmentTypeLabel(String(row.employment_type))
+            : "—",
+      },
+      {
+        id: "net_monthly_income",
+        header: "Monthly income",
+        sortable: true,
+        sortValue: (row) => {
+          const n = Number(row.net_monthly_income);
+          return Number.isFinite(n) ? n : 0;
+        },
+        searchValue: (row) => formatCurrencyInr(row.net_monthly_income),
+        className: "max-w-[140px] truncate whitespace-nowrap",
+        cell: (row) =>
+          String(row.category ?? "") === "personal_loan"
+            ? formatCurrencyInr(row.net_monthly_income)
+            : "—",
+      },
+      {
+        id: "pincode",
+        header: "Pincode",
+        sortable: true,
+        sortValue: (row) => String(row.pincode ?? ""),
+        searchValue: (row) => String(row.pincode ?? ""),
+        cell: (row) => (row.pincode != null && row.pincode !== "" ? String(row.pincode) : "—"),
+      },
+      {
+        id: "ip",
+        header: "Location",
+        sortable: true,
+        sortValue: (row) => formatIpLocationCell(row),
+        searchValue: (row) => formatIpLocationCell(row),
+        className: "max-w-[260px] truncate text-xs whitespace-nowrap",
+        cell: (row) => formatIpLocationCell(row),
       },
       {
         id: "otp_verified",
@@ -391,7 +443,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         rows={leads}
         columns={columns}
         getRowId={(row, i) => String(row.id ?? i)}
-        searchPlaceholder="Search name, phone, product…"
+        searchPlaceholder="Search name, phone, product, income, PIN, location, IP…"
         emptyMessage="No leads to display."
         toolbarRight={
           <button type="button" onClick={openCreate} className={ADMIN_BTN_PRIMARY}>
@@ -430,12 +482,12 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
                         : "inline-flex rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600"
                     }
                   >
-                    {formatValue(key, viewLead[key])}
+                    {formatValue(key, viewLead[key], viewLead)}
                   </span>
                 ) : key === "pan" ? (
                   <span className="inline-flex flex-wrap items-center gap-2">
                     <span className="font-mono tracking-wide text-midnight_text dark:text-gray-200">
-                      {viewPanFull ?? formatValue(key, viewLead[key])}
+                      {viewPanFull ?? formatValue(key, viewLead[key], viewLead)}
                     </span>
                     {!viewPanFull && viewLead.id ? (
                       <button
@@ -453,8 +505,14 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
                       </button>
                     ) : null}
                   </span>
+                ) : key === "ip" ? (
+                  <span className="text-sm text-midnight_text dark:text-gray-200">
+                    {formatValue(key, viewLead[key], viewLead)}
+                  </span>
                 ) : (
-                  <span className="text-midnight_text dark:text-gray-200">{formatValue(key, viewLead[key])}</span>
+                  <span className="text-midnight_text dark:text-gray-200">
+                    {formatValue(key, viewLead[key], viewLead)}
+                  </span>
                 )}
               </li>
               );

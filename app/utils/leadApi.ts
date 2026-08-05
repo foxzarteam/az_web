@@ -82,6 +82,7 @@ export async function completeLead(
     pan: string;
     fullName: string;
     category?: CreateLeadRequest["category"];
+    pincode?: string;
     requiredAmount?: number;
     insType?: string;
     employmentType?: "salaried" | "self_employed";

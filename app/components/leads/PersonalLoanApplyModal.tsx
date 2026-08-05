@@ -19,6 +19,7 @@ import { updateChatSession } from "@/app/utils/chatApi";
 import {
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
+  sanitizeLeadPincodeInput,
 } from "@/app/utils/leadForm";
 import {
   firstLeadFieldError,
@@ -56,10 +57,10 @@ const mobileInputClass =
 const modalFitVars = {
   ["--pl-gap"]: "clamp(0.625rem, 1.5dvh, 1rem)",
   ["--pl-pad-y"]: "clamp(0.75rem, 1.8dvh, 1.25rem)",
-  ["--pl-pad-x"]: "clamp(0.875rem, 2.5vw, 1.5rem)",
+  ["--pl-pad-x"]: "clamp(1rem, 3vw, 1.75rem)",
   ["--pl-label-mb"]: "clamp(0.375rem, 0.8dvh, 0.5rem)",
   ["--pl-header-py"]: "clamp(0.625rem, 1.5dvh, 1.15rem)",
-  width: "min(100%, 36rem)",
+  width: "min(100%, 42rem)",
   maxHeight:
     "calc(100dvh - 1rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))",
 } as CSSProperties;
@@ -106,6 +107,7 @@ export default function PersonalLoanApplyModal({
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
+  const [pincode, setPincode] = useState("");
   const [loanAmount, setLoanAmount] = useState(DEFAULT_LOAN_AMOUNT);
   const [employmentType, setEmploymentType] = useState("");
   const [netMonthlyIncome, setNetMonthlyIncome] = useState("");
@@ -147,6 +149,7 @@ export default function PersonalLoanApplyModal({
   const resetForm = useCallback(() => {
     setFullName("");
     setMobile(lockMobile ? initialMobile.replace(/\D/g, "").slice(0, 10) : "");
+    setPincode("");
     setLoanAmount(
       typeof initialLoanAmount === "number" && Number.isFinite(initialLoanAmount)
         ? Math.min(
@@ -229,6 +232,7 @@ export default function PersonalLoanApplyModal({
       pan,
       mobile,
       fullName,
+      pincode,
       loanAmount,
       employmentType,
       netMonthlyIncome,
@@ -248,6 +252,7 @@ export default function PersonalLoanApplyModal({
         pan,
         mobile,
         fullName,
+        pincode,
         loanAmount,
         employmentType,
         netMonthlyIncome,
@@ -261,6 +266,7 @@ export default function PersonalLoanApplyModal({
             pan: payload.pan,
             fullName: payload.fullName,
             category: "personal_loan",
+            pincode: payload.pincode,
             requiredAmount: payload.requiredAmount,
             employmentType: payload.employmentType,
             netMonthlyIncome: payload.netMonthlyIncome,
@@ -331,7 +337,7 @@ export default function PersonalLoanApplyModal({
           }}
         >
           <div
-            className="relative flex w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-darklight"
+            className="relative flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-darklight"
             style={modalFitVars}
           >
             {isOpeningDashboard && (
@@ -430,43 +436,67 @@ export default function PersonalLoanApplyModal({
                 </div>
               </div>
 
-              <div className="shrink-0">
-                <label
-                  className="block text-sm font-medium text-midnight_text dark:text-gray-300"
-                  style={{ marginBottom: "var(--pl-label-mb)" }}
-                >
-                  Mobile Number *
-                </label>
-                <div
-                  className={`${mobileShellClass} ${lockMobile ? "opacity-90" : ""}`}
-                >
-                  <span className="flex shrink-0 items-center pl-3" aria-hidden>
-                    <IndiaFlag />
-                  </span>
-                  <span className="px-2 text-base font-semibold text-midnight_text dark:text-white">
-                    +91
-                  </span>
-                  <span className="h-6 w-px shrink-0 bg-gray-300 dark:bg-dark_border" aria-hidden />
+              <div className="grid shrink-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                <div>
+                  <label
+                    className="block text-sm font-medium text-midnight_text dark:text-gray-300"
+                    style={{ marginBottom: "var(--pl-label-mb)" }}
+                  >
+                    Mobile Number *
+                  </label>
+                  <div
+                    className={`${mobileShellClass} ${lockMobile ? "opacity-90" : ""}`}
+                  >
+                    <span className="flex shrink-0 items-center pl-3" aria-hidden>
+                      <IndiaFlag />
+                    </span>
+                    <span className="px-2 text-base font-semibold text-midnight_text dark:text-white">
+                      +91
+                    </span>
+                    <span className="h-6 w-px shrink-0 bg-gray-300 dark:bg-dark_border" aria-hidden />
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      maxLength={MOBILE_VALIDATION.MAX_LENGTH}
+                      placeholder="10-digit mobile"
+                      value={mobile}
+                      readOnly={lockMobile}
+                      disabled={lockMobile}
+                      onChange={(e) => {
+                        if (lockMobile) return;
+                        setMobile(sanitizeMobileInput(e.target.value));
+                      }}
+                      pattern="[0-9]*"
+                      className={mobileInputClass}
+                    />
+                  </div>
+                  {lockMobile ? (
+                    <p className="mt-1 text-xs text-gray">Verified mobile number</p>
+                  ) : null}
+                </div>
+                <div>
+                  <label
+                    htmlFor="hero-pl-pincode"
+                    className="block text-sm font-medium text-midnight_text dark:text-gray-300"
+                    style={{ marginBottom: "var(--pl-label-mb)" }}
+                  >
+                    Pincode *
+                  </label>
                   <input
-                    type="tel"
+                    id="hero-pl-pincode"
+                    type="text"
                     inputMode="numeric"
-                    autoComplete="tel"
-                    maxLength={MOBILE_VALIDATION.MAX_LENGTH}
-                    placeholder="10-digit mobile"
-                    value={mobile}
-                    readOnly={lockMobile}
-                    disabled={lockMobile}
-                    onChange={(e) => {
-                      if (lockMobile) return;
-                      setMobile(sanitizeMobileInput(e.target.value));
-                    }}
+                    autoComplete="postal-code"
+                    maxLength={6}
+                    placeholder="e.g. 302002"
+                    value={pincode}
+                    onChange={(e) => setPincode(sanitizeLeadPincodeInput(e.target.value))}
                     pattern="[0-9]*"
-                    className={mobileInputClass}
+                    className={inputClass}
+                    required
                   />
                 </div>
-                {lockMobile ? (
-                  <p className="mt-1 text-xs text-gray">Verified mobile number</p>
-                ) : null}
               </div>
 
               <EmploymentIncomeFields

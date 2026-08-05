@@ -23,7 +23,9 @@ import {
   INSURANCE_TYPE_OPTIONS,
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
+  sanitizeLeadPincodeInput,
   validateLeadPanNameMobile,
+  validateLeadPincode,
   type LeadFieldErrors,
 } from "@/app/utils/leadForm";
 import { sanitizeMobileInput } from "@/app/utils/validation";
@@ -86,6 +88,7 @@ export default function ServicePage({
 
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
+  const [pincode, setPincode] = useState("");
   const [loanAmount, setLoanAmount] = useState(DEFAULT_LOAN_AMOUNT);
   const [insType, setInsType] = useState("");
   const [employmentType, setEmploymentType] = useState("");
@@ -114,6 +117,7 @@ export default function ServicePage({
   const resetForm = () => {
     setFullName("");
     setMobile("");
+    setPincode("");
     setLoanAmount(DEFAULT_LOAN_AMOUNT);
     setInsType("");
     setEmploymentType("");
@@ -133,6 +137,8 @@ export default function ServicePage({
       fullName,
     });
     if (!service.trim()) errors.service = "Product could not be detected for this page";
+    const pinErr = validateLeadPincode(pincode);
+    if (pinErr) errors.pincode = pinErr;
     if (showLoanAmount) {
       Object.assign(
         errors,
@@ -140,6 +146,7 @@ export default function ServicePage({
           pan,
           mobile,
           fullName,
+          pincode,
           loanAmount,
           employmentType,
           netMonthlyIncome,
@@ -159,12 +166,14 @@ export default function ServicePage({
 
     try {
       const category = mapServiceToCategory(service);
+      const pin = pincode.replace(/\D/g, "");
       const pl =
         category === "personal_loan"
           ? personalLoanApplyPayload({
               pan,
               mobile,
               fullName,
+              pincode,
               loanAmount,
               employmentType,
               netMonthlyIncome,
@@ -174,6 +183,7 @@ export default function ServicePage({
         pan: pan.trim().toUpperCase(),
         mobileNumber: mobile.replace(/\D/g, ""),
         fullName: fullName.trim(),
+        pincode: pin,
         category,
         ...(pl
           ? {
@@ -212,7 +222,7 @@ export default function ServicePage({
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md max-w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-stretch">
-          <div className="min-w-0 flex flex-col w-full order-1 lg:order-1 lg:col-span-6 lg:justify-center" data-aos="fade-right">
+          <div className="min-w-0 flex flex-col w-full order-1 lg:order-1 lg:col-span-7 lg:justify-center" data-aos="fade-right">
             {!hideHeader && (
               <>
                 {badge && (
@@ -231,7 +241,7 @@ export default function ServicePage({
             )}
 
             <div className="bg-gradient-to-r from-primary to-[#ff7a1a] p-[1px] rounded-2xl sm:rounded-3xl shadow-xl w-full min-w-0 flex flex-col">
-              <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-4 sm:py-6 lg:py-7 px-3.5 sm:px-5 md:px-6 flex flex-1 flex-col min-h-0 min-w-0">
+              <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-4 sm:py-6 lg:py-7 px-4 sm:px-6 md:px-7 flex flex-1 flex-col min-h-0 min-w-0">
                 <div className="mb-3">
                   <h2 className="text-lg sm:text-xl font-semibold text-midnight_text dark:text-white">
                     Apply for {title}
@@ -331,28 +341,51 @@ export default function ServicePage({
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
-                      Mobile Number *
-                    </label>
-                    <div className={mobileShellClass}>
-                      <span className="flex shrink-0 items-center pl-3" aria-hidden>
-                        <IndiaFlag />
-                      </span>
-                      <span className="px-2 text-base font-semibold text-midnight_text dark:text-white">
-                        +91
-                      </span>
-                      <span className="h-6 w-px shrink-0 bg-gray-300 dark:bg-dark_border" aria-hidden />
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                    <div>
+                      <label className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                        Mobile Number *
+                      </label>
+                      <div className={mobileShellClass}>
+                        <span className="flex shrink-0 items-center pl-3" aria-hidden>
+                          <IndiaFlag />
+                        </span>
+                        <span className="px-2 text-base font-semibold text-midnight_text dark:text-white">
+                          +91
+                        </span>
+                        <span className="h-6 w-px shrink-0 bg-gray-300 dark:bg-dark_border" aria-hidden />
+                        <input
+                          type="tel"
+                          inputMode="numeric"
+                          autoComplete="tel"
+                          maxLength={MOBILE_VALIDATION.MAX_LENGTH}
+                          placeholder="10-digit mobile"
+                          value={mobile}
+                          onChange={(e) => setMobile(sanitizeMobileInput(e.target.value))}
+                          pattern="[0-9]*"
+                          className={mobileInputClass}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="service-pincode"
+                        className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                      >
+                        Pincode *
+                      </label>
                       <input
-                        type="tel"
+                        id="service-pincode"
+                        type="text"
                         inputMode="numeric"
-                        autoComplete="tel"
-                        maxLength={MOBILE_VALIDATION.MAX_LENGTH}
-                        placeholder="10-digit mobile"
-                        value={mobile}
-                        onChange={(e) => setMobile(sanitizeMobileInput(e.target.value))}
+                        autoComplete="postal-code"
+                        maxLength={6}
+                        placeholder="e.g. 302002"
+                        value={pincode}
+                        onChange={(e) => setPincode(sanitizeLeadPincodeInput(e.target.value))}
                         pattern="[0-9]*"
-                        className={mobileInputClass}
+                        className={inputClass}
+                        required
                       />
                     </div>
                   </div>
@@ -391,7 +424,7 @@ export default function ServicePage({
             </div>
           </div>
 
-          <div className="flex min-w-0 order-2 lg:order-2 w-full items-center justify-center lg:col-span-6" data-aos="fade-left">
+          <div className="flex min-w-0 order-2 lg:order-2 w-full items-center justify-center lg:col-span-5" data-aos="fade-left">
             <Image
               src={imageSrc}
               alt={title}

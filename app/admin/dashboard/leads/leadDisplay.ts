@@ -14,8 +14,10 @@ export const CATEGORIES = [
 
 export const STATUSES = [
   { value: "pending", label: "Pending" },
+  { value: "in_process", label: "In process" },
   { value: "approved", label: "Approved" },
   { value: "rejected", label: "Rejected" },
+  { value: "action_required", label: "Action required" },
 ] as const;
 
 export const VIEW_FIELDS = [
@@ -28,6 +30,8 @@ export const VIEW_FIELDS = [
   "required_amount",
   "employment_type",
   "net_monthly_income",
+  "pincode",
+  "ip",
   "is_active",
   "created_at",
   "updated_at",
@@ -44,6 +48,8 @@ export const FIELD_LABELS: Record<string, string> = {
   required_amount: "Loan amount",
   employment_type: "Employment type",
   net_monthly_income: "Net monthly income",
+  ip: "Location",
+  ip_location: "Location",
   loan_amt: "Loan amount range (legacy)",
   ins_type: "Insurance type",
   category: "Product",
@@ -68,7 +74,22 @@ export function formatCurrencyInr(value: unknown): string {
   return `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
 }
 
-export function formatValue(key: string, value: unknown): string {
+/** Admin: City, Region, Country (x.x.x.x) — location first, IP in brackets. */
+export function formatIpLocationCell(row: Pick<AdminLeadRow, "ip" | "ip_location"> | AdminLeadRow): string {
+  const ip = String(row.ip ?? "").trim();
+  const location = String(row.ip_location ?? "").trim();
+  if (!ip && !location) return "—";
+  if (location && ip) return `${location} (${ip})`;
+  if (location) return location;
+  return ip;
+}
+
+export function formatValue(key: string, value: unknown, row?: AdminLeadRow): string {
+  if (key === "ip" || key === "ip_location") {
+    if (row) return formatIpLocationCell(row);
+    if (value == null || value === "") return "—";
+    return String(value);
+  }
   if (key === "otp_verified") {
     return value === true || value === 1 || value === "true" ? "Yes" : "No";
   }

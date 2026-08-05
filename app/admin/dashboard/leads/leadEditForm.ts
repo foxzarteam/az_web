@@ -12,6 +12,7 @@ export type EditForm = {
   insType: string;
   employmentType: string;
   netMonthlyIncome: string;
+  pincode: string;
 };
 
 export function clampLoanAmount(value: unknown): number {
@@ -37,6 +38,7 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
       lead.net_monthly_income != null && lead.net_monthly_income !== ""
         ? String(lead.net_monthly_income)
         : "",
+    pincode: String(lead.pincode ?? "").replace(/\D/g, "").slice(0, 6),
   };
 }
 
@@ -51,6 +53,7 @@ export function emptyCreateForm(): EditForm {
     insType: "life_insurance",
     employmentType: "",
     netMonthlyIncome: "",
+    pincode: "",
   };
 }
 
@@ -59,11 +62,13 @@ export type FieldErrors = {
   pan?: string;
   employmentType?: string;
   netMonthlyIncome?: string;
+  pincode?: string;
 };
 
 const PHONE_PATTERN = /^[6-9]\d{9}$/;
 const PAN_PATTERN = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 const PAN_MASK_PATTERN = /^[A-Z]{5}\*{4}[A-Z]$/;
+const PINCODE_PATTERN = /^[1-9][0-9]{5}$/;
 
 export function isMaskedPanValue(value: string): boolean {
   return PAN_MASK_PATTERN.test(value.trim().toUpperCase());
@@ -79,6 +84,10 @@ export function validateLeadForm(form: EditForm, opts?: { allowMaskedPan?: boole
     // keep existing encrypted PAN
   } else if (!PAN_PATTERN.test(pan)) {
     errors.pan = "Enter a valid PAN (e.g. ABCDE1234F)";
+  }
+  const pin = form.pincode.trim();
+  if (pin && !PINCODE_PATTERN.test(pin)) {
+    errors.pincode = "Enter a valid 6-digit Indian pincode";
   }
   if (form.category === "personal_loan") {
     if (!form.employmentType) {
