@@ -1,4 +1,5 @@
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
+import { formatIpLocationDisplay } from "@/app/lib/admin/formatIpLocation";
 import {
   employmentTypeLabel,
   insuranceTypeLabel,
@@ -76,12 +77,10 @@ export function formatCurrencyInr(value: unknown): string {
 
 /** Admin: City, Region, Country (x.x.x.x) — location first, IP in brackets. */
 export function formatIpLocationCell(row: Pick<AdminLeadRow, "ip" | "ip_location"> | AdminLeadRow): string {
-  const ip = String(row.ip ?? "").trim();
-  const location = String(row.ip_location ?? "").trim();
-  if (!ip && !location) return "—";
-  if (location && ip) return `${location} (${ip})`;
-  if (location) return location;
-  return ip;
+  return formatIpLocationDisplay(
+    row.ip as string | null | undefined,
+    row.ip_location as string | null | undefined,
+  );
 }
 
 export function formatValue(key: string, value: unknown, row?: AdminLeadRow): string {
