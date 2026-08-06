@@ -85,7 +85,8 @@ html {
   }
 
   .btn-gradient {
-    background: linear-gradient(90deg, #4236FB 0%, #FF7E29 100%);
+    /* Same 2 brand colors; blue held longer so it doesn't wash into orange too early */
+    background: linear-gradient(90deg, #4236FB 0%, #4236FB 42%, #FF7E29 100%);
     color: #fff;
   }
 
@@ -99,11 +100,11 @@ html {
   }
 
   .theme-gradient-bg {
-    background: linear-gradient(90deg, #4236FB 0%, #FF7E29 100%);
+    background: linear-gradient(90deg, #4236FB 0%, #4236FB 42%, #FF7E29 100%);
   }
 
   .theme-gradient-text {
-    background: linear-gradient(90deg, #4236FB 0%, #FF7E29 100%);
+    background: linear-gradient(90deg, #4236FB 0%, #4236FB 42%, #FF7E29 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -210,7 +211,7 @@ html {
 
 @media (min-width: 768px) {
   .estate-summary-bg {
-    background: linear-gradient(90deg, #4236FB 0%, #FF7E29 100%);
+    background: linear-gradient(90deg, #4236FB 0%, #4236FB 42%, #FF7E29 100%);
   }
 }
 
@@ -225,7 +226,7 @@ html {
 
 @media (min-width: 768px) {
   .dark .estate-summary-bg {
-    background: linear-gradient(90deg, #4236FB 0%, #FF7E29 100%);
+    background: linear-gradient(90deg, #4236FB 0%, #4236FB 42%, #FF7E29 100%);
   }
 }
 
@@ -282,11 +283,11 @@ html {
 }
 
 .gradient-bg {
-  background: linear-gradient(90deg, #4236FB 0%, #FF7E29 100%);
+  background: linear-gradient(90deg, #4236FB 0%, #4236FB 42%, #FF7E29 100%);
 }
 
 .gradient-text {
-  background: linear-gradient(90deg, #4236FB 0%, #FF7E29 100%);
+  background: linear-gradient(90deg, #4236FB 0%, #4236FB 42%, #FF7E29 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

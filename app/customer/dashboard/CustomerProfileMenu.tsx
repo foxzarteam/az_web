@@ -148,7 +148,7 @@ export default function CustomerProfileMenu({
           aria-haspopup="menu"
           aria-expanded={open}
           aria-label="Profile menu"
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-sm font-bold text-white shadow-sm ring-2 ring-white transition hover:opacity-90 focus:outline-none focus-visible:ring-primary/40"
+          className="theme-gradient-bg flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm ring-2 ring-white transition hover:opacity-90 focus:outline-none focus-visible:ring-primary/40"
         >
           {initials(displayName)}
         </button>
@@ -197,7 +197,7 @@ export default function CustomerProfileMenu({
             {profile && !loading && (
               <>
                 <div className="flex items-center gap-4">
-                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-lg font-bold text-white">
+                  <span className="theme-gradient-bg flex h-14 w-14 items-center justify-center rounded-full text-lg font-bold text-white">
                     {initials(profile.name)}
                   </span>
                   <div className="min-w-0">

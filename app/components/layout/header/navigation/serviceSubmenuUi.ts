@@ -1,5 +1,6 @@
-/** Brand blue → orange for all service submenu icon tiles. */
-const BRAND_ICON_GRADIENT = "from-[#4236FB] to-[#FF7E29]";
+/** Brand blue held longer, then orange (same two hex only). */
+const BRAND_ICON_GRADIENT =
+  "from-[#4236FB] from-0% via-[#4236FB] via-[42%] to-[#FF7E29] to-100%";
 
 export const SERVICE_ICON_GRADIENTS: Record<string, string> = {
   "personal-loan": BRAND_ICON_GRADIENT,

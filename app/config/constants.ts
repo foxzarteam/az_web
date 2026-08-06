@@ -22,7 +22,7 @@ export const COLORS = {
 } as const;
 
 export const BRAND_GRADIENT =
-  "linear-gradient(90deg, #4236FB 0%, #FF7E29 100%)" as const;
+  "linear-gradient(90deg, #4236FB 0%, #4236FB 42%, #FF7E29 100%)" as const;
 
 /** Email from env; phone and address from publicEnv (display + tel/directions href). */
 export const CONTACT = {
