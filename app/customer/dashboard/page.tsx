@@ -15,7 +15,7 @@ export default async function CustomerDashboardPage() {
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      <div className="rounded-2xl border border-black/5 bg-gradient-to-r from-primary/[0.08] via-white to-[#ff7a1a]/[0.08] px-5 py-5 shadow-sm sm:px-7 sm:py-6">
+      <div className="rounded-2xl border border-black/5 bg-gradient-to-r from-primary/[0.08] via-white to-accent/[0.08] px-5 py-5 shadow-sm sm:px-7 sm:py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
           My application
         </p>

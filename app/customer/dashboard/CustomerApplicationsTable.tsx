@@ -310,7 +310,7 @@ export default function CustomerApplicationsTable({
       {viewLead && (
         <AppModal title="Application details" wide onClose={closeModals}>
           <div className="overflow-hidden">
-            <div className="border-b border-black/5 bg-gradient-to-r from-primary/[0.06] to-[#ff7a1a]/[0.06] px-5 py-4 sm:px-6">
+            <div className="border-b border-black/5 bg-gradient-to-r from-primary/[0.06] to-accent/[0.06] px-5 py-4 sm:px-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="text-xs font-medium text-gray-500">Application number</p>

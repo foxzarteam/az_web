@@ -28,7 +28,7 @@ export default async function CustomerLoginPage() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 80% 50% at 10% -10%, rgba(66,54,251,0.14), transparent), radial-gradient(ellipse 60% 40% at 100% 0%, rgba(255,122,26,0.12), transparent), linear-gradient(180deg, #faf8f5 0%, #f0ebe3 100%)",
+            "radial-gradient(ellipse 80% 50% at 10% -10%, rgba(66,54,251,0.14), transparent), radial-gradient(ellipse 60% 40% at 100% 0%, rgba(255,126,41,0.12), transparent), linear-gradient(180deg, #faf8f5 0%, #f0ebe3 100%)",
         }}
         aria-hidden
       />

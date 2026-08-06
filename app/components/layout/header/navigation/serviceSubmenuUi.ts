@@ -1,25 +1,21 @@
-import type { SubmenuItem } from "@/app/types/layout/menu";
+/** Brand blue → orange for all service submenu icon tiles. */
+const BRAND_ICON_GRADIENT = "from-[#4236FB] to-[#FF7E29]";
 
-const GRADIENT_BY_SLUG: Record<string, string> = {
-  "personal-loan": "from-[#4236FB] to-[#6B62FC]",
-  "business-loan": "from-[#4236FB] to-[#5A4DFC]",
-  "home-loan": "from-[#5A4DFC] to-[#6B62FC]",
-  "credit-card": "from-[#5A4DFC] to-[#FF7E29]",
-  insurance: "from-[#4236FB] to-[#FF7E29]",
-  "vehicle-loan": "from-[#4236FB] to-[#5A4DFC]",
+export const SERVICE_ICON_GRADIENTS: Record<string, string> = {
+  "personal-loan": BRAND_ICON_GRADIENT,
+  "business-loan": BRAND_ICON_GRADIENT,
+  "home-loan": BRAND_ICON_GRADIENT,
+  "credit-card": BRAND_ICON_GRADIENT,
+  insurance: BRAND_ICON_GRADIENT,
+  "vehicle-loan": BRAND_ICON_GRADIENT,
 };
 
-const FALLBACK_GRADIENTS = [
-  "from-[#4236FB] to-[#6B62FC]",
-  "from-[#4236FB] to-[#5A4DFC]",
-  "from-[#5A4DFC] to-[#FF7E29]",
-  "from-[#4236FB] to-[#FF7E29]",
-  "from-[#6B62FC] to-[#FF7E29]",
-  "from-[#4236FB] to-[#5A4DFC]",
-] as const;
-
-export function serviceSubmenuGradient(item: SubmenuItem, index: number): string {
-  const s = item.slug;
-  if (s && GRADIENT_BY_SLUG[s]) return GRADIENT_BY_SLUG[s];
-  return FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length];
+export function serviceSubmenuGradient(
+  item: { href?: string },
+  _index = 0,
+): string {
+  const slug = String(item.href ?? "")
+    .replace(/^\//, "")
+    .split("/")[0] || "";
+  return SERVICE_ICON_GRADIENTS[slug] ?? BRAND_ICON_GRADIENT;
 }

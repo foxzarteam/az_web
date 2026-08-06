@@ -39,7 +39,7 @@ export default function CustomerDashboardShell({
         className="pointer-events-none fixed inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 70% 45% at 0% 0%, rgba(66,54,251,0.08), transparent), radial-gradient(ellipse 50% 35% at 100% 0%, rgba(255,122,26,0.08), transparent)",
+            "radial-gradient(ellipse 70% 45% at 0% 0%, rgba(66,54,251,0.08), transparent), radial-gradient(ellipse 50% 35% at 100% 0%, rgba(255,126,41,0.08), transparent)",
         }}
         aria-hidden
       />
