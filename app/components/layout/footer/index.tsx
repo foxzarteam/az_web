@@ -42,7 +42,7 @@ export default function Footer() {
             aria-label="Apni Zaroorat home"
           >
             <Image
-              src="/favicon.png"
+              src="/favicon.webp"
               alt=""
               width={56}
               height={56}

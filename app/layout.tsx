@@ -87,9 +87,9 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [{ url: "/favicon.png", type: "image/png", sizes: "64x64" }],
-    shortcut: "/favicon.png",
-    apple: [{ url: "/images/logo/app_icon.png", sizes: "192x192", type: "image/png" }],
+    icon: [{ url: "/favicon.webp", type: "image/webp", sizes: "64x64" }],
+    shortcut: "/favicon.webp",
+    apple: [{ url: "/images/logo/app_icon.webp", sizes: "192x192", type: "image/webp" }],
   },
   manifest: "/site.webmanifest",
   other: {

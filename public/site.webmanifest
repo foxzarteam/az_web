@@ -9,14 +9,14 @@
   "lang": "en-IN",
   "icons": [
     {
-      "src": "/favicon.png",
+      "src": "/favicon.webp",
       "sizes": "64x64",
-      "type": "image/png"
+      "type": "image/webp"
     },
     {
-      "src": "/images/logo/app_icon.png",
+      "src": "/images/logo/app_icon.webp",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/webp"
     }
   ]
 }

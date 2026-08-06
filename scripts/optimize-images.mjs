@@ -28,8 +28,8 @@ const JOBS = [
   { file: "images/mobile/m2.png", maxWidth: 320, quality: 80, format: "webp" },
   { file: "images/mobile/m3.png", maxWidth: 320, quality: 80, format: "webp" },
   { file: "images/plays.png", maxWidth: 96, quality: 85, format: "webp" },
-  { file: "favicon.png", maxWidth: 64, quality: 90, format: "png" },
-  { file: "images/logo/app_icon.png", maxWidth: 192, quality: 85, format: "png" },
+  { file: "favicon.png", maxWidth: 64, quality: 90, format: "webp" },
+  { file: "images/logo/app_icon.png", maxWidth: 192, quality: 85, format: "webp" },
   { file: "city/imgi_52_hyderabad.png", maxWidth: 640, quality: 80, format: "webp" },
 ];
 
