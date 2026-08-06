@@ -20,6 +20,12 @@ function normalizeEnvValue(s: string): string {
 }
 
 /**
+ * Canonical production origin (apex, https, no www, no trailing slash).
+ * Must match GSC property + sitemap host.
+ */
+export const CANONICAL_SITE_ORIGIN = "https://apnizaroorat.com";
+
+/**
  * Lead API origin (https, no trailing slash).
  * If env is missing on static export, browser would call same-site `/api/leads` → 404 HTML → submit fails.
  * Override with NEXT_PUBLIC_API_URL when your backend URL changes.
@@ -49,24 +55,57 @@ function resolvePublicApiBaseUrl(): string {
 export const PUBLIC_API_BASE_URL = resolvePublicApiBaseUrl();
 
 /**
+ * Collapse to canonical public origin for SEO.
+ * - Force https for production domains
+ * - Strip www. so sitemap / OG / GSC stay one host
+ * - Leave localhost / Vercel preview hosts alone
+ */
+export function normalizePublicSiteUrl(raw: string): string {
+  const cleaned = trimTrailingSlashes(normalizeEnvValue(raw));
+  if (!cleaned) return cleaned;
+
+  try {
+    const withProto = /^https?:\/\//i.test(cleaned) ? cleaned : `https://${cleaned}`;
+    const u = new URL(withProto);
+    const host = u.hostname.toLowerCase();
+
+    if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".vercel.app")) {
+      return trimTrailingSlashes(`${u.protocol}//${u.host}`);
+    }
+
+    if (host === "www.apnizaroorat.com" || host === "apnizaroorat.com") {
+      return CANONICAL_SITE_ORIGIN;
+    }
+
+    const apex = host.startsWith("www.") ? host.slice(4) : host;
+    return `https://${apex}`;
+  } catch {
+    return cleaned;
+  }
+}
+
+/**
  * Canonical front-end site origin (no trailing slash).
- * Resolution order — change only env, one place:
- * 1. NEXT_PUBLIC_SITE_URL — use for custom domain / static host (recommended for production)
- * 2. VERCEL_URL — auto on Vercel builds (preview & prod deployment host)
- * 3. http://localhost:3000 — local builds
+ * Resolution order:
+ * 1. NEXT_PUBLIC_SITE_URL (normalized)
+ * 2. Production (VERCEL_ENV=production) → fixed brand apex
+ * 3. VERCEL_URL (preview)
+ * 4. localhost
  */
 function resolvePublicSiteUrl(): string {
-  const explicit = trimTrailingSlashes(
-    (process.env.NEXT_PUBLIC_SITE_URL ?? "").trim()
-  );
+  const explicit = normalizePublicSiteUrl(process.env.NEXT_PUBLIC_SITE_URL ?? "");
   if (explicit) return explicit;
+
+  if (process.env.VERCEL_ENV === "production") {
+    return CANONICAL_SITE_ORIGIN;
+  }
 
   const vercel = (process.env.VERCEL_URL ?? "").trim();
   if (vercel) {
     const origin = vercel.startsWith("http://") || vercel.startsWith("https://")
       ? vercel
       : `https://${vercel}`;
-    return trimTrailingSlashes(origin);
+    return normalizePublicSiteUrl(origin);
   }
 
   return "http://localhost:3000";

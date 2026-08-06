@@ -9,7 +9,7 @@ type SitemapEntry = {
 };
 
 /**
- * Important ranking pages first (home + product + about + contact).
+ * Indexable marketing URLs only (no auth / admin / dashboard).
  * Priorities guide crawlers; content + links still decide SERP placement.
  */
 const ROUTES: SitemapEntry[] = [
@@ -19,18 +19,16 @@ const ROUTES: SitemapEntry[] = [
   { path: "/about", changeFrequency: "weekly", priority: 0.9 },
   { path: "/contact", changeFrequency: "weekly", priority: 0.9 },
   { path: "/become-partner", changeFrequency: "weekly", priority: 0.85 },
-  { path: "/agent", changeFrequency: "weekly", priority: 0.7 },
-  { path: "/customer/login", changeFrequency: "monthly", priority: 0.45 },
+  // Sitelink candidates (deduped below)
+  ...SITELINK_PAGES.map((p) => ({
+    path: p.path,
+    changeFrequency: "weekly" as const,
+    priority: 0.88,
+  })),
   { path: "/terms-and-conditions", changeFrequency: "yearly", priority: 0.25 },
   { path: "/privacy-policy", changeFrequency: "yearly", priority: 0.25 },
   { path: "/refund-policy", changeFrequency: "yearly", priority: 0.25 },
   { path: "/disclaimer", changeFrequency: "yearly", priority: 0.25 },
-  // Any extra sitelink path not already listed
-  ...SITELINK_PAGES.map((p) => ({
-    path: p.path,
-    changeFrequency: "weekly" as const,
-    priority: 0.8,
-  })),
 ];
 
 function dedupeRoutes(routes: SitemapEntry[]): SitemapEntry[] {
@@ -46,7 +44,11 @@ function dedupeRoutes(routes: SitemapEntry[]): SitemapEntry[] {
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date();
+  // Stable-ish lastmod per day (not rebuild-second thrash for Google)
+  const now = new Date();
+  const lastModified = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  );
   const base = PUBLIC_SITE_URL.replace(/\/+$/, "");
 
   return dedupeRoutes(ROUTES).map((route) => ({

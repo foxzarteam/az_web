@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import ContactInfo from "./components/contact-info";
 import ContactForm from "./components/form";
 import Location from "./components/office-location";
-import { CONTACT } from "@/app/config/constants";
 import {
-  absoluteSeoUrl,
   breadcrumbJsonLd,
   buildPageMetadata,
   graphJsonLd,
   jsonLdScript,
+  localBusinessJsonLd,
   organizationJsonLd,
+  webPageJsonLd,
 } from "@/app/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -29,30 +29,18 @@ export const metadata: Metadata = buildPageMetadata({
 
 const structuredData = graphJsonLd(
   organizationJsonLd(),
+  localBusinessJsonLd(),
+  webPageJsonLd({
+    name: "Contact Apni Zaroorat",
+    description:
+      "Email, call, or visit Apni Zaroorat in Jaipur. Get support for personal loans, insurance, and application status.",
+    path: "/contact",
+    type: "ContactPage",
+  }),
   breadcrumbJsonLd([
     { name: "Home", path: "/" },
     { name: "Contact Us", path: "/contact" },
   ]),
-  {
-    "@type": "ContactPage",
-    name: "Contact Apni Zaroorat",
-    url: absoluteSeoUrl("/contact"),
-    mainEntity: {
-      "@type": "LocalBusiness",
-      name: "Apni Zaroorat",
-      telephone: CONTACT.PHONE_TEL,
-      email: CONTACT.EMAIL,
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: CONTACT.ADDRESS,
-        addressLocality: "Jaipur",
-        addressRegion: "Rajasthan",
-        postalCode: "302002",
-        addressCountry: "IN",
-      },
-      url: absoluteSeoUrl("/"),
-    },
-  },
 );
 
 export default function ContactPage() {

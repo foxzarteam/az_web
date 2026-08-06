@@ -43,7 +43,7 @@ export default function Footer() {
           >
             <Image
               src="/favicon.webp"
-              alt=""
+              alt="Apni Zaroorat logo"
               width={56}
               height={56}
               className="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-white/25 sm:h-14 sm:w-14"

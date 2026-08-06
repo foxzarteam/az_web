@@ -9,6 +9,7 @@ import { ServiceCardsProvider } from "@/app/components/providers/ServiceCardsPro
 import {
   DEFAULT_OG_IMAGE,
   DEFAULT_OG_IMAGE_ALT,
+  SEO_INDEXING_ENABLED,
   SITE_DEFAULT_DESCRIPTION,
   SITE_NAME,
   SITE_TAGLINE,
@@ -75,16 +76,30 @@ export const metadata: Metadata = {
     description: SITE_DEFAULT_DESCRIPTION,
     images: [DEFAULT_OG_IMAGE],
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
+  robots: SEO_INDEXING_ENABLED
+    ? {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+          "max-video-preview": -1,
+        },
+      }
+    : {
+        index: false,
+        follow: false,
+        noarchive: true,
+        googleBot: {
+          index: false,
+          follow: false,
+          noimageindex: true,
+        },
+      },
+  alternates: {
+    canonical: "/",
   },
   icons: {
     icon: [{ url: "/favicon.webp", type: "image/webp", sizes: "64x64" }],

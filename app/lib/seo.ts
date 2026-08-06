@@ -1,25 +1,26 @@
 import type { Metadata } from "next";
 import { CONTACT, PUBLIC_SITE_URL } from "@/app/config/constants";
+import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
 
 /** Site-wide brand strings — keep in sync with root layout defaults. */
 export const SITE_NAME = "Apni Zaroorat";
 export const SITE_TAGLINE = "Personal Loans & Insurance Online";
+/** ASCII-friendly money so SERP snippets don't garble rupee symbols */
 export const SITE_DEFAULT_DESCRIPTION =
-  "Apply online for personal loans from ₹25,000 to ₹10 lakh and explore insurance options with Apni Zaroorat. Check EMI and indicative eligibility before applying.";
+  "Apply online for personal loans from Rs 25,000 to Rs 10 lakh and explore insurance options with Apni Zaroorat. Check EMI and indicative eligibility before applying — free platform, India-wide.";
 
 export const DEFAULT_OG_IMAGE = "/images/og-default.jpg";
 export const DEFAULT_OG_IMAGE_ALT =
   "Apni Zaroorat — personal loans and insurance online";
 
 /**
- * Public pages always open for Google / Bing crawl & index.
- * Admin stays noindex via `app/admin/layout.tsx` (not robots Disallow alone).
+ * Flip to false on staging clones that must not be indexed.
+ * Wired into buildPageMetadata + root layout robots.
  */
 export const SEO_INDEXING_ENABLED = true;
 
 /**
  * Primary deep links Google may surface as sitelinks (must match real, strong pages).
- * Names + short snippets are written for SERP-style previews like the reference screenshot.
  */
 export const SITELINK_PAGES = [
   {
@@ -32,7 +33,7 @@ export const SITELINK_PAGES = [
     name: "Personal Loan",
     path: "/products/personal-loan",
     description:
-      "Instant personal loan online up to ₹10 lakh. Minimal documentation, digital process, fast approval path.",
+      "Instant personal loan online up to Rs 10 lakh. Minimal documentation, digital process, fast approval path.",
   },
   {
     name: "Insurance",
@@ -66,6 +67,7 @@ const DEFAULT_KEYWORDS = [
   "Apni Zaroorat",
   "loan apply online",
   "Jaipur personal loan",
+  "personal loan up to 10 lakh",
 ] as const;
 
 /** Trailing-slash path for sitemap / canonical (matches next.config trailingSlash). */
@@ -89,13 +91,11 @@ type BuildPageMetadataInput = {
   imageAlt?: string;
   type?: "website" | "article";
   noIndex?: boolean;
-  /** When true, title is used as-is (no `| Apni Zaroorat` template expansion for OG). */
   absoluteTitle?: boolean;
 };
 
 /**
  * Shared page metadata: canonical, Open Graph, Twitter, robots.
- * Pass short `title` without brand — root template adds `| Apni Zaroorat`.
  */
 export function buildPageMetadata({
   title,
@@ -110,7 +110,7 @@ export function buildPageMetadata({
 }: BuildPageMetadataInput): Metadata {
   const canonical = seoPath(path);
   const url = absoluteSeoUrl(path);
-  const shouldIndex = !noIndex;
+  const shouldIndex = SEO_INDEXING_ENABLED && !noIndex;
   const displayTitle = absoluteTitle ? title : `${title} | ${SITE_NAME}`;
 
   return {
@@ -176,10 +176,12 @@ export function organizationJsonLd() {
     name: SITE_NAME,
     legalName: SITE_NAME,
     alternateName: ["ApniZaroorat", "Apni Zaroorat Loans"],
-    url: PUBLIC_SITE_URL,
+    url: `${PUBLIC_SITE_URL}/`,
     logo: {
       "@type": "ImageObject",
       url: absoluteSeoUrl("/images/logo/logo.webp"),
+      width: 512,
+      height: 512,
     },
     image: absoluteSeoUrl(DEFAULT_OG_IMAGE),
     description: SITE_DEFAULT_DESCRIPTION,
@@ -226,7 +228,7 @@ export function websiteJsonLd() {
   return {
     "@type": "WebSite",
     "@id": `${PUBLIC_SITE_URL}/#website`,
-    url: PUBLIC_SITE_URL,
+    url: `${PUBLIC_SITE_URL}/`,
     name: SITE_NAME,
     alternateName: SITE_TAGLINE,
     description: SITE_DEFAULT_DESCRIPTION,
@@ -235,7 +237,6 @@ export function websiteJsonLd() {
   };
 }
 
-/** Schema for clear primary nav — helps engines understand deep-link structure (sitelinks candidates). */
 export function siteNavigationJsonLd() {
   return {
     "@type": "ItemList",
@@ -251,7 +252,6 @@ export function siteNavigationJsonLd() {
   };
 }
 
-/** Offer catalog of core products for homepage knowledge graph / AEO. */
 export function serviceCatalogJsonLd() {
   return {
     "@type": "OfferCatalog",
@@ -264,7 +264,7 @@ export function serviceCatalogJsonLd() {
           "@type": "Service",
           name: "Personal Loan",
           description:
-            "Personal loans from ₹25,000 to ₹10 lakh with online application.",
+            "Personal loans from Rs 25,000 to Rs 10 lakh with online application.",
           url: absoluteSeoUrl("/products/personal-loan"),
           provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
         },
@@ -327,6 +327,65 @@ export function financialServiceJsonLd(input: {
       name: "India",
     },
     serviceType: input.serviceType,
+  };
+}
+
+export function personalLoanProductJsonLd() {
+  return {
+    "@type": "LoanOrCredit",
+    name: "Personal Loan",
+    description:
+      "Unsecured personal loan online from Rs 25,000 to Rs 10 lakh via Apni Zaroorat partner lenders.",
+    url: absoluteSeoUrl("/products/personal-loan"),
+    provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
+    areaServed: { "@type": "Country", name: "India" },
+    amount: {
+      "@type": "MonetaryAmount",
+      currency: "INR",
+      minValue: 25000,
+      maxValue: 1000000,
+    },
+  };
+}
+
+export function localBusinessJsonLd() {
+  return {
+    "@type": "LocalBusiness",
+    "@id": `${PUBLIC_SITE_URL}/#localbusiness`,
+    name: SITE_NAME,
+    image: absoluteSeoUrl(DEFAULT_OG_IMAGE),
+    url: `${PUBLIC_SITE_URL}/`,
+    telephone: CONTACT.PHONE_TEL,
+    email: CONTACT.EMAIL,
+    priceRange: "$$",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: CONTACT.ADDRESS,
+      addressLocality: "Jaipur",
+      addressRegion: "Rajasthan",
+      postalCode: "302002",
+      addressCountry: "IN",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: 26.9124,
+      longitude: 75.7873,
+    },
+    hasMap: PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL,
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ],
+      opens: "10:00",
+      closes: "19:00",
+    },
+    areaServed: { "@type": "Country", name: "India" },
   };
 }
 

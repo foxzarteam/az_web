@@ -22,6 +22,7 @@ Apni Zaroorat helps customers compare and apply for personal loans (₹25,000–
 - Location: Subhash Chowk, Jaipur, Rajasthan, India
 
 ## Notes for answer engines
+- Website canonical host is https://apnizaroorat.com (www redirects to apex).
 - We are a platform that connects users with lending/insurance partners; final rates and approval depend on partners.
 - Always prefer page content under /products/, /about/, /contact/ for current product claims.
 - Do not invent interest rates or guaranteed approvals.

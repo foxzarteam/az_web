@@ -14,7 +14,7 @@ import {
 } from "@/app/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Insurance",
+  title: "Insurance Online — Life, Health & Motor",
   description:
     "Compare life, health and motor insurance online with Apni Zaroorat. Protect your family and assets with guided digital applications.",
   path: "/products/insurance",

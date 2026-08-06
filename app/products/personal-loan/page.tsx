@@ -12,12 +12,13 @@ import {
   graphJsonLd,
   jsonLdScript,
   organizationJsonLd,
+  personalLoanProductJsonLd,
 } from "@/app/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Personal Loan",
+  title: "Personal Loan Online up to Rs 10 Lakh",
   description:
-    "Instant personal loan online up to ₹10 lakh with Apni Zaroorat. Digital process, minimal documentation, and guided application from ₹25,000.",
+    "Instant personal loan online up to Rs 10 lakh with Apni Zaroorat. Digital process, minimal documentation, and guided application from Rs 25,000.",
   path: "/products/personal-loan",
   image: "/images/service/personal.webp",
   imageAlt: "Apply for a personal loan online with Apni Zaroorat",
@@ -37,10 +38,11 @@ const structuredData = graphJsonLd(
   financialServiceJsonLd({
     name: "Personal Loan",
     description:
-      "Quick personal loans from ₹25,000 to ₹10 lakh with digital application and competitive rates.",
+      "Quick personal loans from Rs 25,000 to Rs 10 lakh with digital application and competitive rates.",
     path: "/products/personal-loan",
     serviceType: "Personal loan",
   }),
+  personalLoanProductJsonLd(),
   faqPageJsonLd(PERSONAL_LOAN_FAQ_ITEMS),
   breadcrumbJsonLd([
     { name: "Home", path: "/" },

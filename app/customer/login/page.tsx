@@ -11,6 +11,7 @@ export const metadata: Metadata = buildPageMetadata({
   description:
     "Log in with your mobile number and OTP to view personal loan and insurance application status on Apni Zaroorat.",
   path: "/customer/login",
+  noIndex: true,
   keywords: [
     "loan application status",
     "check personal loan status",

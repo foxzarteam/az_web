@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
   compress: true,
   async redirects() {
     return [
+      // Host-level www → apex is handled in middleware.ts (308).
       {
         source: "/services/:path*",
         destination: "/products/:path*",
@@ -36,6 +37,17 @@ const nextConfig: NextConfig = {
       {
         source: "/products/business-loan/:path*",
         destination: "/products/personal-loan/",
+        permanent: true,
+      },
+      // Legacy soft URLs → trailing-slash product routes
+      {
+        source: "/personal-loan",
+        destination: "/products/personal-loan/",
+        permanent: true,
+      },
+      {
+        source: "/insurance",
+        destination: "/products/insurance/",
         permanent: true,
       },
     ];
