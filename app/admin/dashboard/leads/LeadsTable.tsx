@@ -19,11 +19,9 @@ import {
   categoryLabel,
   cellText,
   amountOrInsuranceText,
-  formatCurrencyInr,
   formatValue,
   isOtpVerified,
 } from "./leadDisplay";
-import { employmentTypeLabel } from "@/app/utils/leadForm";
 import {
   type EditForm,
   type FieldErrors,
@@ -285,6 +283,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         sortable: true,
         sortValue: (row) => String(row.full_name ?? ""),
         searchValue: (row) => cellText(row, "full_name"),
+        className: "min-w-[8rem] font-medium whitespace-nowrap",
         cell: (row) => cellText(row, "full_name"),
       },
       {
@@ -293,6 +292,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         sortable: true,
         sortValue: (row) => String(row.mobile_number ?? ""),
         searchValue: (row) => cellText(row, "mobile_number"),
+        className: "min-w-[8rem] whitespace-nowrap",
         cell: (row) => cellText(row, "mobile_number"),
       },
       {
@@ -301,6 +301,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         sortable: true,
         sortValue: (row) => categoryLabel(row.category),
         searchValue: (row) => cellText(row, "category"),
+        className: "min-w-[9rem] whitespace-nowrap",
         cell: (row) => (
           <span className="inline-flex rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-[#1E3A8A] dark:bg-blue-950/40 dark:text-blue-200">
             {cellText(row, "category")}
@@ -319,37 +320,8 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
           return amountOrInsuranceText(row);
         },
         searchValue: (row) => amountOrInsuranceText(row),
-        className: "max-w-[160px] truncate whitespace-nowrap",
+        className: "min-w-[8rem] whitespace-nowrap",
         cell: (row) => amountOrInsuranceText(row),
-      },
-      {
-        id: "employment_type",
-        header: "Employment",
-        sortable: true,
-        sortValue: (row) =>
-          row.employment_type ? employmentTypeLabel(String(row.employment_type)) : "",
-        searchValue: (row) =>
-          row.employment_type ? employmentTypeLabel(String(row.employment_type)) : "",
-        className: "max-w-[130px] truncate whitespace-nowrap",
-        cell: (row) =>
-          String(row.category ?? "") === "personal_loan" && row.employment_type
-            ? employmentTypeLabel(String(row.employment_type))
-            : "—",
-      },
-      {
-        id: "net_monthly_income",
-        header: "Monthly income",
-        sortable: true,
-        sortValue: (row) => {
-          const n = Number(row.net_monthly_income);
-          return Number.isFinite(n) ? n : 0;
-        },
-        searchValue: (row) => formatCurrencyInr(row.net_monthly_income),
-        className: "max-w-[140px] truncate whitespace-nowrap",
-        cell: (row) =>
-          String(row.category ?? "") === "personal_loan"
-            ? formatCurrencyInr(row.net_monthly_income)
-            : "—",
       },
       {
         id: "otp_verified",
@@ -357,6 +329,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         sortable: true,
         sortValue: (row) => (isOtpVerified(row) ? 1 : 0),
         searchValue: (row) => (isOtpVerified(row) ? "yes verified" : "no unverified"),
+        className: "min-w-[6rem] whitespace-nowrap",
         cell: (row) => {
           const verified = isOtpVerified(row);
           return (
@@ -376,6 +349,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         id: "actions",
         header: "Action",
         searchable: false,
+        className: "min-w-[8.5rem] whitespace-nowrap",
         cell: (row) => (
           <div className="flex items-center gap-1.5">
             <CrmActionButton
@@ -426,8 +400,9 @@ export default function LeadsTable({ initialLeads }: { initialLeads: AdminLeadRo
         rows={leads}
         columns={columns}
         getRowId={(row, i) => String(row.id ?? i)}
-        searchPlaceholder="Search name, phone, product, income…"
+        searchPlaceholder="Search name, phone, product…"
         emptyMessage="No leads to display."
+        comfortable
         toolbarRight={
           <button type="button" onClick={openCreate} className={ADMIN_BTN_PRIMARY}>
             Add lead

@@ -26,6 +26,8 @@ type Props<T> = {
   defaultPageSize?: number;
   toolbarLeft?: React.ReactNode;
   toolbarRight?: React.ReactNode;
+  /** Roomier cell padding for tables with fewer columns. */
+  comfortable?: boolean;
 };
 
 function compareValues(a: unknown, b: unknown): number {
@@ -63,7 +65,9 @@ export default function CrmDataTable<T>({
   defaultPageSize = 10,
   toolbarLeft,
   toolbarRight,
+  comfortable = false,
 }: Props<T>) {
+  const cellPad = comfortable ? "px-5 py-4 sm:px-6" : "px-4 py-3";
   const [query, setQuery] = useState("");
   const [sortId, setSortId] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
@@ -172,7 +176,7 @@ export default function CrmDataTable<T>({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
+        <table className={`w-full min-w-full text-left text-sm ${comfortable ? "min-w-[40rem]" : ""}`}>
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50 dark:border-dark_border dark:bg-semidark/50">
               {columns.map((col) => {
@@ -180,7 +184,7 @@ export default function CrmDataTable<T>({
                 return (
                   <th
                     key={col.id}
-                    className={`whitespace-nowrap px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-300 ${
+                    className={`${cellPad} whitespace-nowrap text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-300 ${
                       col.sortable ? "cursor-pointer select-none hover:text-[#4236FB]" : ""
                     } ${active ? "text-[#4236FB]" : ""}`}
                     onClick={() => toggleSort(col)}
@@ -200,7 +204,7 @@ export default function CrmDataTable<T>({
           <tbody className="divide-y divide-slate-100 dark:divide-dark_border">
             {pageRows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-12 text-center text-slate-500 dark:text-gray-400">
+                <td colSpan={columns.length} className={`${cellPad} py-12 text-center text-slate-500 dark:text-gray-400`}>
                   {emptyMessage}
                 </td>
               </tr>
@@ -213,7 +217,7 @@ export default function CrmDataTable<T>({
                   {columns.map((col) => (
                     <td
                       key={col.id}
-                      className={`px-4 py-3 text-slate-700 dark:text-gray-200 ${col.className ?? "whitespace-nowrap"}`}
+                      className={`${cellPad} text-slate-700 dark:text-gray-200 ${col.className ?? "whitespace-nowrap"}`}
                     >
                       {col.cell(row)}
                     </td>
