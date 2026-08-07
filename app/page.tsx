@@ -3,13 +3,8 @@ import dynamic from "next/dynamic";
 import JsonLd from "@/app/components/seo/JsonLd";
 import {
   buildPageMetadata,
-  breadcrumbJsonLd,
   faqPageJsonLd,
-  graphJsonLd,
-  organizationJsonLd,
-  serviceCatalogJsonLd,
-  siteNavigationJsonLd,
-  websiteJsonLd,
+  pageSeoGlue,
   SITE_NAME,
   SITE_TAGLINE,
   SITE_DEFAULT_DESCRIPTION,
@@ -44,14 +39,14 @@ export const metadata: Metadata = {
   }),
 };
 
-const structuredData = graphJsonLd(
-  organizationJsonLd(),
-  websiteJsonLd(),
-  siteNavigationJsonLd(),
-  serviceCatalogJsonLd(),
-  faqPageJsonLd(FAQ_ITEMS),
-  breadcrumbJsonLd([{ name: "Home", path: "/" }]),
-);
+const structuredData = pageSeoGlue({
+  name: `${SITE_NAME} | ${SITE_TAGLINE}`,
+  description: SITE_DEFAULT_DESCRIPTION,
+  path: "/",
+  includeServiceCatalog: true,
+  includeLocalBusiness: true,
+  extra: [faqPageJsonLd(FAQ_ITEMS, "/")],
+});
 
 export default function Home() {
   return (

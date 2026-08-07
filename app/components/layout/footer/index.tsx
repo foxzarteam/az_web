@@ -13,7 +13,7 @@ const linkClass =
 
 const TOOL_LINKS = [
   { href: "/#emi-calculator", label: "EMI Calculator" },
-  { href: "/#eligibility-calculator", label: "Eligibility Checker" },
+  { href: "/#eligibility-calculator", label: "Check Eligibility" },
 ] as const;
 
 const LEGAL_LINKS = [
@@ -81,18 +81,8 @@ export default function Footer() {
             <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Quick Links</h4>
             <ul className="space-y-0.5">
               <li>
-                <Link href="/about/" className={linkClass}>
-                  About Company
-                </Link>
-              </li>
-              <li>
                 <Link href="/products/personal-loan/" className={linkClass}>
-                  Personal Loan
-                </Link>
-              </li>
-              <li>
-                <Link href="/products/insurance/" className={linkClass}>
-                  Insurance
+                  Products
                 </Link>
               </li>
               <li>
@@ -102,7 +92,22 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/become-partner/" className={linkClass}>
-                  Become a Partner
+                  Partner
+                </Link>
+              </li>
+              <li>
+                <Link href="/#eligibility-calculator" className={linkClass}>
+                  Check Eligibility
+                </Link>
+              </li>
+              <li>
+                <Link href="/about/" className={linkClass}>
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link href="/products/insurance/" className={linkClass}>
+                  Insurance
                 </Link>
               </li>
             </ul>

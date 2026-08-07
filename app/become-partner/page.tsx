@@ -1,22 +1,19 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
+import JsonLd from "@/app/components/seo/JsonLd";
 import PartnerBenefits from "./components/partner-benefits";
 import ThreeSteps from "./components/three-steps";
-import {
-  absoluteSeoUrl,
-  breadcrumbJsonLd,
-  buildPageMetadata,
-  graphJsonLd,
-  jsonLdScript,
-  organizationJsonLd,
-} from "@/app/lib/seo";
+import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
 
 const IndiaMap = dynamic(() => import("./components/india-map"));
 
+const PAGE_NAME = "Become a Partner — Loans & Insurance";
+const PAGE_DESC =
+  "Join Apni Zaroorat as a partner and earn by distributing personal loans and insurance. Digital tools, India-wide reach, and a trusted financial platform.";
+
 export const metadata: Metadata = buildPageMetadata({
-  title: "Become a Partner",
-  description:
-    "Partner with Apni Zaroorat to distribute personal loans and insurance and grow your business with a trusted financial platform.",
+  title: PAGE_NAME,
+  description: PAGE_DESC,
   path: "/become-partner",
   keywords: [
     "loan partner",
@@ -27,28 +24,17 @@ export const metadata: Metadata = buildPageMetadata({
   ],
 });
 
-const structuredData = graphJsonLd(
-  organizationJsonLd(),
-  breadcrumbJsonLd([
-    { name: "Home", path: "/" },
-    { name: "Become a Partner", path: "/become-partner" },
-  ]),
-  {
-    "@type": "WebPage",
-    name: "Become a Partner | Apni Zaroorat",
-    description:
-      "Partner with Apni Zaroorat to sell personal loans and insurance and grow your earnings.",
-    url: absoluteSeoUrl("/become-partner"),
-  },
-);
+const structuredData = pageSeoGlue({
+  name: PAGE_NAME,
+  description: PAGE_DESC,
+  path: "/become-partner",
+  includeServiceCatalog: true,
+});
 
 export default function BecomePartnerPage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScript(structuredData) }}
-      />
+      <JsonLd data={structuredData} />
       <div className="partner-hero-shine pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 theme-gradient-bg px-4 sm:px-6">
         <div className="relative z-[1] container mx-auto lg:max-w-screen-xl md:max-w-screen-md">
           <h1

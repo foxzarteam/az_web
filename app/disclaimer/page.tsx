@@ -1,11 +1,21 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { buildPageMetadata } from "@/app/lib/seo";
+import JsonLd from "@/app/components/seo/JsonLd";
+import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
+
+const PAGE_NAME = "Disclaimer — Loan & Insurance Platform";
+const PAGE_DESC =
+  "Apni Zaroorat disclaimer: platform role, no guarantee of loan or insurance approval, illustrative tools, and limits of liability.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Disclaimer",
-  description:
-    "Disclaimer for Apni Zaroorat — platform role, no approval guarantee, tools, and liability limits.",
+  title: PAGE_NAME,
+  description: PAGE_DESC,
+  path: "/disclaimer",
+});
+
+const structuredData = pageSeoGlue({
+  name: PAGE_NAME,
+  description: PAGE_DESC,
   path: "/disclaimer",
 });
 
@@ -27,6 +37,7 @@ function Section({
 export default function DisclaimerPage() {
   return (
     <>
+      <JsonLd data={structuredData} />
       <div className="pt-24 sm:pt-28 md:pt-32 pb-6 sm:pb-8 theme-gradient-bg px-4 sm:px-6">
         <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md">
           <div className="mx-auto max-w-3xl text-center">

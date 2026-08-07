@@ -3,20 +3,21 @@ import ServicePage from "@/app/components/services/ServicePage";
 import HowItWorks from "@/app/components/products/insurance/HowItWorks";
 import FaqSection from "@/app/components/home/faq";
 import { INSURANCE_FAQ_ITEMS } from "@/app/components/home/faq/faq-data";
+import JsonLd from "@/app/components/seo/JsonLd";
 import {
-  breadcrumbJsonLd,
   buildPageMetadata,
   faqPageJsonLd,
   financialServiceJsonLd,
-  graphJsonLd,
-  jsonLdScript,
-  organizationJsonLd,
+  pageSeoGlue,
 } from "@/app/lib/seo";
 
+const PAGE_NAME = "Insurance Online — Life, Health & Motor Plans";
+const PAGE_DESC =
+  "Compare and apply for life, health and motor insurance online with Apni Zaroorat. Guided digital applications to protect family, health, and vehicles.";
+
 export const metadata: Metadata = buildPageMetadata({
-  title: "Insurance Online — Life, Health & Motor",
-  description:
-    "Compare life, health and motor insurance online with Apni Zaroorat. Protect your family and assets with guided digital applications.",
+  title: PAGE_NAME,
+  description: PAGE_DESC,
   path: "/products/insurance",
   image: "/images/service/insurance.webp",
   imageAlt: "Insurance plans with Apni Zaroorat",
@@ -30,29 +31,33 @@ export const metadata: Metadata = buildPageMetadata({
   ],
 });
 
-const structuredData = graphJsonLd(
-  organizationJsonLd(),
-  financialServiceJsonLd({
-    name: "Insurance",
-    description:
-      "Compare and apply for life, health and other insurance covers with Apni Zaroorat.",
-    path: "/products/insurance",
-    serviceType: "Insurance",
-  }),
-  faqPageJsonLd(INSURANCE_FAQ_ITEMS),
-  breadcrumbJsonLd([
+const structuredData = pageSeoGlue({
+  name: PAGE_NAME,
+  description: PAGE_DESC,
+  path: "/products/insurance",
+  image: "/images/service/insurance.webp",
+  includeServiceCatalog: true,
+  crumbs: [
     { name: "Home", path: "/" },
+    { name: "Products", path: "/products/insurance" },
     { name: "Insurance", path: "/products/insurance" },
-  ]),
-);
+  ],
+  extra: [
+    financialServiceJsonLd({
+      name: "Insurance",
+      description:
+        "Compare and apply for life, health and other insurance covers with Apni Zaroorat.",
+      path: "/products/insurance",
+      serviceType: "Insurance",
+    }),
+    faqPageJsonLd(INSURANCE_FAQ_ITEMS, "/products/insurance"),
+  ],
+});
 
 export default function InsurancePage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScript(structuredData) }}
-      />
+      <JsonLd data={structuredData} />
       <section className="pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 text-white px-4 sm:px-6 theme-gradient-bg">
         <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md max-w-full">
           <div className="max-w-3xl mx-auto text-center">

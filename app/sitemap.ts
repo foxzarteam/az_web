@@ -16,9 +16,9 @@ const ROUTES: SitemapEntry[] = [
   { path: "/", changeFrequency: "daily", priority: 1 },
   { path: "/products/personal-loan", changeFrequency: "daily", priority: 0.98 },
   { path: "/products/insurance", changeFrequency: "daily", priority: 0.97 },
+  { path: "/contact", changeFrequency: "weekly", priority: 0.92 },
+  { path: "/become-partner", changeFrequency: "weekly", priority: 0.91 },
   { path: "/about", changeFrequency: "weekly", priority: 0.9 },
-  { path: "/contact", changeFrequency: "weekly", priority: 0.9 },
-  { path: "/become-partner", changeFrequency: "weekly", priority: 0.85 },
   // Sitelink candidates (deduped below)
   ...SITELINK_PAGES.map((p) => ({
     path: p.path,

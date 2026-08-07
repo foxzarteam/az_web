@@ -1,13 +1,7 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
-import {
-  absoluteSeoUrl,
-  breadcrumbJsonLd,
-  buildPageMetadata,
-  graphJsonLd,
-  jsonLdScript,
-  organizationJsonLd,
-} from "@/app/lib/seo";
+import JsonLd from "@/app/components/seo/JsonLd";
+import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
 
 import CityLoansSlider from "./components/city-loans-slider";
 import AboutIntro from "./components/about-intro";
@@ -16,10 +10,13 @@ import CtaBanner from "./components/cta-banner";
 
 const Features = dynamic(() => import("../components/shared/features"));
 
+const PAGE_NAME = "About Apni Zaroorat — Loans & Insurance Partner";
+const PAGE_DESC =
+  "Learn about Apni Zaroorat: helping customers across India apply for personal loans and insurance with a secure digital process and transparent support.";
+
 export const metadata: Metadata = buildPageMetadata({
-  title: "About Company",
-  description:
-    "Apni Zaroorat is your trusted partner for personal loans and insurance — secure, transparent digital process, and support for customers across India.",
+  title: PAGE_NAME,
+  description: PAGE_DESC,
   path: "/about",
   image: "/images/hero/about.webp",
   imageAlt: "About Apni Zaroorat — simplifying your loan journey",
@@ -31,31 +28,19 @@ export const metadata: Metadata = buildPageMetadata({
   ],
 });
 
-const org = organizationJsonLd();
-
-const structuredData = graphJsonLd(
-  org,
-  breadcrumbJsonLd([
-    { name: "Home", path: "/" },
-    { name: "About Us", path: "/about" },
-  ]),
-  {
-    "@type": "AboutPage",
-    name: "About Apni Zaroorat",
-    description:
-      "Apni Zaroorat connects customers with trusted lending and insurance partners across India.",
-    url: absoluteSeoUrl("/about"),
-    mainEntity: { "@id": org["@id"] },
-  },
-);
+const structuredData = pageSeoGlue({
+  name: PAGE_NAME,
+  description: PAGE_DESC,
+  path: "/about",
+  pageType: "AboutPage",
+  image: "/images/hero/about.webp",
+  includeServiceCatalog: true,
+});
 
 export default function AboutPage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScript(structuredData) }}
-      />
+      <JsonLd data={structuredData} />
       <div className="pt-24 sm:pt-28 md:pt-32 pb-6 sm:pb-8 theme-gradient-bg px-4 sm:px-6">
         <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md">
           <div className="max-w-3xl mx-auto text-center">

@@ -1,11 +1,21 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { buildPageMetadata } from "@/app/lib/seo";
+import JsonLd from "@/app/components/seo/JsonLd";
+import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
+
+const PAGE_NAME = "Privacy Policy — Data Protection";
+const PAGE_DESC =
+  "How Apni Zaroorat collects, uses, stores, and protects your personal data when you apply for loans, insurance, or use our online tools.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Privacy Policy",
-  description:
-    "Privacy policy for Apni Zaroorat — how we collect, use, store, and protect your data.",
+  title: PAGE_NAME,
+  description: PAGE_DESC,
+  path: "/privacy-policy",
+});
+
+const structuredData = pageSeoGlue({
+  name: PAGE_NAME,
+  description: PAGE_DESC,
   path: "/privacy-policy",
 });
 
@@ -27,6 +37,7 @@ function Section({
 export default function PrivacyPolicyPage() {
   return (
     <>
+      <JsonLd data={structuredData} />
       <div className="pt-24 sm:pt-28 md:pt-32 pb-6 sm:pb-8 theme-gradient-bg px-4 sm:px-6">
         <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md">
           <div className="mx-auto max-w-3xl text-center">

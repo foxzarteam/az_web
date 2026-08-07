@@ -4,21 +4,22 @@ import HowItWorks from "@/app/components/products/personal-loan/HowItWorks";
 import FaqSection from "@/app/components/home/faq";
 import { PERSONAL_LOAN_FAQ_ITEMS } from "@/app/components/home/faq/faq-data";
 import CtaBanner from "@/app/about/components/cta-banner";
+import JsonLd from "@/app/components/seo/JsonLd";
 import {
-  breadcrumbJsonLd,
   buildPageMetadata,
   faqPageJsonLd,
   financialServiceJsonLd,
-  graphJsonLd,
-  jsonLdScript,
-  organizationJsonLd,
+  pageSeoGlue,
   personalLoanProductJsonLd,
 } from "@/app/lib/seo";
 
+const PAGE_NAME = "Personal Loan Online up to Rs 10 Lakh";
+const PAGE_DESC =
+  "Apply for a personal loan online from Rs 25,000 to Rs 10 lakh with Apni Zaroorat. Minimal documentation, digital process, EMI tools, and fast guided applications.";
+
 export const metadata: Metadata = buildPageMetadata({
-  title: "Personal Loan Online up to Rs 10 Lakh",
-  description:
-    "Instant personal loan online up to Rs 10 lakh with Apni Zaroorat. Digital process, minimal documentation, and guided application from Rs 25,000.",
+  title: PAGE_NAME,
+  description: PAGE_DESC,
   path: "/products/personal-loan",
   image: "/images/service/personal.webp",
   imageAlt: "Apply for a personal loan online with Apni Zaroorat",
@@ -33,30 +34,34 @@ export const metadata: Metadata = buildPageMetadata({
   ],
 });
 
-const structuredData = graphJsonLd(
-  organizationJsonLd(),
-  financialServiceJsonLd({
-    name: "Personal Loan",
-    description:
-      "Quick personal loans from Rs 25,000 to Rs 10 lakh with digital application and competitive rates.",
-    path: "/products/personal-loan",
-    serviceType: "Personal loan",
-  }),
-  personalLoanProductJsonLd(),
-  faqPageJsonLd(PERSONAL_LOAN_FAQ_ITEMS),
-  breadcrumbJsonLd([
+const structuredData = pageSeoGlue({
+  name: PAGE_NAME,
+  description: PAGE_DESC,
+  path: "/products/personal-loan",
+  image: "/images/service/personal.webp",
+  includeServiceCatalog: true,
+  crumbs: [
     { name: "Home", path: "/" },
+    { name: "Products", path: "/products/personal-loan" },
     { name: "Personal Loan", path: "/products/personal-loan" },
-  ]),
-);
+  ],
+  extra: [
+    financialServiceJsonLd({
+      name: "Personal Loan",
+      description:
+        "Quick personal loans from Rs 25,000 to Rs 10 lakh with digital application and competitive rates.",
+      path: "/products/personal-loan",
+      serviceType: "Personal loan",
+    }),
+    personalLoanProductJsonLd(),
+    faqPageJsonLd(PERSONAL_LOAN_FAQ_ITEMS, "/products/personal-loan"),
+  ],
+});
 
 export default function PersonalLoanPage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScript(structuredData) }}
-      />
+      <JsonLd data={structuredData} />
       <section className="pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 text-white theme-gradient-bg">
         <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md max-w-full">
           <div className="max-w-3xl mx-auto text-center">

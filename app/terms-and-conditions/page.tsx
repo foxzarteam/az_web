@@ -1,11 +1,22 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { buildPageMetadata } from "@/app/lib/seo";
+import JsonLd from "@/app/components/seo/JsonLd";
+import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
+
+const PAGE_NAME = "Terms and Conditions — Platform Use";
+const PAGE_DESC =
+  "Read Apni Zaroorat terms and conditions for using our personal loan and insurance platform, applications, calculators, and partner services.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Terms and Conditions",
-  description: "Terms of use for Apni Zaroorat personal loan and insurance products.",
+  title: PAGE_NAME,
+  description: PAGE_DESC,
+  path: "/terms-and-conditions",
+});
+
+const structuredData = pageSeoGlue({
+  name: PAGE_NAME,
+  description: PAGE_DESC,
   path: "/terms-and-conditions",
 });
 
@@ -27,6 +38,7 @@ function Section({
 export default function TermsAndConditionsPage() {
   return (
     <>
+      <JsonLd data={structuredData} />
       <div className="pt-24 sm:pt-28 md:pt-32 pb-6 sm:pb-8 theme-gradient-bg px-4 sm:px-6">
         <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md">
           <div className="mx-auto max-w-3xl text-center">
