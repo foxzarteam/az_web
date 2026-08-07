@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import JsonLd from "@/app/components/seo/JsonLd";
-import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
+import { ABOUT_KEYWORDS, buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
 
 import CityLoansSlider from "./components/city-loans-slider";
 import AboutIntro from "./components/about-intro";
@@ -10,26 +10,22 @@ import CtaBanner from "./components/cta-banner";
 
 const Features = dynamic(() => import("../components/shared/features"));
 
-const PAGE_NAME = "About Apni Zaroorat — Loans & Insurance Partner";
+const PAGE_TITLE = "About Apni Zaroorat | Personal Loans & Insurance";
 const PAGE_DESC =
-  "Learn about Apni Zaroorat: helping customers across India apply for personal loans and insurance with a secure digital process and transparent support.";
+  "About Apni Zaroorat — a trusted platform helping customers across India apply for personal loans and insurance with a secure, transparent digital process.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: PAGE_NAME,
+  title: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/about",
+  absoluteTitle: true,
   image: "/images/hero/about.webp",
   imageAlt: "About Apni Zaroorat — simplifying your loan journey",
-  keywords: [
-    "About Apni Zaroorat",
-    "Apni Zaroorat company",
-    "personal loan partner India",
-    "insurance partner Jaipur",
-  ],
+  keywords: [...ABOUT_KEYWORDS],
 });
 
 const structuredData = pageSeoGlue({
-  name: PAGE_NAME,
+  name: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/about",
   pageType: "AboutPage",

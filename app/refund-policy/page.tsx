@@ -1,20 +1,27 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import JsonLd from "@/app/components/seo/JsonLd";
-import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
+import { buildPageMetadata, LEGAL_KEYWORDS, pageSeoGlue } from "@/app/lib/seo";
 
-const PAGE_NAME = "Refund & Cancellation Policy";
+const PAGE_TITLE = "Refund & Cancellation Policy | Apni Zaroorat";
 const PAGE_DESC =
-  "Apni Zaroorat refund and cancellation policy for personal loan and insurance applications submitted through our free platform.";
+  "Refund and cancellation policy for Apni Zaroorat personal loan and insurance applications submitted through our platform.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: PAGE_NAME,
+  title: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/refund-policy",
+  absoluteTitle: true,
+  keywords: [
+    ...LEGAL_KEYWORDS,
+    "refund policy",
+    "cancellation policy",
+    "loan application refund",
+  ],
 });
 
 const structuredData = pageSeoGlue({
-  name: PAGE_NAME,
+  name: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/refund-policy",
 });

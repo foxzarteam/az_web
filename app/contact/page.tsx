@@ -3,29 +3,28 @@ import JsonLd from "@/app/components/seo/JsonLd";
 import ContactInfo from "./components/contact-info";
 import ContactForm from "./components/form";
 import Location from "./components/office-location";
-import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
+import {
+  buildPageMetadata,
+  CONTACT_KEYWORDS,
+  pageSeoGlue,
+} from "@/app/lib/seo";
 
-const PAGE_NAME = "Contact Apni Zaroorat — India Support";
+const PAGE_TITLE = "Contact Apni Zaroorat | Loan & Insurance Support";
 const PAGE_DESC =
-  "Call, email, or reach Apni Zaroorat for personal loan, insurance, partner queries, and application support anywhere in India. Office support available from Jaipur.";
+  "Contact Apni Zaroorat for personal loan and insurance support across India. Call, email, or write to us for applications, partners, and customer queries.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: PAGE_NAME,
+  title: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/contact",
+  absoluteTitle: true,
   image: "/images/contact-page/contact.webp",
   imageAlt: "Contact Apni Zaroorat",
-  keywords: [
-    "contact Apni Zaroorat",
-    "personal loan support India",
-    "insurance helpline India",
-    "Apni Zaroorat phone",
-    "loan customer support",
-  ],
+  keywords: [...CONTACT_KEYWORDS],
 });
 
 const structuredData = pageSeoGlue({
-  name: PAGE_NAME,
+  name: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/contact",
   pageType: "ContactPage",

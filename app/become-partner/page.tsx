@@ -3,29 +3,28 @@ import dynamic from "next/dynamic";
 import JsonLd from "@/app/components/seo/JsonLd";
 import PartnerBenefits from "./components/partner-benefits";
 import ThreeSteps from "./components/three-steps";
-import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
+import {
+  buildPageMetadata,
+  PARTNER_KEYWORDS,
+  pageSeoGlue,
+} from "@/app/lib/seo";
 
 const IndiaMap = dynamic(() => import("./components/india-map"));
 
-const PAGE_NAME = "Become a Partner — Loans & Insurance";
+const PAGE_TITLE = "Become a Partner | Loan & Insurance Partner Program";
 const PAGE_DESC =
-  "Join Apni Zaroorat as a partner and earn by distributing personal loans and insurance. Digital tools, India-wide reach, and a trusted financial platform.";
+  "Join the Apni Zaroorat partner program. Distribute personal loans and insurance, earn commission, and grow your business with digital tools and India-wide support.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: PAGE_NAME,
+  title: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/become-partner",
-  keywords: [
-    "loan partner",
-    "insurance partner",
-    "become DSA partner",
-    "Apni Zaroorat partner",
-    "earn with loans",
-  ],
+  absoluteTitle: true,
+  keywords: [...PARTNER_KEYWORDS],
 });
 
 const structuredData = pageSeoGlue({
-  name: PAGE_NAME,
+  name: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/become-partner",
   includeServiceCatalog: true,

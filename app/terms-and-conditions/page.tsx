@@ -2,20 +2,27 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import JsonLd from "@/app/components/seo/JsonLd";
-import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
+import { buildPageMetadata, LEGAL_KEYWORDS, pageSeoGlue } from "@/app/lib/seo";
 
-const PAGE_NAME = "Terms and Conditions — Platform Use";
+const PAGE_TITLE = "Terms & Conditions | Apni Zaroorat";
 const PAGE_DESC =
-  "Read Apni Zaroorat terms and conditions for using our personal loan and insurance platform, applications, calculators, and partner services.";
+  "Terms and conditions for using Apni Zaroorat personal loan and insurance services, online tools, and partner platform.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: PAGE_NAME,
+  title: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/terms-and-conditions",
+  absoluteTitle: true,
+  keywords: [
+    ...LEGAL_KEYWORDS,
+    "terms and conditions",
+    "Apni Zaroorat terms of use",
+    "loan platform terms",
+  ],
 });
 
 const structuredData = pageSeoGlue({
-  name: PAGE_NAME,
+  name: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/terms-and-conditions",
 });

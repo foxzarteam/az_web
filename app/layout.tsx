@@ -7,6 +7,7 @@ import { PUBLIC_SITE_URL } from "@/app/config/constants";
 import { getActiveServices } from "@/app/data/getActiveServices";
 import { ServiceCardsProvider } from "@/app/components/providers/ServiceCardsProvider";
 import {
+  DEFAULT_KEYWORDS,
   DEFAULT_OG_IMAGE,
   DEFAULT_OG_IMAGE_ALT,
   SEO_INDEXING_ENABLED,
@@ -46,14 +47,7 @@ export const metadata: Metadata = {
   creator: SITE_NAME,
   publisher: SITE_NAME,
   category: "finance",
-  keywords: [
-    "personal loan online",
-    "personal loan EMI calculator",
-    "personal loan eligibility",
-    "instant personal loan",
-    "insurance online",
-    "Apni Zaroorat",
-  ],
+  keywords: [...DEFAULT_KEYWORDS],
   openGraph: {
     type: "website",
     locale: "en_IN",

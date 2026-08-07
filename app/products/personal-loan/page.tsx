@@ -11,31 +11,25 @@ import {
   financialServiceJsonLd,
   pageSeoGlue,
   personalLoanProductJsonLd,
+  PERSONAL_LOAN_KEYWORDS,
 } from "@/app/lib/seo";
 
-const PAGE_NAME = "Personal Loan Online up to Rs 10 Lakh";
+const PAGE_TITLE = "Personal Loan Online | Check Eligibility & Apply | Apni Zaroorat";
 const PAGE_DESC =
-  "Apply for a personal loan online from Rs 25,000 to Rs 10 lakh with Apni Zaroorat. Minimal documentation, digital process, EMI tools, and fast guided applications.";
+  "Apply for a personal loan online with Apni Zaroorat. Check eligibility, estimate EMI, and start a digital application easily.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: PAGE_NAME,
+  title: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/products/personal-loan",
+  absoluteTitle: true,
   image: "/images/service/personal.webp",
   imageAlt: "Apply for a personal loan online with Apni Zaroorat",
-  keywords: [
-    "personal loan online",
-    "instant personal loan",
-    "personal loan India",
-    "personal loan eligibility",
-    "low interest personal loan",
-    "Apni Zaroorat personal loan",
-    "personal loan Jaipur",
-  ],
+  keywords: [...PERSONAL_LOAN_KEYWORDS],
 });
 
 const structuredData = pageSeoGlue({
-  name: PAGE_NAME,
+  name: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/products/personal-loan",
   image: "/images/service/personal.webp",

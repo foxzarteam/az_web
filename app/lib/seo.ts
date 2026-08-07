@@ -55,19 +55,134 @@ export const SITELINK_PAGES = [
   },
 ] as const;
 
-const DEFAULT_KEYWORDS = [
+/** Core brand signals merged into every page’s meta keywords. */
+export const BRAND_KEYWORDS = [
+  "Apni Zaroorat",
+  "apnizaroorat",
+  "Apni Zaroorat personal loan",
+  "Apni Zaroorat insurance",
+] as const;
+
+/** Default / home keywords when page does not override. */
+export const DEFAULT_KEYWORDS = [
+  ...BRAND_KEYWORDS,
   "personal loan online",
   "personal loan India",
-  "personal loan EMI calculator",
-  "personal loan eligibility",
+  "apply personal loan online",
   "instant personal loan",
-  "insurance online",
-  "life insurance",
-  "health insurance",
-  "Apni Zaroorat",
-  "loan apply online",
-  "Jaipur personal loan",
+  "personal loan eligibility",
+  "personal loan EMI calculator",
+  "loan eligibility check",
   "personal loan up to 10 lakh",
+  "insurance online India",
+  "life insurance online",
+  "health insurance online",
+  "motor insurance online",
+  "loan and insurance online",
+  "financial solutions India",
+] as const;
+
+export const HOME_KEYWORDS = [
+  ...DEFAULT_KEYWORDS,
+  "personal loan apply online",
+  "check loan eligibility free",
+  "EMI calculator India",
+  "online loan application India",
+  "best personal loan platform",
+] as const;
+
+export const PERSONAL_LOAN_KEYWORDS = [
+  ...BRAND_KEYWORDS,
+  "personal loan online",
+  "personal loan apply online",
+  "instant personal loan",
+  "quick personal loan",
+  "personal loan India",
+  "personal loan eligibility",
+  "check personal loan eligibility",
+  "personal loan EMI calculator",
+  "unsecured personal loan",
+  "personal loan without collateral",
+  "personal loan up to 10 lakh",
+  "personal loan Rs 25000",
+  "low interest personal loan",
+  "digital personal loan",
+  "online personal loan application",
+  "personal loan for salaried",
+  "personal loan for self employed",
+  "personal loan Jaipur",
+  "personal loan Rajasthan",
+] as const;
+
+export const INSURANCE_KEYWORDS = [
+  ...BRAND_KEYWORDS,
+  "insurance online",
+  "insurance online India",
+  "life insurance online",
+  "health insurance online",
+  "motor insurance online",
+  "car insurance online",
+  "bike insurance online",
+  "term life insurance",
+  "family health insurance",
+  "compare insurance plans",
+  "buy insurance online",
+  "insurance apply online",
+  "Apni Zaroorat insurance",
+] as const;
+
+export const ABOUT_KEYWORDS = [
+  ...BRAND_KEYWORDS,
+  "about Apni Zaroorat",
+  "Apni Zaroorat company",
+  "personal loans and insurance partner",
+  "loan platform India",
+  "insurance platform India",
+  "trusted loan partner India",
+  "financial services India",
+] as const;
+
+export const CONTACT_KEYWORDS = [
+  ...BRAND_KEYWORDS,
+  "contact Apni Zaroorat",
+  "loan customer support India",
+  "insurance helpline India",
+  "personal loan support",
+  "Apni Zaroorat phone",
+  "Apni Zaroorat email",
+  "loan application help",
+  "customer care loan",
+] as const;
+
+export const PARTNER_KEYWORDS = [
+  ...BRAND_KEYWORDS,
+  "become loan partner",
+  "become insurance partner",
+  "DSA partner India",
+  "loan agent partner",
+  "insurance partner program",
+  "earn with personal loans",
+  "financial product partner",
+  "loan distribution partner",
+  "Apni Zaroorat partner",
+  "partner program India",
+] as const;
+
+export const LEGAL_KEYWORDS = [
+  ...BRAND_KEYWORDS,
+  "Apni Zaroorat terms",
+  "Apni Zaroorat privacy",
+  "personal loan platform policy",
+  "insurance platform policy",
+] as const;
+
+export const CUSTOMER_LOGIN_KEYWORDS = [
+  ...BRAND_KEYWORDS,
+  "check personal loan status",
+  "loan application status",
+  "insurance application status",
+  "Apni Zaroorat login",
+  "track loan application",
 ] as const;
 
 /** Trailing-slash path for sitemap / canonical (matches next.config trailingSlash). */
@@ -114,7 +229,7 @@ export function buildPageMetadata({
   const shouldIndex = SEO_INDEXING_ENABLED && !noIndex;
   const displayTitle = absoluteTitle ? title : `${title} | ${SITE_NAME}`;
   const mergedKeywords = Array.from(
-    new Set([...keywords, SITE_NAME, "Apni Zaroorat personal loan"]),
+    new Set([...keywords, ...BRAND_KEYWORDS, SITE_NAME]),
   );
 
   return {

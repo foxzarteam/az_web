@@ -9,30 +9,26 @@ import {
   faqPageJsonLd,
   financialServiceJsonLd,
   pageSeoGlue,
+  INSURANCE_KEYWORDS,
 } from "@/app/lib/seo";
 
-const PAGE_NAME = "Insurance Online — Life, Health & Motor Plans";
+const PAGE_TITLE =
+  "Insurance Online | Life, Health & Motor Insurance | Apni Zaroorat";
 const PAGE_DESC =
-  "Compare and apply for life, health and motor insurance online with Apni Zaroorat. Guided digital applications to protect family, health, and vehicles.";
+  "Compare and apply for life, health and motor insurance online with Apni Zaroorat. Find suitable cover and complete a guided digital application.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: PAGE_NAME,
+  title: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/products/insurance",
+  absoluteTitle: true,
   image: "/images/service/insurance.webp",
   imageAlt: "Insurance plans with Apni Zaroorat",
-  keywords: [
-    "insurance online",
-    "life insurance",
-    "health insurance",
-    "motor insurance",
-    "insurance plans India",
-    "Apni Zaroorat insurance",
-  ],
+  keywords: [...INSURANCE_KEYWORDS],
 });
 
 const structuredData = pageSeoGlue({
-  name: PAGE_NAME,
+  name: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/products/insurance",
   image: "/images/service/insurance.webp",

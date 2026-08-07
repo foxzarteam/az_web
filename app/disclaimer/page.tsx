@@ -1,20 +1,27 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import JsonLd from "@/app/components/seo/JsonLd";
-import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
+import { buildPageMetadata, LEGAL_KEYWORDS, pageSeoGlue } from "@/app/lib/seo";
 
-const PAGE_NAME = "Disclaimer — Loan & Insurance Platform";
+const PAGE_TITLE = "Disclaimer | Apni Zaroorat Loan & Insurance Platform";
 const PAGE_DESC =
-  "Apni Zaroorat disclaimer: platform role, no guarantee of loan or insurance approval, illustrative tools, and limits of liability.";
+  "Disclaimer for Apni Zaroorat loan and insurance platform — platform role, no approval guarantee, illustrative tools, and liability limits.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: PAGE_NAME,
+  title: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/disclaimer",
+  absoluteTitle: true,
+  keywords: [
+    ...LEGAL_KEYWORDS,
+    "disclaimer",
+    "loan platform disclaimer",
+    "insurance platform disclaimer",
+  ],
 });
 
 const structuredData = pageSeoGlue({
-  name: PAGE_NAME,
+  name: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/disclaimer",
 });

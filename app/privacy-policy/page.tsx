@@ -1,20 +1,27 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import JsonLd from "@/app/components/seo/JsonLd";
-import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
+import { buildPageMetadata, LEGAL_KEYWORDS, pageSeoGlue } from "@/app/lib/seo";
 
-const PAGE_NAME = "Privacy Policy — Data Protection";
+const PAGE_TITLE = "Privacy Policy | Apni Zaroorat";
 const PAGE_DESC =
-  "How Apni Zaroorat collects, uses, stores, and protects your personal data when you apply for loans, insurance, or use our online tools.";
+  "Privacy policy for Apni Zaroorat — how we collect, use, store, and protect your data when you apply for loans, insurance, or use our platform.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: PAGE_NAME,
+  title: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/privacy-policy",
+  absoluteTitle: true,
+  keywords: [
+    ...LEGAL_KEYWORDS,
+    "privacy policy",
+    "Apni Zaroorat data privacy",
+    "loan application data protection",
+  ],
 });
 
 const structuredData = pageSeoGlue({
-  name: PAGE_NAME,
+  name: PAGE_TITLE,
   description: PAGE_DESC,
   path: "/privacy-policy",
 });

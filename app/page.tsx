@@ -8,6 +8,7 @@ import {
   SITE_NAME,
   SITE_TAGLINE,
   SITE_DEFAULT_DESCRIPTION,
+  HOME_KEYWORDS,
 } from "@/app/lib/seo";
 import Hero from "./components/home/hero";
 import HomeDisclaimerBanner from "./components/home/HomeDisclaimerBanner";
@@ -26,16 +27,7 @@ export const metadata: Metadata = {
     description: SITE_DEFAULT_DESCRIPTION,
     path: "/",
     absoluteTitle: true,
-    keywords: [
-      "personal loan online",
-      "personal loan India",
-      "EMI calculator",
-      "loan eligibility check",
-      "insurance online",
-      "Apni Zaroorat",
-      "instant personal loan",
-      "Jaipur personal loan",
-    ],
+    keywords: [...HOME_KEYWORDS],
   }),
 };
 
