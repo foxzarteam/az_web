@@ -96,18 +96,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/#eligibility-calculator" className={linkClass}>
-                  Check Eligibility
-                </Link>
-              </li>
-              <li>
                 <Link href="/about/" className={linkClass}>
                   About Us
-                </Link>
-              </li>
-              <li>
-                <Link href="/products/insurance/" className={linkClass}>
-                  Insurance
                 </Link>
               </li>
             </ul>
