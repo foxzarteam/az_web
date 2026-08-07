@@ -4,10 +4,9 @@ import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
 
 /** Site-wide brand strings — keep in sync with root layout defaults. */
 export const SITE_NAME = "Apni Zaroorat";
-export const SITE_TAGLINE = "Personal Loans & Insurance Online";
-/** ASCII-friendly money so SERP snippets don't garble rupee symbols */
+export const SITE_TAGLINE = "Personal Loan & Insurance Online";
 export const SITE_DEFAULT_DESCRIPTION =
-  "Apply online for personal loans from Rs 25,000 to Rs 10 lakh and explore insurance options with Apni Zaroorat. Check EMI and indicative eligibility before applying — free platform, India-wide.";
+  "Apply for a personal loan online and explore insurance options with Apni Zaroorat. Check loan eligibility, calculate EMI and find suitable financial solutions online.";
 
 export const DEFAULT_OG_IMAGE = "/images/og-default.jpg";
 export const DEFAULT_OG_IMAGE_ALT =
