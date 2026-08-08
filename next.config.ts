@@ -112,7 +112,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=3600, s-maxage=3600",
+            value: "public, max-age=0, s-maxage=300, must-revalidate",
           },
         ],
       },
@@ -121,7 +121,89 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=3600, s-maxage=3600",
+            value: "public, max-age=0, s-maxage=300, must-revalidate",
+          },
+        ],
+      },
+      // Public HTML docs: short CDN TTL so new titles/meta appear after deploy
+      {
+        source: "/",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, s-maxage=300, stale-while-revalidate=600",
+          },
+        ],
+      },
+      {
+        source: "/about/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, s-maxage=300, stale-while-revalidate=600",
+          },
+        ],
+      },
+      {
+        source: "/contact/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, s-maxage=300, stale-while-revalidate=600",
+          },
+        ],
+      },
+      {
+        source: "/become-partner/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, s-maxage=300, stale-while-revalidate=600",
+          },
+        ],
+      },
+      {
+        source: "/products/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, s-maxage=300, stale-while-revalidate=600",
+          },
+        ],
+      },
+      {
+        source: "/terms-and-conditions/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, s-maxage=300, stale-while-revalidate=600",
+          },
+        ],
+      },
+      {
+        source: "/privacy-policy/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, s-maxage=300, stale-while-revalidate=600",
+          },
+        ],
+      },
+      {
+        source: "/refund-policy/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, s-maxage=300, stale-while-revalidate=600",
+          },
+        ],
+      },
+      {
+        source: "/disclaimer/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, s-maxage=300, stale-while-revalidate=600",
           },
         ],
       },

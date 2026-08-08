@@ -2,30 +2,38 @@ import type { MetadataRoute } from "next";
 import { PUBLIC_SITE_URL } from "@/app/config/constants";
 
 /**
- * Open marketing crawl. Private app surfaces blocked.
+ * Open marketing crawl. Private / non-index pages blocked.
  * Host + sitemap use canonical PUBLIC_SITE_URL (apex in production).
  */
 export default function robots(): MetadataRoute.Robots {
   const base = PUBLIC_SITE_URL.replace(/\/+$/, "");
+
+  const disallow = [
+    "/admin/",
+    "/admin",
+    "/api/",
+    "/customer/",
+    "/customer",
+    "/agent/",
+    "/agent",
+  ];
 
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
-        disallow: [
-          "/admin/",
-          "/admin",
-          "/api/",
-          "/customer/",
-          "/customer",
-        ],
+        disallow,
       },
       {
-        // Google still receives full public page access
         userAgent: "Googlebot",
         allow: "/",
-        disallow: ["/admin/", "/api/", "/customer/"],
+        disallow,
+      },
+      {
+        userAgent: "Googlebot-Image",
+        allow: "/",
+        disallow,
       },
     ],
     sitemap: `${base}/sitemap.xml`,

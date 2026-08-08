@@ -2,11 +2,34 @@ import type { Metadata } from "next";
 import { CONTACT, PUBLIC_SITE_URL } from "@/app/config/constants";
 import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
 
+/**
+ * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
+ * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
+ */
+export const SEO_CONTENT_VERSION = "2026-08-08";
+
+/**
+ * All Google-indexable marketing URLs (no admin / api / customer / agent).
+ * Keep in sync with page.tsx metadata (noIndex: false).
+ */
+export const INDEXABLE_ROUTES = [
+  { path: "/", changeFrequency: "daily" as const, priority: 1 },
+  { path: "/products/personal-loan", changeFrequency: "daily" as const, priority: 0.98 },
+  { path: "/products/insurance", changeFrequency: "daily" as const, priority: 0.97 },
+  { path: "/about", changeFrequency: "weekly" as const, priority: 0.92 },
+  { path: "/contact", changeFrequency: "weekly" as const, priority: 0.92 },
+  { path: "/become-partner", changeFrequency: "weekly" as const, priority: 0.9 },
+  { path: "/terms-and-conditions", changeFrequency: "monthly" as const, priority: 0.35 },
+  { path: "/privacy-policy", changeFrequency: "monthly" as const, priority: 0.35 },
+  { path: "/refund-policy", changeFrequency: "monthly" as const, priority: 0.3 },
+  { path: "/disclaimer", changeFrequency: "monthly" as const, priority: 0.3 },
+] as const;
+
 /** Site-wide brand strings — keep in sync with root layout defaults. */
 export const SITE_NAME = "Apni Zaroorat";
 export const SITE_TAGLINE = "Apply for Personal Loans & Insurance Online";
 export const SITE_DEFAULT_DESCRIPTION =
-  "Apply for a personal loan online and explore insurance options with Apni Zaroorat. Check loan eligibility, calculate EMI and find suitable financial solutions online.";
+  "Apni Zaroorat makes it easy to apply for personal loans and insurance online with a secure process, quick support, and minimal documentation. Check your loan eligibility, calculate EMI, and find suitable financial solutions online.";
 
 export const DEFAULT_OG_IMAGE = "/images/og-default.jpg";
 export const DEFAULT_OG_IMAGE_ALT =
@@ -611,7 +634,7 @@ export function webPageJsonLd(input: {
       url: absoluteSeoUrl(image),
     },
     inLanguage: "en-IN",
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: SEO_CONTENT_VERSION,
   };
 }
 

@@ -33,7 +33,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "why-choose-apni-zaroorat",
     question: "Why should I choose Apni Zaroorat?",
     answer:
-      "Apni Zaroorat makes it easy to apply for personal loans and insurance online — with a secure process, quick support, and trusted partners. Whether you need funds or protection, we help you complete your application from one simple place.",
+      "Apni Zaroorat makes it easy to apply for personal loans and insurance online with a secure process, quick support, and minimal documentation. Check your loan eligibility, calculate EMI, and find suitable financial solutions online — all from one simple place.",
   },
 ];
 
