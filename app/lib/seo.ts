@@ -6,7 +6,7 @@ import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-08-08";
+export const SEO_CONTENT_VERSION = "2026-08-12";
 
 /**
  * All Google-indexable marketing URLs (no admin / api / customer / agent).
@@ -16,6 +16,8 @@ export const INDEXABLE_ROUTES = [
   { path: "/", changeFrequency: "daily" as const, priority: 1 },
   { path: "/products/personal-loan", changeFrequency: "daily" as const, priority: 0.98 },
   { path: "/products/insurance", changeFrequency: "daily" as const, priority: 0.97 },
+  { path: "/check-eligibility", changeFrequency: "daily" as const, priority: 0.96 },
+  { path: "/emi-calculator", changeFrequency: "daily" as const, priority: 0.96 },
   { path: "/about", changeFrequency: "weekly" as const, priority: 0.92 },
   { path: "/contact", changeFrequency: "weekly" as const, priority: 0.92 },
   { path: "/become-partner", changeFrequency: "weekly" as const, priority: 0.9 },
@@ -28,12 +30,16 @@ export const INDEXABLE_ROUTES = [
 /** Site-wide brand strings — keep in sync with root layout defaults. */
 export const SITE_NAME = "Apni Zaroorat";
 export const SITE_TAGLINE = "Apply for Personal Loans & Insurance Online";
+/**
+ * Home / default meta. “A to Z finance” = brand bridge (Apni → Zaroorat).
+ * Use only on flagship surfaces (home, about, schema) — not every page title.
+ */
 export const SITE_DEFAULT_DESCRIPTION =
-  "Apni Zaroorat makes it easy to apply for personal loans and insurance online with a secure process, quick support, and minimal documentation. Check your loan eligibility, calculate EMI, and find suitable financial solutions online.";
+  "Apni Zaroorat offers A to Z finance solutions in India. Apply online for personal loans & insurance with minimal documentation, fast approval, and secure processing.";
 
 export const DEFAULT_OG_IMAGE = "/images/og-default.jpg";
 export const DEFAULT_OG_IMAGE_ALT =
-  "Apni Zaroorat — personal loans and insurance online";
+  "Apni Zaroorat — A to Z finance solutions for personal loans and insurance";
 
 /**
  * Flip to false on staging clones that must not be indexed.
@@ -51,6 +57,18 @@ export const SITELINK_PAGES = [
     path: "/products/personal-loan",
     description:
       "Personal loans and insurance products online — apply with Apni Zaroorat in minutes.",
+  },
+  {
+    name: "Check Eligibility",
+    path: "/check-eligibility",
+    description:
+      "Free personal loan eligibility check online — no credit score impact.",
+  },
+  {
+    name: "EMI Calculator",
+    path: "/emi-calculator",
+    description:
+      "Free personal loan EMI calculator — monthly EMI, interest, and total repayment.",
   },
   {
     name: "Contact Us",
@@ -74,14 +92,21 @@ export const SITELINK_PAGES = [
     name: "About Us",
     path: "/about",
     description:
-      "Know Apni Zaroorat — trusted partner for personal loans and insurance across India.",
+      "Know Apni Zaroorat — A to Z finance partner for personal loans and insurance in India.",
   },
 ] as const;
 
-/** Core brand signals merged into every page’s meta keywords. */
+/**
+ * Brand signals (merged site-wide in meta keywords + useful for brand search).
+ * Keep short — avoid stuffing full keyword lists into body copy / every H1.
+ */
 export const BRAND_KEYWORDS = [
   "Apni Zaroorat",
   "apnizaroorat",
+  "A to Z finance",
+  "A to Z finance solution",
+  "A to Z finance solutions",
+  "AtoZ finance",
   "Apni Zaroorat personal loan",
   "Apni Zaroorat insurance",
 ] as const;
@@ -112,6 +137,8 @@ export const HOME_KEYWORDS = [
   "EMI calculator India",
   "online loan application India",
   "best personal loan platform",
+  "A to Z personal loan India",
+  "A to Z insurance solution",
 ] as const;
 
 export const PERSONAL_LOAN_KEYWORDS = [
@@ -135,6 +162,34 @@ export const PERSONAL_LOAN_KEYWORDS = [
   "personal loan for self employed",
   "personal loan Jaipur",
   "personal loan Rajasthan",
+] as const;
+
+export const ELIGIBILITY_KEYWORDS = [
+  ...BRAND_KEYWORDS,
+  "personal loan eligibility",
+  "check personal loan eligibility",
+  "loan eligibility check",
+  "check loan eligibility free",
+  "personal loan eligibility calculator",
+  "loan eligibility online India",
+  "am I eligible for personal loan",
+  "personal loan eligibility criteria",
+  "salary personal loan eligibility",
+  "self employed personal loan eligibility",
+] as const;
+
+export const EMI_KEYWORDS = [
+  ...BRAND_KEYWORDS,
+  "personal loan EMI calculator",
+  "EMI calculator online",
+  "loan EMI calculator India",
+  "personal loan EMI calculator free",
+  "calculate personal loan EMI",
+  "EMI calculator reducing balance",
+  "monthly EMI calculator",
+  "loan interest calculator",
+  "personal loan repayment calculator",
+  "EMI calculator Apni Zaroorat",
 ] as const;
 
 export const INSURANCE_KEYWORDS = [
@@ -163,6 +218,7 @@ export const ABOUT_KEYWORDS = [
   "insurance platform India",
   "trusted loan partner India",
   "financial services India",
+  "A to Z finance solutions India",
 ] as const;
 
 export const CONTACT_KEYWORDS = [
@@ -342,6 +398,9 @@ export function organizationJsonLd() {
       "ApniZaroorat",
       "Apni Zaroorat Loans",
       "apnizaroorat.com",
+      "A to Z finance",
+      "A to Z finance solutions",
+      "AtoZ finance",
     ],
     url: `${PUBLIC_SITE_URL}/`,
     logo: {
@@ -407,6 +466,8 @@ export function organizationJsonLd() {
       "Life insurance",
       "Health insurance",
       "Motor insurance",
+      "A to Z finance",
+      "A to Z finance solutions",
     ],
     hasOfferCatalog: { "@id": `${PUBLIC_SITE_URL}/#services` },
     sameAs: [] as string[],
@@ -419,7 +480,12 @@ export function websiteJsonLd() {
     "@id": `${PUBLIC_SITE_URL}/#website`,
     url: `${PUBLIC_SITE_URL}/`,
     name: SITE_NAME,
-    alternateName: [SITE_TAGLINE, "apnizaroorat.com"],
+    alternateName: [
+      SITE_TAGLINE,
+      "apnizaroorat.com",
+      "A to Z finance",
+      "A to Z finance solutions",
+    ],
     description: SITE_DEFAULT_DESCRIPTION,
     publisher: { "@id": `${PUBLIC_SITE_URL}/#organization` },
     inLanguage: ["en-IN", "hi-IN"],

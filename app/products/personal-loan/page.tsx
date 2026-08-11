@@ -14,9 +14,9 @@ import {
   PERSONAL_LOAN_KEYWORDS,
 } from "@/app/lib/seo";
 
-const PAGE_TITLE = "Personal Loan Online | Check Eligibility & Apply | Apni Zaroorat";
+const PAGE_TITLE = "Personal Loan Online up to ₹10 Lakh | Apply | Apni Zaroorat";
 const PAGE_DESC =
-  "Apply for a personal loan online with Apni Zaroorat. Check eligibility, estimate EMI, and start a digital application easily.";
+  "Apply for a personal loan online up to ₹10 lakh with Apni Zaroorat. Check eligibility, estimate EMI, and start a digital application easily.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: PAGE_TITLE,
@@ -89,7 +89,7 @@ export default function PersonalLoanPage() {
         description="Share a few details and we’ll help you move forward — a quick, simple, and secure process."
         primaryHref="#apply"
         primaryLabel="Apply Now"
-        secondaryHref="/#eligibility-calculator"
+        secondaryHref="/check-eligibility/"
         secondaryLabel="Check Eligibility"
       />
     </>

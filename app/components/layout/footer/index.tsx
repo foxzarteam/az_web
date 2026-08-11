@@ -12,8 +12,8 @@ const linkClass =
   "flex min-h-[36px] items-center py-1 text-sm text-gray hover:text-white sm:text-base";
 
 const TOOL_LINKS = [
-  { href: "/#emi-calculator", label: "EMI Calculator" },
-  { href: "/#eligibility-calculator", label: "Check Eligibility" },
+  { href: "/emi-calculator/", label: "EMI Calculator" },
+  { href: "/check-eligibility/", label: "Check Eligibility" },
 ] as const;
 
 const LEGAL_LINKS = [

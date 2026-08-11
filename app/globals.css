@@ -420,38 +420,9 @@ html {
   animation-play-state: paused;
 }
 
-/* Home disclaimer ticker — keep OUT of <section> (global section has huge py-*) */
+/* Home disclaimer ticker — styles live on HomeDisclaimerBanner (inline) so this is a no-op fallback */
 .disclaimer-banner {
-  height: 38px !important;
-  max-height: 38px !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  margin: 0 !important;
-}
-
-@keyframes disclaimer-marquee-rtl {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  100% {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-
-.disclaimer-marquee-track {
-  animation: disclaimer-marquee-rtl 45s linear infinite;
-  will-change: transform;
-}
-
-.disclaimer-marquee-track:hover {
-  animation-play-state: paused;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .disclaimer-marquee-track {
-    animation: none;
-    transform: none;
-  }
+  display: block;
 }
 
 @media (prefers-reduced-motion: reduce) {

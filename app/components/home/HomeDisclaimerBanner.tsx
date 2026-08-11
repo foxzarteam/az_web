@@ -1,44 +1,89 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 
 const DISCLAIMER_TEXT =
   "⚠️ Disclaimer: Apni Zaroorat is a completely free platform. We NEVER ask for advance payments, cash deposits, or upfront fees. Beware of fraudsters.";
 
-/**
- * Slim yellow ticker above footer.
- * Must NOT use <section> — globals.css applies huge py-* to every section.
- */
+const bannerStyle: CSSProperties = {
+  width: "100%",
+  height: 40,
+  maxHeight: 40,
+  margin: 0,
+  padding: 0,
+  overflow: "hidden",
+  backgroundColor: "#fef08a",
+  borderTop: "1px solid #f59e0b",
+  borderBottom: "1px solid #f59e0b",
+  position: "relative",
+  zIndex: 1,
+};
+
+const trackStyle: CSSProperties = {
+  display: "flex",
+  width: "max-content",
+  height: 40,
+  alignItems: "center",
+  flexWrap: "nowrap",
+  animation: "az-disclaimer-scroll 40s linear infinite",
+};
+
+const groupStyle: CSSProperties = {
+  display: "flex",
+  flexShrink: 0,
+  alignItems: "center",
+  height: 40,
+  flexWrap: "nowrap",
+};
+
+const itemStyle: CSSProperties = {
+  display: "inline-flex",
+  flexShrink: 0,
+  alignItems: "center",
+  height: 40,
+  padding: "0 24px",
+  whiteSpace: "nowrap",
+  fontSize: 13,
+  fontWeight: 600,
+  lineHeight: "40px",
+  color: "#78350f",
+  overflowWrap: "normal",
+  wordBreak: "keep-all",
+};
+
+/** Slim yellow ticker above footer. Styles are inline so global CSS cannot break it. */
 export default function HomeDisclaimerBanner() {
-  const chunk = (
-    <span className="inline-flex shrink-0 items-center whitespace-nowrap px-6 text-[13px] font-semibold leading-none text-[#78350f] sm:text-sm">
+  const item = (
+    <span style={itemStyle}>
       {DISCLAIMER_TEXT}
-      <span className="mx-6 text-[#b45309]" aria-hidden>
+      <span style={{ marginLeft: 24, color: "#b45309" }} aria-hidden>
         •
       </span>
     </span>
   );
 
+  const group = (
+    <div style={groupStyle}>
+      {item}
+      {item}
+      {item}
+    </div>
+  );
+
   return (
-    <div
-      role="note"
-      aria-label="Fraud disclaimer"
-      className="disclaimer-banner relative z-[1] w-full overflow-hidden border-y border-[#f59e0b] bg-[#fef08a] !py-0"
-      style={{ height: 38, maxHeight: 38, paddingTop: 0, paddingBottom: 0 }}
-    >
+    <div style={bannerStyle} role="note" aria-label="Fraud disclaimer">
+      <style>{`
+        @keyframes az-disclaimer-scroll {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+      `}</style>
       <p className="sr-only">
         {DISCLAIMER_TEXT}{" "}
         <Link href="/disclaimer/">Read full disclaimer</Link>
       </p>
-      <div
-        className="flex h-full items-center overflow-hidden"
-        style={{ height: 38 }}
-        aria-hidden
-      >
-        <div className="disclaimer-marquee-track flex h-full w-max flex-nowrap items-center">
-          {chunk}
-          {chunk}
-          {chunk}
-          {chunk}
-        </div>
+      <div style={trackStyle} aria-hidden>
+        {group}
+        {group}
       </div>
     </div>
   );

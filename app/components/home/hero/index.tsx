@@ -3,8 +3,8 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import Link from "next/link";
 import { DEFAULT_IMAGES } from "@/app/config/constants";
-import { scrollToElement } from "@/app/utils/scroll";
 import HeroFeatureIcons from "./HeroFeatureIcons";
 import HeroTrustStrip from "./HeroTrustStrip";
 
@@ -58,13 +58,12 @@ export default function Hero() {
                   <path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
-              <button
-                type="button"
-                onClick={() => scrollToElement("eligibility-calculator")}
+              <Link
+                href="/check-eligibility/"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-primary/30 bg-white px-6 py-3.5 text-sm font-bold text-primary transition duration-300 hover:border-primary hover:bg-primary/5 dark:bg-darklight dark:text-white sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 Check Eligibility
-              </button>
+              </Link>
             </div>
 
             {applyModalMounted && (

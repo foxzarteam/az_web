@@ -33,7 +33,49 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "why-choose-apni-zaroorat",
     question: "Why should I choose Apni Zaroorat?",
     answer:
-      "Apni Zaroorat makes it easy to apply for personal loans and insurance online with a secure process, quick support, and minimal documentation. Check your loan eligibility, calculate EMI, and find suitable financial solutions online — all from one simple place.",
+      "Apni Zaroorat is an A to Z finance solution for personal loans and insurance online — secure process, quick support, and minimal documentation. Check eligibility, calculate EMI, and find suitable solutions from one simple place.",
+  },
+];
+
+export const ELIGIBILITY_FAQ_ITEMS: FaqItem[] = [
+  {
+    id: "eligibility-credit-score",
+    question: "Does checking eligibility affect my credit score?",
+    answer:
+      "No. Our online eligibility check is an indicative tool only. It does not pull a hard credit enquiry from your bureau report, so using this calculator will not impact your credit score.",
+  },
+  {
+    id: "eligibility-what-needed",
+    question: "What details do I need to check personal loan eligibility?",
+    answer:
+      "You only need your monthly income, employment type (salaried or self-employed), and any existing EMI amount. In under a minute you get an indicative score and chance based on income comfort and EMI burden.",
+  },
+  {
+    id: "eligibility-who-qualifies",
+    question: "Who is generally eligible for a personal loan?",
+    answer:
+      "Salaried and self-employed individuals who meet partner lenders’ criteria can apply. Factors usually include stable income, manageable existing EMIs, age, and credit profile. Final approval always depends on the lender’s verification — our tool is a free first check only.",
+  },
+];
+
+export const EMI_FAQ_ITEMS: FaqItem[] = [
+  {
+    id: "emi-how-calculated",
+    question: "How is personal loan EMI calculated?",
+    answer:
+      "EMI is calculated on a reducing balance basis. Your monthly payment depends on the loan amount (principal), annual interest rate, and tenure in years. As you repay, interest is charged only on the remaining principal, which is the method most lenders use for personal loans.",
+  },
+  {
+    id: "emi-what-affects",
+    question: "What factors change my monthly EMI?",
+    answer:
+      "Higher loan amount or interest rate increases EMI. Longer tenure lowers monthly EMI but usually means more total interest over the full term. Use the calculator to compare combinations of amount, rate, and years before you apply.",
+  },
+  {
+    id: "emi-indicative-only",
+    question: "Is this EMI calculator the final loan amount I’ll pay?",
+    answer:
+      "No. This tool shows an indicative EMI only. Actual rate, tenure, fees, and monthly amount depend on the lender, your credit profile, and final sanction terms. Always check the offer documents before accepting a personal loan.",
   },
 ];
 

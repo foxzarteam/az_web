@@ -15,7 +15,7 @@ export default function CtaBanner({
   description = "Apply for a personal loan and get closer to your dreams.",
   primaryHref = "/products/personal-loan",
   primaryLabel = "Apply for Personal Loan",
-  secondaryHref = "/#emi-calculator",
+  secondaryHref = "/emi-calculator/",
   secondaryLabel = "Calculate EMI",
 }: CtaBannerProps) {
   return (

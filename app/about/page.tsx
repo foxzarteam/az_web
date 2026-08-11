@@ -12,7 +12,7 @@ const Features = dynamic(() => import("../components/shared/features"));
 
 const PAGE_TITLE = "About Apni Zaroorat | Personal Loans & Insurance";
 const PAGE_DESC =
-  "About Apni Zaroorat — a trusted platform helping customers across India apply for personal loans and insurance with a secure, transparent digital process.";
+  "About Apni Zaroorat — A to Z finance solutions for personal loans and insurance across India, with a secure and transparent digital process.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: PAGE_TITLE,
