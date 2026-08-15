@@ -7,15 +7,37 @@ export default function Location() {
       <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 lg:grid-cols-9 gap-4 sm:gap-6 md:gap-7 border-b border-solid border-white border-opacity-50 pb-8 sm:pb-11">
           <div className="sm:col-span-2 md:col-span-3">
-            <h2 className="text-white text-xl xs:text-2xl sm:text-3xl md:text-4xl leading-[1.2] font-bold">Apni Zaroorat</h2>
+            <h2 className="text-white text-xl xs:text-2xl sm:text-3xl md:text-4xl leading-[1.2] font-bold">
+              Apni Zaroorat
+            </h2>
           </div>
           <div className="sm:col-span-2 md:col-span-3 min-w-0">
-            <Link href={`mailto:${CONTACT.EMAIL}`} className="text-base sm:text-lg md:text-xl text-white font-medium underline block mb-2 break-all">
+            <Link
+              href={`mailto:${CONTACT.EMAIL}`}
+              className="text-base sm:text-lg md:text-xl text-white font-medium underline block mb-2 break-all"
+            >
               {CONTACT.EMAIL}
             </Link>
-            <Link href={`tel:${CONTACT.PHONE_TEL}`} className="text-base sm:text-lg md:text-xl text-white text-opacity-80 flex items-center gap-2 hover:text-opacity-100 w-fit">
+            <Link
+              href={`tel:${CONTACT.PHONE_TEL}`}
+              className="text-base sm:text-lg md:text-xl text-white text-opacity-80 flex items-center gap-2 hover:text-opacity-100 w-fit"
+            >
               <span className="text-white text-opacity-60">Call</span>
               {CONTACT.PHONE}
+            </Link>
+          </div>
+          <div className="sm:col-span-2 md:col-span-3 flex flex-col items-start sm:items-end justify-center gap-2 min-w-0">
+            <Link
+              href="/products/personal-loan/"
+              className="text-sm sm:text-base text-white/90 font-medium hover:text-white hover:underline underline-offset-4"
+            >
+              Personal Loan
+            </Link>
+            <Link
+              href="/products/insurance/"
+              className="text-sm sm:text-base text-white/90 font-medium hover:text-white hover:underline underline-offset-4"
+            >
+              Insurance
             </Link>
           </div>
         </div>

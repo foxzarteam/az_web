@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 
 const FEATURES = [
   {
@@ -82,26 +81,6 @@ export default function AboutIntro() {
               Apni Zaroorat is a digital platform that connects you with trusted
               lending partners to help you get the right personal loan with
               ease, transparency and security.
-            </p>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-gray sm:text-base">
-              Customers can{" "}
-              <Link
-                href="/check-eligibility/"
-                className="font-semibold text-primary hover:underline"
-              >
-                check personal loan eligibility
-              </Link>
-              , compare repayment amounts with our{" "}
-              <Link
-                href="/emi-calculator/"
-                className="font-semibold text-primary hover:underline"
-              >
-                EMI calculator
-              </Link>
-              , and apply online. We also help customers explore life, health,
-              and motor insurance options through our partner network. Final
-              approval, rates, and policy terms come from the relevant lender
-              or insurer.
             </p>
 
             <div className="mt-6 flex flex-nowrap items-start gap-1.5 sm:mt-8 sm:gap-2.5">

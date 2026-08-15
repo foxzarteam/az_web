@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import JsonLd from "@/app/components/seo/JsonLd";
 import ContactInfo from "./components/contact-info";
 import ContactForm from "./components/form";
@@ -53,40 +52,6 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
-      <section
-        className="bg-white px-4 py-8 dark:bg-darkmode sm:px-6 sm:py-10"
-        aria-labelledby="contact-support-heading"
-      >
-        <div className="container mx-auto max-w-3xl text-center">
-          <h2
-            id="contact-support-heading"
-            className="text-xl font-bold text-midnight_text dark:text-white sm:text-2xl"
-          >
-            Help with loans, insurance, and applications
-          </h2>
-          <p className="mt-3 text-sm leading-relaxed text-gray dark:text-gray-400 sm:text-base">
-            Contact Apni Zaroorat for help with a personal loan or insurance
-            application, document requirements, eligibility questions, or partner
-            enquiries. Include your registered mobile number when asking about an
-            existing application, but never send an OTP, banking password, UPI PIN, or
-            card security code. You can review our{" "}
-            <Link
-              href="/products/personal-loan/"
-              className="font-semibold text-primary hover:underline"
-            >
-              personal loan service
-            </Link>
-            , explore{" "}
-            <Link
-              href="/products/insurance/"
-              className="font-semibold text-primary hover:underline"
-            >
-              insurance options
-            </Link>
-            , or use the form below to send a query.
-          </p>
-        </div>
-      </section>
       <ContactForm />
       <ContactInfo />
       <Location />

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import CtaBanner from "@/app/about/components/cta-banner";
 import EligibilityCalculator from "@/app/components/home/eligibility-calculator";
 import FaqSection from "@/app/components/home/faq";
@@ -58,37 +57,6 @@ export default function CheckEligibilityPage() {
         </div>
       </section>
 
-      <section
-        className="bg-white px-4 py-8 dark:bg-darkmode sm:px-6 sm:py-10"
-        aria-labelledby="eligibility-overview-heading"
-      >
-        <div className="container mx-auto max-w-3xl text-center">
-          <h2
-            id="eligibility-overview-heading"
-            className="text-xl font-bold text-midnight_text dark:text-white sm:text-2xl"
-          >
-            Check your personal loan eligibility online
-          </h2>
-          <p className="mt-3 text-sm leading-relaxed text-gray dark:text-gray-400 sm:text-base">
-            Enter your monthly income, employment type, and existing EMI to get an
-            indicative eligibility score. This free check does not affect your credit
-            score. Final eligibility, interest rate, and approval depend on the
-            lender&apos;s checks and your complete application. You can also{" "}
-            <Link href="/emi-calculator/" className="font-semibold text-primary hover:underline">
-              estimate your monthly EMI
-            </Link>{" "}
-            before you{" "}
-            <Link
-              href="/products/personal-loan/"
-              className="font-semibold text-primary hover:underline"
-            >
-              apply for a personal loan
-            </Link>
-            .
-          </p>
-        </div>
-      </section>
-
       <EligibilityCalculator />
 
       <FaqSection items={ELIGIBILITY_FAQ_ITEMS} />
@@ -98,8 +66,8 @@ export default function CheckEligibilityPage() {
         description="Share a few details and we’ll help you move forward — a quick, simple, and secure process."
         primaryHref="/products/personal-loan/"
         primaryLabel="Apply Now"
-        secondaryHref="#eligibility-calculator"
-        secondaryLabel="Check Eligibility"
+        secondaryHref="/emi-calculator/"
+        secondaryLabel="Calculate EMI"
       />
     </>
   );

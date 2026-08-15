@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import Link from "next/link";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
@@ -474,6 +475,26 @@ export default function IndiaMap() {
           <div className="mt-6 sm:mt-8 text-center px-2">
             <p className="max-w-full text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white inline-block px-3 xs:px-4 sm:px-6 py-2 xs:py-2.5 sm:py-3 theme-gradient-bg rounded-lg border border-purple-600/50 backdrop-blur-sm leading-snug">
               India&apos;s Trusted Loan & Insurance Partner Platform
+            </p>
+            <p className="mt-3 text-sm text-white/90 sm:text-base">
+              Offer{" "}
+              <Link
+                href="/products/personal-loan/"
+                className="font-semibold text-white underline underline-offset-4 hover:text-white"
+              >
+                Personal Loan
+              </Link>{" "}
+              products to your customers.
+            </p>
+            <p className="mt-1.5 text-sm text-white/90 sm:text-base">
+              Help them compare and apply for{" "}
+              <Link
+                href="/products/insurance/"
+                className="font-semibold text-white underline underline-offset-4 hover:text-white"
+              >
+                Insurance
+              </Link>
+              .
             </p>
           </div>
         </div>

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import JsonLd from "@/app/components/seo/JsonLd";
 import PartnerBenefits from "./components/partner-benefits";
 import ThreeSteps from "./components/three-steps";
@@ -52,48 +51,6 @@ export default function BecomePartnerPage() {
           </p>
         </div>
       </div>
-      <section
-        className="bg-white px-4 py-8 dark:bg-darkmode sm:px-6 sm:py-10"
-        aria-labelledby="partner-program-overview"
-      >
-        <div className="container mx-auto max-w-3xl text-center">
-          <h2
-            id="partner-program-overview"
-            className="text-xl font-bold text-midnight_text dark:text-white sm:text-2xl"
-          >
-            Join the Apni Zaroorat partner program
-          </h2>
-          <p className="mt-3 text-sm leading-relaxed text-gray dark:text-gray-400 sm:text-base">
-            The partner program is for people who want to help customers explore
-            personal loans and insurance through a digital process. Partners can share
-            product information, assist customers with basic application steps, and
-            track eligible cases using the Apni Zaroorat platform. Earnings depend on
-            successful cases, product terms, and the applicable commission structure;
-            joining does not guarantee a fixed income.
-          </p>
-          <p className="mt-3 text-sm leading-relaxed text-gray dark:text-gray-400 sm:text-base">
-            Review our{" "}
-            <Link
-              href="/products/personal-loan/"
-              className="font-semibold text-primary hover:underline"
-            >
-              personal loan
-            </Link>{" "}
-            and{" "}
-            <Link
-              href="/products/insurance/"
-              className="font-semibold text-primary hover:underline"
-            >
-              insurance
-            </Link>{" "}
-            services before registering. For questions about eligibility or support,{" "}
-            <Link href="/contact/" className="font-semibold text-primary hover:underline">
-              contact our team
-            </Link>
-            .
-          </p>
-        </div>
-      </section>
       <ThreeSteps />
       <IndiaMap />
       <PartnerBenefits />
