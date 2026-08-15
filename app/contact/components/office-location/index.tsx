@@ -5,12 +5,13 @@ export default function Location() {
   return (
     <section className="theme-gradient-bg lg:py-24 py-12 sm:py-16 px-4 sm:px-6">
       <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 lg:grid-cols-9 gap-4 sm:gap-6 md:gap-7 border-b border-solid border-white border-opacity-50 pb-8 sm:pb-11">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 lg:grid-cols-9 gap-6 sm:gap-6 md:gap-7 border-b border-solid border-white border-opacity-50 pb-8 sm:pb-11">
           <div className="sm:col-span-2 md:col-span-3">
             <h2 className="text-white text-xl xs:text-2xl sm:text-3xl md:text-4xl leading-[1.2] font-bold">
               Apni Zaroorat
             </h2>
           </div>
+
           <div className="sm:col-span-2 md:col-span-3 min-w-0">
             <Link
               href={`mailto:${CONTACT.EMAIL}`}
@@ -26,19 +27,25 @@ export default function Location() {
               {CONTACT.PHONE}
             </Link>
           </div>
-          <div className="sm:col-span-2 md:col-span-3 flex flex-col items-start sm:items-end justify-center gap-2 min-w-0">
-            <Link
-              href="/products/personal-loan/"
-              className="text-sm sm:text-base text-white/90 font-medium hover:text-white hover:underline underline-offset-4"
-            >
-              Personal Loan
-            </Link>
-            <Link
-              href="/products/insurance/"
-              className="text-sm sm:text-base text-white/90 font-medium hover:text-white hover:underline underline-offset-4"
-            >
-              Insurance
-            </Link>
+
+          <div className="sm:col-span-2 md:col-span-3 min-w-0 text-left">
+            <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-white/70 sm:text-base">
+              Products
+            </p>
+            <div className="flex flex-col items-start gap-1.5">
+              <Link
+                href="/products/personal-loan/"
+                className="text-sm sm:text-base text-white font-medium hover:underline underline-offset-4"
+              >
+                Personal Loan
+              </Link>
+              <Link
+                href="/products/insurance/"
+                className="text-sm sm:text-base text-white font-medium hover:underline underline-offset-4"
+              >
+                Insurance
+              </Link>
+            </div>
           </div>
         </div>
       </div>

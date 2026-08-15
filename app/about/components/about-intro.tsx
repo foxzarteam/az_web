@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const FEATURES = [
   {
@@ -79,8 +80,21 @@ export default function AboutIntro() {
 
             <p className="mt-4 max-w-xl text-sm leading-relaxed text-gray sm:mt-5 sm:text-base">
               Apni Zaroorat is a digital platform that connects you with trusted
-              lending partners to help you get the right personal loan with
-              ease, transparency and security.
+              partners to help you get the right{" "}
+              <Link
+                href="/products/personal-loan/"
+                className="font-semibold text-primary hover:underline"
+              >
+                personal loan
+              </Link>{" "}
+              with ease, transparency and security. We also help you find suitable{" "}
+              <Link
+                href="/products/insurance/"
+                className="font-semibold text-primary hover:underline"
+              >
+                insurance
+              </Link>{" "}
+              cover for life, health, and motor needs through the same simple online process.
             </p>
 
             <div className="mt-6 flex flex-nowrap items-start gap-1.5 sm:mt-8 sm:gap-2.5">
