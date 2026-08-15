@@ -6,7 +6,7 @@ import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-08-12";
+export const SEO_CONTENT_VERSION = "2026-08-15";
 
 /**
  * All Google-indexable marketing URLs (no admin / api / customer / agent).

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import CtaBanner from "@/app/about/components/cta-banner";
 import EmiCalculator from "@/app/components/home/calculator";
 import FaqSection from "@/app/components/home/faq";
@@ -12,8 +13,7 @@ import {
 } from "@/app/lib/seo";
 
 const PATH = "/emi-calculator";
-const PAGE_TITLE =
-  "Personal Loan EMI Calculator Online | Free EMI Tool | Apni Zaroorat";
+const PAGE_TITLE = "Personal Loan EMI Calculator | Apni Zaroorat";
 const PAGE_DESC =
   "Calculate your personal loan EMI online for free. Adjust loan amount, interest rate, and tenure to see monthly EMI, total interest, and repayment before you apply.";
 
@@ -55,6 +55,33 @@ export default function EmiCalculatorPage() {
               Know your monthly EMI before you apply.
             </p>
           </div>
+        </div>
+      </section>
+
+      <section
+        className="bg-white px-4 py-8 dark:bg-darkmode sm:px-6 sm:py-10"
+        aria-labelledby="emi-overview-heading"
+      >
+        <div className="container mx-auto max-w-3xl text-center">
+          <h2
+            id="emi-overview-heading"
+            className="text-xl font-bold text-midnight_text dark:text-white sm:text-2xl"
+          >
+            Calculate your personal loan EMI
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-gray dark:text-gray-400 sm:text-base">
+            Adjust the loan amount, annual interest rate, and tenure to estimate your
+            monthly EMI, total interest, and total repayment. The result is indicative;
+            your lender will confirm the final rate, fees, and repayment schedule. If
+            you are unsure how much you may qualify for,{" "}
+            <Link
+              href="/check-eligibility/"
+              className="font-semibold text-primary hover:underline"
+            >
+              check your personal loan eligibility
+            </Link>{" "}
+            before starting an application.
+          </p>
         </div>
       </section>
 

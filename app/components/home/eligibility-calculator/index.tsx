@@ -45,19 +45,20 @@ type ChanceLevel = "low" | "fair" | "good" | "excellent";
 function getChance(score: number): {
   level: ChanceLevel;
   label: string;
-  emoji: string;
   color: string;
 } {
+  // Avoid emoji glyphs here — Node vs browser emoji rendering often causes
+  // "server rendered text didn't match the client" hydration errors.
   if (score < 40) {
-    return { level: "low", label: "Low Chance", emoji: "🔴", color: "#E53935" };
+    return { level: "low", label: "Low Chance", color: "#E53935" };
   }
   if (score < 60) {
-    return { level: "fair", label: "Fair Chance", emoji: "🟠", color: "#FB8C00" };
+    return { level: "fair", label: "Fair Chance", color: "#FB8C00" };
   }
   if (score < 80) {
-    return { level: "good", label: "Good Chance", emoji: "🟢", color: "#43A047" };
+    return { level: "good", label: "Good Chance", color: "#43A047" };
   }
-  return { level: "excellent", label: "Excellent Chance", emoji: "🟢", color: "#2E7D32" };
+  return { level: "excellent", label: "Excellent Chance", color: "#2E7D32" };
 }
 
 /** Simple 0–100 eligibility score from income + EMI burden (no loan amount shown). */
@@ -457,11 +458,15 @@ export default function EligibilityCalculator() {
                   Result
                 </p>
                 <p
-                  className="mt-1 text-center text-xl font-bold transition-colors duration-300 sm:text-2xl"
+                  className="mt-1 flex items-center justify-center gap-2 text-center text-xl font-bold transition-colors duration-300 sm:text-2xl"
                   style={{ color: result.chance.color }}
                   aria-live="polite"
                 >
-                  <span aria-hidden>{result.chance.emoji} </span>
+                  <span
+                    aria-hidden
+                    className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: result.chance.color }}
+                  />
                   {result.chance.label}
                 </p>
 

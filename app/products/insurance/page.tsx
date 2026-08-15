@@ -12,8 +12,7 @@ import {
   INSURANCE_KEYWORDS,
 } from "@/app/lib/seo";
 
-const PAGE_TITLE =
-  "Insurance Online | Life, Health & Motor Insurance | Apni Zaroorat";
+const PAGE_TITLE = "Insurance Online in India | Apni Zaroorat";
 const PAGE_DESC =
   "Compare and apply for life, health and motor insurance online with Apni Zaroorat. Find suitable cover and complete a guided digital application.";
 

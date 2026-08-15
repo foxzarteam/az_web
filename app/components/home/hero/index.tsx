@@ -90,6 +90,7 @@ export default function Hero() {
                 className="w-full h-auto object-contain object-bottom block"
                 sizes="(max-width: 640px) 390px, (max-width: 768px) 490px, (max-width: 1024px) 560px, (max-width: 1280px) 620px, 670px"
                 priority
+                unoptimized
               />
             </div>
           </div>

@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import JsonLd from "@/app/components/seo/JsonLd";
 import { buildPageMetadata, LEGAL_KEYWORDS, pageSeoGlue } from "@/app/lib/seo";
 
-const PAGE_TITLE = "Privacy Policy | Apni Zaroorat";
+const PAGE_TITLE = "Privacy Policy & Data Protection | Apni Zaroorat";
 const PAGE_DESC =
   "Privacy policy for Apni Zaroorat — how we collect, use, store, and protect your data when you apply for loans, insurance, or use our platform.";
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import CtaBanner from "@/app/about/components/cta-banner";
 import EligibilityCalculator from "@/app/components/home/eligibility-calculator";
 import FaqSection from "@/app/components/home/faq";
@@ -12,8 +13,7 @@ import {
 } from "@/app/lib/seo";
 
 const PATH = "/check-eligibility";
-const PAGE_TITLE =
-  "Check Personal Loan Eligibility Online | Free Calculator | Apni Zaroorat";
+const PAGE_TITLE = "Check Personal Loan Eligibility | Apni Zaroorat";
 const PAGE_DESC =
   "Check your personal loan eligibility in under a minute. Enter income, employment type, and existing EMI for a free indicative score — no impact on your credit score.";
 
@@ -55,6 +55,37 @@ export default function CheckEligibilityPage() {
               Know your loan chance in under a minute.
             </p>
           </div>
+        </div>
+      </section>
+
+      <section
+        className="bg-white px-4 py-8 dark:bg-darkmode sm:px-6 sm:py-10"
+        aria-labelledby="eligibility-overview-heading"
+      >
+        <div className="container mx-auto max-w-3xl text-center">
+          <h2
+            id="eligibility-overview-heading"
+            className="text-xl font-bold text-midnight_text dark:text-white sm:text-2xl"
+          >
+            Check your personal loan eligibility online
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-gray dark:text-gray-400 sm:text-base">
+            Enter your monthly income, employment type, and existing EMI to get an
+            indicative eligibility score. This free check does not affect your credit
+            score. Final eligibility, interest rate, and approval depend on the
+            lender&apos;s checks and your complete application. You can also{" "}
+            <Link href="/emi-calculator/" className="font-semibold text-primary hover:underline">
+              estimate your monthly EMI
+            </Link>{" "}
+            before you{" "}
+            <Link
+              href="/products/personal-loan/"
+              className="font-semibold text-primary hover:underline"
+            >
+              apply for a personal loan
+            </Link>
+            .
+          </p>
         </div>
       </section>
 
