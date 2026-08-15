@@ -477,24 +477,21 @@ export default function IndiaMap() {
               India&apos;s Trusted Loan & Insurance Partner Platform
             </p>
             <p className="mt-3 text-sm text-white/90 sm:text-base">
-              Offer{" "}
+              Help your customers to get{" "}
               <Link
                 href="/products/personal-loan/"
                 className="font-semibold text-white underline underline-offset-4 hover:text-white"
               >
-                Personal Loan
+                Loans
               </Link>{" "}
-              products to your customers.
-            </p>
-            <p className="mt-1.5 text-sm text-white/90 sm:text-base">
-              Help them compare and apply for{" "}
+              &amp;{" "}
               <Link
                 href="/products/insurance/"
                 className="font-semibold text-white underline underline-offset-4 hover:text-white"
               >
                 Insurance
-              </Link>
-              .
+              </Link>{" "}
+              easily online and earn extra income!
             </p>
           </div>
         </div>
