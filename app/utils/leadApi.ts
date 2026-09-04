@@ -16,8 +16,12 @@ export function leadIdFromResponse(data: unknown): string | null {
 }
 
 /** Cookie is set on `/r/:code` (and `?ref=`). Server maps the code to agent_id. */
-function withReferralCode<T extends { referralCode?: string }>(data: T): T {
-  const referralCode = (data.referralCode ?? readAffiliateCode()).trim();
+function withReferralCode<T extends object>(data: T): T {
+  const existing =
+    "referralCode" in data && typeof (data as { referralCode?: unknown }).referralCode === "string"
+      ? String((data as { referralCode: string }).referralCode).trim()
+      : "";
+  const referralCode = existing || readAffiliateCode().trim();
   return referralCode ? { ...data, referralCode } : data;
 }
 
