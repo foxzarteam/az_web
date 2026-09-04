@@ -150,7 +150,7 @@ export default function AffiliateLanding() {
     <div className="bg-white dark:bg-semidark">
       <div
         id="products"
-        className="affiliate-hero theme-gradient-bg relative overflow-hidden px-4 pb-12 pt-24 sm:px-6"
+        className="theme-gradient-bg relative overflow-hidden px-4 pb-12 pt-24 sm:px-6"
       >
         <h1 className="sr-only">Apply for a loan or insurance</h1>
         <div className="pointer-events-none absolute -right-16 top-10 h-56 w-56 rounded-full bg-white/10 blur-3xl" />

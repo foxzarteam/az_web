@@ -289,8 +289,7 @@ export default function IndiaMap() {
               suppressHydrationWarning
             >
               <div className="rounded-2xl sm:rounded-3xl bg-white/95 backdrop-blur-md border border-white/40 shadow-[0_20px_50px_rgba(0,0,0,0.25)] p-5 sm:p-6 md:p-8 space-y-4">
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
-                  <div className="min-w-0">
+                <div className="min-w-0">
                     <label htmlFor="hero-full-name" className="sr-only">
                       Full Name
                     </label>
@@ -315,7 +314,8 @@ export default function IndiaMap() {
                         {fieldErrors.fullName}
                       </p>
                     ) : null}
-                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
                   <div className="min-w-0">
                     <label htmlFor="hero-email" className="sr-only">
                       Email Address

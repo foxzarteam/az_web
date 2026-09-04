@@ -550,18 +550,6 @@ html {
     padding-bottom: 2rem !important;
   }
 }
-
-.affiliate-hero {
-  margin-top: 4rem;
-}
-
-@media (min-width: 768px) {
-  .affiliate-hero {
-    margin-top: 5rem;
-  }
-}
-
-/* Fixed square so landscape GIFs cannot stretch rounded-full into a capsule. */
 .product-gif-frame {
   box-sizing: border-box;
   display: flex;
