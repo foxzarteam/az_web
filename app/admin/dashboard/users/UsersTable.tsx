@@ -15,6 +15,8 @@ import {
   ADMIN_LABEL,
 } from "../adminUi";
 
+type AdminUserRow = Record<string, unknown>;
+
 const VIEW_FIELDS = [
   "user_name",
   "email",
