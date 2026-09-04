@@ -19,6 +19,7 @@ export interface CreateLeadRequest {
   insType?: string;
   employmentType?: "salaried" | "self_employed";
   netMonthlyIncome?: number;
+  referralCode?: string;
 }
 
 export interface CreateLeadResponse {

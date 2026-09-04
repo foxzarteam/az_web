@@ -6,7 +6,7 @@ import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-08-15";
+export const SEO_CONTENT_VERSION = "2026-09-04";
 
 /**
  * All Google-indexable marketing URLs (no admin / api / customer / agent).
@@ -14,6 +14,7 @@ export const SEO_CONTENT_VERSION = "2026-08-15";
  */
 export const INDEXABLE_ROUTES = [
   { path: "/", changeFrequency: "daily" as const, priority: 1 },
+  { path: "/products", changeFrequency: "daily" as const, priority: 0.99 },
   { path: "/products/personal-loan", changeFrequency: "daily" as const, priority: 0.98 },
   { path: "/products/insurance", changeFrequency: "daily" as const, priority: 0.97 },
   { path: "/check-eligibility", changeFrequency: "daily" as const, priority: 0.96 },
@@ -54,7 +55,7 @@ export const SEO_INDEXING_ENABLED = true;
 export const SITELINK_PAGES = [
   {
     name: "Products",
-    path: "/products/personal-loan",
+    path: "/products",
     description:
       "Personal loans and insurance products online — apply with Apni Zaroorat in minutes.",
   },
@@ -207,6 +208,18 @@ export const INSURANCE_KEYWORDS = [
   "buy insurance online",
   "insurance apply online",
   "Apni Zaroorat insurance",
+] as const;
+
+export const PRODUCTS_KEYWORDS = [
+  ...BRAND_KEYWORDS,
+  "personal loan and insurance online",
+  "loan and insurance online India",
+  "apply personal loan online",
+  "apply insurance online",
+  "personal loan up to 10 lakh",
+  "life health motor insurance",
+  "A to Z finance products",
+  "Apni Zaroorat products",
 ] as const;
 
 export const ABOUT_KEYWORDS = [

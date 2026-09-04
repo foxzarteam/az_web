@@ -551,6 +551,65 @@ html {
   }
 }
 
+.affiliate-hero {
+  margin-top: 4rem;
+}
+
+@media (min-width: 768px) {
+  .affiliate-hero {
+    margin-top: 5rem;
+  }
+}
+
+/* Fixed square so landscape GIFs cannot stretch rounded-full into a capsule. */
+.product-gif-frame {
+  box-sizing: border-box;
+  display: flex;
+  flex: 0 0 7rem;
+  align-items: center;
+  justify-content: center;
+  width: 7rem;
+  height: 7rem;
+  min-width: 7rem;
+  min-height: 7rem;
+  max-width: 7rem;
+  max-height: 7rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  padding: 2px;
+}
+
+.product-gif-frame__inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: #fff;
+}
+
+.product-gif-frame img {
+  width: 88%;
+  height: 88%;
+  max-width: 88%;
+  max-height: 88%;
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .product-gif-frame {
+    flex-basis: 10rem;
+    width: 10rem;
+    height: 10rem;
+    min-width: 10rem;
+    min-height: 10rem;
+    max-width: 10rem;
+    max-height: 10rem;
+  }
+}
+
 .hero-section__bg {
   position: absolute;
   inset: 0;

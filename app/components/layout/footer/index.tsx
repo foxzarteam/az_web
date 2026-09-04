@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { CONTACT, SOCIAL_LINKS } from "@/app/config/constants";
 import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
 import { serviceCardsToSubmenu } from "@/app/lib/services/submenu";
+import { hidePublicChrome } from "@/app/lib/layout/hidePublicChrome";
 
 const linkClass =
   "flex min-h-[36px] items-center py-1 text-sm text-gray hover:text-white sm:text-base";
@@ -28,7 +29,7 @@ export default function Footer() {
   const { cards } = useRemoteServiceCards();
   const serviceLinks = useMemo(() => serviceCardsToSubmenu(cards), [cards]);
 
-  if (pathname?.startsWith("/admin") || pathname?.startsWith("/customer")) {
+  if (hidePublicChrome(pathname)) {
     return null;
   }
 
@@ -81,7 +82,7 @@ export default function Footer() {
             <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Quick Links</h4>
             <ul className="space-y-0.5">
               <li>
-                <Link href="/products/personal-loan/" className={linkClass}>
+                <Link href="/products/" className={linkClass}>
                   Products
                 </Link>
               </li>
@@ -104,7 +105,11 @@ export default function Footer() {
           </div>
 
           <div className="min-w-0 text-left">
-            <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">Products</h4>
+            <h4 className="mb-3 sm:mb-4 text-base sm:text-lg text-white">
+              <Link href="/products/" className="text-white hover:text-white">
+                Products
+              </Link>
+            </h4>
             <ul className="space-y-0.5">
               {serviceLinks.map((s) => (
                 <li key={s.slug ?? s.href}>

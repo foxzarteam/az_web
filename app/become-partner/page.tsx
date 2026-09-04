@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import JsonLd from "@/app/components/seo/JsonLd";
 import PartnerBenefits from "./components/partner-benefits";
 import ThreeSteps from "./components/three-steps";
+import IndiaMapClient from "./components/IndiaMapClient";
 import {
   buildPageMetadata,
   PARTNER_KEYWORDS,
   pageSeoGlue,
 } from "@/app/lib/seo";
-
-const IndiaMap = dynamic(() => import("./components/india-map"));
 
 const PAGE_TITLE = "Become a Partner | Loan & Insurance Partner Program";
 const PAGE_DESC =
@@ -52,7 +50,7 @@ export default function BecomePartnerPage() {
         </div>
       </div>
       <ThreeSteps />
-      <IndiaMap />
+      <IndiaMapClient />
       <PartnerBenefits />
     </>
   );

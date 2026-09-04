@@ -3,11 +3,10 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
-import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import { reportFormValidity } from "@/app/utils/formValidation";
+import { useRouter } from "next/navigation";
 import {
-  PUBLIC_FORM_SUBMIT_AJAX_URL,
   PUBLIC_INDIA_MAP_FALLBACK_SVG_URL,
   PUBLIC_INDIA_MAP_SVG_URL,
 } from "@/app/config/constants";
@@ -50,6 +49,7 @@ type HeroFieldErrors = {
   fullName?: string;
   email?: string;
   phone?: string;
+  password?: string;
   submit?: string;
 };
 
@@ -58,14 +58,35 @@ const inputBaseClass =
 const inputOkClass = `${inputBaseClass} border-blue-200 focus:border-blue-500 focus:ring-blue-300/50`;
 const inputErrClass = `${inputBaseClass} border-red-500 focus:border-red-500 focus:ring-red-300/50`;
 
+function EyeIcon({ open }: { open: boolean }) {
+  if (open) {
+    return (
+      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    );
+  }
+  return (
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path d="M3 3l18 18" />
+      <path d="M10.6 10.6A3 3 0 0 0 12 15a3 3 0 0 0 2.4-4.4" />
+      <path d="M9.9 5.2A11 11 0 0 1 12 5c6.5 0 10 7 10 7a18 18 0 0 1-3.2 4.4" />
+      <path d="M6.1 6.1A18 18 0 0 0 2 12s3.5 7 10 7a10.5 10.5 0 0 0 4.4-1" />
+    </svg>
+  );
+}
+
 export default function IndiaMap() {
+  const router = useRouter();
   const [visiblePins, setVisiblePins] = useState<Set<number>>(new Set());
-  const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<HeroFieldErrors>({});
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const mapWrapRef = useRef<HTMLDivElement>(null);
   const mapImgRef = useRef<HTMLImageElement>(null);
@@ -176,43 +197,39 @@ export default function IndiaMap() {
     if (!mobileCheck.isValid) {
       errors.phone = mobileCheck.error ?? "Please enter a valid mobile number.";
     }
-
-    if (errors.fullName || errors.email || errors.phone) {
-      setFieldErrors(errors);
-      return;
+    if (!/^\d{4}$/.test(password)) {
+      errors.password = "Password must be a 4-digit PIN.";
     }
 
-    if (!PUBLIC_FORM_SUBMIT_AJAX_URL) {
-      setShowSuccess(true);
-      setFullName("");
-      setEmail("");
-      setMobile("");
-      setTermsAccepted(false);
+    if (errors.fullName || errors.email || errors.phone || errors.password) {
+      setFieldErrors(errors);
       return;
     }
 
     setLoading(true);
     try {
-      const response = await fetch(PUBLIC_FORM_SUBMIT_AJAX_URL, {
+      const response = await fetch("/api/agent/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: trimmedName,
+          userName: trimmedName,
           ...(trimmedEmail ? { email: trimmedEmail } : {}),
-          phone: mobile,
-          subject: "Become a Partner — Hero Join Request",
+          mobileNumber: mobile,
+          mpin: password,
         }),
       });
-      const data = await response.json();
-      if (data.success) {
-        setFullName("");
-        setEmail("");
-        setMobile("");
-        setTermsAccepted(false);
-        setShowSuccess(true);
-      } else {
-        setFieldErrors({ submit: "Something went wrong. Please try again." });
+      const data = (await response.json().catch(() => ({}))) as { error?: string };
+      if (!response.ok) {
+        setFieldErrors({ submit: data.error ?? "Could not create account. Please try again." });
+        return;
       }
+      setFullName("");
+      setEmail("");
+      setMobile("");
+      setPassword("");
+      setTermsAccepted(false);
+      router.push("/agent/dashboard");
+      router.refresh();
     } catch {
       setFieldErrors({ submit: "Unable to submit right now. Please try again." });
     } finally {
@@ -265,110 +282,152 @@ export default function IndiaMap() {
           </p>
 
           <div className="flex justify-center mb-6 sm:mb-8 md:mb-10 px-0">
-            {showSuccess && (
-              <SuccessPopup
-                message="Thank you! Our team will contact you shortly to get you started as a partner."
-                onClose={() => setShowSuccess(false)}
-                autoCloseMs={3000}
-              />
-            )}
             <form
               onSubmit={handleHeroJoinSubmit}
               className="w-full max-w-2xl"
               noValidate
+              suppressHydrationWarning
             >
               <div className="rounded-2xl sm:rounded-3xl bg-white/95 backdrop-blur-md border border-white/40 shadow-[0_20px_50px_rgba(0,0,0,0.25)] p-5 sm:p-6 md:p-8 space-y-4">
-                <div>
-                  <label htmlFor="hero-full-name" className="sr-only">
-                    Full Name
-                  </label>
-                  <input
-                    id="hero-full-name"
-                    type="text"
-                    name="fullName"
-                    autoComplete="name"
-                    placeholder="Full Name"
-                    required
-                    value={fullName}
-                    onChange={(e) => {
-                      clearFieldError("fullName");
-                      setFullName(e.target.value);
-                    }}
-                    aria-invalid={!!fieldErrors.fullName}
-                    aria-describedby={fieldErrors.fullName ? "hero-full-name-error" : undefined}
-                    className={fieldErrors.fullName ? inputErrClass : inputOkClass}
-                  />
-                  {fieldErrors.fullName ? (
-                    <p id="hero-full-name-error" className="mt-1.5 text-sm text-red-600" role="alert">
-                      {fieldErrors.fullName}
-                    </p>
-                  ) : null}
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
+                  <div className="min-w-0">
+                    <label htmlFor="hero-full-name" className="sr-only">
+                      Full Name
+                    </label>
+                    <input
+                      id="hero-full-name"
+                      type="text"
+                      name="fullName"
+                      autoComplete="name"
+                      placeholder="Full Name"
+                      required
+                      value={fullName}
+                      onChange={(e) => {
+                        clearFieldError("fullName");
+                        setFullName(e.target.value);
+                      }}
+                      aria-invalid={!!fieldErrors.fullName}
+                      aria-describedby={fieldErrors.fullName ? "hero-full-name-error" : undefined}
+                      className={fieldErrors.fullName ? inputErrClass : inputOkClass}
+                    />
+                    {fieldErrors.fullName ? (
+                      <p id="hero-full-name-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                        {fieldErrors.fullName}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="min-w-0">
+                    <label htmlFor="hero-email" className="sr-only">
+                      Email Address
+                    </label>
+                    <input
+                      id="hero-email"
+                      type="email"
+                      name="email"
+                      autoComplete="email"
+                      placeholder="Email Address (optional)"
+                      value={email}
+                      onChange={(e) => {
+                        clearFieldError("email");
+                        setEmail(e.target.value);
+                      }}
+                      aria-invalid={!!fieldErrors.email}
+                      aria-describedby={fieldErrors.email ? "hero-email-error" : undefined}
+                      className={fieldErrors.email ? inputErrClass : inputOkClass}
+                    />
+                    {fieldErrors.email ? (
+                      <p id="hero-email-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                        {fieldErrors.email}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="min-w-0">
+                    <label htmlFor="hero-phone" className="sr-only">
+                      Phone Number
+                    </label>
+                    <div
+                      className={`flex items-stretch overflow-hidden rounded-xl border-2 bg-white transition-all focus-within:ring-2 ${
+                        fieldErrors.phone
+                          ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-300/50"
+                          : "border-primary/30 focus-within:border-primary focus-within:ring-primary/30"
+                      }`}
+                    >
+                      <div
+                        className={`flex items-center gap-1.5 sm:gap-2 pl-3 sm:pl-4 pr-2 sm:pr-3 bg-[#EEF0FF] shrink-0 border-r-2 ${
+                          fieldErrors.phone ? "border-red-500" : "border-primary/30"
+                        }`}
+                      >
+                        <IndiaFlag />
+                        <span className="text-xs sm:text-sm font-semibold text-primary">+91</span>
+                      </div>
+                      <input
+                        id="hero-phone"
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel"
+                        name="phone"
+                        placeholder="Phone Number"
+                        required
+                        value={mobile}
+                        onChange={handleMobileChange}
+                        aria-invalid={!!fieldErrors.phone}
+                        aria-describedby={fieldErrors.phone ? "hero-phone-error" : undefined}
+                        className="flex-1 min-w-0 px-3 sm:px-4 py-3 sm:py-3.5 text-sm sm:text-base text-midnight_text placeholder:text-gray-400 focus:outline-none bg-white"
+                        maxLength={10}
+                      />
+                    </div>
+                    {fieldErrors.phone ? (
+                      <p id="hero-phone-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                        {fieldErrors.phone}
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
                 <div>
-                  <label htmlFor="hero-email" className="sr-only">
-                    Email Address
-                  </label>
-                  <input
-                    id="hero-email"
-                    type="email"
-                    name="email"
-                    autoComplete="email"
-                    placeholder="Email Address (optional)"
-                    value={email}
-                    onChange={(e) => {
-                      clearFieldError("email");
-                      setEmail(e.target.value);
-                    }}
-                    aria-invalid={!!fieldErrors.email}
-                    aria-describedby={fieldErrors.email ? "hero-email-error" : undefined}
-                    className={fieldErrors.email ? inputErrClass : inputOkClass}
-                  />
-                  {fieldErrors.email ? (
-                    <p id="hero-email-error" className="mt-1.5 text-sm text-red-600" role="alert">
-                      {fieldErrors.email}
-                    </p>
-                  ) : null}
-                </div>
-                <div>
-                  <label htmlFor="hero-phone" className="sr-only">
-                    Phone Number
+                  <label htmlFor="hero-password" className="sr-only">
+                    Password
                   </label>
                   <div
                     className={`flex items-stretch overflow-hidden rounded-xl border-2 bg-white transition-all focus-within:ring-2 ${
-                      fieldErrors.phone
+                      fieldErrors.password
                         ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-300/50"
-                        : "border-primary/30 focus-within:border-primary focus-within:ring-primary/30"
+                        : "border-blue-200 focus-within:border-blue-500 focus-within:ring-blue-300/50"
                     }`}
                   >
-                    <div
-                      className={`flex items-center gap-1.5 sm:gap-2 pl-3 sm:pl-4 pr-2 sm:pr-3 bg-[#EEF0FF] shrink-0 border-r-2 ${
-                        fieldErrors.phone ? "border-red-500" : "border-primary/30"
-                      }`}
-                    >
-                      <IndiaFlag />
-                      <span className="text-xs sm:text-sm font-semibold text-primary">+91</span>
-                    </div>
                     <input
-                      id="hero-phone"
-                      type="tel"
+                      id="hero-password"
+                      type={showPassword ? "text" : "password"}
+                      name="password"
                       inputMode="numeric"
-                      autoComplete="tel"
-                      name="phone"
-                      placeholder="Phone Number"
+                      autoComplete="new-password"
+                      placeholder="Password (4-digit PIN)"
                       required
-                      value={mobile}
-                      onChange={handleMobileChange}
-                      aria-invalid={!!fieldErrors.phone}
-                      aria-describedby={fieldErrors.phone ? "hero-phone-error" : undefined}
-                      className="flex-1 min-w-0 px-3 sm:px-4 py-3 sm:py-3.5 text-sm sm:text-base text-midnight_text placeholder:text-gray-400 focus:outline-none bg-white"
-                      maxLength={10}
+                      maxLength={4}
+                      value={password}
+                      onChange={(e) => {
+                        clearFieldError("password");
+                        setPassword(e.target.value.replace(/\D/g, "").slice(0, 4));
+                      }}
+                      aria-invalid={!!fieldErrors.password}
+                      aria-describedby={fieldErrors.password ? "hero-password-error" : undefined}
+                      className="min-w-0 flex-1 bg-white px-4 py-3 text-sm text-midnight_text placeholder:text-gray-400 focus:outline-none sm:py-3.5 sm:text-base"
                     />
+                    <button
+                      type="button"
+                      className="shrink-0 px-3 text-slate-500 hover:text-primary"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      <EyeIcon open={showPassword} />
+                    </button>
                   </div>
-                  {fieldErrors.phone ? (
-                    <p id="hero-phone-error" className="mt-1.5 text-sm text-red-600" role="alert">
-                      {fieldErrors.phone}
+                  {fieldErrors.password ? (
+                    <p id="hero-password-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                      {fieldErrors.password}
                     </p>
-                  ) : null}
+                  ) : (
+                    <p className="mt-1.5 text-xs text-slate-500">Use this 4-digit PIN to log in to the agent portal.</p>
+                  )}
                 </div>
                 <TermsAgreementCheckbox
                   id="partner-hero-terms"
@@ -382,6 +441,15 @@ export default function IndiaMap() {
                 >
                   {loading ? "Joining…" : "Join Now"}
                 </button>
+                <div className="flex items-center justify-center gap-2 pt-1">
+                  <span className="text-sm text-slate-600">Already a partner?</span>
+                  <Link
+                    href="/agent/login"
+                    className="inline-flex items-center justify-center rounded-lg border-2 border-primary bg-white px-4 py-2 text-sm font-bold text-primary transition hover:bg-[#EEF0FF]"
+                  >
+                    Login
+                  </Link>
+                </div>
                 {fieldErrors.submit ? (
                   <p className="text-sm text-red-600 text-center" role="alert">
                     {fieldErrors.submit}

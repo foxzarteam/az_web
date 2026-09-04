@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { FAQ_ITEMS, type FaqItem } from "./faq-data";
 
 function ChevronIcon({ open }: { open: boolean }) {
@@ -10,7 +9,7 @@ function ChevronIcon({ open }: { open: boolean }) {
       viewBox="0 0 24 24"
       fill="none"
       className={`h-5 w-5 shrink-0 text-primary transition-transform duration-300 ${open ? "rotate-180" : ""}`}
-      aria-hidden
+      aria-hidden="true"
     >
       <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
@@ -82,15 +81,16 @@ function FaqAccordionItem({
 
 type FaqSectionProps = {
   items?: FaqItem[];
+  className?: string;
 };
 
-export default function FaqSection({ items = FAQ_ITEMS }: FaqSectionProps) {
+export default function FaqSection({ items = FAQ_ITEMS, className = "" }: FaqSectionProps) {
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
     <section
       id="faq"
-      className="bg-white py-12 sm:py-16 md:py-20 lg:py-24 dark:bg-semidark"
+      className={`bg-white py-12 sm:py-16 md:py-20 lg:py-24 dark:bg-semidark ${className}`}
       aria-labelledby="faq-heading"
     >
       <div className="container mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 md:max-w-screen-md lg:max-w-screen-xl lg:px-8">
@@ -110,14 +110,13 @@ export default function FaqSection({ items = FAQ_ITEMS }: FaqSectionProps) {
         >
           <div className="w-full lg:col-span-3">
             <div className="relative w-full">
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src="/images/hero/faq.webp"
                 alt="Frequently asked questions illustration"
                 width={320}
                 height={320}
                 className="h-auto w-full object-contain"
-                sizes="(max-width: 1024px) 100vw, 30vw"
-                loading="lazy"
               />
             </div>
           </div>

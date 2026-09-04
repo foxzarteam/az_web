@@ -34,7 +34,7 @@ const structuredData = pageSeoGlue({
   includeServiceCatalog: true,
   crumbs: [
     { name: "Home", path: "/" },
-    { name: "Products", path: "/products/insurance" },
+    { name: "Products", path: "/products" },
     { name: "Insurance", path: "/products/insurance" },
   ],
   extra: [

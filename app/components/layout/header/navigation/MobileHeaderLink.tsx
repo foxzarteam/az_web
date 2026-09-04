@@ -17,12 +17,15 @@ export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; 
     const base = pathnameOnly.replace(/\/+$/, "") || "/";
     return hash ? `${base}#${hash}` : base;
   };
-  const current = normalizePath(path || "/");
+  const current = path ? normalizePath(path) : "";
   const isActive =
-    normalizePath(item.href) === current ||
-    (item.submenu &&
-      item.submenu.length > 0 &&
-      item.submenu.some((s) => normalizePath(s.href) === current));
+    Boolean(current) &&
+    (normalizePath(item.href) === current ||
+      Boolean(
+        item.submenu &&
+          item.submenu.length > 0 &&
+          item.submenu.some((s) => normalizePath(s.href) === current),
+      ));
 
   return (
     <div className="relative w-full">

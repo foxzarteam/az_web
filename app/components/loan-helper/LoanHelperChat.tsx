@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { chatLoanAmountToRupees } from "@/app/lib/chat/types";
+import { hidePublicChrome } from "@/app/lib/layout/hidePublicChrome";
 
 const PersonalLoanApplyModal = dynamic(
   () => import("@/app/components/leads/PersonalLoanApplyModal"),
@@ -262,7 +263,7 @@ export default function LoanHelperChat() {
     setShowApplyForm(false);
   }, []);
 
-  if (pathname?.startsWith("/admin") || pathname?.startsWith("/customer")) {
+  if (hidePublicChrome(pathname)) {
     return null;
   }
 

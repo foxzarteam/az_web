@@ -37,6 +37,14 @@ export const FAQ_ITEMS: FaqItem[] = [
   },
 ];
 
+/** Hub `/products` FAQ — keep in sync with AffiliateLanding. */
+export const PRODUCTS_HUB_FAQ_ITEMS: FaqItem[] = [
+  FAQ_ITEMS[0],
+  FAQ_ITEMS[1],
+  FAQ_ITEMS[2],
+  FAQ_ITEMS[4],
+];
+
 export const ELIGIBILITY_FAQ_ITEMS: FaqItem[] = [
   {
     id: "eligibility-credit-score",

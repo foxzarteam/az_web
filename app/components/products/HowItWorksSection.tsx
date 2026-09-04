@@ -12,7 +12,7 @@ function ArrowConnector() {
   return (
     <span
       className="pointer-events-none absolute -right-[42px] top-1/2 hidden -translate-y-1/2 text-[#F97316] lg:block"
-      aria-hidden
+      aria-hidden="true"
     >
       <svg viewBox="0 0 44 14" fill="none" className="h-3.5 w-11">
         <path
@@ -33,11 +33,12 @@ type Props = {
   headingPrefix: string;
   headingHighlight: string;
   steps: HowItWorksStep[];
+  className?: string;
 };
 
-export default function HowItWorksSection({ headingPrefix, headingHighlight, steps }: Props) {
+export default function HowItWorksSection({ headingPrefix, headingHighlight, steps, className }: Props) {
   return (
-    <section className="bg-[#F5F7FB] dark:bg-darkmode" aria-labelledby="how-it-works-heading">
+    <section className={`bg-[#F5F7FB] dark:bg-darkmode ${className ?? ""}`} aria-labelledby="how-it-works-heading">
       <div className="container mx-auto max-w-full px-4 sm:px-6 md:max-w-screen-md lg:max-w-screen-xl lg:px-8">
         <div className="mb-8 text-center sm:mb-10" data-aos="fade-up">
           <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary sm:text-xs">

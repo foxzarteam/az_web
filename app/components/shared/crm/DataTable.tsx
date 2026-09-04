@@ -148,7 +148,9 @@ export default function CrmDataTable<T>({
               <path d="m20 20-3.5-3.5" />
             </svg>
             <input
-              type="search"
+              type="text"
+              inputMode="search"
+              autoComplete="off"
               value={query}
               onChange={(e) => onSearch(e.target.value)}
               placeholder={searchPlaceholder}

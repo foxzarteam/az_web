@@ -5,6 +5,7 @@ import {
   type LeadRecord,
 } from "@/app/lib/leads/types";
 import { parseLeadApiResponse } from "@/app/lib/leads/parseLeadApiResponse";
+import { readAffiliateCode } from "@/app/lib/affiliate/refCookie";
 
 export type { CreateLeadRequest, CreateLeadResponse, LeadRecord } from "@/app/lib/leads/types";
 
@@ -14,6 +15,12 @@ export function leadIdFromResponse(data: unknown): string | null {
   return id != null ? String(id) : null;
 }
 
+/** Cookie is set on `/r/:code` (and `?ref=`). Server maps the code to agent_id. */
+function withReferralCode<T extends { referralCode?: string }>(data: T): T {
+  const referralCode = (data.referralCode ?? readAffiliateCode()).trim();
+  return referralCode ? { ...data, referralCode } : data;
+}
+
 /**
  * Save full lead BEFORE OTP.
  * Same mobile/PAN can apply once per category (e.g. personal_loan and insurance).
@@ -21,6 +28,7 @@ export function leadIdFromResponse(data: unknown): string | null {
 export async function applyLead(
   leadData: CreateLeadRequest,
 ): Promise<CreateLeadResponse> {
+  const body = withReferralCode(leadData);
   try {
     const response = await fetch(`${getLeadsApiBase()}/apply`, {
       method: "POST",
@@ -28,7 +36,7 @@ export async function applyLead(
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(leadData),
+      body: JSON.stringify(body),
       mode: "cors",
       credentials: "omit",
     });
@@ -53,7 +61,7 @@ export async function startLead(
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ mobileNumber, category }),
+      body: JSON.stringify(withReferralCode({ mobileNumber, category })),
       mode: "cors",
       credentials: "omit",
     });
@@ -102,7 +110,7 @@ export async function completeLead(
       {
         method: "PATCH",
         headers,
-        body: JSON.stringify(body),
+        body: JSON.stringify(withReferralCode(body)),
         mode: "cors",
         credentials: "omit",
       },

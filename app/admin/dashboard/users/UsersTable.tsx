@@ -2,9 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { AdminUserRow } from "@/app/lib/admin/fetchUsers";
+import { formatAdminDateTime } from "@/app/utils/format";
 import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
 import AdminModal from "../AdminModal";
+import AffiliateShareKit from "@/app/components/affiliate/AffiliateShareKit";
 import {
   ADMIN_BTN_DANGER,
   ADMIN_BTN_PRIMARY,
@@ -18,33 +19,26 @@ const VIEW_FIELDS = [
   "user_name",
   "email",
   "mobile_number",
+  "referral_code",
   "is_active",
-  "is_logged_in",
-  "last_login_at",
   "created_at",
-  "updated_at",
 ] as const;
 
 const FIELD_LABELS: Record<string, string> = {
   user_name: "Name",
   email: "Email",
   mobile_number: "Phone",
+  referral_code: "Affiliate code",
   is_active: "Active",
-  is_logged_in: "Logged in",
-  last_login_at: "Last login",
   created_at: "Created",
-  updated_at: "Updated",
 };
 
 function formatValue(key: string, value: unknown): string {
   if (value == null || value === "") return "—";
   if (typeof value === "boolean") return value ? "Yes" : "No";
   const s = String(value);
-  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
-    const d = new Date(s);
-    if (!Number.isNaN(d.getTime())) {
-      return d.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
-    }
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s) || key.endsWith("_at")) {
+    return formatAdminDateTime(s);
   }
   return s;
 }
@@ -58,6 +52,20 @@ function cellText(row: AdminUserRow, key: "user_name" | "email" | "mobile_number
 function createdDateText(row: AdminUserRow): string {
   return formatValue("created_at", row.created_at);
 }
+
+type CreateForm = {
+  userName: string;
+  email: string;
+  mobileNumber: string;
+  password: string;
+};
+
+const emptyCreateForm = (): CreateForm => ({
+  userName: "",
+  email: "",
+  mobileNumber: "",
+  password: "",
+});
 
 type EditForm = {
   userName: string;
@@ -83,10 +91,17 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
   const [viewUser, setViewUser] = useState<AdminUserRow | null>(null);
   const [editUser, setEditUser] = useState<AdminUserRow | null>(null);
   const [deleteUser, setDeleteUser] = useState<AdminUserRow | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createForm, setCreateForm] = useState<CreateForm>(emptyCreateForm);
   const [editForm, setEditForm] = useState<EditForm | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
     setUsers(initialUsers);
@@ -96,6 +111,8 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
     setViewUser(null);
     setEditUser(null);
     setDeleteUser(null);
+    setCreateOpen(false);
+    setCreateForm(emptyCreateForm());
     setEditForm(null);
     setError(null);
   }, []);
@@ -104,11 +121,70 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeModals();
     };
-    if (viewUser || editUser || deleteUser) {
+    if (viewUser || editUser || deleteUser || createOpen) {
       document.addEventListener("keydown", onKey);
       return () => document.removeEventListener("keydown", onKey);
     }
-  }, [viewUser, editUser, deleteUser, closeModals]);
+  }, [viewUser, editUser, deleteUser, createOpen, closeModals]);
+
+  function openCreate() {
+    setCreateOpen(true);
+    setCreateForm(emptyCreateForm());
+    setError(null);
+  }
+
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    const userName = createForm.userName.trim();
+    const email = createForm.email.trim();
+    const mobileNumber = createForm.mobileNumber.trim();
+    const password = createForm.password.trim();
+
+    if (userName.length < 2) {
+      setError("Enter the agent's full name.");
+      return;
+    }
+    if (!/^[6-9]\d{9}$/.test(mobileNumber)) {
+      setError("Enter a valid 10-digit Indian mobile number.");
+      return;
+    }
+    if (!/^\d{4}$/.test(password)) {
+      setError("Password must be a 4-digit PIN.");
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    const payload: Record<string, string> = {
+      userName,
+      mobileNumber,
+      mpin: password,
+    };
+    if (email) payload.email = email;
+
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = (await res.json()) as { success?: boolean; data?: AdminUserRow; error?: string; message?: string };
+      if (!res.ok) {
+        setError(data.error ?? data.message ?? "Create failed");
+        return;
+      }
+      if (data.data) {
+        setUsers((prev) => [data.data!, ...prev]);
+      }
+      closeModals();
+      router.refresh();
+    } catch {
+      setError("Network error. Try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   function openEdit(user: AdminUserRow) {
     setEditUser(user);
@@ -255,6 +331,15 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
     [],
   );
 
+  if (!hydrated) {
+    return (
+      <div
+        className="mt-3 min-h-[20rem] rounded-xl border border-slate-200 bg-white shadow-sm dark:border-dark_border dark:bg-darklight"
+        aria-hidden
+      />
+    );
+  }
+
   return (
     <>
       <CrmDataTable
@@ -263,20 +348,101 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
         getRowId={(row, i) => String(row.id ?? i)}
         searchPlaceholder="Search name, email, phone…"
         emptyMessage="No agents to display."
+        toolbarRight={
+          <button type="button" onClick={openCreate} className={ADMIN_BTN_PRIMARY}>
+            Add agent
+          </button>
+        }
       />
+
+      {createOpen && (
+        <AdminModal title="Add agent" onClose={closeModals}>
+          <form onSubmit={handleCreate} className="space-y-6 p-6 sm:p-8">
+            {error && <p className={ADMIN_ERROR}>{error}</p>}
+            <div className="grid gap-5">
+              <label className="block">
+                <span className={ADMIN_LABEL}>Full name</span>
+                <input
+                  className={inputClass}
+                  value={createForm.userName}
+                  onChange={(e) => setCreateForm({ ...createForm, userName: e.target.value })}
+                  required
+                  autoComplete="name"
+                  placeholder="Agent full name"
+                />
+              </label>
+              <div className="grid grid-cols-2 gap-5">
+                <label className="block">
+                  <span className={ADMIN_LABEL}>Email (optional)</span>
+                  <input
+                    type="email"
+                    className={inputClass}
+                    value={createForm.email}
+                    onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+                    autoComplete="email"
+                    placeholder="name@example.com"
+                  />
+                </label>
+                <label className="block">
+                  <span className={ADMIN_LABEL}>Phone</span>
+                  <input
+                    className={inputClass}
+                    value={createForm.mobileNumber}
+                    onChange={(e) => setCreateForm({ ...createForm, mobileNumber: e.target.value.replace(/\D/g, "").slice(0, 10) })}
+                    required
+                    inputMode="numeric"
+                    maxLength={10}
+                    autoComplete="tel"
+                    placeholder="10-digit mobile"
+                  />
+                </label>
+              </div>
+              <label className="block">
+                <span className={ADMIN_LABEL}>Password</span>
+                <input
+                  type="password"
+                  className={inputClass}
+                  value={createForm.password}
+                  onChange={(e) => setCreateForm({ ...createForm, password: e.target.value.replace(/\D/g, "").slice(0, 4) })}
+                  required
+                  inputMode="numeric"
+                  maxLength={4}
+                  autoComplete="new-password"
+                  placeholder="4-digit PIN"
+                />
+                <span className="mt-1.5 block text-xs text-slate-500">Agent login uses a 4-digit PIN.</span>
+              </label>
+            </div>
+            <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
+              <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
+                Cancel
+              </button>
+              <button type="submit" disabled={saving} className={ADMIN_BTN_PRIMARY}>
+                {saving ? "Creating…" : "Create agent"}
+              </button>
+            </div>
+          </form>
+        </AdminModal>
+      )}
 
       {viewUser && (
         <AdminModal title="User details" wide onClose={() => setViewUser(null)}>
-          <ul className="grid grid-cols-1 gap-x-8 gap-y-5 p-6 sm:grid-cols-2 sm:p-8">
-            {VIEW_FIELDS.map((key) => (
-              <li key={key} className="flex flex-wrap items-baseline gap-1 text-sm">
-                <span className="shrink-0 font-semibold text-midnight_text dark:text-white">
-                  {FIELD_LABELS[key] ?? key}:
-                </span>
-                <span className="text-midnight_text dark:text-gray-200">{formatValue(key, viewUser[key])}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="space-y-6 p-6 sm:p-8">
+            <ul className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
+              {VIEW_FIELDS.map((key) => (
+                <li key={key} className="flex flex-wrap items-baseline gap-1 text-sm">
+                  <span className="shrink-0 font-semibold text-midnight_text dark:text-white">
+                    {FIELD_LABELS[key] ?? key}:
+                  </span>
+                  <span className="text-midnight_text dark:text-gray-200">{formatValue(key, viewUser[key])}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="border-t border-slate-200 pt-5 dark:border-dark_border">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Affiliate link &amp; QR</p>
+              <AffiliateShareKit code={String(viewUser.referral_code ?? "")} compact />
+            </div>
+          </div>
         </AdminModal>
       )}
 

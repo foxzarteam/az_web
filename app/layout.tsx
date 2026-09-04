@@ -123,7 +123,9 @@ export default async function RootLayout({
           attribute="class"
           defaultTheme="light"
           enableSystem={false}
+          enableColorScheme={false}
           disableTransitionOnChange
+          nonce=""
         >
           <Aoscompo>
             <ServiceCardsProvider cards={serviceCards}>

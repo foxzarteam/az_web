@@ -26,11 +26,13 @@ function normalizeEnvValue(s: string): string {
 export const CANONICAL_SITE_ORIGIN = "https://apnizaroorat.com";
 
 /**
- * Lead API origin (https, no trailing slash).
- * If env is missing on static export, browser would call same-site `/api/leads` → 404 HTML → submit fails.
- * Override with NEXT_PUBLIC_API_URL when your backend URL changes.
+ * Lead/API origin (no trailing slash).
+ * Local `next dev` → Nest in `server/` on port 3001.
+ * Production fallback if NEXT_PUBLIC_API_URL is unset at build time.
  */
 const DEFAULT_PUBLIC_API_BASE = "https://server-nu-bay-20.vercel.app";
+const LOCAL_NEST_API_BASE = "http://localhost:3001";
+const LOCAL_NEXT_SITE_ORIGIN = "http://localhost:3000";
 
 const DEFAULT_CONTACT_EMAIL = "info@apnizaroorat.com";
 
@@ -47,7 +49,10 @@ const DEFAULT_INDIA_MAP_FALLBACK_SVG_URL =
 
 function resolvePublicApiBaseUrl(): string {
   let raw = normalizeEnvValue(process.env.NEXT_PUBLIC_API_URL ?? "");
-  if (!raw) return trimTrailingSlashes(DEFAULT_PUBLIC_API_BASE);
+  if (!raw) {
+    if (process.env.NODE_ENV !== "production") return LOCAL_NEST_API_BASE;
+    return trimTrailingSlashes(DEFAULT_PUBLIC_API_BASE);
+  }
   if (!/^https?:\/\//i.test(raw)) raw = `https://${raw}`;
   return trimTrailingSlashes(raw);
 }
@@ -108,7 +113,7 @@ function resolvePublicSiteUrl(): string {
     return normalizePublicSiteUrl(origin);
   }
 
-  return "http://localhost:3000";
+  return LOCAL_NEXT_SITE_ORIGIN;
 }
 
 export const PUBLIC_SITE_URL = resolvePublicSiteUrl();

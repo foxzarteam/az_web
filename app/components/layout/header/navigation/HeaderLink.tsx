@@ -25,12 +25,15 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
     const base = pathnameOnly.replace(/\/+$/, "") || "/";
     return hash ? `${base}#${hash}` : base;
   };
-  const current = normalizePath(path || "/");
+  const current = path ? normalizePath(path) : "";
   const isActive =
-    normalizePath(item.href) === current ||
-    (item.submenu &&
-      item.submenu.length > 0 &&
-      item.submenu.some((s) => normalizePath(s.href) === current));
+    Boolean(current) &&
+    (normalizePath(item.href) === current ||
+      Boolean(
+        item.submenu &&
+          item.submenu.length > 0 &&
+          item.submenu.some((s) => normalizePath(s.href) === current),
+      ));
   const isProducts = item.label === "Products" && item.submenu && item.submenu.length > 0;
 
   return (
