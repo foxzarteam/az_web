@@ -156,7 +156,7 @@ export default function AdminDashboardShell({
           </div>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">{children}</div>
+        <div className="admin-scroll-light min-h-0 flex-1 overflow-y-auto overflow-x-hidden">{children}</div>
       </div>
     </div>
   );

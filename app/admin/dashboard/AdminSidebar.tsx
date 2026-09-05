@@ -149,7 +149,7 @@ export default function AdminSidebar({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 flex h-[100dvh] w-64 shrink-0 flex-col border-r transition-transform duration-300 ease-in-out lg:static lg:z-auto lg:translate-x-0 ${
+      className={`fixed inset-y-0 left-0 z-50 flex h-[100dvh] w-64 shrink-0 flex-col overflow-hidden border-r transition-transform duration-300 ease-in-out lg:static lg:z-auto lg:translate-x-0 ${
         open ? "translate-x-0" : "-translate-x-full"
       }`}
       style={{
@@ -182,7 +182,7 @@ export default function AdminSidebar({
         </button>
       </div>
 
-      <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">
+      <nav className="admin-scroll flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">
         <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: ADMIN_UI.sidebarMuted }}>
           Menu
         </p>
