@@ -279,8 +279,6 @@ export default function IndiaMap() {
 
           <p className="text-white/90 text-center text-sm sm:text-base md:text-lg max-w-3xl mx-auto mb-4 sm:mb-6 leading-relaxed">
             Multiple agents are working with us every day and earning real money.
-            <br className="hidden sm:block" />
-            <span className="sm:inline">Join India&apos;s fast-growing financial partner platform.</span>
           </p>
 
           <div className="flex justify-center mb-6 sm:mb-8 md:mb-10 px-0">
