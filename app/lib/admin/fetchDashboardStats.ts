@@ -1,6 +1,6 @@
 import "server-only";
 import { PUBLIC_API_BASE_URL } from "@/app/config/publicEnv";
-import { adminInternalHeaders } from "@/app/lib/admin/adminInternalKey";
+import { adminInternalHeadersFromSession } from "@/app/lib/admin/adminInternalKey";
 
 export type DashboardStats = {
   totalLeads: number;
@@ -14,11 +14,16 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
     return { totalLeads: 0, totalAgents: 0, totalPartners: 0 };
   }
 
+  const headers = await adminInternalHeadersFromSession();
+  if (!headers) {
+    return { totalLeads: 0, totalAgents: 0, totalPartners: 0 };
+  }
+
   const url = `${base}/api/admin/stats`;
 
   try {
     const res = await fetch(url, {
-      headers: adminInternalHeaders(),
+      headers,
       cache: "no-store",
     });
 

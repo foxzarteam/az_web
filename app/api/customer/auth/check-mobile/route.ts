@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { mobileHasLead } from "@/app/lib/customer/leadsByMobile";
+import { allowRateLimitedAction, clientIpFromRequest } from "@/app/lib/security/rateLimit";
 
 function normalizeMobile(raw: unknown): string {
   const d = String(raw ?? "").replace(/\D/g, "");
@@ -24,6 +25,11 @@ export async function POST(request: Request) {
 
     if (mobile.length !== 10) {
       return NextResponse.json({ error: "Enter a valid 10-digit mobile number." }, { status: 400 });
+    }
+
+    const ip = clientIpFromRequest(request);
+    if (!allowRateLimitedAction(`customer-check-mobile:${ip}:${mobile}`, 5, 60_000)) {
+      return NextResponse.json({ error: "Too many attempts. Try again later." }, { status: 429 });
     }
 
     const exists = await mobileHasLead(mobile);

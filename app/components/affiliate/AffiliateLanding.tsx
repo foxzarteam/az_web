@@ -136,10 +136,12 @@ function PlayIcon() {
 
 function ProductGif({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="product-gif-frame theme-gradient-bg mx-auto md:mx-0">
-      <div className="product-gif-frame__inner">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt={alt} width={160} height={160} />
+    <div className="flex w-full justify-center md:w-auto md:justify-start">
+      <div className="product-gif-frame theme-gradient-bg">
+        <div className="product-gif-frame__inner">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={alt} width={224} height={224} />
+        </div>
       </div>
     </div>
   );

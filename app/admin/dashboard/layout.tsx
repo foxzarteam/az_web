@@ -1,10 +1,15 @@
 import { redirect } from "next/navigation";
-import { getAdminSession } from "@/app/lib/admin/session";
+import { getAdminSession, isAgentRole } from "@/app/lib/admin/session";
 import AdminDashboardShell from "./AdminDashboardShell";
 
 export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
+  if (isAgentRole(session.role)) redirect("/partner/dashboard");
 
-  return <AdminDashboardShell email={session.email}>{children}</AdminDashboardShell>;
+  return (
+    <AdminDashboardShell role={session.role} basePath="/admin">
+      {children}
+    </AdminDashboardShell>
+  );
 }

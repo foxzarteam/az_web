@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { PUBLIC_API_BASE_URL } from "@/app/config/publicEnv";
 import { adminInternalHeaders } from "@/app/lib/admin/adminInternalKey";
-import { getAdminSession } from "@/app/lib/admin/session";
+import { requireCrmAdminSession } from "@/app/lib/admin/requireAdminRole";
 
 function apiBase(): string {
   return PUBLIC_API_BASE_URL.trim().replace(/\/+$/, "");
 }
 
 export async function GET() {
-  const session = await getAdminSession();
+  const session = await requireCrmAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -20,7 +20,11 @@ export async function GET() {
 
   try {
     const res = await fetch(`${base}/api/contact/admin/all`, {
-      headers: adminInternalHeaders(),
+      headers: adminInternalHeaders(false, {
+        sub: session.sub,
+        email: session.email,
+        role: session.role,
+      }),
       cache: "no-store",
     });
     const data = await res.json().catch(() => ({}));

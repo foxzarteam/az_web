@@ -15,31 +15,36 @@ export function leadIdFromResponse(data: unknown): string | null {
   return id != null ? String(id) : null;
 }
 
-/** Cookie is set on `/r/:code` (and `?ref=`). Server maps the code to agent_id. */
+/** Cookie wins over client body (anti referral-fraud). Cookie set on `/r/:code` / `?ref=`. */
 function withReferralCode<T extends object>(data: T): T {
-  const existing =
+  const fromCookie = readAffiliateCode().trim();
+  const fromBody =
     "referralCode" in data && typeof (data as { referralCode?: unknown }).referralCode === "string"
       ? String((data as { referralCode: string }).referralCode).trim()
       : "";
-  const referralCode = existing || readAffiliateCode().trim();
+  const referralCode = fromCookie || fromBody;
   return referralCode ? { ...data, referralCode } : data;
 }
 
 /**
- * Save full lead BEFORE OTP.
+ * Save full lead after phone OTP (idToken or recent Nest OTP session required server-side).
  * Same mobile/PAN can apply once per category (e.g. personal_loan and insurance).
  */
 export async function applyLead(
   leadData: CreateLeadRequest,
+  idToken?: string | null,
 ): Promise<CreateLeadResponse> {
   const body = withReferralCode(leadData);
   try {
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    };
+    if (idToken?.trim()) headers.Authorization = `Bearer ${idToken.trim()}`;
+
     const response = await fetch(`${getLeadsApiBase()}/apply`, {
       method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify(body),
       mode: "cors",
       credentials: "omit",

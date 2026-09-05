@@ -2,13 +2,19 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ADMIN_UI } from "./adminUi";
 
-const nav = [
+type NavItem = {
+  label: string;
+  path: string;
+  icon: React.ReactNode;
+};
+
+const adminNavItems: NavItem[] = [
   {
     label: "Dashboard",
-    href: "/admin/dashboard",
+    path: "/dashboard",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <rect x="3" y="3" width="7" height="9" rx="1" />
@@ -20,7 +26,7 @@ const nav = [
   },
   {
     label: "Leads",
-    href: "/admin/dashboard/leads",
+    path: "/dashboard/leads",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
@@ -30,8 +36,8 @@ const nav = [
     ),
   },
   {
-    label: "Agents",
-    href: "/admin/dashboard/users",
+    label: "Partners",
+    path: "/dashboard/users",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -43,7 +49,7 @@ const nav = [
   },
   {
     label: "Products",
-    href: "/admin/dashboard/products",
+    path: "/dashboard/products",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
@@ -53,8 +59,8 @@ const nav = [
     ),
   },
   {
-    label: "Partners",
-    href: "/admin/dashboard/partners",
+    label: "Aggregators",
+    path: "/dashboard/partners",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <path d="M3 21h18" />
@@ -65,7 +71,7 @@ const nav = [
   },
   {
     label: "Contact",
-    href: "/admin/dashboard/contacts",
+    path: "/dashboard/contacts",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -75,27 +81,66 @@ const nav = [
   },
 ];
 
+const partnerNavItems: NavItem[] = [
+  adminNavItems[0],
+  adminNavItems[1],
+  {
+    label: "Earning",
+    path: "/dashboard/earnings",
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M6 3h12" />
+        <path d="M6 8h12" />
+        <path d="M6 13h3" />
+        <path d="M9 13c6.667 0 6.667-10 0-10" />
+        <path d="m6 13 8.5 8" />
+      </svg>
+    ),
+  },
+];
+
 type Props = {
-  email: string;
+  role?: string;
+  basePath?: "/admin" | "/partner";
   open: boolean;
   onClose: () => void;
 };
 
-function initialsFromEmail(email: string) {
-  const local = email.split("@")[0] || "A";
-  return local.slice(0, 2).toUpperCase();
-}
-
-export default function AdminSidebar({ email, open, onClose }: Props) {
+export default function AdminSidebar({
+  role = "",
+  basePath = "/admin",
+  open,
+  onClose,
+}: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
+  const isPartner = String(role).trim().toLowerCase() === "agent" || basePath === "/partner";
+  const loginHref = basePath === "/partner" ? "/partner/login" : "/admin/login";
+  const homeHref = `${basePath}/dashboard`;
+
+  const nav = useMemo(() => {
+    const items = isPartner ? partnerNavItems : adminNavItems;
+    return items.map((item) => ({ ...item, href: `${basePath}${item.path}` }));
+  }, [isPartner, basePath]);
+
+  useEffect(() => {
+    if (!isPartner || basePath !== "/partner") return;
+    const path = (pathname ?? "").replace(/\/+$/, "") || "/";
+    const ok =
+      path === "/partner/dashboard" ||
+      path === "/partner/dashboard/leads" ||
+      path === "/partner/dashboard/earnings" ||
+      path.startsWith("/partner/dashboard/leads/") ||
+      path.startsWith("/partner/dashboard/earnings/");
+    if (!ok) router.replace("/partner/dashboard");
+  }, [isPartner, basePath, pathname, router]);
 
   async function logout() {
     setLoggingOut(true);
     try {
       await fetch("/api/admin/logout", { method: "POST" });
-      router.push("/admin/login");
+      router.push(loginHref);
       router.refresh();
     } finally {
       setLoggingOut(false);
@@ -122,7 +167,7 @@ export default function AdminSidebar({ email, open, onClose }: Props) {
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-white">Apni Zaroorat</p>
           <p className="text-[11px]" style={{ color: ADMIN_UI.sidebarMuted }}>
-            Admin Panel
+            {isPartner ? "Partner Panel" : "Admin Panel"}
           </p>
         </div>
         <button
@@ -143,8 +188,8 @@ export default function AdminSidebar({ email, open, onClose }: Props) {
         </p>
         {nav.map((item) => {
           const active =
-            item.href === "/admin/dashboard"
-              ? pathname === item.href
+            item.href === homeHref
+              ? pathname === item.href || pathname === `${item.href}/`
               : pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link
@@ -171,21 +216,6 @@ export default function AdminSidebar({ email, open, onClose }: Props) {
       </nav>
 
       <div className="space-y-3 border-t p-4" style={{ borderColor: ADMIN_UI.sidebarBorder }}>
-        <div className="flex items-center gap-3 rounded-xl bg-white/8 px-3 py-2.5" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
-          <div
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white"
-            style={{ backgroundColor: ADMIN_UI.primary }}
-          >
-            {initialsFromEmail(email)}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-white">Administrator</p>
-            <p className="truncate text-[11px]" style={{ color: ADMIN_UI.sidebarMuted }} title={email}>
-              {email}
-            </p>
-          </div>
-        </div>
-
         <button
           type="button"
           onClick={logout}

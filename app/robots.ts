@@ -11,11 +11,11 @@ export default function robots(): MetadataRoute.Robots {
   const disallow = [
     "/admin/",
     "/admin",
+    "/partner/",
+    "/partner",
     "/api/",
     "/customer/",
     "/customer",
-    "/agent/",
-    "/agent",
     "/r/",
   ];
 

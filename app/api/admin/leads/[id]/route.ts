@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
 import { PUBLIC_API_BASE_URL } from "@/app/config/publicEnv";
 import { adminInternalHeaders } from "@/app/lib/admin/adminInternalKey";
-import { getAdminSession } from "@/app/lib/admin/session";
+import { requireCrmAdminSession } from "@/app/lib/admin/requireAdminRole";
 
 function apiBase(): string {
   return PUBLIC_API_BASE_URL.trim().replace(/\/+$/, "");
 }
 
+function actor(session: { sub: string; email: string; role: string }) {
+  return { sub: session.sub, email: session.email, role: session.role };
+}
+
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
-  const session = await getAdminSession();
+  const session = await requireCrmAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -29,7 +33,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   try {
     const res = await fetch(`${base}/api/leads/admin/${encodeURIComponent(id)}`, {
       method: "PATCH",
-      headers: adminInternalHeaders(true),
+      headers: adminInternalHeaders(true, actor(session)),
       body: JSON.stringify(body),
       cache: "no-store",
     });
@@ -48,7 +52,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 }
 
 export async function DELETE(_request: Request, context: { params: Promise<{ id: string }> }) {
-  const session = await getAdminSession();
+  const session = await requireCrmAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -62,7 +66,7 @@ export async function DELETE(_request: Request, context: { params: Promise<{ id:
   try {
     const res = await fetch(`${base}/api/leads/admin/${encodeURIComponent(id)}`, {
       method: "DELETE",
-      headers: adminInternalHeaders(),
+      headers: adminInternalHeaders(false, actor(session)),
       cache: "no-store",
     });
 

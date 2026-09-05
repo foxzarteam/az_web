@@ -1,7 +1,9 @@
 import { fetchAdminContacts } from "@/app/lib/admin/fetchContacts";
+import { assertCrmAdminPage } from "@/app/lib/admin/assertCrmAdminPage";
 import ContactsTable from "./ContactsTable";
 
 export default async function AdminContactsPage() {
+  await assertCrmAdminPage();
   const contacts = await fetchAdminContacts();
 
   return (

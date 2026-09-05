@@ -1,6 +1,6 @@
 import "server-only";
 import { PUBLIC_API_BASE_URL } from "@/app/config/publicEnv";
-import { adminInternalHeaders } from "@/app/lib/admin/adminInternalKey";
+import { adminInternalHeadersFromSession } from "@/app/lib/admin/adminInternalKey";
 
 export type AdminContactRow = {
   id: string;
@@ -18,9 +18,12 @@ export async function fetchAdminContacts(): Promise<AdminContactRow[]> {
   const base = PUBLIC_API_BASE_URL.trim().replace(/\/+$/, "");
   if (!base) return [];
 
+  const headers = await adminInternalHeadersFromSession();
+  if (!headers) return [];
+
   try {
     const res = await fetch(`${base}/api/contact/admin/all`, {
-      headers: adminInternalHeaders(),
+      headers,
       cache: "no-store",
     });
     if (!res.ok) return [];

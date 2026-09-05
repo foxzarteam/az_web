@@ -257,10 +257,10 @@ export default function PersonalLoanApplyModal({
         employmentType,
         netMonthlyIncome,
       });
-      let applyRes;
+
       if (skipOtp && existingLeadId) {
         const idToken = await getCurrentFirebaseIdToken();
-        applyRes = await completeLead(
+        const applyRes = await completeLead(
           existingLeadId,
           {
             pan: payload.pan,
@@ -273,29 +273,23 @@ export default function PersonalLoanApplyModal({
           },
           idToken,
         );
-      } else {
-        applyRes = await applyLead(payload);
-      }
 
-      if (!applyRes.success) {
-        setFormError(applyRes.message || "Could not submit application.");
-        return;
-      }
+        if (!applyRes.success) {
+          setFormError(applyRes.message || "Could not submit application.");
+          return;
+        }
 
-      const leadId = leadIdFromResponse(applyRes.data) || existingLeadId || "";
-      if (!leadId) {
-        setFormError("Could not submit application. Please try again.");
-        return;
-      }
+        const leadId = leadIdFromResponse(applyRes.data) || existingLeadId || "";
+        if (!leadId) {
+          setFormError("Could not submit application. Please try again.");
+          return;
+        }
 
-      if (chatId) {
-        void updateChatSession(chatId, { status: "lead_submitted", leadId });
-      }
+        if (chatId) {
+          void updateChatSession(chatId, { status: "lead_submitted", leadId });
+        }
 
-      if (skipOtp) {
-        // Keep form modal open with loader until dashboard opens (no blank gap).
         setIsOpeningDashboard(true);
-        const idToken = await getCurrentFirebaseIdToken();
         if (
           idToken &&
           (await loginAndGoToDashboard(payload.mobileNumber, idToken, (href) => {
@@ -310,7 +304,8 @@ export default function PersonalLoanApplyModal({
         return;
       }
 
-      setPendingLeadId(leadId);
+      // OTP before PAN: open verify modal; submit lead only after idToken.
+      setPendingLeadId("pending");
       setShowOtpModal(true);
     } catch {
       setFormError("Network error. Please try again.");
@@ -537,20 +532,42 @@ export default function PersonalLoanApplyModal({
       {!skipOtp && (
         <LeadApplyModal
           open={showOtpModal && Boolean(pendingLeadId)}
-          leadId={pendingLeadId}
           mobile={mobile.replace(/\D/g, "")}
           onClose={() => {
             if (isOpeningDashboard) return;
             setShowOtpModal(false);
+            setPendingLeadId("");
           }}
-          onEditMobile={() => setShowOtpModal(false)}
+          onEditMobile={() => {
+            setShowOtpModal(false);
+            setPendingLeadId("");
+          }}
           syncServerVerify
           onSuccess={async (result) => {
+            const payload = personalLoanApplyPayload({
+              pan,
+              mobile,
+              fullName,
+              pincode,
+              loanAmount,
+              employmentType,
+              netMonthlyIncome,
+            });
+            const applyRes = await applyLead(payload, result.idToken);
+            if (!applyRes.success) {
+              throw new Error(applyRes.message || "Could not submit application.");
+            }
+            const leadId = leadIdFromResponse(applyRes.data) || "";
+            if (chatId && leadId) {
+              void updateChatSession(chatId, { status: "lead_submitted", leadId });
+            }
+            setIsOpeningDashboard(true);
             const ok = await loginAndGoToDashboard(result.mobile, result.idToken, (href) => {
               router.replace(href);
               router.refresh();
             });
             if (!ok) {
+              setIsOpeningDashboard(false);
               throw new Error("Login failed");
             }
           }}

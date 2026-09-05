@@ -488,21 +488,21 @@ export default function PartnersTable({
         rows={partners}
         columns={columns}
         getRowId={(row, i) => String(row.id ?? i)}
-        searchPlaceholder="Search partners, products…"
-        emptyMessage="No partners to display."
+        searchPlaceholder="Search aggregators, products…"
+        emptyMessage="No aggregators to display."
         toolbarRight={
           <button
             type="button"
             onClick={openCreate}
             className={ADMIN_BTN_PRIMARY}
           >
-            Add partner
+            Add aggregator
           </button>
         }
       />
 
       {viewRow && (
-        <AdminModal title="Partner details" wide onClose={() => setViewRow(null)}>
+        <AdminModal title="Aggregator details" wide onClose={() => setViewRow(null)}>
           <ul className="grid grid-cols-1 gap-x-8 gap-y-5 p-6 sm:grid-cols-2 sm:p-8">
             {VIEW_FIELDS.map((key) => (
               <li key={key} className="flex flex-wrap items-baseline gap-1 text-sm">
@@ -515,7 +515,7 @@ export default function PartnersTable({
       )}
 
       {createOpen && (
-        <AdminModal title="Add partner" onClose={closeModals}>
+        <AdminModal title="Add aggregator" onClose={closeModals}>
           <form onSubmit={handleCreate} className="space-y-6 p-6 sm:p-8">
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <PartnerFormFields form={form} setForm={setForm} inputClass={inputClass} serviceOptions={serviceOptions} />
@@ -532,7 +532,7 @@ export default function PartnersTable({
       )}
 
       {editRow && (
-        <AdminModal title="Edit partner" onClose={closeModals}>
+        <AdminModal title="Edit aggregator" onClose={closeModals}>
           <form onSubmit={handleSaveEdit} className="space-y-6 p-6 sm:p-8">
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <PartnerFormFields form={form} setForm={setForm} inputClass={inputClass} serviceOptions={serviceOptions} />
@@ -549,10 +549,10 @@ export default function PartnersTable({
       )}
 
       {deleteRow && (
-        <AdminModal title="Delete partner" onClose={closeModals}>
+        <AdminModal title="Delete aggregator" onClose={closeModals}>
           <div className="p-6 sm:p-8">
             <p className="text-sm text-midnight_text dark:text-gray-200">
-              Delete partner <strong>{cellText(deleteRow, "name")}</strong>? This cannot be undone.
+              Delete aggregator <strong>{cellText(deleteRow, "name")}</strong>? This cannot be undone.
             </p>
             {error && <p className={`mt-3 ${ADMIN_ERROR}`}>{error}</p>}
             <div className="mt-8 flex justify-end gap-3">

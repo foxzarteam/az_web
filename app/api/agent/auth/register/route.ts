@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { PUBLIC_API_BASE_URL } from "@/app/config/publicEnv";
-import { setAgentSessionCookie } from "@/app/lib/agent/session";
+import { allowRateLimitedAction, clientIpFromRequest } from "@/app/lib/security/rateLimit";
+import { toPublicClientError } from "@/app/lib/publicClientError";
 
 function normalizeMobile(raw: unknown): string {
   const d = String(raw ?? "").replace(/\D/g, "");
@@ -27,6 +28,12 @@ export async function POST(request: Request) {
   const email = String(obj.email ?? "").trim();
   const mobile = normalizeMobile(obj.mobileNumber);
   const mpin = String(obj.mpin ?? "").replace(/\D/g, "").slice(0, 4);
+  const idToken = String(obj.idToken ?? "").trim();
+
+  const ip = clientIpFromRequest(request);
+  if (!allowRateLimitedAction(`agent-register:${ip}:${mobile || "unknown"}`, 3, 60_000)) {
+    return NextResponse.json({ error: "Too many attempts. Try again later." }, { status: 429 });
+  }
 
   if (userName.length < 2) {
     return NextResponse.json({ error: "Enter your full name." }, { status: 400 });
@@ -50,6 +57,7 @@ export async function POST(request: Request) {
         mobileNumber: mobile,
         mpin,
         ...(email ? { email } : {}),
+        ...(idToken ? { idToken } : {}),
       }),
       cache: "no-store",
     });
@@ -63,19 +71,26 @@ export async function POST(request: Request) {
       };
       message?: string;
     };
-    if (!res.ok || !data.success || !data.data?.id) {
+
+    if (res.status === 409) {
       return NextResponse.json(
-        { error: data.message ?? "Could not create account" },
-        { status: res.status === 409 ? 409 : res.ok ? 400 : res.status },
+        { error: "Could not complete registration. Try logging in." },
+        { status: 409 },
       );
     }
 
-    await setAgentSessionCookie({
-      sub: String(data.data.id),
-      name: String(data.data.user_name ?? userName),
-      mobile: String(data.data.mobile_number ?? mobile),
-      code: String(data.data.referral_code ?? ""),
-    });
+    if (!res.ok || !data.success || !data.data?.id) {
+      return NextResponse.json(
+        {
+          error: toPublicClientError(
+            data.message,
+            "Could not create account. Please try again.",
+          ),
+        },
+        { status: res.ok ? 400 : res.status },
+      );
+    }
+
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Cannot reach API" }, { status: 503 });

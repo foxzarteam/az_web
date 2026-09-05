@@ -228,7 +228,7 @@ export default function IndiaMap() {
       setMobile("");
       setPassword("");
       setTermsAccepted(false);
-      router.push("/agent/dashboard");
+      router.push("/partner/login");
       router.refresh();
     } catch {
       setFieldErrors({ submit: "Unable to submit right now. Please try again." });
@@ -444,7 +444,7 @@ export default function IndiaMap() {
                 <div className="flex items-center justify-center gap-2 pt-1">
                   <span className="text-sm text-slate-600">Already a partner?</span>
                   <Link
-                    href="/agent/login"
+                    href="/partner/login"
                     className="inline-flex items-center justify-center rounded-lg border-2 border-primary bg-white px-4 py-2 text-sm font-bold text-primary transition hover:bg-[#EEF0FF]"
                   >
                     Login

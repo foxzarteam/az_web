@@ -8,23 +8,27 @@ import { ADMIN_UI } from "./adminUi";
 const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
   "/admin/dashboard": {
     title: "Dashboard",
-    subtitle: "Overview of leads, agents and partners",
+    subtitle: "Overview of leads, partners and aggregators",
   },
   "/admin/dashboard/leads": {
     title: "Leads",
     subtitle: "Manage and track all incoming leads",
   },
+  "/admin/dashboard/earnings": {
+    title: "Earning",
+    subtitle: "Your commission wallet",
+  },
   "/admin/dashboard/users": {
-    title: "Agents",
-    subtitle: "Manage agent accounts and access",
+    title: "Partners",
+    subtitle: "Manage partner accounts and access",
   },
   "/admin/dashboard/products": {
     title: "Products",
     subtitle: "Configure loan and insurance products",
   },
   "/admin/dashboard/partners": {
-    title: "Partners",
-    subtitle: "Manage lending and insurance partners",
+    title: "Aggregators",
+    subtitle: "Manage lending and insurance aggregators",
   },
   "/admin/dashboard/contacts": {
     title: "Contact",
@@ -32,24 +36,27 @@ const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
   },
 };
 
-function resolvePageMeta(pathname: string) {
-  if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
+function resolvePageMeta(pathname: string, basePath: "/admin" | "/partner") {
+  const normalized = pathname.replace(basePath, "/admin").replace(/\/+$/, "") || "/admin/dashboard";
+  if (PAGE_TITLES[normalized]) return PAGE_TITLES[normalized];
   const match = Object.keys(PAGE_TITLES)
-    .filter((k) => k !== "/admin/dashboard" && pathname.startsWith(k))
+    .filter((k) => k !== "/admin/dashboard" && normalized.startsWith(k))
     .sort((a, b) => b.length - a.length)[0];
   return PAGE_TITLES[match] ?? PAGE_TITLES["/admin/dashboard"];
 }
 
 export default function AdminDashboardShell({
-  email,
+  role,
+  basePath = "/admin",
   children,
 }: {
-  email: string;
+  role: string;
+  basePath?: "/admin" | "/partner";
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const page = useMemo(() => resolvePageMeta(pathname), [pathname]);
+  const page = useMemo(() => resolvePageMeta(pathname, basePath), [pathname, basePath]);
 
   function toggleSidebar() {
     setSidebarOpen((v) => !v);
@@ -88,8 +95,12 @@ export default function AdminDashboardShell({
         }`}
       />
 
-      <AdminSidebar email={email} open={sidebarOpen} onClose={closeSidebar} />
-
+      <AdminSidebar
+        role={role}
+        basePath={basePath}
+        open={sidebarOpen}
+        onClose={closeSidebar}
+      />
       <div className="flex min-w-0 flex-1 flex-col">
         <header
           className="sticky top-0 z-30 border-b shadow-sm"

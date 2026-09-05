@@ -143,7 +143,7 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
     const password = createForm.password.trim();
 
     if (userName.length < 2) {
-      setError("Enter the agent's full name.");
+      setError("Enter the partner's full name.");
       return;
     }
     if (!/^[6-9]\d{9}$/.test(mobileNumber)) {
@@ -349,16 +349,16 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
         columns={columns}
         getRowId={(row, i) => String(row.id ?? i)}
         searchPlaceholder="Search name, email, phone…"
-        emptyMessage="No agents to display."
+        emptyMessage="No partners to display."
         toolbarRight={
           <button type="button" onClick={openCreate} className={ADMIN_BTN_PRIMARY}>
-            Add agent
+            Add partner
           </button>
         }
       />
 
       {createOpen && (
-        <AdminModal title="Add agent" onClose={closeModals}>
+        <AdminModal title="Add partner" onClose={closeModals}>
           <form onSubmit={handleCreate} className="space-y-6 p-6 sm:p-8">
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <div className="grid gap-5">
@@ -370,7 +370,7 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
                   onChange={(e) => setCreateForm({ ...createForm, userName: e.target.value })}
                   required
                   autoComplete="name"
-                  placeholder="Agent full name"
+                  placeholder="Partner full name"
                 />
               </label>
               <div className="grid grid-cols-2 gap-5">
@@ -412,7 +412,7 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
                   autoComplete="new-password"
                   placeholder="4-digit PIN"
                 />
-                <span className="mt-1.5 block text-xs text-slate-500">Agent login uses a 4-digit PIN.</span>
+                <span className="mt-1.5 block text-xs text-slate-500">Partner login uses a 4-digit PIN.</span>
               </label>
             </div>
             <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
@@ -420,7 +420,7 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
                 Cancel
               </button>
               <button type="submit" disabled={saving} className={ADMIN_BTN_PRIMARY}>
-                {saving ? "Creating…" : "Create agent"}
+                {saving ? "Creating…" : "Create partner"}
               </button>
             </div>
           </form>
@@ -428,7 +428,7 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
       )}
 
       {viewUser && (
-        <AdminModal title="User details" wide onClose={() => setViewUser(null)}>
+        <AdminModal title="Partner details" wide onClose={() => setViewUser(null)}>
           <div className="space-y-6 p-6 sm:p-8">
             <ul className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
               {VIEW_FIELDS.map((key) => (
@@ -449,7 +449,7 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
       )}
 
       {editUser && editForm && (
-        <AdminModal title="Edit user" wide onClose={closeModals}>
+        <AdminModal title="Edit partner" wide onClose={closeModals}>
           <form onSubmit={handleSaveEdit} className="space-y-6 p-6 sm:p-8">
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <div className="grid gap-5 sm:grid-cols-2">
@@ -517,10 +517,10 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
       )}
 
       {deleteUser && (
-        <AdminModal title="Delete user" onClose={closeModals}>
+        <AdminModal title="Delete partner" onClose={closeModals}>
           <div className="p-6 sm:p-8">
             <p className="text-sm text-midnight_text dark:text-gray-200">
-              Delete user <strong>{cellText(deleteUser, "user_name")}</strong> ({cellText(deleteUser, "mobile_number")})?
+              Delete partner <strong>{cellText(deleteUser, "user_name")}</strong> ({cellText(deleteUser, "mobile_number")})?
               This cannot be undone.
             </p>
             {error && <p className={`mt-3 ${ADMIN_ERROR}`}>{error}</p>}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { customerLoginOnApi } from "@/app/lib/customer/leadsByMobile";
 import { setCustomerSessionCookie } from "@/app/lib/customer/session";
+import { allowRateLimitedAction, clientIpFromRequest } from "@/app/lib/security/rateLimit";
 
 function normalizeMobile(raw: unknown): string {
   const d = String(raw ?? "").replace(/\D/g, "");
@@ -32,6 +33,11 @@ export async function POST(request: Request) {
     }
     if (!idToken) {
       return NextResponse.json({ error: "Verification token missing." }, { status: 400 });
+    }
+
+    const ip = clientIpFromRequest(request);
+    if (!allowRateLimitedAction(`customer-login:${ip}:${mobile}`, 5, 60_000)) {
+      return NextResponse.json({ error: "Too many attempts. Try again later." }, { status: 429 });
     }
 
     const result = await customerLoginOnApi(mobile, idToken);

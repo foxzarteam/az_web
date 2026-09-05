@@ -553,15 +553,16 @@ html {
 .product-gif-frame {
   box-sizing: border-box;
   display: flex;
-  flex: 0 0 7rem;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 7rem;
-  height: 7rem;
-  min-width: 7rem;
-  min-height: 7rem;
-  max-width: 7rem;
-  max-height: 7rem;
+  width: 70%;
+  max-width: 14rem;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  max-height: none;
   overflow: hidden;
   border-radius: 9999px;
   padding: 2px;
@@ -579,22 +580,24 @@ html {
 }
 
 .product-gif-frame img {
-  width: 88%;
-  height: 88%;
-  max-width: 88%;
-  max-height: 88%;
+  width: 90%;
+  height: 90%;
+  max-width: 90%;
+  max-height: 90%;
   object-fit: contain;
 }
 
 @media (min-width: 768px) {
   .product-gif-frame {
-    flex-basis: 10rem;
+    flex: 0 0 10rem;
     width: 10rem;
     height: 10rem;
     min-width: 10rem;
     min-height: 10rem;
     max-width: 10rem;
     max-height: 10rem;
+    aspect-ratio: auto;
+    padding: 2px;
   }
 }
 

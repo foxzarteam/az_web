@@ -1,7 +1,9 @@
 import { fetchAdminServices } from "@/app/lib/admin/fetchServices";
+import { assertCrmAdminPage } from "@/app/lib/admin/assertCrmAdminPage";
 import ServicesTable from "./ServicesTable";
 
 export default async function AdminServicesPage() {
+  await assertCrmAdminPage();
   const services = await fetchAdminServices();
 
   return (

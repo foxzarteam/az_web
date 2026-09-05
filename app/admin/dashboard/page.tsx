@@ -1,7 +1,10 @@
-import Link from "next/link";
+import { getAdminSession, isAgentRole } from "@/app/lib/admin/session";
 import { fetchDashboardStats } from "@/app/lib/admin/fetchDashboardStats";
+import { fetchLeadsByAgent } from "@/app/lib/admin/fetchLeads";
+import Link from "next/link";
 import DashboardStatCard from "./DashboardStatCard";
-import { ADMIN_BTN_PRIMARY, ADMIN_UI } from "./adminUi";
+import AffiliateShareKit from "@/app/components/affiliate/AffiliateShareKit";
+import { ADMIN_BTN_PRIMARY, ADMIN_CARD, ADMIN_UI } from "./adminUi";
 
 function LeadsIcon() {
   return (
@@ -35,34 +38,88 @@ function PartnersIcon() {
 }
 
 const quickLinks = [
-  {
-    href: "/admin/dashboard/leads",
-    title: "Manage Leads",
-    desc: "Review applications & follow-ups",
-  },
-  {
-    href: "/admin/dashboard/users",
-    title: "Agents",
-    desc: "Add or update agent access",
-  },
-  {
-    href: "/admin/dashboard/products",
-    title: "Products",
-    desc: "Loan & insurance catalogue",
-  },
-  {
-    href: "/admin/dashboard/partners",
-    title: "Partners",
-    desc: "Bank & insurer partners",
-  },
+  { href: "/admin/dashboard/leads", title: "Manage Leads", desc: "Review applications & follow-ups" },
+  { href: "/admin/dashboard/users", title: "Partners", desc: "Add or update partner access" },
+  { href: "/admin/dashboard/products", title: "Products", desc: "Loan & insurance catalogue" },
+  { href: "/admin/dashboard/partners", title: "Aggregators", desc: "Bank & insurer aggregators" },
 ];
 
 export default async function AdminDashboardPage() {
+  const session = await getAdminSession();
+  const agent = session && isAgentRole(session.role);
+
+  if (agent && session) {
+    const leads = await fetchLeadsByAgent(session.sub);
+    const loans = leads.filter((l) => String(l.category ?? "") === "personal_loan").length;
+    const insurance = leads.filter((l) => String(l.category ?? "") === "insurance").length;
+
+    return (
+      <main className="px-4 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-3 lg:px-6 lg:pb-6 lg:pt-4">
+        <div className="space-y-3">
+          <div
+            className="flex flex-col gap-2.5 rounded-xl border bg-white p-3.5 sm:flex-row sm:items-center sm:justify-between sm:p-4 dark:border-dark_border dark:bg-darklight"
+            style={{ borderColor: ADMIN_UI.border }}
+          >
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-400">Overview</p>
+              <h2 className="mt-0.5 text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
+                Welcome{session.name ? `, ${session.name}` : ""}
+              </h2>
+              <p className="mt-0.5 max-w-xl text-sm text-slate-500 dark:text-gray-400">
+                Your referred leads and share kit.
+              </p>
+            </div>
+            <Link href="/partner/dashboard/leads" className={ADMIN_BTN_PRIMARY}>
+              Open Leads
+            </Link>
+          </div>
+
+          {session.code ? (
+            <div className={`${ADMIN_CARD} overflow-hidden`}>
+              <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-2.5">
+                <h2 className="text-sm font-semibold text-slate-900">Your unique share kit</h2>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  Anyone who applies via this link is attributed to you.
+                </p>
+              </div>
+              <div className="px-6 py-3">
+                <AffiliateShareKit code={session.code} />
+              </div>
+            </div>
+          ) : null}
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            <DashboardStatCard
+              label="Your leads"
+              value={leads.length}
+              description="Applications attributed to you"
+              href="/partner/dashboard/leads"
+              icon={<LeadsIcon />}
+            />
+            <DashboardStatCard
+              label="Personal loan"
+              value={loans}
+              description="Loan applications"
+              href="/partner/dashboard/leads"
+              icon={<LeadsIcon />}
+            />
+            <DashboardStatCard
+              label="Insurance"
+              value={insurance}
+              description="Insurance applications"
+              href="/partner/dashboard/leads"
+              icon={<LeadsIcon />}
+            />
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   const stats = await fetchDashboardStats();
 
   return (
     <main className="px-4 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-3 lg:px-6 lg:pb-6 lg:pt-4">
-      {/* Use divs — global `section { py-* }` in globals.css adds huge gaps here */}
       <div className="space-y-3">
         <div
           className="flex flex-col gap-2.5 rounded-xl border bg-white p-3.5 sm:flex-row sm:items-center sm:justify-between sm:p-4 dark:border-dark_border dark:bg-darklight"
@@ -74,13 +131,10 @@ export default async function AdminDashboardPage() {
               Welcome to Apni Zaroorat Admin
             </h2>
             <p className="mt-0.5 max-w-xl text-sm text-slate-500 dark:text-gray-400">
-              Monitor leads, agents and partners from one place.
+              Monitor leads, partners and aggregators from one place.
             </p>
           </div>
-          <Link
-            href="/admin/dashboard/leads"
-            className={ADMIN_BTN_PRIMARY}
-          >
+          <Link href="/admin/dashboard/leads" className={ADMIN_BTN_PRIMARY}>
             Open Leads
           </Link>
         </div>
@@ -98,16 +152,16 @@ export default async function AdminDashboardPage() {
               icon={<LeadsIcon />}
             />
             <DashboardStatCard
-              label="Total Agents"
+              label="Total Partners"
               value={stats.totalAgents}
-              description="Active agent accounts in the system"
+              description="Active partner accounts in the system"
               href="/admin/dashboard/users"
               icon={<AgentsIcon />}
             />
             <DashboardStatCard
-              label="Total Partners"
+              label="Total Aggregators"
               value={stats.totalPartners}
-              description="Registered lending & insurance partners"
+              description="Registered lending & insurance aggregators"
               href="/admin/dashboard/partners"
               icon={<PartnersIcon />}
             />

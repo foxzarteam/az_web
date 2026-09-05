@@ -1,23 +1,31 @@
 import { NextResponse } from "next/server";
 import { PUBLIC_API_BASE_URL } from "@/app/config/publicEnv";
 import { adminInternalHeaders } from "@/app/lib/admin/adminInternalKey";
-import { getAdminSession } from "@/app/lib/admin/session";
+import { requireCrmAdminSession } from "@/app/lib/admin/requireAdminRole";
+import { allowRateLimitedAction } from "@/app/lib/security/rateLimit";
 
 function apiBase(): string {
   return PUBLIC_API_BASE_URL.trim().replace(/\/+$/, "");
 }
 
 /**
- * Reveal full PAN for a lead. Forwards admin session identity so Nest can audit.
- * Response includes plaintext PAN once — never log it client-side beyond UI state.
+ * Reveal full PAN for a lead. Identity from session → x-admin-actor (not request body).
+ * Body: reason only.
  */
 export async function POST(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  const session = await getAdminSession();
+  const session = await requireCrmAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!allowRateLimitedAction(`pan-reveal:${session.sub}`, 10, 60_000)) {
+    return NextResponse.json(
+      { error: "Too many PAN reveals. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const { id } = await context.params;
@@ -38,24 +46,17 @@ export async function POST(
     // optional body
   }
 
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  const ipAddress = forwardedFor?.split(",")[0]?.trim() || null;
-  const userAgent = request.headers.get("user-agent");
-
   try {
     const res = await fetch(
       `${base}/api/leads/admin/${encodeURIComponent(id)}/pan/reveal`,
       {
         method: "POST",
-        headers: adminInternalHeaders(true),
-        body: JSON.stringify({
-          adminId: session.sub,
-          adminEmail: session.email,
-          adminRole: session.role,
-          reason,
-          ipAddress,
-          userAgent,
+        headers: adminInternalHeaders(true, {
+          sub: session.sub,
+          email: session.email,
+          role: session.role,
         }),
+        body: JSON.stringify({ reason }),
         cache: "no-store",
       },
     );

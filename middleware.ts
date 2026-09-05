@@ -36,6 +36,7 @@ export function middleware(request: NextRequest) {
         path: "/",
         maxAge: AFFILIATE_MAX_AGE_SEC,
         sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
       });
     }
     res.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
@@ -51,14 +52,15 @@ export function middleware(request: NextRequest) {
       path: "/",
       maxAge: AFFILIATE_MAX_AGE_SEC,
       sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
     });
   }
 
   const isPrivate =
     path.startsWith("/admin") ||
+    path.startsWith("/partner") ||
     path.startsWith("/api") ||
-    path.startsWith("/customer") ||
-    path.startsWith("/agent");
+    path.startsWith("/customer");
 
   if (isPrivate) {
     res.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");

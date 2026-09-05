@@ -165,48 +165,8 @@ export default function ServicePage({
     setIsSubmittingForm(true);
 
     try {
-      const category = mapServiceToCategory(service);
-      const pin = pincode.replace(/\D/g, "");
-      const pl =
-        category === "personal_loan"
-          ? personalLoanApplyPayload({
-              pan,
-              mobile,
-              fullName,
-              pincode,
-              loanAmount,
-              employmentType,
-              netMonthlyIncome,
-            })
-          : null;
-      const applyRes = await applyLead({
-        pan: pan.trim().toUpperCase(),
-        mobileNumber: mobile.replace(/\D/g, ""),
-        fullName: fullName.trim(),
-        pincode: pin,
-        category,
-        ...(pl
-          ? {
-              requiredAmount: pl.requiredAmount,
-              employmentType: pl.employmentType,
-              netMonthlyIncome: pl.netMonthlyIncome,
-            }
-          : {}),
-        ...(category === "insurance" ? { insType } : {}),
-      });
-
-      if (!applyRes.success) {
-        setFormError(applyRes.message || "Could not submit application.");
-        return;
-      }
-
-      const leadId = leadIdFromResponse(applyRes.data);
-      if (!leadId) {
-        setFormError("Could not submit application. Please try again.");
-        return;
-      }
-
-      setPendingLeadId(leadId);
+      // OTP before PAN — open verify modal; apply only after idToken in onSuccess.
+      setPendingLeadId("pending");
       setShowApplyModal(true);
     } catch {
       setFormError("Network error. Please try again.");
@@ -258,12 +218,52 @@ export default function ServicePage({
 
                 <LeadApplyModal
                   open={showApplyModal && Boolean(pendingLeadId)}
-                  leadId={pendingLeadId}
                   mobile={mobile.replace(/\D/g, "")}
-                  onClose={() => setShowApplyModal(false)}
-                  onEditMobile={() => setShowApplyModal(false)}
+                  onClose={() => {
+                    setShowApplyModal(false);
+                    setPendingLeadId("");
+                  }}
+                  onEditMobile={() => {
+                    setShowApplyModal(false);
+                    setPendingLeadId("");
+                  }}
                   syncServerVerify
                   onSuccess={async (result) => {
+                    const category = mapServiceToCategory(service);
+                    const pin = pincode.replace(/\D/g, "");
+                    const pl =
+                      category === "personal_loan"
+                        ? personalLoanApplyPayload({
+                            pan,
+                            mobile,
+                            fullName,
+                            pincode,
+                            loanAmount,
+                            employmentType,
+                            netMonthlyIncome,
+                          })
+                        : null;
+                    const applyRes = await applyLead(
+                      {
+                        pan: pan.trim().toUpperCase(),
+                        mobileNumber: mobile.replace(/\D/g, ""),
+                        fullName: fullName.trim(),
+                        pincode: pin,
+                        category,
+                        ...(pl
+                          ? {
+                              requiredAmount: pl.requiredAmount,
+                              employmentType: pl.employmentType,
+                              netMonthlyIncome: pl.netMonthlyIncome,
+                            }
+                          : {}),
+                        ...(category === "insurance" ? { insType } : {}),
+                      },
+                      result.idToken,
+                    );
+                    if (!applyRes.success) {
+                      throw new Error(applyRes.message || "Could not submit application.");
+                    }
                     const login = await customerLogin(result.mobile, result.idToken);
                     if (!login.ok) {
                       throw new Error(login.message || "Login failed");
