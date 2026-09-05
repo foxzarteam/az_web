@@ -66,7 +66,7 @@ export default async function AdminDashboardPage() {
                 Welcome{session.name ? `, ${session.name}` : ""}
               </h2>
               <p className="mt-0.5 max-w-xl text-sm text-slate-500 dark:text-gray-400">
-                Your referred leads and share kit.
+                Your leads and share link.
               </p>
             </div>
             <Link href="/partner/dashboard/leads" className={ADMIN_BTN_PRIMARY}>
@@ -77,9 +77,9 @@ export default async function AdminDashboardPage() {
           {session.code ? (
             <div className={`${ADMIN_CARD} overflow-hidden`}>
               <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-2.5">
-                <h2 className="text-sm font-semibold text-slate-900">Your unique share kit</h2>
+                <h2 className="text-sm font-semibold text-slate-900">Your UTM link & unique share kit</h2>
                 <p className="mt-0.5 text-xs text-slate-500">
-                  Anyone who applies via this link is attributed to you.
+                  Anyone who applies via this link — you will earn money.
                 </p>
               </div>
               <div className="px-6 py-3">
@@ -92,7 +92,7 @@ export default async function AdminDashboardPage() {
             <DashboardStatCard
               label="Your leads"
               value={leads.length}
-              description="Applications attributed to you"
+              description="Applications from your link"
               href="/partner/dashboard/leads"
               icon={<LeadsIcon />}
             />

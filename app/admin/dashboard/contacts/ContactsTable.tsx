@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AdminContactRow } from "@/app/lib/admin/fetchContacts";
 import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
 import AdminModal from "../AdminModal";
+import SuccessPopup from "@/app/components/shared/SuccessPopup";
+import { toPublicClientError } from "@/app/lib/publicClientError";
 import {
   ADMIN_BTN_DANGER,
   ADMIN_BTN_PRIMARY,
@@ -76,6 +78,7 @@ export default function ContactsTable({ initialContacts }: { initialContacts: Ad
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   useEffect(() => {
     setRows(initialContacts);
@@ -105,13 +108,14 @@ export default function ContactsTable({ initialContacts }: { initialContacts: Ad
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError((data as { error?: string }).error || "Update failed");
+        setError(toPublicClientError((data as { error?: string }).error, "Could not update message."));
         return;
       }
       closeModals();
+      setSuccessMsg("Message updated successfully.");
       router.refresh();
     } catch {
-      setError("Network error");
+      setError("Network error. Try again.");
     } finally {
       setSaving(false);
     }
@@ -127,13 +131,14 @@ export default function ContactsTable({ initialContacts }: { initialContacts: Ad
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError((data as { error?: string }).error || "Delete failed");
+        setError(toPublicClientError((data as { error?: string }).error, "Could not delete message."));
         return;
       }
       closeModals();
+      setSuccessMsg("Message deleted successfully.");
       router.refresh();
     } catch {
-      setError("Network error");
+      setError("Network error. Try again.");
     } finally {
       setDeleting(false);
     }
@@ -233,6 +238,9 @@ export default function ContactsTable({ initialContacts }: { initialContacts: Ad
 
   return (
     <>
+      {successMsg && (
+        <SuccessPopup message={successMsg} onClose={() => setSuccessMsg(null)} />
+      )}
       <CrmDataTable
         rows={rows}
         columns={columns}

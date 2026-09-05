@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
 import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
 import AdminModal from "../AdminModal";
+import SuccessPopup from "@/app/components/shared/SuccessPopup";
+import { toPublicClientError } from "@/app/lib/publicClientError";
 import {
   ADMIN_BTN_DANGER,
   ADMIN_BTN_PRIMARY,
@@ -48,6 +50,7 @@ export default function LeadsTable({
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [revealingPan, setRevealingPan] = useState(false);
   const [viewPanFull, setViewPanFull] = useState<string | null>(null);
@@ -138,7 +141,7 @@ export default function LeadsTable({
       });
       const data = (await res.json()) as { pan?: string; error?: string };
       if (!res.ok || !data.pan) {
-        setError(data.error ?? "Could not reveal PAN");
+        setError(toPublicClientError(data.error, "Could not reveal PAN."));
         return null;
       }
       return data.pan;
@@ -184,7 +187,7 @@ export default function LeadsTable({
         field?: string;
       };
       if (!res.ok) {
-        const message = data.error ?? data.message ?? "Create failed";
+        const message = toPublicClientError(data.error ?? data.message, "Could not add lead.");
         if (data.field === "mobileNumber" || data.field === "pan") {
           setFieldErrors({ [data.field]: message });
         } else {
@@ -196,6 +199,7 @@ export default function LeadsTable({
         setLeads((prev) => [data.data!, ...prev]);
       }
       closeModals();
+      setSuccessMsg("Lead added successfully.");
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -234,7 +238,7 @@ export default function LeadsTable({
       });
       const data = (await res.json()) as { success?: boolean; data?: AdminLeadRow; error?: string; message?: string };
       if (!res.ok) {
-        setError(data.error ?? data.message ?? "Update failed");
+        setError(toPublicClientError(data.error ?? data.message, "Could not update lead."));
         return;
       }
       if (data.data) {
@@ -247,6 +251,7 @@ export default function LeadsTable({
         );
       }
       closeModals();
+      setSuccessMsg("Lead updated successfully.");
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -266,11 +271,12 @@ export default function LeadsTable({
       });
       const data = (await res.json()) as { success?: boolean; error?: string; message?: string };
       if (!res.ok) {
-        setError(data.error ?? data.message ?? "Delete failed");
+        setError(toPublicClientError(data.error ?? data.message, "Could not delete lead."));
         return;
       }
       setLeads((prev) => prev.filter((l) => l.id !== deleteLead.id));
       closeModals();
+      setSuccessMsg("Lead deleted successfully.");
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -406,6 +412,9 @@ export default function LeadsTable({
 
   return (
     <>
+      {successMsg && (
+        <SuccessPopup message={successMsg} onClose={() => setSuccessMsg(null)} />
+      )}
       <CrmDataTable
         rows={leads}
         columns={columns}

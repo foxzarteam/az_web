@@ -84,7 +84,7 @@ export async function fetchAdminPartners(): Promise<FetchAdminPartnersResult> {
     }
 
     if (!body.success || !Array.isArray(body.data)) {
-      return { partners: [], error: "API response invalid. Check Nest server logs and Supabase partner table." };
+      return { partners: [], error: "Could not load aggregators. Please try again." };
     }
 
     return { partners: body.data, error: null };

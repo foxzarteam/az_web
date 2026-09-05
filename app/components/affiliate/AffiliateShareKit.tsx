@@ -49,18 +49,18 @@ export default function AffiliateShareKit({
   }
 
   if (!shareUrl) {
-    return <p className="text-sm text-slate-500">Affiliate link not assigned yet.</p>;
+    return <p className="text-sm text-slate-500">Share link not ready yet.</p>;
   }
 
   return (
     <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
       <div className="shrink-0 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={qrSrc} alt="Affiliate QR" width={qrSize} height={qrSize} className="block" style={{ width: qrSize, height: qrSize }} />
+        <img src={qrSrc} alt="Your share QR code" width={qrSize} height={qrSize} className="block" style={{ width: qrSize, height: qrSize }} />
       </div>
       <div className="min-w-0 w-full flex-1 space-y-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Share link</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Your UTM link</p>
           <p className="mt-1 break-all rounded-xl bg-slate-50 px-3 py-2 font-mono text-sm text-slate-800">{shareUrl}</p>
         </div>
         <div className="flex flex-wrap gap-2">

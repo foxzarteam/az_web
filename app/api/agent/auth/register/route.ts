@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PUBLIC_API_BASE_URL } from "@/app/config/publicEnv";
+import { setAdminSessionCookie } from "@/app/lib/admin/session";
 import { allowRateLimitedAction, clientIpFromRequest } from "@/app/lib/security/rateLimit";
 import { toPublicClientError } from "@/app/lib/publicClientError";
 
@@ -90,6 +91,16 @@ export async function POST(request: Request) {
         { status: res.ok ? 400 : res.status },
       );
     }
+
+    const agentMobile = String(data.data.mobile_number ?? mobile);
+    await setAdminSessionCookie({
+      sub: String(data.data.id),
+      email: agentMobile,
+      role: "agent",
+      name: String(data.data.user_name ?? userName),
+      mobile: agentMobile,
+      code: String(data.data.referral_code ?? ""),
+    });
 
     return NextResponse.json({ ok: true });
   } catch {

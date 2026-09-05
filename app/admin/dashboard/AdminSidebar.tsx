@@ -149,7 +149,7 @@ export default function AdminSidebar({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col border-r transition-transform duration-300 ease-in-out lg:static lg:z-auto lg:translate-x-0 ${
+      className={`fixed inset-y-0 left-0 z-50 flex h-[100dvh] w-64 shrink-0 flex-col border-r transition-transform duration-300 ease-in-out lg:static lg:z-auto lg:translate-x-0 ${
         open ? "translate-x-0" : "-translate-x-full"
       }`}
       style={{
@@ -157,7 +157,7 @@ export default function AdminSidebar({
         borderColor: ADMIN_UI.sidebarBorder,
       }}
     >
-      <div className="flex h-[4.75rem] items-center gap-3 border-b px-5" style={{ borderColor: ADMIN_UI.sidebarBorder }}>
+      <div className="flex h-[4.5rem] shrink-0 items-center gap-3 border-b px-5" style={{ borderColor: ADMIN_UI.sidebarBorder }}>
         <div
           className="flex h-10 w-10 items-center justify-center rounded-xl text-xs font-bold text-white shadow-md"
           style={{ backgroundColor: ADMIN_UI.primary }}
@@ -182,7 +182,7 @@ export default function AdminSidebar({
         </button>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">
+      <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">
         <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: ADMIN_UI.sidebarMuted }}>
           Menu
         </p>
@@ -215,7 +215,7 @@ export default function AdminSidebar({
         })}
       </nav>
 
-      <div className="space-y-3 border-t p-4" style={{ borderColor: ADMIN_UI.sidebarBorder }}>
+      <div className="shrink-0 space-y-3 border-t p-4" style={{ borderColor: ADMIN_UI.sidebarBorder }}>
         <button
           type="button"
           onClick={logout}

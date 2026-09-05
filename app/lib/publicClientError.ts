@@ -1,4 +1,4 @@
-/** Hide DB/schema details from browser-facing error strings. */
+/** Hide DB/schema/Firebase details from browser-facing error strings. */
 export function toPublicClientError(
   raw: unknown,
   fallback = "Something went wrong. Please try again.",
@@ -9,7 +9,7 @@ export function toPublicClientError(
   if (!msg) return fallback;
 
   if (
-    /public\.\w+|schema cache|relation |column |postgres|supabase|postgrest|sqlstate|permission denied|row-level security|\brls\b|violates |foreign key|check constraint|duplicate key|2350[0-9]|pgrst|service_role|SUPABASE_/i.test(
+    /public\.\w+|schema cache|relation |column |postgres|supabase|postgrest|sqlstate|permission denied|row-level security|\brls\b|violates |foreign key|check constraint|duplicate key|2350[0-9]|pgrst|service_role|SUPABASE_|firebase|firestore|auth\/|NEXT_PUBLIC_|nest server|table\b/i.test(
       msg,
     )
   ) {

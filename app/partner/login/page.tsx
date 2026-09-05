@@ -7,5 +7,5 @@ export default async function PartnerLoginPage() {
   if (session) {
     redirect(isAgentRole(session.role) ? "/partner/dashboard" : "/admin/dashboard");
   }
-  return <LoginForm />;
+  return <LoginForm mode="partner" />;
 }

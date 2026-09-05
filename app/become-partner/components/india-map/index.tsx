@@ -11,6 +11,7 @@ import {
   PUBLIC_INDIA_MAP_SVG_URL,
 } from "@/app/config/constants";
 import { sanitizeMobileInput, validateMobileNumber } from "@/app/utils/validation";
+import { toPublicClientError } from "@/app/lib/publicClientError";
 
 interface Pin {
   id: number;
@@ -220,7 +221,9 @@ export default function IndiaMap() {
       });
       const data = (await response.json().catch(() => ({}))) as { error?: string };
       if (!response.ok) {
-        setFieldErrors({ submit: data.error ?? "Could not create account. Please try again." });
+        setFieldErrors({
+          submit: toPublicClientError(data.error, "Could not create account. Please try again."),
+        });
         return;
       }
       setFullName("");
@@ -228,8 +231,7 @@ export default function IndiaMap() {
       setMobile("");
       setPassword("");
       setTermsAccepted(false);
-      router.push("/partner/login");
-      router.refresh();
+      router.replace("/partner/dashboard");
     } catch {
       setFieldErrors({ submit: "Unable to submit right now. Please try again." });
     } finally {

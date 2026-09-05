@@ -29,6 +29,7 @@ import {
   type LeadFieldErrors,
 } from "@/app/utils/leadForm";
 import { sanitizeMobileInput } from "@/app/utils/validation";
+import { warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
 
 type ServicePageProps = {
   title: string;
@@ -85,6 +86,10 @@ export default function ServicePage({
   const [pendingLeadId, setPendingLeadId] = useState("");
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+
+  useEffect(() => {
+    warmFirebaseAuth();
+  }, []);
 
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -227,7 +232,7 @@ export default function ServicePage({
                     setShowApplyModal(false);
                     setPendingLeadId("");
                   }}
-                  syncServerVerify
+                  syncServerVerify={false}
                   onSuccess={async (result) => {
                     const category = mapServiceToCategory(service);
                     const pin = pincode.replace(/\D/g, "");
@@ -269,7 +274,6 @@ export default function ServicePage({
                       throw new Error(login.message || "Login failed");
                     }
                     router.replace("/customer/dashboard");
-                    router.refresh();
                   }}
                 />
 

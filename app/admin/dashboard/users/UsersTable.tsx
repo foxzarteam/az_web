@@ -6,6 +6,8 @@ import { formatAdminDateTime } from "@/app/utils/format";
 import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
 import AdminModal from "../AdminModal";
 import AffiliateShareKit from "@/app/components/affiliate/AffiliateShareKit";
+import SuccessPopup from "@/app/components/shared/SuccessPopup";
+import { toPublicClientError } from "@/app/lib/publicClientError";
 import {
   ADMIN_BTN_DANGER,
   ADMIN_BTN_PRIMARY,
@@ -99,6 +101,7 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -173,13 +176,14 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
       });
       const data = (await res.json()) as { success?: boolean; data?: AdminUserRow; error?: string; message?: string };
       if (!res.ok) {
-        setError(data.error ?? data.message ?? "Create failed");
+        setError(toPublicClientError(data.error ?? data.message, "Could not add partner."));
         return;
       }
       if (data.data) {
         setUsers((prev) => [data.data!, ...prev]);
       }
       closeModals();
+      setSuccessMsg("Partner added successfully.");
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -217,13 +221,14 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
       });
       const data = (await res.json()) as { success?: boolean; data?: AdminUserRow; error?: string; message?: string };
       if (!res.ok) {
-        setError(data.error ?? data.message ?? "Update failed");
+        setError(toPublicClientError(data.error ?? data.message, "Could not update partner."));
         return;
       }
       if (data.data) {
         setUsers((prev) => prev.map((u) => (u.id === data.data!.id ? data.data! : u)));
       }
       closeModals();
+      setSuccessMsg("Partner updated successfully.");
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -243,11 +248,12 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
       });
       const data = (await res.json()) as { success?: boolean; error?: string; message?: string };
       if (!res.ok) {
-        setError(data.error ?? data.message ?? "Delete failed");
+        setError(toPublicClientError(data.error ?? data.message, "Could not delete partner."));
         return;
       }
       setUsers((prev) => prev.filter((u) => u.id !== deleteUser.id));
       closeModals();
+      setSuccessMsg("Partner deleted successfully.");
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -344,6 +350,9 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
 
   return (
     <>
+      {successMsg && (
+        <SuccessPopup message={successMsg} onClose={() => setSuccessMsg(null)} />
+      )}
       <CrmDataTable
         rows={users}
         columns={columns}

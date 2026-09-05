@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppModal from "@/app/components/shared/crm/AppModal";
+import { toPublicClientError } from "@/app/lib/publicClientError";
 
 type CustomerProfile = {
   name: string;
@@ -73,7 +74,7 @@ export default function CustomerProfileMenu({
       const res = await fetch("/api/customer/profile", { cache: "no-store" });
       const data = (await res.json()) as { profile?: CustomerProfile; error?: string };
       if (!res.ok || !data.profile) {
-        setError(data.error ?? "Could not load profile");
+        setError(toPublicClientError(data.error, "Could not load profile."));
         return null;
       }
       setProfile(data.profile);
@@ -126,7 +127,7 @@ export default function CustomerProfileMenu({
       });
       const data = (await res.json()) as { profile?: CustomerProfile; error?: string };
       if (!res.ok) {
-        setError(data.error ?? "Update failed");
+        setError(toPublicClientError(data.error, "Could not update profile."));
         return;
       }
       if (data.profile) setProfile(data.profile);

@@ -38,31 +38,21 @@ function parseFirebaseError(error: unknown): { code: string; message: string } {
 }
 
 const OTP_SEND_HINTS: Record<string, string> = {
-  "auth/missing-web-app-id":
-    "Firebase Web app ID missing. Set NEXT_PUBLIC_FIREBASE_APP_ID on az_web and redeploy.",
-  "auth/unauthorized-domain":
-    "Add your site in Firebase → Authentication → Settings → Authorized domains.",
-  "auth/operation-not-allowed":
-    "Enable Phone sign-in in Firebase Console → Authentication → Sign-in method.",
-  "auth/invalid-app-credential":
-    "Check NEXT_PUBLIC_FIREBASE_* env vars on az_web match your Firebase Web app.",
-  "auth/captcha-check-failed":
-    "Security check failed. Refresh the page and disable ad-blockers.",
-  "auth/quota-exceeded":
-    "Daily SMS limit reached (new projects: 10/day). Try tomorrow or add billing.",
-  "auth/billing-not-enabled":
-    "Firebase billing is not enabled. Console → ⚙️ Project settings → Usage and billing → Upgrade to Blaze plan (pay-as-you-go). Phone OTP SMS requires Blaze.",
+  "auth/missing-web-app-id": "OTP is temporarily unavailable. Please try again later.",
+  "auth/unauthorized-domain": "OTP is temporarily unavailable. Please try again later.",
+  "auth/operation-not-allowed": "OTP is temporarily unavailable. Please try again later.",
+  "auth/invalid-app-credential": "OTP is temporarily unavailable. Please try again later.",
+  "auth/captcha-check-failed": "Security check failed. Refresh the page and try again.",
+  "auth/quota-exceeded": "Daily SMS limit reached. Please try again tomorrow.",
+  "auth/billing-not-enabled": "OTP is temporarily unavailable. Please try again later.",
   "auth/too-many-requests": "Too many attempts. Wait a few minutes.",
   "auth/invalid-phone-number": "Invalid mobile number.",
 };
 
 function formatOtpError(error: unknown, hints: Record<string, string>, fallback: string): string {
-  const { code, message } = parseFirebaseError(error);
+  const { code } = parseFirebaseError(error);
   const hint = code ? hints[code] : "";
-  const technical = [code, message].filter(Boolean).join(": ");
-  if (hint && technical) return `${hint} [${technical}]`;
   if (hint) return hint;
-  if (technical) return `${fallback} [${technical}]`;
   return fallback;
 }
 

@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AdminPartnerRow, PartnerServiceOption } from "@/app/lib/admin/fetchPartners";
 import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
 import AdminModal from "../AdminModal";
+import SuccessPopup from "@/app/components/shared/SuccessPopup";
+import { toPublicClientError } from "@/app/lib/publicClientError";
 import {
   ADMIN_BTN_DANGER,
   ADMIN_BTN_PRIMARY,
@@ -266,6 +268,7 @@ export default function PartnersTable({
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   useEffect(() => {
     setPartners(initialPartners);
@@ -333,11 +336,12 @@ export default function PartnersTable({
       });
       const data = (await res.json()) as { success?: boolean; data?: AdminPartnerRow; error?: string; message?: string };
       if (!res.ok) {
-        setError(data.error ?? data.message ?? "Create failed");
+        setError(toPublicClientError(data.error ?? data.message, "Could not add aggregator."));
         return;
       }
       if (data.data) setPartners((prev) => [data.data!, ...prev]);
       closeModals();
+      setSuccessMsg("Aggregator added successfully.");
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -364,11 +368,12 @@ export default function PartnersTable({
       });
       const data = (await res.json()) as { success?: boolean; data?: AdminPartnerRow; error?: string; message?: string };
       if (!res.ok) {
-        setError(data.error ?? data.message ?? "Update failed");
+        setError(toPublicClientError(data.error ?? data.message, "Could not update aggregator."));
         return;
       }
       if (data.data) setPartners((prev) => prev.map((p) => (p.id === data.data!.id ? data.data! : p)));
       closeModals();
+      setSuccessMsg("Aggregator updated successfully.");
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -387,11 +392,12 @@ export default function PartnersTable({
       });
       const data = (await res.json()) as { success?: boolean; error?: string; message?: string };
       if (!res.ok) {
-        setError(data.error ?? data.message ?? "Delete failed");
+        setError(toPublicClientError(data.error ?? data.message, "Could not delete aggregator."));
         return;
       }
       setPartners((prev) => prev.filter((p) => p.id !== deleteRow.id));
       closeModals();
+      setSuccessMsg("Aggregator deleted successfully.");
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -484,6 +490,9 @@ export default function PartnersTable({
 
   return (
     <>
+      {successMsg && (
+        <SuccessPopup message={successMsg} onClose={() => setSuccessMsg(null)} />
+      )}
       <CrmDataTable
         rows={partners}
         columns={columns}

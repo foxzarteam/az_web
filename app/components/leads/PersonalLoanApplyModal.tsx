@@ -121,6 +121,10 @@ export default function PersonalLoanApplyModal({
   }, [formError]);
 
   useEffect(() => {
+    if (open) warmFirebaseAuth();
+  }, [open]);
+
+  useEffect(() => {
     if (!open) return;
     warmFirebaseAuth();
     const digits = initialMobile.replace(/\D/g, "").slice(0, 10);
@@ -542,7 +546,7 @@ export default function PersonalLoanApplyModal({
             setShowOtpModal(false);
             setPendingLeadId("");
           }}
-          syncServerVerify
+          syncServerVerify={false}
           onSuccess={async (result) => {
             const payload = personalLoanApplyPayload({
               pan,
@@ -564,7 +568,6 @@ export default function PersonalLoanApplyModal({
             setIsOpeningDashboard(true);
             const ok = await loginAndGoToDashboard(result.mobile, result.idToken, (href) => {
               router.replace(href);
-              router.refresh();
             });
             if (!ok) {
               setIsOpeningDashboard(false);

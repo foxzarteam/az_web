@@ -67,13 +67,16 @@ export default function AdminDashboardShell({
   }
 
   useEffect(() => {
-    if (!sidebarOpen) return;
-    const prev = document.body.style.overflow;
+    const html = document.documentElement;
+    const prevHtml = html.style.overflow;
+    const prevBody = document.body.style.overflow;
+    html.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = prev;
+      html.style.overflow = prevHtml;
+      document.body.style.overflow = prevBody;
     };
-  }, [sidebarOpen]);
+  }, []);
 
   useEffect(() => {
     if (!sidebarOpen) return;
@@ -85,7 +88,7 @@ export default function AdminDashboardShell({
   }, [sidebarOpen]);
 
   return (
-    <div className="flex min-h-[100dvh]" style={{ backgroundColor: ADMIN_UI.surface }}>
+    <div className="flex h-[100dvh] overflow-hidden" style={{ backgroundColor: ADMIN_UI.surface }}>
       <button
         type="button"
         aria-label="Close menu"
@@ -101,9 +104,9 @@ export default function AdminDashboardShell({
         open={sidebarOpen}
         onClose={closeSidebar}
       />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <header
-          className="sticky top-0 z-30 border-b shadow-sm"
+          className="z-30 shrink-0 border-b shadow-sm"
           style={{
             backgroundColor: ADMIN_UI.sidebar,
             borderColor: ADMIN_UI.sidebarBorder,
@@ -153,7 +156,7 @@ export default function AdminDashboardShell({
           </div>
         </header>
 
-        <div className="min-w-0 flex-1">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">{children}</div>
       </div>
     </div>
   );

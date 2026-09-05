@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AdminServiceRow } from "@/app/lib/admin/fetchServices";
 import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
 import AdminModal from "../AdminModal";
+import SuccessPopup from "@/app/components/shared/SuccessPopup";
+import { toPublicClientError } from "@/app/lib/publicClientError";
 import {
   ADMIN_BTN_DANGER,
   ADMIN_BTN_PRIMARY,
@@ -89,6 +91,7 @@ export default function ServicesTable({ initialServices }: { initialServices: Ad
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   useEffect(() => {
     setServices(initialServices);
@@ -141,13 +144,14 @@ export default function ServicesTable({ initialServices }: { initialServices: Ad
       });
       const data = (await res.json()) as { success?: boolean; data?: AdminServiceRow; error?: string; message?: string };
       if (!res.ok) {
-        setError(data.error ?? data.message ?? "Update failed");
+        setError(toPublicClientError(data.error ?? data.message, "Could not update product."));
         return;
       }
       if (data.data) {
         setServices((prev) => prev.map((s) => (s.id === data.data!.id ? data.data! : s)));
       }
       closeModals();
+      setSuccessMsg("Product updated successfully.");
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -167,11 +171,12 @@ export default function ServicesTable({ initialServices }: { initialServices: Ad
       });
       const data = (await res.json()) as { success?: boolean; error?: string; message?: string };
       if (!res.ok) {
-        setError(data.error ?? data.message ?? "Delete failed");
+        setError(toPublicClientError(data.error ?? data.message, "Could not delete product."));
         return;
       }
       setServices((prev) => prev.filter((s) => s.id !== deleteRow.id));
       closeModals();
+      setSuccessMsg("Product deleted successfully.");
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -276,6 +281,9 @@ export default function ServicesTable({ initialServices }: { initialServices: Ad
 
   return (
     <>
+      {successMsg && (
+        <SuccessPopup message={successMsg} onClose={() => setSuccessMsg(null)} />
+      )}
       <CrmDataTable
         rows={services}
         columns={columns}
