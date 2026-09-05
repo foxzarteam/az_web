@@ -15,10 +15,10 @@ export default async function AdminLeadsPage() {
       <p className="mb-1 text-sm text-gray dark:text-gray-400">
         {leads.length === 0
           ? agent
-            ? "No leads yet. Share your link to get started."
+            ? "No leads yet. Share your link or add a lead."
             : "No leads yet."
           : agent
-            ? `${leads.length} lead${leads.length === 1 ? "" : "s"} from your link.`
+            ? `${leads.length} lead${leads.length === 1 ? "" : "s"} (your link + manual).`
             : `${leads.length} lead${leads.length === 1 ? "" : "s"} found.`}
       </p>
       <LeadsTable initialLeads={leads} readOnly={agent} />

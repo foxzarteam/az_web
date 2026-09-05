@@ -1,15 +1,19 @@
 import { NextResponse } from "next/server";
 import { PUBLIC_API_BASE_URL } from "@/app/config/publicEnv";
 import { adminInternalHeaders } from "@/app/lib/admin/adminInternalKey";
-import { requireCrmAdminSession } from "@/app/lib/admin/requireAdminRole";
+import {
+  getAdminSession,
+  isAgentRole,
+  isCrmAdminRole,
+} from "@/app/lib/admin/session";
 
 function apiBase(): string {
   return PUBLIC_API_BASE_URL.trim().replace(/\/+$/, "");
 }
 
 export async function POST(request: Request) {
-  const session = await requireCrmAdminSession();
-  if (!session) {
+  const session = await getAdminSession();
+  if (!session || (!isCrmAdminRole(session.role) && !isAgentRole(session.role))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -23,6 +27,11 @@ export async function POST(request: Request) {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  // Partners cannot self-approve; Nest also forces pending + their agent_id.
+  if (isAgentRole(session.role) && body && typeof body === "object") {
+    (body as Record<string, unknown>).status = "pending";
   }
 
   try {

@@ -101,7 +101,7 @@ export function formatValue(key: string, value: unknown, row?: AdminLeadRow): st
   if (key === "employment_type") return employmentTypeLabel(String(value));
   if (key === "loan_amt") return loanAmountLabel(String(value));
   if (key === "ins_type") return insuranceTypeLabel(String(value));
-  if (key === "status") return String(value).replace(/_/g, " ");
+  if (key === "status") return statusLabel(value);
   if (typeof value === "boolean") return value ? "Yes" : "No";
   const s = String(value);
   if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
@@ -115,6 +115,35 @@ export function formatValue(key: string, value: unknown, row?: AdminLeadRow): st
 
 export function isOtpVerified(row: AdminLeadRow): boolean {
   return row.otp_verified === true || row.otp_verified === 1 || row.otp_verified === "true";
+}
+
+/** Capsule colors for lead status (view modal / badges). */
+export function statusCapsuleClass(status: unknown): string {
+  const s = String(status ?? "")
+    .trim()
+    .toLowerCase();
+  const base = "inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize";
+  if (s === "approved") {
+    return `${base} bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300`;
+  }
+  if (s === "rejected") {
+    return `${base} bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-300`;
+  }
+  if (s === "in_process") {
+    return `${base} bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300`;
+  }
+  if (s === "action_required") {
+    return `${base} bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300`;
+  }
+  // pending + unknown
+  return `${base} bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300`;
+}
+
+export function statusLabel(status: unknown): string {
+  const s = String(status ?? "").trim();
+  if (!s) return "—";
+  const found = STATUSES.find((x) => x.value === s)?.label;
+  return found ?? s.replace(/_/g, " ");
 }
 
 export function cellText(row: AdminLeadRow, key: "full_name" | "mobile_number" | "category"): string {

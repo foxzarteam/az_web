@@ -30,6 +30,7 @@ export default function LeadFormFields({
   panMode = "create",
   onRevealPan,
   revealingPan,
+  hideStatus = false,
 }: {
   form: EditForm;
   setForm: (next: EditForm) => void;
@@ -39,6 +40,8 @@ export default function LeadFormFields({
   panMode?: "create" | "edit";
   onRevealPan?: () => void;
   revealingPan?: boolean;
+  /** Partners cannot set lead status (always pending). */
+  hideStatus?: boolean;
 }) {
   const panLocked = panMode === "edit" && isMaskedPanValue(form.pan);
 
@@ -179,20 +182,22 @@ export default function LeadFormFields({
           ))}
         </select>
       </label>
-      <label className="block">
-        <span className={ADMIN_LABEL}>Status</span>
-        <select
-          className={inputClass}
-          value={form.status}
-          onChange={(e) => setForm({ ...form, status: e.target.value })}
-        >
-          {STATUSES.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      {!hideStatus ? (
+        <label className="block">
+          <span className={ADMIN_LABEL}>Status</span>
+          <select
+            className={inputClass}
+            value={form.status}
+            onChange={(e) => setForm({ ...form, status: e.target.value })}
+          >
+            {STATUSES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
     </div>
   );
 }

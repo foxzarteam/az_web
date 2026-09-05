@@ -49,9 +49,17 @@ export default function BecomePartnerPage() {
           </p>
         </div>
       </div>
-      <ThreeSteps />
-      <IndiaMapClient />
-      <PartnerBenefits />
+      <div className="flex flex-col">
+        <div className="order-2 md:order-1">
+          <ThreeSteps />
+        </div>
+        <div className="order-1 md:order-2">
+          <IndiaMapClient />
+        </div>
+        <div className="order-3">
+          <PartnerBenefits />
+        </div>
+      </div>
     </>
   );
 }

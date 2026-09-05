@@ -23,6 +23,8 @@ import {
   amountOrInsuranceText,
   formatValue,
   isOtpVerified,
+  statusCapsuleClass,
+  statusLabel,
 } from "./leadDisplay";
 import {
   type EditForm,
@@ -106,7 +108,7 @@ export default function LeadsTable({
       fullName: form.fullName.trim(),
       mobileNumber: form.mobileNumber.trim(),
       category: form.category,
-      status: form.status,
+      status: readOnly ? "pending" : form.status,
       pincode: form.pincode.trim() || null,
     };
     if (form.category === "personal_loan") {
@@ -423,11 +425,9 @@ export default function LeadsTable({
         emptyMessage="No leads to display."
         comfortable
         toolbarRight={
-          readOnly ? undefined : (
-            <button type="button" onClick={openCreate} className={ADMIN_BTN_PRIMARY}>
-              Add lead
-            </button>
-          )
+          <button type="button" onClick={openCreate} className={ADMIN_BTN_PRIMARY}>
+            Add lead
+          </button>
         }
       />
 
@@ -462,6 +462,10 @@ export default function LeadsTable({
                     }
                   >
                     {formatValue(key, viewLead[key], viewLead)}
+                  </span>
+                ) : key === "status" ? (
+                  <span className={statusCapsuleClass(viewLead.status)}>
+                    {statusLabel(viewLead.status)}
                   </span>
                 ) : key === "pan" ? (
                   <span className="inline-flex flex-wrap items-center gap-2">
@@ -512,6 +516,7 @@ export default function LeadsTable({
               fieldErrors={fieldErrors}
               clearFieldError={clearFieldError}
               panMode="create"
+              hideStatus={readOnly}
             />
             <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
               <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
