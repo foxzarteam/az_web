@@ -106,14 +106,12 @@ function ResultsPanel({
   fyLabel,
   ayLabel,
 }: {
-  result: TaxEstimateResult | null;
+  result: TaxEstimateResult;
   fyLabel: string;
   ayLabel: string;
 }) {
-  const empty = !result;
-  const betterLabel = empty
-    ? "Click Check Now"
-    : result.betterRegime === "same"
+  const betterLabel =
+    result.betterRegime === "same"
       ? "Both similar"
       : result.betterRegime === "new"
         ? "New looks better"
@@ -124,20 +122,20 @@ function ResultsPanel({
       <div className="flex flex-[1.15] flex-col justify-center rounded-2xl bg-gradient-to-br from-[#4236FB] via-[#5A4CFC] to-[#FF7E29] p-5 text-white sm:p-6">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-white/75">{betterLabel}</p>
         <p className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
-          {empty ? "—" : formatRupee(result.taxSaving)}
+          {formatRupee(result.taxSaving)}
         </p>
         <p className="mt-1 text-sm text-white/85">Estimated tax saving</p>
         <div className="mt-5 grid grid-cols-2 gap-3">
           <div className="rounded-xl bg-white/15 px-3 py-3 sm:px-4 sm:py-4">
             <p className="text-[10px] uppercase text-white/70">Annual tax</p>
             <p className="mt-1 text-lg font-bold sm:text-xl">
-              {empty ? "—" : formatRupee(result.estimatedAnnualTax)}
+              {formatRupee(result.estimatedAnnualTax)}
             </p>
           </div>
           <div className="rounded-xl bg-white/15 px-3 py-3 sm:px-4 sm:py-4">
             <p className="text-[10px] uppercase text-white/70">Monthly</p>
             <p className="mt-1 text-lg font-bold sm:text-xl">
-              {empty ? "—" : formatRupee(result.estimatedMonthlyTax)}
+              {formatRupee(result.estimatedMonthlyTax)}
             </p>
           </div>
         </div>
@@ -151,19 +149,19 @@ function ResultsPanel({
           <div className="rounded-xl bg-white px-2.5 py-4 text-center shadow-sm dark:bg-darkmode sm:py-5">
             <p className="text-[10px] font-semibold text-slate-500">Old Regime</p>
             <p className="mt-2 text-base font-bold text-slate-900 dark:text-white sm:text-lg">
-              {empty ? "—" : formatRupee(result.old.annualTax)}
+              {formatRupee(result.old.annualTax)}
             </p>
           </div>
           <div className="rounded-xl bg-white px-2.5 py-4 text-center shadow-sm dark:bg-darkmode sm:py-5">
             <p className="text-[10px] font-semibold text-slate-500">New Regime</p>
             <p className="mt-2 text-base font-bold text-slate-900 dark:text-white sm:text-lg">
-              {empty ? "—" : formatRupee(result.new.annualTax)}
+              {formatRupee(result.new.annualTax)}
             </p>
           </div>
           <div className="rounded-xl bg-emerald-50 px-2.5 py-4 text-center dark:bg-emerald-500/10 sm:py-5">
             <p className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">You Save</p>
             <p className="mt-2 text-base font-bold text-emerald-700 dark:text-emerald-300 sm:text-lg">
-              {empty ? "—" : formatRupee(result.taxSaving)}
+              {formatRupee(result.taxSaving)}
             </p>
           </div>
         </div>
@@ -174,44 +172,40 @@ function ResultsPanel({
           <div className="flex justify-between gap-2 border-b border-slate-200/80 py-2 dark:border-white/10">
             <span className="text-slate-500">Total Income</span>
             <span className="font-bold text-slate-900 dark:text-white">
-              {empty ? "—" : formatRupee(result.totalIncome)}
+              {formatRupee(result.totalIncome)}
             </span>
           </div>
           <div className="flex justify-between gap-2 border-b border-slate-200/80 py-2 dark:border-white/10">
             <span className="text-slate-500">Taxable</span>
             <span className="font-bold text-slate-900 dark:text-white">
-              {empty ? "—" : formatRupee(result.activeTaxableIncome)}
+              {formatRupee(result.activeTaxableIncome)}
             </span>
           </div>
           <div className="flex justify-between gap-2 border-b border-slate-200/80 py-2 dark:border-white/10">
             <span className="text-slate-500">Old tax</span>
             <span className="font-bold text-slate-900 dark:text-white">
-              {empty ? "—" : formatRupee(result.old.annualTax)}
+              {formatRupee(result.old.annualTax)}
             </span>
           </div>
           <div className="flex justify-between gap-2 border-b border-slate-200/80 py-2 dark:border-white/10">
             <span className="text-slate-500">New tax</span>
             <span className="font-bold text-slate-900 dark:text-white">
-              {empty ? "—" : formatRupee(result.new.annualTax)}
+              {formatRupee(result.new.annualTax)}
             </span>
           </div>
           <div className="flex justify-between gap-2 py-2">
             <span className="text-slate-500">Better</span>
             <span className="font-bold text-[#4236FB]">
-              {empty
-                ? "—"
-                : result.betterRegime === "same"
-                  ? "Similar"
-                  : result.betterRegime === "new"
-                    ? "New"
-                    : "Old"}
+              {result.betterRegime === "same"
+                ? "Similar"
+                : result.betterRegime === "new"
+                  ? "New"
+                  : "Old"}
             </span>
           </div>
           <div className="flex justify-between gap-2 py-2">
             <span className="text-slate-500">Saving</span>
-            <span className="font-bold text-emerald-600">
-              {empty ? "—" : formatRupee(result.taxSaving)}
-            </span>
+            <span className="font-bold text-emerald-600">{formatRupee(result.taxSaving)}</span>
           </div>
         </div>
         <p className="mt-4 text-[10px] leading-relaxed text-slate-400">
@@ -239,8 +233,20 @@ export default function TaxSavingCalculator() {
   const [nameError, setNameError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  /** Result updates only on Check Now — not while typing. */
-  const [result, setResult] = useState<TaxEstimateResult | null>(null);
+  /** Starts with default estimate; updates only on Check Now. */
+  const [result, setResult] = useState<TaxEstimateResult>(() =>
+    estimateTax({
+      fyId: DEFAULT_FY,
+      ageBand: "below_60",
+      annualSalary: 12_00_000,
+      otherIncome: 0,
+      section80c: 1_50_000,
+      section80d: 25_000,
+      homeLoanInterest: 0,
+      otherDeductions: 0,
+      regimeChoice: "compare",
+    }),
+  );
   const sentPhonesRef = useRef<Set<string>>(new Set());
 
   const fy = getFyRules(fyId);

@@ -699,3 +699,95 @@ html {
 .admin-scroll-light::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 116, 139, 0.55);
 }
+/* ——— 404 page motion ——— */
+@keyframes notfound-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+@keyframes notfound-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes notfound-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(0.85);
+    opacity: 0.55;
+  }
+  70% {
+    opacity: 0.15;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.25);
+    opacity: 0;
+  }
+}
+
+@keyframes notfound-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notfound-float {
+  animation: notfound-float 7s ease-in-out infinite;
+}
+
+.notfound-float-delayed {
+  animation: notfound-float 8.5s ease-in-out infinite;
+  animation-delay: 1.2s;
+}
+
+.notfound-bounce {
+  animation: notfound-bounce 3.2s ease-in-out infinite;
+}
+
+.notfound-ring {
+  animation: notfound-ring 2.4s ease-out infinite;
+}
+
+.notfound-ring-delayed {
+  animation: notfound-ring 2.4s ease-out infinite;
+  animation-delay: 0.9s;
+}
+
+.notfound-enter {
+  animation: notfound-enter 0.55s ease-out both;
+}
+
+.notfound-enter-delayed {
+  animation: notfound-enter 0.65s ease-out 0.12s both;
+}
+
+.notfound-enter-late {
+  animation: notfound-enter 0.7s ease-out 0.22s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notfound-float,
+  .notfound-float-delayed,
+  .notfound-bounce,
+  .notfound-ring,
+  .notfound-ring-delayed,
+  .notfound-enter,
+  .notfound-enter-delayed,
+  .notfound-enter-late {
+    animation: none !important;
+  }
+}
