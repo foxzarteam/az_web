@@ -6,7 +6,7 @@ import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-09-10";
+export const SEO_CONTENT_VERSION = "2026-09-11";
 
 /**
  * All Google-indexable marketing URLs (no admin / api / customer / agent).
@@ -55,28 +55,10 @@ export const SEO_INDEXING_ENABLED = true;
  */
 export const SITELINK_PAGES = [
   {
-    name: "Products",
-    path: "/products",
+    name: "Personal Loan",
+    path: "/products/personal-loan",
     description:
-      "Personal loans and insurance products online — apply with Apni Zaroorat in minutes.",
-  },
-  {
-    name: "Check Eligibility",
-    path: "/check-eligibility",
-    description:
-      "Free personal loan eligibility check online — no credit score impact.",
-  },
-  {
-    name: "EMI Calculator",
-    path: "/emi-calculator",
-    description:
-      "Free personal loan EMI calculator — monthly EMI, interest, and total repayment.",
-  },
-  {
-    name: "Tax Saving Calculator",
-    path: "/tax-saving-calculator",
-    description:
-      "Free tax saving calculator — compare New vs Old regime for FY 2025-26 with 80C, 80D and more.",
+      "Apply for personal loan online up to ₹10 lakh — quick digital process with Apni Zaroorat.",
   },
   {
     name: "Contact Us",
@@ -85,16 +67,34 @@ export const SITELINK_PAGES = [
       "Get support for loans, insurance and applications across India. Call, email, or visit our office.",
   },
   {
-    name: "Partner",
-    path: "/become-partner",
+    name: "EMI Calculator",
+    path: "/emi-calculator",
     description:
-      "Join Apni Zaroorat as a partner and earn by distributing personal loans and insurance India-wide.",
+      "Free personal loan EMI calculator — monthly EMI, interest, and total repayment.",
+  },
+  {
+    name: "Check Eligibility",
+    path: "/check-eligibility",
+    description:
+      "Free personal loan eligibility check online — no credit score impact.",
   },
   {
     name: "Insurance",
     path: "/products/insurance",
     description:
       "Compare life, health and motor insurance online with guided digital applications.",
+  },
+  {
+    name: "Tax Saving Calculator",
+    path: "/tax-saving-calculator",
+    description:
+      "Free tax saving calculator — compare New vs Old regime for FY 2025-26 with 80C, 80D and more.",
+  },
+  {
+    name: "Products",
+    path: "/products",
+    description:
+      "Personal loans and insurance products online — apply with Apni Zaroorat in minutes.",
   },
   {
     name: "About Us",

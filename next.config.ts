@@ -14,6 +14,37 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       // Host-level www → apex is handled in middleware.ts (308).
+      // Prefer one-hop permanent redirects to final trailing-slash URLs (helps Google sitelinks).
+      {
+        source: "/services",
+        destination: "/products/",
+        permanent: true,
+      },
+      {
+        source: "/services/",
+        destination: "/products/",
+        permanent: true,
+      },
+      {
+        source: "/services/personal-loan",
+        destination: "/products/personal-loan/",
+        permanent: true,
+      },
+      {
+        source: "/services/personal-loan/",
+        destination: "/products/personal-loan/",
+        permanent: true,
+      },
+      {
+        source: "/services/insurance",
+        destination: "/products/insurance/",
+        permanent: true,
+      },
+      {
+        source: "/services/insurance/",
+        destination: "/products/insurance/",
+        permanent: true,
+      },
       {
         source: "/services/:path*",
         destination: "/products/:path*",
@@ -25,7 +56,27 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/products/credit-card",
+        destination: "/products/personal-loan/",
+        permanent: true,
+      },
+      {
+        source: "/products/credit-card/",
+        destination: "/products/personal-loan/",
+        permanent: true,
+      },
+      {
         source: "/products/credit-card/:path*",
+        destination: "/products/personal-loan/",
+        permanent: true,
+      },
+      {
+        source: "/products/home-loan",
+        destination: "/products/personal-loan/",
+        permanent: true,
+      },
+      {
+        source: "/products/home-loan/",
         destination: "/products/personal-loan/",
         permanent: true,
       },
@@ -35,13 +86,27 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/products/business-loan",
+        destination: "/products/personal-loan/",
+        permanent: true,
+      },
+      {
+        source: "/products/business-loan/",
+        destination: "/products/personal-loan/",
+        permanent: true,
+      },
+      {
         source: "/products/business-loan/:path*",
         destination: "/products/personal-loan/",
         permanent: true,
       },
-      // Legacy soft URLs → trailing-slash product routes
       {
         source: "/personal-loan",
+        destination: "/products/personal-loan/",
+        permanent: true,
+      },
+      {
+        source: "/personal-loan/",
         destination: "/products/personal-loan/",
         permanent: true,
       },
@@ -50,9 +115,18 @@ const nextConfig: NextConfig = {
         destination: "/products/insurance/",
         permanent: true,
       },
-      // Old city tax-calculator URLs → single calculator page
+      {
+        source: "/insurance/",
+        destination: "/products/insurance/",
+        permanent: true,
+      },
       {
         source: "/tax-saving-calculator/:city",
+        destination: "/tax-saving-calculator/",
+        permanent: true,
+      },
+      {
+        source: "/tax-saving-calculator/:city/",
         destination: "/tax-saving-calculator/",
         permanent: true,
       },
