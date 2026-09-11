@@ -6,7 +6,7 @@ import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-09-04";
+export const SEO_CONTENT_VERSION = "2026-09-10";
 
 /**
  * All Google-indexable marketing URLs (no admin / api / customer / agent).
@@ -19,6 +19,7 @@ export const INDEXABLE_ROUTES = [
   { path: "/products/insurance", changeFrequency: "daily" as const, priority: 0.97 },
   { path: "/check-eligibility", changeFrequency: "daily" as const, priority: 0.96 },
   { path: "/emi-calculator", changeFrequency: "daily" as const, priority: 0.96 },
+  { path: "/tax-saving-calculator", changeFrequency: "daily" as const, priority: 0.96 },
   { path: "/about", changeFrequency: "weekly" as const, priority: 0.92 },
   { path: "/contact", changeFrequency: "weekly" as const, priority: 0.92 },
   { path: "/become-partner", changeFrequency: "weekly" as const, priority: 0.9 },
@@ -70,6 +71,12 @@ export const SITELINK_PAGES = [
     path: "/emi-calculator",
     description:
       "Free personal loan EMI calculator — monthly EMI, interest, and total repayment.",
+  },
+  {
+    name: "Tax Saving Calculator",
+    path: "/tax-saving-calculator",
+    description:
+      "Free tax saving calculator — compare New vs Old regime for FY 2025-26 with 80C, 80D and more.",
   },
   {
     name: "Contact Us",
@@ -192,6 +199,38 @@ export const EMI_KEYWORDS = [
   "personal loan repayment calculator",
   "EMI calculator Apni Zaroorat",
 ] as const;
+
+export const TAX_KEYWORDS = [
+  ...BRAND_KEYWORDS,
+  "tax saving calculator",
+  "tax saving calculator India",
+  "free tax saving calculator",
+  "online tax saving calculator",
+  "income tax calculator",
+  "income tax calculator India",
+  "income tax calculator FY 2025-26",
+  "new vs old tax regime calculator",
+  "new tax regime calculator",
+  "old tax regime calculator",
+  "section 80C calculator",
+  "80C tax saving",
+  "80D tax calculator",
+  "section 87A rebate calculator",
+  "tax saving tips India",
+  "free tax calculator online",
+  "how much tax can I save",
+  "compare tax regimes India",
+] as const;
+
+export function taxCityKeywords(cityName: string): string[] {
+  const city = cityName.trim();
+  return [
+    `${city} tax saving calculator`,
+    `tax saving calculator ${city}`,
+    `${city} income tax calculator`,
+    `tax saving calculator in ${city}`,
+  ];
+}
 
 export const INSURANCE_KEYWORDS = [
   ...BRAND_KEYWORDS,

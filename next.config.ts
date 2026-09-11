@@ -50,6 +50,12 @@ const nextConfig: NextConfig = {
         destination: "/products/insurance/",
         permanent: true,
       },
+      // Old city tax-calculator URLs → single calculator page
+      {
+        source: "/tax-saving-calculator/:city",
+        destination: "/tax-saving-calculator/",
+        permanent: true,
+      },
     ];
   },
   async headers() {

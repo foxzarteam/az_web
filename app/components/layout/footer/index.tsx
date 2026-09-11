@@ -10,11 +10,12 @@ import { serviceCardsToSubmenu } from "@/app/lib/services/submenu";
 import { hidePublicChrome } from "@/app/lib/layout/hidePublicChrome";
 
 const linkClass =
-  "flex min-h-[36px] items-center py-1 text-sm text-gray hover:text-white sm:text-base";
+  "flex min-h-[36px] items-center py-1 text-sm text-white/90 hover:text-white sm:text-base";
 
 const TOOL_LINKS = [
   { href: "/emi-calculator/", label: "EMI Calculator" },
   { href: "/check-eligibility/", label: "Check Eligibility" },
+  { href: "/tax-saving-calculator/", label: "Tax Saving Calculator" },
 ] as const;
 
 const LEGAL_LINKS = [

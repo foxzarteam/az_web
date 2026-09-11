@@ -152,3 +152,37 @@ export const INSURANCE_FAQ_ITEMS: FaqItem[] = [
       "Applying is simple. Fill in your basic details, select the insurance type you need, verify your information, and submit the application. Our team and insurance partners will guide you through the next steps until your policy is issued.",
   },
 ];
+
+/** Hub `/tax-saving-calculator` FAQ */
+export const TAX_FAQ_ITEMS: FaqItem[] = [
+  {
+    id: "tax-what-is",
+    question: "What does this tax saving calculator do?",
+    answer:
+      "It compares the New and Old tax regimes for FY 2025-26 using Budget 2025 slabs, standard deduction, Section 87A rebate, and your 80C / 80D / NPS / home-loan inputs — then shows which option may cost less.",
+  },
+  {
+    id: "tax-new-12l",
+    question: "Is income up to ₹12 lakh tax-free in the new regime?",
+    answer:
+      "Under the new regime for FY 2025-26, Section 87A rebate can make tax nil when taxable income is up to ₹12 lakh. With ₹75,000 standard deduction, many salaried people with gross income up to about ₹12.75 lakh may pay zero tax — subject to other income types and rules.",
+  },
+  {
+    id: "tax-80c",
+    question: "What comes under Section 80C?",
+    answer:
+      "Common options include EPF, PPF, ELSS, life insurance premium, home-loan principal, and some tax-saving deposits — usually up to ₹1.5 lakh a year. These help mainly under the old regime.",
+  },
+  {
+    id: "tax-which-regime",
+    question: "Should I choose old or new regime?",
+    answer:
+      "If your deductions (80C, 80D, NPS, home loan interest) are high, old regime can win. If deductions are low, new regime often wins after Budget 2025. Use this calculator with your numbers, then confirm with a CA before filing.",
+  },
+  {
+    id: "tax-estimate",
+    question: "Is this tax calculator result final?",
+    answer:
+      "No. Results are estimates only — not a guaranteed tax liability. Special incomes, HRA, capital gains and other cases are not fully covered. Always verify with a qualified CA before filing your return.",
+  },
+];
