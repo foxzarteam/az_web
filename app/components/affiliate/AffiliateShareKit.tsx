@@ -1,10 +1,36 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ADMIN_BTN_PRIMARY, ADMIN_BTN_SECONDARY } from "@/app/admin/dashboard/adminUi";
+import { PUBLIC_SITE_URL } from "@/app/config/constants";
 import { affiliateQrSrc, affiliateShareUrl } from "@/app/lib/affiliate/refCookie";
 
-const SHARE_TEXT = "Apply with Apni Zaroorat using my link:";
+const SHARE_TEXT = `Hi! 👋
+Do you need a Personal Loan or Insurance?
+Easily apply with Apni Zaroorat using this link 👇`;
+
+/** Optimized creative (≈120KB JPEG) — /public/images/share.jpg */
+const SHARE_IMAGE_PATH = "/images/share.jpg";
+const SHARE_IMAGE_URL = `${PUBLIC_SITE_URL.replace(/\/+$/, "")}${SHARE_IMAGE_PATH}`;
+
+let shareImageFilePromise: Promise<File | null> | null = null;
+
+function loadShareImageFile(): Promise<File | null> {
+  if (!shareImageFilePromise) {
+    shareImageFilePromise = (async () => {
+      try {
+        const res = await fetch(SHARE_IMAGE_PATH, { cache: "force-cache" });
+        if (!res.ok) return null;
+        const blob = await res.blob();
+        const type = blob.type || "image/jpeg";
+        return new File([blob], "apni-zaroorat-share.jpg", { type });
+      } catch {
+        return null;
+      }
+    })();
+  }
+  return shareImageFilePromise;
+}
 
 type ShareItem = {
   id: string;
@@ -102,6 +128,13 @@ function ShareNativeIcon() {
   );
 }
 
+function openShareUrl(href: string) {
+  const w = window.open(href, "_blank", "noopener,noreferrer");
+  if (!w) {
+    window.location.assign(href);
+  }
+}
+
 export default function AffiliateShareKit({
   code,
   compact = false,
@@ -114,48 +147,66 @@ export default function AffiliateShareKit({
   const qrSrc = affiliateQrSrc(shareUrl, qrSize);
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const [canNativeShare, setCanNativeShare] = useState(false);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setCanNativeShare(typeof navigator.share === "function");
+    void loadShareImageFile();
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
   }, []);
 
+  /** Mobile (file share): text + real image — no image URL. */
   const shareMessage = useMemo(
-    () => `${SHARE_TEXT} ${shareUrl}`.trim(),
+    () => `${SHARE_TEXT}\n${shareUrl}`.trim(),
     [shareUrl],
+  );
+
+  /** Desktop only: browsers can't attach files → keep image URL in text. */
+  const shareMessageDesktop = useMemo(
+    () => `${SHARE_TEXT}\n${SHARE_IMAGE_URL}\n${shareUrl}`.trim(),
+    [shareUrl],
+  );
+
+  const whatsappDesktopHref = useMemo(
+    () => `https://wa.me/?text=${encodeURIComponent(shareMessageDesktop)}`,
+    [shareMessageDesktop],
   );
 
   const socialLinks = useMemo<ShareItem[]>(() => {
     if (!shareUrl) return [];
     const u = encodeURIComponent(shareUrl);
     const t = encodeURIComponent(SHARE_TEXT);
-    const full = encodeURIComponent(shareMessage);
+    const desktopBody = encodeURIComponent(shareMessageDesktop);
     return [
       {
         id: "whatsapp",
         label: "WhatsApp",
-        href: `https://wa.me/?text=${full}`,
+        href: whatsappDesktopHref,
         className: "bg-[#25D366] text-white hover:bg-[#1ebe57]",
         icon: <WhatsAppIcon />,
       },
       {
         id: "email",
         label: "Email",
-        href: `mailto:?subject=${encodeURIComponent("Apni Zaroorat — apply with my link")}&body=${full}`,
+        href: `mailto:?subject=${encodeURIComponent("Apni Zaroorat — apply with my link")}&body=${desktopBody}`,
         className: "bg-slate-700 text-white hover:bg-slate-800",
         icon: <EmailIcon />,
       },
       {
         id: "sms",
         label: "SMS",
-        href: `sms:?&body=${full}`,
+        href: `sms:?&body=${encodeURIComponent(shareMessage)}`,
         className: "bg-emerald-600 text-white hover:bg-emerald-700",
         icon: <SmsIcon />,
       },
       {
         id: "telegram",
         label: "Telegram",
-        href: `https://t.me/share/url?url=${u}&text=${t}`,
+        href: `https://t.me/share/url?url=${u}&text=${encodeURIComponent(`${SHARE_TEXT}\n${SHARE_IMAGE_URL}`)}`,
         className: "bg-[#229ED9] text-white hover:bg-[#1b8bc0]",
         icon: <TelegramIcon />,
       },
@@ -181,24 +232,26 @@ export default function AffiliateShareKit({
         icon: <LinkedInIcon />,
       },
     ];
-  }, [shareUrl, shareMessage]);
+  }, [shareUrl, shareMessage, shareMessageDesktop, whatsappDesktopHref]);
 
   async function copyLink() {
     if (!shareUrl) return;
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 1600);
     } catch {
       setCopied(false);
     }
   }
 
   async function downloadPng() {
-    if (!qrSrc) return;
+    if (!qrSrc || downloading) return;
     setDownloading(true);
     try {
       const res = await fetch(qrSrc);
+      if (!res.ok) throw new Error("qr fetch failed");
       const blob = await res.blob();
       const png = blob.type.includes("png") ? blob : new Blob([blob], { type: "image/png" });
       const href = URL.createObjectURL(png);
@@ -208,22 +261,55 @@ export default function AffiliateShareKit({
       a.click();
       URL.revokeObjectURL(href);
     } catch {
-      window.open(qrSrc, "_blank", "noopener,noreferrer");
+      openShareUrl(qrSrc);
     } finally {
       setDownloading(false);
     }
   }
 
-  async function nativeShare() {
-    if (!shareUrl || typeof navigator.share !== "function") return;
+  async function shareWithImage(opts?: { whatsapp?: boolean }) {
+    if (!shareUrl || sharing) return;
+    setSharing(true);
     try {
-      await navigator.share({
-        title: "Apni Zaroorat",
-        text: SHARE_TEXT,
-        url: shareUrl,
-      });
-    } catch {
-      /* user cancelled */
+      const file = await loadShareImageFile();
+      const canFiles =
+        !!file &&
+        typeof navigator.canShare === "function" &&
+        navigator.canShare({ files: [file] });
+
+      // Mobile: real image file + text (no image URL in message)
+      if (canFiles && typeof navigator.share === "function") {
+        try {
+          await navigator.share({
+            title: "Apni Zaroorat",
+            text: shareMessage,
+            files: [file],
+          });
+          return;
+        } catch (err) {
+          if (err instanceof DOMException && err.name === "AbortError") return;
+        }
+      }
+
+      // Desktop: can't attach file — keep image URL in WhatsApp/text
+      if (opts?.whatsapp) {
+        openShareUrl(whatsappDesktopHref);
+        return;
+      }
+
+      if (typeof navigator.share === "function") {
+        try {
+          await navigator.share({
+            title: "Apni Zaroorat",
+            text: shareMessageDesktop,
+            url: shareUrl,
+          });
+        } catch {
+          /* user cancelled */
+        }
+      }
+    } finally {
+      setSharing(false);
     }
   }
 
@@ -242,6 +328,8 @@ export default function AffiliateShareKit({
           height={qrSize}
           className="block"
           style={{ width: qrSize, height: qrSize }}
+          decoding="async"
+          loading="lazy"
         />
       </div>
       <div className="min-w-0 w-full flex-1 space-y-3">
@@ -273,26 +361,43 @@ export default function AffiliateShareKit({
             Share on
           </p>
           <div className="flex flex-wrap gap-2.5">
-            {socialLinks.map((item) => (
-              <a
-                key={item.id}
-                href={item.href}
-                target={item.id === "email" || item.id === "sms" ? undefined : "_blank"}
-                rel="noopener noreferrer"
-                aria-label={`Share on ${item.label}`}
-                title={item.label}
-                className={`inline-flex h-11 w-11 items-center justify-center rounded-full shadow-sm transition ${item.className}`}
-              >
-                {item.icon}
-              </a>
-            ))}
+            {socialLinks.map((item) =>
+              item.id === "whatsapp" ? (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => void shareWithImage({ whatsapp: true })}
+                  disabled={sharing}
+                  aria-busy={sharing}
+                  aria-label={`Share on ${item.label}`}
+                  title={item.label}
+                  className={`inline-flex h-11 w-11 items-center justify-center rounded-full shadow-sm transition disabled:opacity-60 ${item.className}`}
+                >
+                  {item.icon}
+                </button>
+              ) : (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  target={item.id === "email" || item.id === "sms" ? undefined : "_blank"}
+                  rel="noopener noreferrer"
+                  aria-label={`Share on ${item.label}`}
+                  title={item.label}
+                  className={`inline-flex h-11 w-11 items-center justify-center rounded-full shadow-sm transition ${item.className}`}
+                >
+                  {item.icon}
+                </a>
+              ),
+            )}
             {canNativeShare ? (
               <button
                 type="button"
-                onClick={() => void nativeShare()}
+                onClick={() => void shareWithImage()}
+                disabled={sharing}
+                aria-busy={sharing}
                 aria-label="More share options"
                 title="More"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#4236FB] text-white shadow-sm transition hover:bg-[#3528E8]"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#4236FB] text-white shadow-sm transition hover:bg-[#3528E8] disabled:opacity-60"
               >
                 <ShareNativeIcon />
               </button>

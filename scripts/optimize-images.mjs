@@ -31,7 +31,31 @@ const JOBS = [
   { file: "favicon.png", maxWidth: 64, quality: 90, format: "webp" },
   { file: "images/logo/app_icon.png", maxWidth: 192, quality: 85, format: "webp" },
   { file: "city/imgi_52_hyderabad.png", maxWidth: 640, quality: 80, format: "webp" },
+  { file: "images/share.jpg", maxWidth: 1080, quality: 78, format: "jpeg" },
 ];
+
+/** Animated product creatives → WebP (much smaller than GIF). */
+async function optimizeAnimatedGif(name) {
+  const input = path.join(ROOT, `images/${name}.gif`);
+  const output = path.join(ROOT, `images/${name}.webp`);
+  try {
+    await fs.access(input);
+  } catch {
+    console.warn(`skip missing images/${name}.gif`);
+    return;
+  }
+  const before = (await fs.stat(input)).size;
+  const tmp = `${output}.tmp`;
+  await sharp(input, { animated: true, limitInputPixels: false })
+    .resize({ width: 480, withoutEnlargement: true })
+    .webp({ quality: 72, effort: 4 })
+    .toFile(tmp);
+  await fs.rename(tmp, output);
+  const after = (await fs.stat(output)).size;
+  console.log(
+    `ok  images/${name}.webp  ${(before / 1024).toFixed(0)} → ${(after / 1024).toFixed(0)} KB`,
+  );
+}
 
 /** Open Graph default (1200×630). Prefer compressed hero.webp. */
 async function buildOgDefault() {
@@ -102,6 +126,8 @@ async function main() {
   for (const job of JOBS) {
     await optimizeOne(job);
   }
+  await optimizeAnimatedGif("loan");
+  await optimizeAnimatedGif("insurance");
   await buildOgDefault();
 }
 

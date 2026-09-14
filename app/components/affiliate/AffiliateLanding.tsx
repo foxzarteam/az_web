@@ -8,7 +8,7 @@ const PRODUCTS = [
   {
     name: "Personal Loan",
     href: "/products/personal-loan#apply",
-    gif: "/images/loan.gif",
+    gif: "/images/loan.webp",
     imageAlt: "Personal loan",
     badge: "Up to ₹10 lakh",
     blurb: "Paperless apply, quick digital process with minimal documentation.",
@@ -18,7 +18,7 @@ const PRODUCTS = [
   {
     name: "Insurance",
     href: "/products/insurance#apply",
-    gif: "/images/insurance.gif",
+    gif: "/images/insurance.webp",
     imageAlt: "Insurance",
     badge: "Life · Health · Motor",
     blurb: "Choose your cover and apply online in a few guided steps.",
@@ -140,7 +140,7 @@ function ProductGif({ src, alt }: { src: string; alt: string }) {
       <div className="product-gif-frame theme-gradient-bg">
         <div className="product-gif-frame__inner">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt={alt} width={224} height={224} />
+        <img src={src} alt={alt} width={224} height={224} decoding="async" loading="lazy" />
         </div>
       </div>
     </div>
