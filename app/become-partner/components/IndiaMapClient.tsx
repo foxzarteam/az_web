@@ -1,13 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useIsMounted } from "@/app/hooks/useIsMounted";
 import IndiaMap from "./india-map";
 
 export default function IndiaMapClient() {
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    setReady(true);
-  }, []);
+  const ready = useIsMounted();
 
   if (!ready) {
     return (

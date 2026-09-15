@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { CONTACT, SOCIAL_LINKS } from "@/app/config/constants";
+import { SITELINK_PAGES, seoPath } from "@/app/lib/seo";
 import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
 import { serviceCardsToSubmenu } from "@/app/lib/services/submenu";
 import { hidePublicChrome } from "@/app/lib/layout/hidePublicChrome";
@@ -58,22 +59,81 @@ export default function Footer() {
           </Link>
 
           <div className="flex shrink-0 items-center gap-2">
-            <a href={`tel:${CONTACT.PHONE_TEL}`} className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-midnight_text bg-white/50 hover:bg-primary transition-colors" aria-label="Phone">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+            <a
+              href={`tel:${CONTACT.PHONE_TEL}`}
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md bg-white/95 p-2.5 transition hover:opacity-90"
+              aria-label={`Call ${CONTACT.PHONE}`}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
+                <path
+                  fill="#34C759"
+                  d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"
+                />
               </svg>
             </a>
-            <a href={`mailto:${CONTACT.EMAIL}`} className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-midnight_text bg-white/50 hover:bg-primary transition-colors" aria-label="Email">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                <polyline points="22,6 12,13 2,6" />
+            <a
+              href={`mailto:${CONTACT.EMAIL}`}
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md bg-white/95 p-2.5 transition hover:opacity-90"
+              aria-label={`Email ${CONTACT.EMAIL}`}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
+                <path fill="#EA4335" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" />
+                <path fill="#FBBC04" d="M22 6.5 12 14 2 6.5V6l10 7 10-7v.5z" />
+                <path fill="#4285F4" d="M2 6.5V18l6.5-5.25L2 6.5z" />
+                <path fill="#34A853" d="M22 6.5V18l-6.5-5.25L22 6.5z" />
               </svg>
             </a>
-            <a href={SOCIAL_LINKS.FACEBOOK} className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-midnight_text bg-white/50 hover:bg-primary transition-colors" aria-label="Facebook">
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M16.294 8.86875H14.369H13.6815V8.18125V6.05V5.3625H14.369H15.8128C16.1909 5.3625 16.5003 5.0875 16.5003 4.675V1.03125C16.5003 0.653125 16.2253 0.34375 15.8128 0.34375H13.3034C10.5878 0.34375 8.69714 2.26875 8.69714 5.12187V8.1125V8.8H8.00964H5.67214C5.19089 8.8 4.74402 9.17812 4.74402 9.72812V12.2031C4.74402 12.6844 5.12214 13.1313 5.67214 13.1313H7.94089H8.62839V13.8188V20.7281C8.62839 21.2094 9.00652 21.6562 9.55652 21.6562H12.7878C12.994 21.6562 13.1659 21.5531 13.3034 21.4156C13.4409 21.2781 13.544 21.0375 13.544 20.8312V13.8531V13.1656H14.2659H15.8128C16.2596 13.1656 16.6034 12.8906 16.6721 12.4781V12.4438V12.4094L17.1534 10.0375C17.1878 9.79688 17.1534 9.52187 16.9471 9.24687C16.8784 9.075 16.569 8.90312 16.294 8.86875Z" /></svg>
+            <a
+              href={SOCIAL_LINKS.INSTAGRAM}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md bg-white/95 p-2.5 transition hover:opacity-90"
+              aria-label="Instagram"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
+                <defs>
+                  <radialGradient id="igFooterGrad" cx="30%" cy="107%" r="150%">
+                    <stop offset="0%" stopColor="#fdf497" />
+                    <stop offset="5%" stopColor="#fdf497" />
+                    <stop offset="45%" stopColor="#fd5949" />
+                    <stop offset="60%" stopColor="#d6249f" />
+                    <stop offset="90%" stopColor="#285AEB" />
+                  </radialGradient>
+                </defs>
+                <path
+                  fill="url(#igFooterGrad)"
+                  d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"
+                />
+              </svg>
             </a>
-            <a href={SOCIAL_LINKS.TWITTER} className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-midnight_text bg-white/50 hover:bg-primary transition-colors" aria-label="Twitter">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z" /></svg>
+            <a
+              href={SOCIAL_LINKS.YOUTUBE}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md bg-white/95 p-2.5 transition hover:opacity-90"
+              aria-label="YouTube"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
+                <path
+                  fill="#FF0000"
+                  d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z"
+                />
+                <path fill="#fff" d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+              </svg>
+            </a>
+            <a
+              href={SOCIAL_LINKS.FACEBOOK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md bg-white/95 p-2.5 transition hover:opacity-90"
+              aria-label="Facebook"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
+                <path
+                  fill="#1877F2"
+                  d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047v-2.66c0-3.007 1.792-4.668 4.533-4.668 1.312 0 2.686.234 2.686.234v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"
+                />
+              </svg>
             </a>
           </div>
         </div>
@@ -154,7 +214,44 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 border-t border-white/10 pt-5 sm:mt-10">
+        <nav
+          aria-label="Apni Zaroorat site map"
+          className="mt-8 border-t border-white/10 pt-6 sm:mt-10"
+        >
+          <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-white/70">
+            All pages
+          </p>
+          <ul className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-1 gap-y-1 text-center text-xs sm:text-sm">
+            {SITELINK_PAGES.map((page, index) => (
+              <li key={page.path} className="inline-flex items-center">
+                {index > 0 ? (
+                  <span className="mx-1.5 text-white/30 select-none" aria-hidden>
+                    ·
+                  </span>
+                ) : null}
+                <Link href={seoPath(page.path)} className="text-white/85 hover:text-white">
+                  {page.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-center text-xs text-white/60">
+            Follow:{" "}
+            <a href={SOCIAL_LINKS.INSTAGRAM} target="_blank" rel="noopener noreferrer" className="text-white/85 hover:text-white">
+              Instagram
+            </a>
+            {" · "}
+            <a href={SOCIAL_LINKS.YOUTUBE} target="_blank" rel="noopener noreferrer" className="text-white/85 hover:text-white">
+              YouTube
+            </a>
+            {" · "}
+            <a href={SOCIAL_LINKS.FACEBOOK} target="_blank" rel="noopener noreferrer" className="text-white/85 hover:text-white">
+              Facebook
+            </a>
+          </p>
+        </nav>
+
+        <div className="mt-5 border-t border-white/10 pt-5">
           <p className="text-center text-xs text-gray sm:text-sm">
             © 2026 Apni Zaroorat. All rights reserved.
           </p>

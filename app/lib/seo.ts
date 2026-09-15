@@ -1,12 +1,118 @@
 import type { Metadata } from "next";
-import { CONTACT, PUBLIC_SITE_URL } from "@/app/config/constants";
+import { CONTACT, PUBLIC_SITE_URL, SOCIAL_LINKS } from "@/app/config/constants";
 import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
 
 /**
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-09-11";
+export const SEO_CONTENT_VERSION = "2026-09-15";
+
+/** Official social profiles — wired to Organization sameAs + footer + AEO/GEO docs. */
+export const SOCIAL_PROFILES = [
+  { name: "Instagram", url: SOCIAL_LINKS.INSTAGRAM },
+  { name: "YouTube", url: SOCIAL_LINKS.YOUTUBE },
+  { name: "Facebook", url: SOCIAL_LINKS.FACEBOOK },
+] as const;
+
+export const SOCIAL_SAME_AS = SOCIAL_PROFILES.map((p) => p.url);
+
+export type SiteTreeNode = {
+  name: string;
+  path: string;
+  description: string;
+  children?: SiteTreeNode[];
+};
+
+/**
+ * Canonical site tree for sitelinks, JSON-LD SiteNavigation, footer map, llms.txt.
+ * Order matches priority for brand-name search (Google may surface as sitelinks).
+ */
+export const SITE_TREE: SiteTreeNode[] = [
+  {
+    name: "Home",
+    path: "/",
+    description: "Apni Zaroorat — apply for personal loans and insurance online in India.",
+  },
+  {
+    name: "Products",
+    path: "/products",
+    description: "Personal loans and insurance — compare and apply online with Apni Zaroorat.",
+    children: [
+      {
+        name: "Personal Loan",
+        path: "/products/personal-loan",
+        description:
+          "Apply for personal loan online up to ₹10 lakh — quick digital process with Apni Zaroorat.",
+      },
+      {
+        name: "Insurance",
+        path: "/products/insurance",
+        description:
+          "Compare life, health and motor insurance online with guided digital applications.",
+      },
+    ],
+  },
+  {
+    name: "Tools",
+    path: "/emi-calculator",
+    description: "Free financial tools — EMI, eligibility and tax saving calculators.",
+    children: [
+      {
+        name: "EMI Calculator",
+        path: "/emi-calculator",
+        description: "Free personal loan EMI calculator — monthly EMI, interest, and total repayment.",
+      },
+      {
+        name: "Check Eligibility",
+        path: "/check-eligibility",
+        description: "Free personal loan eligibility check online — no credit score impact.",
+      },
+      {
+        name: "Tax Saving Calculator",
+        path: "/tax-saving-calculator",
+        description:
+          "Free tax saving calculator — compare New vs Old regime for FY 2025-26 with 80C, 80D and more.",
+      },
+    ],
+  },
+  {
+    name: "Company",
+    path: "/about",
+    description: "About Apni Zaroorat — A to Z finance partner for loans and insurance in India.",
+    children: [
+      {
+        name: "About Us",
+        path: "/about",
+        description: "Know Apni Zaroorat — mission, team, and A to Z finance solutions across India.",
+      },
+      {
+        name: "Contact Us",
+        path: "/contact",
+        description:
+          "Get support for loans, insurance and applications across India. Call, email, or visit our Jaipur office.",
+      },
+      {
+        name: "Become a Partner",
+        path: "/become-partner",
+        description: "Join Apni Zaroorat as a partner — earn by referring personal loan and insurance leads.",
+      },
+    ],
+  },
+];
+
+function flattenSiteTree(nodes: SiteTreeNode[]): SiteTreeNode[] {
+  const out: SiteTreeNode[] = [];
+  for (const node of nodes) {
+    if (node.path !== "/" || node.name !== "Home") {
+      out.push(node);
+    }
+    if (node.children?.length) {
+      out.push(...flattenSiteTree(node.children));
+    }
+  }
+  return out;
+}
 
 /**
  * All Google-indexable marketing URLs (no admin / api / customer / agent).
@@ -51,58 +157,9 @@ export const SEO_INDEXING_ENABLED = true;
 
 /**
  * Primary deep links Google may surface as sitelinks (must match real, strong pages).
- * Order + clear names help; Google still chooses whether/which to show.
+ * Derived from SITE_TREE — order + clear names help; Google still chooses which to show.
  */
-export const SITELINK_PAGES = [
-  {
-    name: "Personal Loan",
-    path: "/products/personal-loan",
-    description:
-      "Apply for personal loan online up to ₹10 lakh — quick digital process with Apni Zaroorat.",
-  },
-  {
-    name: "Contact Us",
-    path: "/contact",
-    description:
-      "Get support for loans, insurance and applications across India. Call, email, or visit our office.",
-  },
-  {
-    name: "EMI Calculator",
-    path: "/emi-calculator",
-    description:
-      "Free personal loan EMI calculator — monthly EMI, interest, and total repayment.",
-  },
-  {
-    name: "Check Eligibility",
-    path: "/check-eligibility",
-    description:
-      "Free personal loan eligibility check online — no credit score impact.",
-  },
-  {
-    name: "Insurance",
-    path: "/products/insurance",
-    description:
-      "Compare life, health and motor insurance online with guided digital applications.",
-  },
-  {
-    name: "Tax Saving Calculator",
-    path: "/tax-saving-calculator",
-    description:
-      "Free tax saving calculator — compare New vs Old regime for FY 2025-26 with 80C, 80D and more.",
-  },
-  {
-    name: "Products",
-    path: "/products",
-    description:
-      "Personal loans and insurance products online — apply with Apni Zaroorat in minutes.",
-  },
-  {
-    name: "About Us",
-    path: "/about",
-    description:
-      "Know Apni Zaroorat — A to Z finance partner for personal loans and insurance in India.",
-  },
-] as const;
+export const SITELINK_PAGES = flattenSiteTree(SITE_TREE);
 
 /**
  * Brand signals (merged site-wide in meta keywords + useful for brand search).
@@ -522,7 +579,34 @@ export function organizationJsonLd() {
       "A to Z finance solutions",
     ],
     hasOfferCatalog: { "@id": `${PUBLIC_SITE_URL}/#services` },
-    sameAs: [] as string[],
+    brand: {
+      "@type": "Brand",
+      name: SITE_NAME,
+      logo: { "@id": `${PUBLIC_SITE_URL}/#logo` },
+      sameAs: SOCIAL_SAME_AS,
+    },
+    sameAs: SOCIAL_SAME_AS,
+  };
+}
+
+export function socialProfilesJsonLd() {
+  return {
+    "@type": "ItemList",
+    "@id": `${PUBLIC_SITE_URL}/#socialprofiles`,
+    name: `${SITE_NAME} on social media`,
+    numberOfItems: SOCIAL_PROFILES.length,
+    itemListElement: SOCIAL_PROFILES.map((profile, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: profile.name,
+      item: {
+        "@type": "Organization",
+        name: `${SITE_NAME} on ${profile.name}`,
+        url: profile.url,
+        sameAs: profile.url,
+        parentOrganization: { "@id": `${PUBLIC_SITE_URL}/#organization` },
+      },
+    })),
   };
 }
 
@@ -543,12 +627,19 @@ export function websiteJsonLd() {
     inLanguage: ["en-IN", "hi-IN"],
     copyrightHolder: { "@id": `${PUBLIC_SITE_URL}/#organization` },
     about: { "@id": `${PUBLIC_SITE_URL}/#organization` },
+    mainEntity: { "@id": `${PUBLIC_SITE_URL}/#organization` },
     hasPart: SITELINK_PAGES.map((page) => ({
       "@type": "WebPage",
+      "@id": `${absoluteSeoUrl(page.path)}#webpage`,
       name: page.name,
       url: absoluteSeoUrl(page.path),
       description: page.description,
+      isPartOf: { "@id": `${PUBLIC_SITE_URL}/#website` },
     })),
+    significantLink: [
+      ...SITELINK_PAGES.map((page) => absoluteSeoUrl(page.path)),
+      ...SOCIAL_SAME_AS,
+    ],
   };
 }
 
@@ -718,6 +809,7 @@ export function localBusinessJsonLd() {
       closes: "19:00",
     },
     areaServed: { "@type": "Country", name: "India" },
+    sameAs: SOCIAL_SAME_AS,
   };
 }
 
@@ -785,6 +877,7 @@ export function pageSeoGlue(input: {
     organizationJsonLd(),
     websiteJsonLd(),
     siteNavigationJsonLd(),
+    socialProfilesJsonLd(),
     webPageJsonLd({
       name: input.name,
       description: input.description,

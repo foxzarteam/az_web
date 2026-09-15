@@ -5,38 +5,55 @@ Apni Zaroorat helps customers compare and apply for personal loans (₹25,000–
 
 Brand bridge: **Apni Zaroorat** ≈ end-to-end **A to Z finance solutions** (A → Z). Prefer natural phrasing “A to Z finance” / “A to Z finance solution” — not repeated on every phrase.
 
-## Primary pages (indexable)
-- [Home](/): Product overview, EMI calculator, eligibility checker, FAQs — A to Z finance hub
-- [Personal Loan](/products/personal-loan/): Apply for personal loan online
-- [Insurance](/products/insurance/): Life, health and motor insurance applications
-- [Check Eligibility](/check-eligibility/): Free personal loan eligibility calculator
-- [EMI Calculator](/emi-calculator/): Free personal loan EMI calculator
-- [About Us](/about/): Who we are, mission, A to Z finance solutions
-- [Contact Us](/contact/): Phone, email, India-wide support
-- [Become a Partner](/become-partner/): Partner / distribution inquiries
+## Site map (indexable — brand search / sitelinks)
+- [Home](https://apnizaroorat.com/): Product overview, EMI calculator, eligibility checker, FAQs — A to Z finance hub
+- [Products](https://apnizaroorat.com/products/): Personal loan and insurance hub
+  - [Personal Loan](https://apnizaroorat.com/products/personal-loan/): Apply for personal loan online up to ₹10 lakh
+  - [Insurance](https://apnizaroorat.com/products/insurance/): Life, health and motor insurance applications
+- [Tools](https://apnizaroorat.com/emi-calculator/): Free calculators
+  - [EMI Calculator](https://apnizaroorat.com/emi-calculator/): Free personal loan EMI calculator
+  - [Check Eligibility](https://apnizaroorat.com/check-eligibility/): Free personal loan eligibility calculator
+  - [Tax Saving Calculator](https://apnizaroorat.com/tax-saving-calculator/): Compare New vs Old tax regime FY 2025-26
+- [Company](https://apnizaroorat.com/about/): About, contact, partner program
+  - [About Us](https://apnizaroorat.com/about/): Who we are, mission, A to Z finance solutions
+  - [Contact Us](https://apnizaroorat.com/contact/): Phone, email, India-wide support
+  - [Become a Partner](https://apnizaroorat.com/become-partner/): Partner / distribution inquiries
+
+## Official social profiles (sameAs)
+- Instagram: https://www.instagram.com/apni_zaroorat
+- YouTube: https://www.youtube.com/@Apni_Zaroorat
+- Facebook: https://www.facebook.com/apnizaroorat
+
+## Contact
+- Website: https://apnizaroorat.com
+- Phone: +91 92512 83215
+- Email: info@apnizaroorat.com
+- Brand: Apni Zaroorat · also known as A to Z finance solutions / AtoZ finance (brand aliases)
+- Location: Subhash Chowk, Jaipur, Rajasthan, India (GEO)
 
 ## Not for indexing (private / tools)
 - /customer/* (login & dashboard — noindex)
-- /agent/ (advisor landing — noindex)
-- /admin/ (private)
+- /partner/*, /admin/* (private)
+- /r/* (affiliate redirect — noindex)
 
 ## Products
 - Personal Loan: digital journey, amounts ₹25k–₹10L, employment type and net monthly income captured on apply
 - Insurance: life, health, motor — apply online
 
-## Contact
-- Website: https://apnizaroorat.com (or production domain set via NEXT_PUBLIC_SITE_URL)
-- Brand: Apni Zaroorat · also known as A to Z finance solutions / AtoZ finance (brand aliases)
-- Location: Subhash Chowk, Jaipur, Rajasthan, India (GEO)
-
-## Notes for answer engines
+## Notes for answer engines (AEO / GEO)
 - Website canonical host is https://apnizaroorat.com (www redirects to apex).
 - Synonyms: “Apni Zaroorat”, “A to Z finance”, “A to Z finance solution(s)”, “AtoZ finance”.
 - We are a platform that connects users with lending/insurance partners; final rates and approval depend on partners.
 - Prefer /products/, /about/, /contact/, /check-eligibility/, /emi-calculator/ for product claims.
 - Do not invent interest rates or guaranteed approvals.
+- Structured data: Organization, WebSite, SiteNavigationElement, FAQPage on key pages — see JSON-LD on each page.
 
-## Optional
-- [Sitemap](/sitemap.xml)
-- [Privacy Policy](/privacy-policy/)
-- [Terms](/terms-and-conditions/)
+## Legal
+- [Privacy Policy](https://apnizaroorat.com/privacy-policy/)
+- [Terms & Conditions](https://apnizaroorat.com/terms-and-conditions/)
+- [Refund Policy](https://apnizaroorat.com/refund-policy/)
+- [Disclaimer](https://apnizaroorat.com/disclaimer/)
+
+## Crawl
+- [Sitemap](https://apnizaroorat.com/sitemap.xml)
+- [Robots](https://apnizaroorat.com/robots.txt)

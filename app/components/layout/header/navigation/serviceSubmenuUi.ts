@@ -11,10 +11,7 @@ export const SERVICE_ICON_GRADIENTS: Record<string, string> = {
   "vehicle-loan": BRAND_ICON_GRADIENT,
 };
 
-export function serviceSubmenuGradient(
-  item: { href?: string },
-  _index = 0,
-): string {
+export function serviceSubmenuGradient(item: { href?: string }): string {
   const slug = String(item.href ?? "")
     .replace(/^\//, "")
     .split("/")[0] || "";

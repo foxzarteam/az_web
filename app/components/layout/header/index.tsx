@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useIsMounted } from "@/app/hooks/useIsMounted";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,7 +25,7 @@ export default function Header() {
   const { theme, setTheme } = useTheme();
   const [navbarOpen, setNavbarOpen] = useState(false);
   /** false on SSR + first client paint so theme UI matches server HTML */
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsMounted();
   const { cards } = useRemoteServiceCards();
   const serviceSubmenu = useMemo(() => serviceCardsToSubmenu(cards), [cards]);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -40,10 +41,6 @@ export default function Header() {
       ),
     [serviceSubmenu]
   );
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

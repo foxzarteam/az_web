@@ -51,8 +51,8 @@ export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; 
           </button>
           {submenuOpen && item.submenu && (
             <div className="bg-white dark:bg-darkmode py-2 px-3 w-full space-y-1">
-              {item.submenu.map((subItem, index) => {
-                const gradient = serviceSubmenuGradient(subItem, index);
+              {item.submenu.map((subItem) => {
+                const gradient = serviceSubmenuGradient(subItem);
                 const active = normalizePath(subItem.href) === current;
                 return (
                   <Link

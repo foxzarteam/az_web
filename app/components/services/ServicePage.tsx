@@ -11,9 +11,9 @@ import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationS
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
-import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
+import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { customerLogin } from "@/app/utils/customerAuthApi";
-import { applyLead, leadIdFromResponse, mapServiceToCategory } from "@/app/utils/leadApi";
+import { applyLead, mapServiceToCategory } from "@/app/utils/leadApi";
 import {
   firstLeadFieldError,
   personalLoanApplyPayload,
@@ -118,20 +118,6 @@ export default function ServicePage({
     setNetMonthlyIncome("");
     setLoanAmount(DEFAULT_LOAN_AMOUNT);
   }, [pageServiceSlug]);
-
-  const resetForm = () => {
-    setFullName("");
-    setMobile("");
-    setPincode("");
-    setLoanAmount(DEFAULT_LOAN_AMOUNT);
-    setInsType("");
-    setEmploymentType("");
-    setNetMonthlyIncome("");
-    setPan("");
-    setTermsAccepted(false);
-    setFormError("");
-    setPendingLeadId("");
-  };
 
   const handleSubmit = async (form: HTMLFormElement) => {
     if (!reportFormValidity(form) || isSubmittingForm) return;

@@ -81,6 +81,7 @@ export const FEATURED_SERVICES = [
 ] as const;
 
 export const SOCIAL_LINKS = {
-  FACEBOOK: "#/",
-  TWITTER: "#/",
+  INSTAGRAM: "https://www.instagram.com/apni_zaroorat",
+  YOUTUBE: "https://www.youtube.com/@Apni_Zaroorat",
+  FACEBOOK: "https://www.facebook.com/apnizaroorat",
 } as const;

@@ -699,7 +699,7 @@ html {
 .admin-scroll-light::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 116, 139, 0.55);
 }
-/* ——— 404 page motion ——— */
+/* --- 404 page motion --- */
 @keyframes notfound-float {
   0%,
   100% {

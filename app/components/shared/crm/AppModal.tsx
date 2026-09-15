@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useIsMounted } from "@/app/hooks/useIsMounted";
 import { ADMIN_UI } from "./ui";
 
 type Props = {
@@ -14,10 +15,9 @@ type Props = {
 };
 
 export default function AdminModal({ title, onClose, children, wide = false, footer }: Props) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsMounted();
 
   useEffect(() => {
-    setMounted(true);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {

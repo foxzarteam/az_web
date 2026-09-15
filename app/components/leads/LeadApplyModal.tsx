@@ -40,7 +40,6 @@ type LeadApplyModalProps = {
 
 export default function LeadApplyModal({
   open,
-  leadId: _leadId,
   mobile,
   onClose,
   onSuccess,

@@ -48,6 +48,9 @@ export async function POST(request: Request) {
   if (!/^\d{4}$/.test(mpin)) {
     return NextResponse.json({ error: "Password must be a 4-digit PIN." }, { status: 400 });
   }
+  if (!idToken) {
+    return NextResponse.json({ error: "Phone verification required." }, { status: 401 });
+  }
 
   try {
     const res = await fetch(`${base}/api/users/agent/register`, {
@@ -58,7 +61,7 @@ export async function POST(request: Request) {
         mobileNumber: mobile,
         mpin,
         ...(email ? { email } : {}),
-        ...(idToken ? { idToken } : {}),
+        idToken,
       }),
       cache: "no-store",
     });

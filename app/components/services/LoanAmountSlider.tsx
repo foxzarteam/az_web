@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
 import { formatRupee } from "@/app/utils/format";
 
@@ -42,10 +42,7 @@ export default function LoanAmountSlider({
   const clampedValue = clamp(numericValue, min, max);
   // Slider thumb needs a step-aligned position; typed amount stays exact in the input.
   const sliderValue = snapToStep(clampedValue, min, max, step);
-  const pct = useMemo(
-    () => ((sliderValue - min) / (max - min)) * 100,
-    [sliderValue, min, max],
-  );
+  const pct = ((sliderValue - min) / (max - min)) * 100;
   const display = draft ?? formatRupee(clampedValue);
   const maxDigits = String(max).length;
 
