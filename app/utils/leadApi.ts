@@ -33,6 +33,7 @@ export async function checkLeadApplication(input: {
   mobileNumber: string;
   pan: string;
   category: CreateLeadRequest["category"];
+  insType?: string;
 }): Promise<{
   success: boolean;
   allowed: boolean;
@@ -41,6 +42,7 @@ export async function checkLeadApplication(input: {
   statusLabel?: string;
   category?: string;
   categoryLabel?: string;
+  insType?: string | null;
 }> {
   try {
     const response = await fetch(`${getLeadsApiBase()}/check-application`, {
@@ -53,6 +55,9 @@ export async function checkLeadApplication(input: {
         mobileNumber: input.mobileNumber.replace(/\D/g, "").slice(-10),
         pan: input.pan.trim().toUpperCase(),
         category: input.category,
+        ...(input.category === "insurance" && input.insType
+          ? { insType: input.insType }
+          : {}),
       }),
       mode: "cors",
       credentials: "omit",
@@ -66,6 +71,7 @@ export async function checkLeadApplication(input: {
       statusLabel?: string;
       category?: string;
       categoryLabel?: string;
+      insType?: string | null;
     } = {};
     if (raw) {
       try {
@@ -89,6 +95,7 @@ export async function checkLeadApplication(input: {
       statusLabel: data.statusLabel,
       category: data.category,
       categoryLabel: data.categoryLabel,
+      insType: data.insType,
     };
   } catch (error) {
     console.error("Error checking lead application:", error);

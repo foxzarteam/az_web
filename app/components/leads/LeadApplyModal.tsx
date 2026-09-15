@@ -146,9 +146,13 @@ export default function LeadApplyModal({
     setIsVerifyingOtp(false);
     try {
       await Promise.resolve(onSuccess({ mobile: mobileDigits, idToken: res.idToken }));
-    } catch {
+    } catch (err) {
       setIsFinishing(false);
-      setError("Could not open your dashboard. Please try again.");
+      const msg =
+        err instanceof Error && err.message.trim()
+          ? err.message.trim()
+          : "Could not open your dashboard. Please try again.";
+      setError(msg);
       return;
     }
     // Parent navigates away; if still here, leave finishing state (page will unmount).

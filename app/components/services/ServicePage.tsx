@@ -162,6 +162,7 @@ export default function ServicePage({
         mobileNumber: mobile.replace(/\D/g, ""),
         pan: pan.trim().toUpperCase(),
         category,
+        ...(category === "insurance" ? { insType } : {}),
       });
       if (!check.success) {
         setFormError(check.message || "Could not verify existing application. Please try again.");
