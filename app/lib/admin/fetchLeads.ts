@@ -25,6 +25,10 @@ export type AdminLeadRow = {
   otp_verified?: boolean | number | string | null;
   ip?: string | null;
   ip_location?: string | null;
+  agent_id?: string | null;
+  /** Direct, or "Partner: {name}" from admin API enrichment */
+  lead_source?: string | null;
+  partner_name?: string | null;
   /** Allow extra Supabase columns without loose `any` on known fields. */
   [key: string]: unknown;
 };

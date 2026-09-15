@@ -1,8 +1,12 @@
 import { redirect } from "next/navigation";
+import AffiliateLanding from "@/app/components/affiliate/AffiliateLanding";
 import { normalizeAffiliateCode } from "@/app/lib/affiliate/code";
 
-/** Fallback if middleware does not run; cookie is set in middleware on `/r/:code`. */
-export default async function AffiliateRedirectPage({
+/**
+ * Fallback when middleware rewrite does not run.
+ * Keeps URL as `/r/:code` and shows the same products hub.
+ */
+export default async function AffiliateLandingPage({
   params,
 }: {
   params: Promise<{ code: string }>;
@@ -11,5 +15,5 @@ export default async function AffiliateRedirectPage({
   if (!normalizeAffiliateCode(code ?? "")) {
     redirect("/");
   }
-  redirect("/products/");
+  return <AffiliateLanding />;
 }

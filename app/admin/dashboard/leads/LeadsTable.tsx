@@ -488,6 +488,16 @@ export default function LeadsTable({
                       </button>
                     ) : null}
                   </span>
+                ) : key === "lead_source" ? (
+                  <span
+                    className={
+                      String(viewLead.lead_source ?? "").toLowerCase() === "direct"
+                        ? "inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 dark:bg-white/10 dark:text-slate-200"
+                        : "inline-flex rounded-full bg-violet-50 px-2.5 py-0.5 text-xs font-semibold text-violet-700 dark:bg-violet-500/20 dark:text-violet-200"
+                    }
+                  >
+                    {formatValue(key, viewLead.lead_source ?? "Direct", viewLead)}
+                  </span>
                 ) : key === "ip" ? (
                   <span className="text-sm text-midnight_text dark:text-gray-200">
                     {formatValue(key, viewLead[key], viewLead)}

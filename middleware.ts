@@ -1,13 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import {
-  AFFILIATE_COOKIE,
-  AFFILIATE_MAX_AGE_SEC,
-  normalizeAffiliateCode,
-} from "@/app/lib/affiliate/code";
+import { AFFILIATE_COOKIE, normalizeAffiliateCode } from "@/app/lib/affiliate/code";
+
+/** Drop legacy `az_ref` cookie — attribution is URL-only now. */
+function clearAffiliateCookie(res: NextResponse) {
+  res.cookies.set(AFFILIATE_COOKIE, "", {
+    path: "/",
+    maxAge: 0,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+}
 
 /**
  * Force single SEO host: www → apex (https://apnizaroorat.com).
+ * Partner `/r/:code` rewrites to products hub — browser URL stays `/r/:code`.
  * Fresh HTML for public pages (short CDN cache) so re-deploys surface new meta.
  * Strong X-Robots-Tag for private routes (index only marketing).
  */
@@ -27,34 +34,25 @@ export function middleware(request: NextRequest) {
   const pathRef = path.match(/^\/r\/([A-Za-z0-9]{6,12})\/?$/i);
   if (pathRef) {
     const code = normalizeAffiliateCode(pathRef[1]);
-    const dest = request.nextUrl.clone();
-    dest.pathname = code ? "/products/" : "/";
-    dest.search = "";
-    const res = NextResponse.redirect(dest);
-    if (code) {
-      res.cookies.set(AFFILIATE_COOKIE, code, {
-        path: "/",
-        maxAge: AFFILIATE_MAX_AGE_SEC,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-      });
+    if (!code) {
+      const bad = NextResponse.redirect(new URL("/", request.url));
+      clearAffiliateCookie(bad);
+      return bad;
     }
+    // Rewrite keeps address bar as `/r/CODE` while serving products hub content.
+    // trailingSlash: true → destination must be `/products/`.
+    const dest = request.nextUrl.clone();
+    dest.pathname = "/products/";
+    dest.search = "";
+    const res = NextResponse.rewrite(dest);
+    clearAffiliateCookie(res);
     res.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
     res.headers.set("Cache-Control", "private, no-store");
     return res;
   }
 
   const res = NextResponse.next();
-
-  const refCode = normalizeAffiliateCode(request.nextUrl.searchParams.get("ref") ?? "");
-  if (refCode) {
-    res.cookies.set(AFFILIATE_COOKIE, refCode, {
-      path: "/",
-      maxAge: AFFILIATE_MAX_AGE_SEC,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    });
-  }
+  clearAffiliateCookie(res);
 
   const isPrivate =
     path.startsWith("/admin") ||

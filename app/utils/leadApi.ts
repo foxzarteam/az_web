@@ -15,15 +15,17 @@ export function leadIdFromResponse(data: unknown): string | null {
   return id != null ? String(id) : null;
 }
 
-/** Cookie wins over client body (anti referral-fraud). Cookie set on `/r/:code` / `?ref=`. */
+/**
+ * Partner attribution only from current URL (`/r/CODE` or `?ref=`).
+ * Cookie / client-supplied referralCode are ignored so leaving the partner URL
+ * and applying elsewhere does not credit the partner.
+ */
 function withReferralCode<T extends object>(data: T): T {
-  const fromCookie = readAffiliateCode().trim();
-  const fromBody =
-    "referralCode" in data && typeof (data as { referralCode?: unknown }).referralCode === "string"
-      ? String((data as { referralCode: string }).referralCode).trim()
-      : "";
-  const referralCode = fromCookie || fromBody;
-  return referralCode ? { ...data, referralCode } : data;
+  const fromUrl = readAffiliateCode().trim();
+  const next = { ...data } as T & { referralCode?: string };
+  delete next.referralCode;
+  if (fromUrl) next.referralCode = fromUrl;
+  return next;
 }
 
 /**
