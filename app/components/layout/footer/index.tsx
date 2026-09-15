@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { CONTACT, SOCIAL_LINKS } from "@/app/config/constants";
-import { SITELINK_PAGES, seoPath } from "@/app/lib/seo";
 import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
 import { serviceCardsToSubmenu } from "@/app/lib/services/submenu";
 import { hidePublicChrome } from "@/app/lib/layout/hidePublicChrome";
@@ -214,44 +213,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <nav
-          aria-label="Apni Zaroorat site map"
-          className="mt-8 border-t border-white/10 pt-6 sm:mt-10"
-        >
-          <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-white/70">
-            All pages
-          </p>
-          <ul className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-1 gap-y-1 text-center text-xs sm:text-sm">
-            {SITELINK_PAGES.map((page, index) => (
-              <li key={page.path} className="inline-flex items-center">
-                {index > 0 ? (
-                  <span className="mx-1.5 text-white/30 select-none" aria-hidden>
-                    ·
-                  </span>
-                ) : null}
-                <Link href={seoPath(page.path)} className="text-white/85 hover:text-white">
-                  {page.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-4 text-center text-xs text-white/60">
-            Follow:{" "}
-            <a href={SOCIAL_LINKS.INSTAGRAM} target="_blank" rel="noopener noreferrer" className="text-white/85 hover:text-white">
-              Instagram
-            </a>
-            {" · "}
-            <a href={SOCIAL_LINKS.YOUTUBE} target="_blank" rel="noopener noreferrer" className="text-white/85 hover:text-white">
-              YouTube
-            </a>
-            {" · "}
-            <a href={SOCIAL_LINKS.FACEBOOK} target="_blank" rel="noopener noreferrer" className="text-white/85 hover:text-white">
-              Facebook
-            </a>
-          </p>
-        </nav>
-
-        <div className="mt-5 border-t border-white/10 pt-5">
+        <div className="mt-8 border-t border-white/10 pt-5 sm:mt-10">
           <p className="text-center text-xs text-gray sm:text-sm">
             © 2026 Apni Zaroorat. All rights reserved.
           </p>

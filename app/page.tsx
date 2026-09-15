@@ -18,7 +18,6 @@ import Listing from "./components/home/property-list";
 import PartnersMarquee from "./components/home/partners-marquee";
 import FaqSection from "./components/home/faq";
 import { FAQ_ITEMS } from "./components/home/faq/faq-data";
-import BrandSiteMap from "@/app/components/seo/BrandSiteMap";
 
 const Calculator = dynamic(() => import("./components/home/calculator"));
 
@@ -52,7 +51,6 @@ export default function Home() {
       <Listing />
       <PartnersMarquee />
       <FaqSection />
-      <BrandSiteMap />
       <HomeDisclaimerBanner />
     </main>
   );
