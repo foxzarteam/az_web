@@ -14,7 +14,7 @@ import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/consta
 import { getCurrentFirebaseIdToken, warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
 import { reportFormValidity } from "@/app/utils/formValidation";
 import { customerLogin } from "@/app/utils/customerAuthApi";
-import { applyLead, completeLead, leadIdFromResponse } from "@/app/utils/leadApi";
+import { applyLead, checkLeadApplication, completeLead, leadIdFromResponse } from "@/app/utils/leadApi";
 import { updateChatSession } from "@/app/utils/chatApi";
 import {
   sanitizeLeadNameInput,
@@ -100,6 +100,7 @@ export default function PersonalLoanApplyModal({
 }: PersonalLoanApplyModalProps) {
   const router = useRouter();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [existingAppMessage, setExistingAppMessage] = useState("");
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [pendingLeadId, setPendingLeadId] = useState("");
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
@@ -263,6 +264,23 @@ export default function PersonalLoanApplyModal({
       });
 
       if (skipOtp && existingLeadId) {
+        const check = await checkLeadApplication({
+          mobileNumber: payload.mobileNumber,
+          pan: payload.pan,
+          category: "personal_loan",
+        });
+        if (!check.success) {
+          setFormError(check.message || "Could not verify existing application. Please try again.");
+          return;
+        }
+        if (!check.allowed) {
+          setExistingAppMessage(
+            check.message ||
+              `Your ${check.categoryLabel || "Personal Loan"} application is already ${check.statusLabel || "Under Review"}.`,
+          );
+          return;
+        }
+
         const idToken = await getCurrentFirebaseIdToken();
         const applyRes = await completeLead(
           existingLeadId,
@@ -308,7 +326,24 @@ export default function PersonalLoanApplyModal({
         return;
       }
 
-      // OTP before PAN: open verify modal; submit lead only after idToken.
+      const check = await checkLeadApplication({
+        mobileNumber: payload.mobileNumber,
+        pan: payload.pan,
+        category: "personal_loan",
+      });
+      if (!check.success) {
+        setFormError(check.message || "Could not verify existing application. Please try again.");
+        return;
+      }
+      if (!check.allowed) {
+        setExistingAppMessage(
+          check.message ||
+            `Your ${check.categoryLabel || "Personal Loan"} application is already ${check.statusLabel || "Under Review"}.`,
+        );
+        return;
+      }
+
+      // OTP only after same-category phone/PAN gate passes.
       setPendingLeadId("pending");
       setShowOtpModal(true);
     } catch {
@@ -319,13 +354,25 @@ export default function PersonalLoanApplyModal({
     }
   };
 
-  if ((!open && !showSuccess && !showOtpModal) || typeof document === "undefined") {
+  if (
+    (!open && !showSuccess && !showOtpModal && !existingAppMessage) ||
+    typeof document === "undefined"
+  ) {
     return null;
   }
 
   return createPortal(
     <>
-      {open && !showOtpModal && (
+      {existingAppMessage && (
+        <SuccessPopup
+          message={existingAppMessage}
+          variant="warning"
+          onClose={() => setExistingAppMessage("")}
+          footer={<CheckApplicationStatusLink />}
+        />
+      )}
+
+      {open && !showOtpModal && !existingAppMessage && (
         <div
           className="fixed inset-0 z-[99990] flex items-center justify-center overflow-hidden p-2 sm:p-4 bg-black/50 backdrop-blur-sm pt-[max(0.5rem,env(safe-area-inset-top))] pb-[max(0.5rem,env(safe-area-inset-bottom))]"
           role="dialog"

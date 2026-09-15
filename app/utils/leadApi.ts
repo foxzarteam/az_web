@@ -27,8 +27,82 @@ function withReferralCode<T extends object>(data: T): T {
 }
 
 /**
+ * Pre-OTP gate: same phone/PAN + same category blocked unless prior lead is approved.
+ */
+export async function checkLeadApplication(input: {
+  mobileNumber: string;
+  pan: string;
+  category: CreateLeadRequest["category"];
+}): Promise<{
+  success: boolean;
+  allowed: boolean;
+  message?: string;
+  status?: string;
+  statusLabel?: string;
+  category?: string;
+  categoryLabel?: string;
+}> {
+  try {
+    const response = await fetch(`${getLeadsApiBase()}/check-application`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        mobileNumber: input.mobileNumber.replace(/\D/g, "").slice(-10),
+        pan: input.pan.trim().toUpperCase(),
+        category: input.category,
+      }),
+      mode: "cors",
+      credentials: "omit",
+    });
+    const raw = await response.text();
+    let data: {
+      success?: boolean;
+      allowed?: boolean;
+      message?: string;
+      status?: string;
+      statusLabel?: string;
+      category?: string;
+      categoryLabel?: string;
+    } = {};
+    if (raw) {
+      try {
+        data = JSON.parse(raw) as typeof data;
+      } catch {
+        /* ignore */
+      }
+    }
+    if (!response.ok) {
+      return {
+        success: false,
+        allowed: false,
+        message: data.message || "Could not verify existing application. Please try again.",
+      };
+    }
+    return {
+      success: true,
+      allowed: data.allowed !== false,
+      message: data.message,
+      status: data.status,
+      statusLabel: data.statusLabel,
+      category: data.category,
+      categoryLabel: data.categoryLabel,
+    };
+  } catch (error) {
+    console.error("Error checking lead application:", error);
+    return {
+      success: false,
+      allowed: false,
+      message: "Network error. Please try again later.",
+    };
+  }
+}
+
+/**
  * Save full lead after phone OTP (idToken or recent Nest OTP session required server-side).
- * Same mobile/PAN can apply once per category (e.g. personal_loan and insurance).
+ * Same mobile/PAN can apply once per category unless prior lead is approved.
  */
 export async function applyLead(
   leadData: CreateLeadRequest,

@@ -13,7 +13,7 @@ import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { customerLogin } from "@/app/utils/customerAuthApi";
-import { applyLead, mapServiceToCategory } from "@/app/utils/leadApi";
+import { applyLead, checkLeadApplication, mapServiceToCategory } from "@/app/utils/leadApi";
 import {
   firstLeadFieldError,
   personalLoanApplyPayload,
@@ -82,6 +82,7 @@ export default function ServicePage({
   );
 
   const [showSuccess, setShowSuccess] = useState(false);
+  const [existingAppMessage, setExistingAppMessage] = useState("");
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [pendingLeadId, setPendingLeadId] = useState("");
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
@@ -156,7 +157,25 @@ export default function ServicePage({
     setIsSubmittingForm(true);
 
     try {
-      // OTP before PAN — open verify modal; apply only after idToken in onSuccess.
+      const category = mapServiceToCategory(service);
+      const check = await checkLeadApplication({
+        mobileNumber: mobile.replace(/\D/g, ""),
+        pan: pan.trim().toUpperCase(),
+        category,
+      });
+      if (!check.success) {
+        setFormError(check.message || "Could not verify existing application. Please try again.");
+        return;
+      }
+      if (!check.allowed) {
+        setExistingAppMessage(
+          check.message ||
+            `Your ${check.categoryLabel || "product"} application is already ${check.statusLabel || "Under Review"}.`,
+        );
+        return;
+      }
+
+      // OTP only after same-category phone/PAN gate passes.
       setPendingLeadId("pending");
       setShowApplyModal(true);
     } catch {
@@ -198,6 +217,15 @@ export default function ServicePage({
                     Apply for {title}
                   </h2>
                 </div>
+
+                {existingAppMessage && (
+                  <SuccessPopup
+                    message={existingAppMessage}
+                    variant="warning"
+                    onClose={() => setExistingAppMessage("")}
+                    footer={<CheckApplicationStatusLink />}
+                  />
+                )}
 
                 {showSuccess && (
                   <SuccessPopup
