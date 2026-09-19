@@ -320,6 +320,7 @@ CREATE TABLE public.leads (
     ip_location character varying(255),
     ip character varying(45),
     agent_id uuid,
+    otp_verified boolean DEFAULT false NOT NULL,
     CONSTRAINT leads_category_check CHECK (((category)::text = ANY (ARRAY['personal_loan'::text, 'home_loan'::text, 'business_loan'::text, 'credit_card'::text, 'insurance'::text, 'vehicle_loan'::text]))),
     CONSTRAINT leads_employment_type_check CHECK (((employment_type IS NULL) OR ((employment_type)::text = ANY ((ARRAY['salaried'::character varying, 'self_employed'::character varying])::text[])))),
     CONSTRAINT leads_ins_type_check CHECK (((ins_type IS NULL) OR ((ins_type)::text = ANY ((ARRAY['life_insurance'::character varying, 'health_insurance'::character varying, 'motor_insurance'::character varying])::text[])))),
@@ -335,6 +336,8 @@ COMMENT ON COLUMN public.leads.pan_encrypted IS 'AES-256-GCM ciphertext (v1:iv:t
 COMMENT ON COLUMN public.leads.pan_hash IS 'HMAC-SHA256 for duplicate detection / lookup. Not reversible.';
 
 COMMENT ON COLUMN public.leads.ip_location IS 'Best-effort city/region/country resolved from client IP when the lead was saved.';
+
+COMMENT ON COLUMN public.leads.otp_verified IS 'True after customer OTP, or when admin/partner created the lead from CRM (no customer OTP).';
 
 CREATE TABLE public.otp_sessions (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
