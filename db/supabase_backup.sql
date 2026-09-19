@@ -286,6 +286,7 @@ CREATE TABLE public.contact (
 );
 
 CREATE TABLE public.lead_mobile_pan_slots (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     mobile_number text NOT NULL,
     pan_hash text NOT NULL,
     slot smallint NOT NULL,
@@ -512,7 +513,10 @@ ALTER TABLE ONLY public.lead_mobile_pan_slots
     ADD CONSTRAINT lead_mobile_pan_slots_mobile_slot_key UNIQUE (mobile_number, slot);
 
 ALTER TABLE ONLY public.lead_mobile_pan_slots
-    ADD CONSTRAINT lead_mobile_pan_slots_pkey PRIMARY KEY (mobile_number, pan_hash);
+    ADD CONSTRAINT lead_mobile_pan_slots_mobile_pan_key UNIQUE (mobile_number, pan_hash);
+
+ALTER TABLE ONLY public.lead_mobile_pan_slots
+    ADD CONSTRAINT lead_mobile_pan_slots_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.leads
     ADD CONSTRAINT leads_pkey PRIMARY KEY (id);
