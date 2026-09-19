@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import JsonLd from "@/app/components/seo/JsonLd";
-import { buildPageMetadata, LEGAL_KEYWORDS, pageSeoGlue } from "@/app/lib/seo";
+import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
 
 const PAGE_TITLE = "Terms & Conditions | Apni Zaroorat";
 const PAGE_DESC =
@@ -13,12 +13,6 @@ export const metadata: Metadata = buildPageMetadata({
   description: PAGE_DESC,
   path: "/terms-and-conditions",
   absoluteTitle: true,
-  keywords: [
-    ...LEGAL_KEYWORDS,
-    "terms and conditions",
-    "Apni Zaroorat terms of use",
-    "loan platform terms",
-  ],
 });
 
 const structuredData = pageSeoGlue({

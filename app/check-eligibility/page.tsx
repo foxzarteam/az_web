@@ -6,7 +6,6 @@ import { ELIGIBILITY_FAQ_ITEMS } from "@/app/components/home/faq/faq-data";
 import JsonLd from "@/app/components/seo/JsonLd";
 import {
   buildPageMetadata,
-  ELIGIBILITY_KEYWORDS,
   faqPageJsonLd,
   pageSeoGlue,
 } from "@/app/lib/seo";
@@ -21,7 +20,6 @@ export const metadata: Metadata = buildPageMetadata({
   description: PAGE_DESC,
   path: PATH,
   absoluteTitle: true,
-  keywords: [...ELIGIBILITY_KEYWORDS],
 });
 
 const structuredData = pageSeoGlue({

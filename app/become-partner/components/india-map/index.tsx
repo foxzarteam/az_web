@@ -81,7 +81,6 @@ function EyeIcon({ open }: { open: boolean }) {
 export default function IndiaMap() {
   const router = useRouter();
   const [visiblePins, setVisiblePins] = useState<Set<number>>(new Set());
-  const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<HeroFieldErrors>({});
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -89,6 +88,7 @@ export default function IndiaMap() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const mapWrapRef = useRef<HTMLDivElement>(null);
   const mapImgRef = useRef<HTMLImageElement>(null);
   const [mapInset, setMapInset] = useState<MapInset | null>(null);

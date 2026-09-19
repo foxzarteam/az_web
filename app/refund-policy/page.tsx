@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import JsonLd from "@/app/components/seo/JsonLd";
-import { buildPageMetadata, LEGAL_KEYWORDS, pageSeoGlue } from "@/app/lib/seo";
+import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
 
 const PAGE_TITLE = "Refund & Cancellation Policy | Apni Zaroorat";
 const PAGE_DESC =
@@ -12,12 +12,6 @@ export const metadata: Metadata = buildPageMetadata({
   description: PAGE_DESC,
   path: "/refund-policy",
   absoluteTitle: true,
-  keywords: [
-    ...LEGAL_KEYWORDS,
-    "refund policy",
-    "cancellation policy",
-    "loan application refund",
-  ],
 });
 
 const structuredData = pageSeoGlue({

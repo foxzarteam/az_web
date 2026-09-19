@@ -5,7 +5,6 @@ import {
   signInWithPhoneNumber,
 } from "firebase/auth";
 import { getApps, initializeApp } from "firebase/app";
-import { PUBLIC_API_BASE_URL } from "@/app/config/constants";
 import { firebaseWebConfig, isFirebaseWebConfigured } from "./config";
 
 const RECAPTCHA_CONTAINER_ID = "lead-recaptcha-container";
@@ -194,7 +193,7 @@ export async function requestOtpSendSlot(
     return { allowed: false, message: "Invalid mobile number." };
   }
 
-  const endpoint = `${PUBLIC_API_BASE_URL}/api/otp/request-send`;
+  const endpoint = "/api/otp/request-send";
 
   try {
     const res = await fetch(endpoint, {
@@ -338,13 +337,14 @@ export async function verifyPhoneOtp(
       return { success: true, idToken };
     }
 
-    const res = await fetch(`${PUBLIC_API_BASE_URL}/api/otp/verify-firebase`, {
+    const res = await fetch("/api/otp/verify-firebase", {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ mobileNumber: mobileDigits, idToken }),
+      credentials: "same-origin",
     });
     const data = (await res.json()) as { success?: boolean; message?: string };
     if (!res.ok || data.success !== true) {

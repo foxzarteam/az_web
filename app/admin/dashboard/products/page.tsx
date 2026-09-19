@@ -1,9 +1,10 @@
 import { fetchAdminServices } from "@/app/lib/admin/fetchServices";
 import { assertCrmAdminPage } from "@/app/lib/admin/assertCrmAdminPage";
+import { isAdminRole } from "@/app/lib/admin/session";
 import ServicesTable from "./ServicesTable";
 
 export default async function AdminServicesPage() {
-  await assertCrmAdminPage();
+  const session = await assertCrmAdminPage();
   const services = await fetchAdminServices();
 
   return (
@@ -13,7 +14,7 @@ export default async function AdminServicesPage() {
           ? "No products yet."
           : `${services.length} product${services.length === 1 ? "" : "s"} found.`}
       </p>
-      <ServicesTable initialServices={services} />
+      <ServicesTable initialServices={services} canDelete={isAdminRole(session.role)} />
     </main>
   );
 }

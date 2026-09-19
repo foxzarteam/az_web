@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { ADMIN_UI } from "./adminUi";
+import { ADMIN_UI } from "@/app/components/shared/crm/ui";
 
 type NavItem = {
   label: string;

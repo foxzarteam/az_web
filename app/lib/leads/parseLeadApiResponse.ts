@@ -1,4 +1,5 @@
 import type { CreateLeadResponse } from "@/app/lib/leads/types";
+import { toPublicClientError } from "@/app/lib/publicClientError";
 
 /** Shared Nest lead endpoints response parser (apply / start / complete). */
 export function parseLeadApiResponse(
@@ -7,10 +8,11 @@ export function parseLeadApiResponse(
 ): CreateLeadResponse {
   let data: {
     success?: boolean | string | number;
-    message?: string | string[];
+    message?: string | string[] | { message?: string; code?: string };
     data?: unknown;
     error?: string | string[];
     statusCode?: number;
+    code?: string;
   } = {};
   if (raw) {
     try {
@@ -20,8 +22,8 @@ export function parseLeadApiResponse(
       return {
         success: false,
         message: looksLikeHtml
-          ? `Lead API returned a web page (HTTP ${response.status}), not JSON. Usually NEXT_PUBLIC_API_URL is wrong or missing at build time — set it to your backend (e.g. https://your-api.vercel.app) and rebuild.`
-          : `Server returned an invalid response (HTTP ${response.status}). Check NEXT_PUBLIC_API_URL.`,
+          ? "We could not reach the application service. Please try again in a minute."
+          : "Server returned an unexpected response. Please try again.",
       };
     }
   }
@@ -32,15 +34,28 @@ export function parseLeadApiResponse(
       const s = m.filter((x) => typeof x === "string").join(". ");
       return s || undefined;
     }
+    if (m && typeof m === "object" && "message" in m) {
+      const inner = (m as { message?: unknown }).message;
+      if (typeof inner === "string" && inner.trim()) return inner;
+    }
+    return undefined;
+  };
+
+  const pickCode = (): string | undefined => {
+    if (typeof data.code === "string" && data.code.trim()) return data.code;
+    if (data.message && typeof data.message === "object" && !Array.isArray(data.message)) {
+      const inner = (data.message as { code?: unknown }).code;
+      if (typeof inner === "string" && inner.trim()) return inner;
+    }
     return undefined;
   };
 
   if (!response.ok) {
-    const msg =
-      pickMsg(data.message) ||
-      pickMsg(data.error) ||
-      `Request failed (HTTP ${response.status}).`;
-    return { success: false, message: msg };
+    const msg = toPublicClientError(
+      pickMsg(data.message) || pickMsg(data.error) || `Request failed (HTTP ${response.status}).`,
+      "Could not save your details. Please try again.",
+    );
+    return { success: false, message: msg, code: pickCode() };
   }
 
   const successFlag = data.success;
@@ -55,10 +70,11 @@ export function parseLeadApiResponse(
   if (explicitFailure) {
     return {
       success: false,
-      message:
-        pickMsg(data.message) ||
-        pickMsg(data.error) ||
+      message: toPublicClientError(
+        pickMsg(data.message) || pickMsg(data.error) || "Could not save your details.",
         "Could not save your details.",
+      ),
+      code: pickCode(),
     };
   }
 
@@ -68,9 +84,12 @@ export function parseLeadApiResponse(
 
   return {
     success: false,
-    message:
+    message: toPublicClientError(
       pickMsg(data.message) ||
-      pickMsg(data.error) ||
+        pickMsg(data.error) ||
+        "Unexpected response from server. Please try again.",
       "Unexpected response from server. Please try again.",
+    ),
+    code: pickCode(),
   };
 }

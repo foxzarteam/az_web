@@ -1,7 +1,5 @@
 import { PUBLIC_SITE_URL } from "@/app/config/constants";
-import { AFFILIATE_COOKIE, normalizeAffiliateCode } from "@/app/lib/affiliate/code";
-
-export { AFFILIATE_COOKIE } from "@/app/lib/affiliate/code";
+import { normalizeAffiliateCode } from "@/app/lib/affiliate/code";
 
 /**
  * Partner code only from the current page URL (`/r/CODE` or `?ref=`).

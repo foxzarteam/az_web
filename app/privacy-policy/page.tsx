@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import JsonLd from "@/app/components/seo/JsonLd";
-import { buildPageMetadata, LEGAL_KEYWORDS, pageSeoGlue } from "@/app/lib/seo";
+import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
 
 const PAGE_TITLE = "Privacy Policy & Data Protection | Apni Zaroorat";
 const PAGE_DESC =
@@ -12,12 +12,6 @@ export const metadata: Metadata = buildPageMetadata({
   description: PAGE_DESC,
   path: "/privacy-policy",
   absoluteTitle: true,
-  keywords: [
-    ...LEGAL_KEYWORDS,
-    "privacy policy",
-    "Apni Zaroorat data privacy",
-    "loan application data protection",
-  ],
 });
 
 const structuredData = pageSeoGlue({

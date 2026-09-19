@@ -1,9 +1,10 @@
 import { fetchAdminContacts } from "@/app/lib/admin/fetchContacts";
 import { assertCrmAdminPage } from "@/app/lib/admin/assertCrmAdminPage";
+import { isAdminRole } from "@/app/lib/admin/session";
 import ContactsTable from "./ContactsTable";
 
 export default async function AdminContactsPage() {
-  await assertCrmAdminPage();
+  const session = await assertCrmAdminPage();
   const contacts = await fetchAdminContacts();
 
   return (
@@ -13,7 +14,7 @@ export default async function AdminContactsPage() {
           ? "No contact messages yet."
           : `${contacts.length} message${contacts.length === 1 ? "" : "s"} found.`}
       </p>
-      <ContactsTable initialContacts={contacts} />
+      <ContactsTable initialContacts={contacts} canDelete={isAdminRole(session.role)} />
     </main>
   );
 }

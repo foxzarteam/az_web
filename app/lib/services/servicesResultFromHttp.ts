@@ -1,4 +1,4 @@
-import { parseServicesFetchResult } from "@/app/lib/services/parseServicesFetchResult";
+import { parseServicesApiPayload } from "@/app/lib/services/parseApiResponse";
 import type { FetchActiveServicesResult } from "@/app/lib/services/types";
 
 /**
@@ -16,5 +16,14 @@ export function servicesResultFromHttp(
       return { cards: [], status: "error" };
     }
   }
-  return parseServicesFetchResult(parsed, ok);
+  if (!ok) return { cards: [], status: "error" };
+  if (
+    parsed &&
+    typeof parsed === "object" &&
+    "success" in parsed &&
+    (parsed as { success?: boolean }).success === false
+  ) {
+    return { cards: [], status: "error" };
+  }
+  return { cards: parseServicesApiPayload(parsed), status: "ok" };
 }

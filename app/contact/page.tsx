@@ -5,7 +5,6 @@ import ContactForm from "./components/form";
 import Location from "./components/office-location";
 import {
   buildPageMetadata,
-  CONTACT_KEYWORDS,
   pageSeoGlue,
 } from "@/app/lib/seo";
 
@@ -20,7 +19,6 @@ export const metadata: Metadata = buildPageMetadata({
   absoluteTitle: true,
   image: "/images/contact-page/contact.webp",
   imageAlt: "Contact Apni Zaroorat",
-  keywords: [...CONTACT_KEYWORDS],
 });
 
 const structuredData = pageSeoGlue({

@@ -72,15 +72,10 @@ export async function fetchAdminPartners(): Promise<FetchAdminPartnersResult> {
     };
 
     if (!res.ok) {
-      const detail = body.message ?? body.error ?? res.statusText;
       if (res.status === 401) {
-        return {
-          partners: [],
-          error:
-            "API returned 401 Unauthorized. Set the same ADMIN_INTERNAL_KEY on az_web and the Nest server (production requires it).",
-        };
+        return { partners: [], error: "Could not load aggregators. Please sign in again." };
       }
-      return { partners: [], error: `API error ${res.status}: ${detail || url}` };
+      return { partners: [], error: "Could not load aggregators. Please try again." };
     }
 
     if (!body.success || !Array.isArray(body.data)) {
@@ -88,11 +83,10 @@ export async function fetchAdminPartners(): Promise<FetchAdminPartnersResult> {
     }
 
     return { partners: body.data, error: null };
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Network error";
+  } catch {
     return {
       partners: [],
-      error: `Cannot reach API at ${url}. ${msg}. Check NEXT_PUBLIC_API_URL and that the server is running.`,
+      error: "Could not load aggregators. Please try again.",
     };
   }
 }

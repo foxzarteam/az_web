@@ -1,9 +1,10 @@
 import { fetchActiveServiceOptions, fetchAdminPartners } from "@/app/lib/admin/fetchPartners";
 import { assertCrmAdminPage } from "@/app/lib/admin/assertCrmAdminPage";
+import { isAdminRole } from "@/app/lib/admin/session";
 import PartnersTable from "./PartnersTable";
 
 export default async function AdminPartnersPage() {
-  await assertCrmAdminPage();
+  const session = await assertCrmAdminPage();
   const [{ partners, error: partnersError }, serviceOptions] = await Promise.all([
     fetchAdminPartners(),
     fetchActiveServiceOptions(),
@@ -22,7 +23,11 @@ export default async function AdminPartnersPage() {
             : `${partners.length} aggregator${partners.length === 1 ? "" : "s"} in the system.`}
         </p>
       )}
-      <PartnersTable initialPartners={partners} serviceOptions={serviceOptions} />
+      <PartnersTable
+        initialPartners={partners}
+        serviceOptions={serviceOptions}
+        canDelete={isAdminRole(session.role)}
+      />
     </main>
   );
 }

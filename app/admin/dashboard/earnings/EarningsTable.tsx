@@ -1,6 +1,6 @@
 "use client";
 
-import CrmDataTable, { type CrmColumn } from "../CrmDataTable";
+import CrmDataTable, { type CrmColumn } from "@/app/components/shared/crm/DataTable";
 
 export type EarningLedgerRow = {
   id: string;

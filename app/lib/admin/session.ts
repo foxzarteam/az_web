@@ -111,6 +111,10 @@ export function isAgentRole(role: string | undefined | null): boolean {
   return String(role ?? "").trim().toLowerCase() === "agent";
 }
 
+export function isAdminRole(role: string | undefined | null): boolean {
+  return String(role ?? "").trim().toLowerCase() === "admin";
+}
+
 export function isCrmAdminRole(role: string | undefined | null): boolean {
   const r = String(role ?? "").trim().toLowerCase();
   return r === "admin" || r === "staff";

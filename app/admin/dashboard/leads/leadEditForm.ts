@@ -25,13 +25,16 @@ export function clampLoanAmount(value: unknown): number {
 }
 
 export function leadToEditForm(lead: AdminLeadRow): EditForm {
+  const fromRange = amountFromRange(lead.loan_amt);
   return {
     fullName: String(lead.full_name ?? ""),
     mobileNumber: String(lead.mobile_number ?? ""),
     pan: String(lead.pan ?? ""),
     category: String(lead.category ?? "personal_loan"),
     status: String(lead.status ?? "pending"),
-    requiredAmount: clampLoanAmount(lead.required_amount ?? DEFAULT_LOAN_AMOUNT),
+    requiredAmount: clampLoanAmount(
+      lead.required_amount ?? (fromRange > 0 ? fromRange : DEFAULT_LOAN_AMOUNT),
+    ),
     insType: String(lead.ins_type ?? "life_insurance"),
     employmentType: String(lead.employment_type ?? ""),
     netMonthlyIncome:
@@ -40,6 +43,13 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
         : "",
     pincode: String(lead.pincode ?? "").replace(/\D/g, "").slice(0, 6),
   };
+}
+
+function amountFromRange(loanAmt: unknown): number {
+  const m = String(loanAmt ?? "").trim().match(/^(\d+)_(\d+)$/);
+  if (!m) return 0;
+  const mid = (Number(m[1]) + Number(m[2])) / 2;
+  return Number.isFinite(mid) && mid > 0 ? Math.round(mid) : 0;
 }
 
 export function emptyCreateForm(): EditForm {

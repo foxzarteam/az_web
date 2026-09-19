@@ -29,7 +29,7 @@ function withReferralCode<T extends object>(data: T): T {
 }
 
 /**
- * Pre-OTP gate: same phone/PAN + same category blocked unless prior lead is approved.
+ * Pre-OTP gate: max 4 unique PANs per mobile, then same PAN + same product unless approved.
  */
 export async function checkLeadApplication(input: {
   mobileNumber: string;
@@ -40,6 +40,7 @@ export async function checkLeadApplication(input: {
   success: boolean;
   allowed: boolean;
   message?: string;
+  code?: string;
   status?: string;
   statusLabel?: string;
   category?: string;
@@ -61,14 +62,14 @@ export async function checkLeadApplication(input: {
           ? { insType: input.insType }
           : {}),
       }),
-      mode: "cors",
-      credentials: "omit",
+      credentials: "same-origin",
     });
     const raw = await response.text();
     let data: {
       success?: boolean;
       allowed?: boolean;
       message?: string;
+      code?: string;
       status?: string;
       statusLabel?: string;
       category?: string;
@@ -93,6 +94,7 @@ export async function checkLeadApplication(input: {
       success: true,
       allowed: data.allowed !== false,
       message: data.message,
+      code: data.code,
       status: data.status,
       statusLabel: data.statusLabel,
       category: data.category,
@@ -111,7 +113,7 @@ export async function checkLeadApplication(input: {
 
 /**
  * Save full lead after phone OTP (idToken or recent Nest OTP session required server-side).
- * Same mobile/PAN can apply once per category unless prior lead is approved.
+ * Backend enforces max 4 unique PANs per mobile, then same PAN + product rules.
  */
 export async function applyLead(
   leadData: CreateLeadRequest,
@@ -129,8 +131,7 @@ export async function applyLead(
       method: "POST",
       headers,
       body: JSON.stringify(body),
-      mode: "cors",
-      credentials: "omit",
+      credentials: "same-origin",
     });
     return parseLeadApiResponse(response, await response.text());
   } catch (error) {
@@ -154,8 +155,7 @@ export async function startLead(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(withReferralCode({ mobileNumber, category })),
-      mode: "cors",
-      credentials: "omit",
+      credentials: "same-origin",
     });
     const raw = await response.text();
     const parsed = parseLeadApiResponse(response, raw);
@@ -203,8 +203,7 @@ export async function completeLead(
         method: "PATCH",
         headers,
         body: JSON.stringify(withReferralCode(body)),
-        mode: "cors",
-        credentials: "omit",
+        credentials: "same-origin",
       },
     );
     return parseLeadApiResponse(response, await response.text());

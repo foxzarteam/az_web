@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import JsonLd from "@/app/components/seo/JsonLd";
-import { ABOUT_KEYWORDS, buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
+import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
 
 import CityLoansSlider from "./components/city-loans-slider";
 import AboutIntro from "./components/about-intro";
@@ -21,7 +21,6 @@ export const metadata: Metadata = buildPageMetadata({
   absoluteTitle: true,
   image: "/images/hero/about.webp",
   imageAlt: "About Apni Zaroorat — simplifying your loan journey",
-  keywords: [...ABOUT_KEYWORDS],
 });
 
 const structuredData = pageSeoGlue({

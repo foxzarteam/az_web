@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AdminContactRow } from "@/app/lib/admin/fetchContacts";
-import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
-import AdminModal from "../AdminModal";
+import CrmDataTable, { CrmActionButton, type CrmColumn } from "@/app/components/shared/crm/DataTable";
+import AdminModal from "@/app/components/shared/crm/AppModal";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import { toPublicClientError } from "@/app/lib/publicClientError";
 import {
@@ -14,7 +14,7 @@ import {
   ADMIN_ERROR,
   ADMIN_INPUT,
   ADMIN_LABEL,
-} from "../adminUi";
+} from "@/app/components/shared/crm/ui";
 
 const STATUSES = [
   { value: "new", label: "New" },
@@ -68,7 +68,13 @@ function toEditForm(row: AdminContactRow): EditForm {
   };
 }
 
-export default function ContactsTable({ initialContacts }: { initialContacts: AdminContactRow[] }) {
+export default function ContactsTable({
+  initialContacts,
+  canDelete = false,
+}: {
+  initialContacts: AdminContactRow[];
+  canDelete?: boolean;
+}) {
   const router = useRouter();
   const [rows, setRows] = useState(initialContacts);
   const [viewRow, setViewRow] = useState<AdminContactRow | null>(null);
@@ -218,6 +224,7 @@ export default function ContactsTable({ initialContacts }: { initialContacts: Ad
                 <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
               </svg>
             </CrmActionButton>
+            {canDelete ? (
             <CrmActionButton label="Delete" variant="danger" onClick={() => setDeleteRow(row)}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 6h18" />
@@ -227,11 +234,12 @@ export default function ContactsTable({ initialContacts }: { initialContacts: Ad
                 <line x1="14" y1="11" x2="14" y2="17" />
               </svg>
             </CrmActionButton>
+            ) : null}
           </div>
         ),
       },
     ],
-    [],
+    [canDelete],
   );
 
   const inputClass = ADMIN_INPUT;

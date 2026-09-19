@@ -3,7 +3,6 @@ import AffiliateLanding from "@/app/components/affiliate/AffiliateLanding";
 import JsonLd from "@/app/components/seo/JsonLd";
 import { PRODUCTS_HUB_FAQ_ITEMS } from "@/app/components/home/faq/faq-data";
 import {
-  PRODUCTS_KEYWORDS,
   buildPageMetadata,
   faqPageJsonLd,
   financialServiceJsonLd,
@@ -21,7 +20,6 @@ export const metadata: Metadata = buildPageMetadata({
   absoluteTitle: true,
   image: "/images/og-default.jpg",
   imageAlt: "Apply for personal loan or insurance online with Apni Zaroorat",
-  keywords: [...PRODUCTS_KEYWORDS],
 });
 
 const structuredData = pageSeoGlue({

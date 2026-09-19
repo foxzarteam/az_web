@@ -1,7 +1,5 @@
 /**
- * Display helpers for admin IP / location (pure, testable).
- * Run: node --experimental-strip-types app/lib/admin/formatIpLocation.test.ts
- * or: npx ts-node --transpile-only (from monorepo scripts).
+ * Display helpers for admin IP / location.
  */
 
 export function formatIpLocationDisplay(

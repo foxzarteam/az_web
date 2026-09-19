@@ -6,7 +6,7 @@ import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-09-15";
+export const SEO_CONTENT_VERSION = "2026-09-19";
 
 /** Official social profiles — wired to Organization sameAs + footer + AEO/GEO docs. */
 export const SOCIAL_PROFILES = [
@@ -161,218 +161,6 @@ export const SEO_INDEXING_ENABLED = true;
  */
 export const SITELINK_PAGES = flattenSiteTree(SITE_TREE);
 
-/**
- * Brand signals (merged site-wide in meta keywords + useful for brand search).
- * Keep short — avoid stuffing full keyword lists into body copy / every H1.
- */
-export const BRAND_KEYWORDS = [
-  "Apni Zaroorat",
-  "apnizaroorat",
-  "A to Z finance",
-  "A to Z finance solution",
-  "A to Z finance solutions",
-  "AtoZ finance",
-  "Apni Zaroorat personal loan",
-  "Apni Zaroorat insurance",
-] as const;
-
-/** Default / home keywords when page does not override. */
-export const DEFAULT_KEYWORDS = [
-  ...BRAND_KEYWORDS,
-  "personal loan online",
-  "personal loan India",
-  "apply personal loan online",
-  "instant personal loan",
-  "personal loan eligibility",
-  "personal loan EMI calculator",
-  "loan eligibility check",
-  "personal loan up to 10 lakh",
-  "insurance online India",
-  "life insurance online",
-  "health insurance online",
-  "motor insurance online",
-  "loan and insurance online",
-  "financial solutions India",
-] as const;
-
-export const HOME_KEYWORDS = [
-  ...DEFAULT_KEYWORDS,
-  "personal loan apply online",
-  "check loan eligibility free",
-  "EMI calculator India",
-  "online loan application India",
-  "best personal loan platform",
-  "A to Z personal loan India",
-  "A to Z insurance solution",
-] as const;
-
-export const PERSONAL_LOAN_KEYWORDS = [
-  ...BRAND_KEYWORDS,
-  "personal loan online",
-  "personal loan apply online",
-  "instant personal loan",
-  "quick personal loan",
-  "personal loan India",
-  "personal loan eligibility",
-  "check personal loan eligibility",
-  "personal loan EMI calculator",
-  "unsecured personal loan",
-  "personal loan without collateral",
-  "personal loan up to 10 lakh",
-  "personal loan Rs 25000",
-  "low interest personal loan",
-  "digital personal loan",
-  "online personal loan application",
-  "personal loan for salaried",
-  "personal loan for self employed",
-  "personal loan Jaipur",
-  "personal loan Rajasthan",
-] as const;
-
-export const ELIGIBILITY_KEYWORDS = [
-  ...BRAND_KEYWORDS,
-  "personal loan eligibility",
-  "check personal loan eligibility",
-  "loan eligibility check",
-  "check loan eligibility free",
-  "personal loan eligibility calculator",
-  "loan eligibility online India",
-  "am I eligible for personal loan",
-  "personal loan eligibility criteria",
-  "salary personal loan eligibility",
-  "self employed personal loan eligibility",
-] as const;
-
-export const EMI_KEYWORDS = [
-  ...BRAND_KEYWORDS,
-  "personal loan EMI calculator",
-  "EMI calculator online",
-  "loan EMI calculator India",
-  "personal loan EMI calculator free",
-  "calculate personal loan EMI",
-  "EMI calculator reducing balance",
-  "monthly EMI calculator",
-  "loan interest calculator",
-  "personal loan repayment calculator",
-  "EMI calculator Apni Zaroorat",
-] as const;
-
-export const TAX_KEYWORDS = [
-  ...BRAND_KEYWORDS,
-  "tax saving calculator",
-  "tax saving calculator India",
-  "free tax saving calculator",
-  "online tax saving calculator",
-  "income tax calculator",
-  "income tax calculator India",
-  "income tax calculator FY 2025-26",
-  "new vs old tax regime calculator",
-  "new tax regime calculator",
-  "old tax regime calculator",
-  "section 80C calculator",
-  "80C tax saving",
-  "80D tax calculator",
-  "section 87A rebate calculator",
-  "tax saving tips India",
-  "free tax calculator online",
-  "how much tax can I save",
-  "compare tax regimes India",
-] as const;
-
-export function taxCityKeywords(cityName: string): string[] {
-  const city = cityName.trim();
-  return [
-    `${city} tax saving calculator`,
-    `tax saving calculator ${city}`,
-    `${city} income tax calculator`,
-    `tax saving calculator in ${city}`,
-  ];
-}
-
-export const INSURANCE_KEYWORDS = [
-  ...BRAND_KEYWORDS,
-  "insurance online",
-  "insurance online India",
-  "life insurance online",
-  "health insurance online",
-  "motor insurance online",
-  "car insurance online",
-  "bike insurance online",
-  "term life insurance",
-  "family health insurance",
-  "compare insurance plans",
-  "buy insurance online",
-  "insurance apply online",
-  "Apni Zaroorat insurance",
-] as const;
-
-export const PRODUCTS_KEYWORDS = [
-  ...BRAND_KEYWORDS,
-  "personal loan and insurance online",
-  "loan and insurance online India",
-  "apply personal loan online",
-  "apply insurance online",
-  "personal loan up to 10 lakh",
-  "life health motor insurance",
-  "A to Z finance products",
-  "Apni Zaroorat products",
-] as const;
-
-export const ABOUT_KEYWORDS = [
-  ...BRAND_KEYWORDS,
-  "about Apni Zaroorat",
-  "Apni Zaroorat company",
-  "personal loans and insurance partner",
-  "loan platform India",
-  "insurance platform India",
-  "trusted loan partner India",
-  "financial services India",
-  "A to Z finance solutions India",
-] as const;
-
-export const CONTACT_KEYWORDS = [
-  ...BRAND_KEYWORDS,
-  "contact Apni Zaroorat",
-  "loan customer support India",
-  "insurance helpline India",
-  "personal loan support",
-  "Apni Zaroorat phone",
-  "Apni Zaroorat email",
-  "loan application help",
-  "customer care loan",
-] as const;
-
-export const PARTNER_KEYWORDS = [
-  ...BRAND_KEYWORDS,
-  "become loan partner",
-  "become insurance partner",
-  "DSA partner India",
-  "loan agent partner",
-  "insurance partner program",
-  "earn with personal loans",
-  "financial product partner",
-  "loan distribution partner",
-  "Apni Zaroorat partner",
-  "partner program India",
-] as const;
-
-export const LEGAL_KEYWORDS = [
-  ...BRAND_KEYWORDS,
-  "Apni Zaroorat terms",
-  "Apni Zaroorat privacy",
-  "personal loan platform policy",
-  "insurance platform policy",
-] as const;
-
-export const CUSTOMER_LOGIN_KEYWORDS = [
-  ...BRAND_KEYWORDS,
-  "check personal loan status",
-  "loan application status",
-  "insurance application status",
-  "Apni Zaroorat login",
-  "track loan application",
-] as const;
-
 /** Trailing-slash path for sitemap / canonical (matches next.config trailingSlash). */
 export function seoPath(path: string): string {
   if (!path || path === "/") return "/";
@@ -389,7 +177,6 @@ type BuildPageMetadataInput = {
   title: string;
   description: string;
   path: string;
-  keywords?: string[];
   image?: string;
   imageAlt?: string;
   type?: "website" | "article";
@@ -399,13 +186,13 @@ type BuildPageMetadataInput = {
 
 /**
  * Shared page metadata: canonical, hreflang, Open Graph, Twitter, robots.
- * Strong cross-page glue via absolute URLs + consistent brand strings.
+ * Always pass `path` so canonical is this page — never inherit homepage "/".
+ * Meta keywords are omitted — Google does not use them for ranking.
  */
 export function buildPageMetadata({
   title,
   description,
   path,
-  keywords = [...DEFAULT_KEYWORDS],
   image = DEFAULT_OG_IMAGE,
   imageAlt = DEFAULT_OG_IMAGE_ALT,
   type = "website",
@@ -416,14 +203,10 @@ export function buildPageMetadata({
   const url = absoluteSeoUrl(path);
   const shouldIndex = SEO_INDEXING_ENABLED && !noIndex;
   const displayTitle = absoluteTitle ? title : `${title} | ${SITE_NAME}`;
-  const mergedKeywords = Array.from(
-    new Set([...keywords, ...BRAND_KEYWORDS, SITE_NAME]),
-  );
 
   return {
     title: absoluteTitle ? { absolute: title } : title,
     description,
-    keywords: mergedKeywords,
     applicationName: SITE_NAME,
     category: "finance",
     referrer: "origin-when-cross-origin",

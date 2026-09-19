@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatAdminDateTime } from "@/app/utils/format";
-import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
-import AdminModal from "../AdminModal";
+import CrmDataTable, { CrmActionButton, type CrmColumn } from "@/app/components/shared/crm/DataTable";
+import AdminModal from "@/app/components/shared/crm/AppModal";
 import AffiliateShareKit from "@/app/components/affiliate/AffiliateShareKit";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import { toPublicClientError } from "@/app/lib/publicClientError";
@@ -15,7 +15,7 @@ import {
   ADMIN_ERROR,
   ADMIN_INPUT,
   ADMIN_LABEL,
-} from "../adminUi";
+} from "@/app/components/shared/crm/ui";
 
 type AdminUserRow = Record<string, unknown>;
 
@@ -89,7 +89,13 @@ function userToEditForm(user: AdminUserRow): EditForm {
   };
 }
 
-export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRow[] }) {
+export default function UsersTable({
+  initialUsers,
+  canDelete = false,
+}: {
+  initialUsers: AdminUserRow[];
+  canDelete?: boolean;
+}) {
   const router = useRouter();
   const [users, setUsers] = useState(initialUsers);
   const [viewUser, setViewUser] = useState<AdminUserRow | null>(null);
@@ -316,6 +322,7 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
                 <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
               </svg>
             </CrmActionButton>
+            {canDelete ? (
             <CrmActionButton
               label="Delete"
               variant="danger"
@@ -332,11 +339,12 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
                 <line x1="14" y1="11" x2="14" y2="17" />
               </svg>
             </CrmActionButton>
+            ) : null}
           </div>
         ),
       },
     ],
-    [],
+    [canDelete],
   );
 
   if (!hydrated) {
@@ -530,7 +538,7 @@ export default function UsersTable({ initialUsers }: { initialUsers: AdminUserRo
           <div className="p-6 sm:p-8">
             <p className="text-sm text-midnight_text dark:text-gray-200">
               Delete partner <strong>{cellText(deleteUser, "user_name")}</strong> ({cellText(deleteUser, "mobile_number")})?
-              This cannot be undone.
+              Their wallet earnings will be cleared. This cannot be undone.
             </p>
             {error && <p className={`mt-3 ${ADMIN_ERROR}`}>{error}</p>}
             <div className="mt-8 flex justify-end gap-3">

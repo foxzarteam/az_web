@@ -5,7 +5,6 @@ import ThreeSteps from "./components/three-steps";
 import IndiaMapClient from "./components/IndiaMapClient";
 import {
   buildPageMetadata,
-  PARTNER_KEYWORDS,
   pageSeoGlue,
 } from "@/app/lib/seo";
 
@@ -18,7 +17,6 @@ export const metadata: Metadata = buildPageMetadata({
   description: PAGE_DESC,
   path: "/become-partner",
   absoluteTitle: true,
-  keywords: [...PARTNER_KEYWORDS],
 });
 
 const structuredData = pageSeoGlue({

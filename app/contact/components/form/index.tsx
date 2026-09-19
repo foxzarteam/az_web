@@ -4,7 +4,6 @@ import { useState } from "react";
 import Image from "next/image";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
-import { PUBLIC_API_BASE_URL } from "@/app/config/constants";
 import { reportFormValidity } from "@/app/utils/formValidation";
 
 export default function ContactForm() {
@@ -39,7 +38,7 @@ export default function ContactForm() {
     setFormError("");
 
     try {
-      const response = await fetch(`${PUBLIC_API_BASE_URL.replace(/\/+$/, "")}/api/contact`, {
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(formData),

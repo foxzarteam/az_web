@@ -7,7 +7,6 @@ import { PUBLIC_SITE_URL } from "@/app/config/constants";
 import { getActiveServices } from "@/app/data/getActiveServices";
 import { ServiceCardsProvider } from "@/app/components/providers/ServiceCardsProvider";
 import {
-  DEFAULT_KEYWORDS,
   DEFAULT_OG_IMAGE,
   DEFAULT_OG_IMAGE_ALT,
   SEO_INDEXING_ENABLED,
@@ -36,6 +35,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  // Canonical + og:url belong on each page via buildPageMetadata({ path }).
+  // Do not set alternates.canonical here — child pages would inherit "/" .
   metadataBase: new URL(PUBLIC_SITE_URL),
   title: {
     default: `${SITE_NAME} | ${SITE_TAGLINE}`,
@@ -47,11 +48,9 @@ export const metadata: Metadata = {
   creator: SITE_NAME,
   publisher: SITE_NAME,
   category: "finance",
-  keywords: [...DEFAULT_KEYWORDS],
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "/",
     siteName: SITE_NAME,
     title: `${SITE_NAME} | ${SITE_TAGLINE}`,
     description: SITE_DEFAULT_DESCRIPTION,
@@ -92,9 +91,6 @@ export const metadata: Metadata = {
           noimageindex: true,
         },
       },
-  alternates: {
-    canonical: "/",
-  },
   icons: {
     icon: [{ url: "/favicon.webp", type: "image/webp", sizes: "64x64" }],
     shortcut: "/favicon.webp",

@@ -1,9 +1,10 @@
 import { fetchAdminUsers } from "@/app/lib/admin/fetchUsers";
 import { assertCrmAdminPage } from "@/app/lib/admin/assertCrmAdminPage";
+import { isAdminRole } from "@/app/lib/admin/session";
 import UsersTable from "./UsersTable";
 
 export default async function AdminUsersPage() {
-  await assertCrmAdminPage();
+  const session = await assertCrmAdminPage();
   const users = await fetchAdminUsers();
 
   return (
@@ -13,7 +14,7 @@ export default async function AdminUsersPage() {
           ? "No partners found."
           : `${users.length} partner${users.length === 1 ? "" : "s"} in the system.`}
       </p>
-      <UsersTable initialUsers={users} />
+      <UsersTable initialUsers={users} canDelete={isAdminRole(session.role)} />
     </main>
   );
 }

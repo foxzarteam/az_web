@@ -1,4 +1,4 @@
-import { getAdminSession, isAgentRole } from "@/app/lib/admin/session";
+import { getAdminSession, isAgentRole, isAdminRole } from "@/app/lib/admin/session";
 import { fetchAdminLeads, fetchLeadsByAgent } from "@/app/lib/admin/fetchLeads";
 import { redirect } from "next/navigation";
 import LeadsTable from "./LeadsTable";
@@ -21,7 +21,12 @@ export default async function AdminLeadsPage() {
             ? `${leads.length} lead${leads.length === 1 ? "" : "s"} (your link + manual).`
             : `${leads.length} lead${leads.length === 1 ? "" : "s"} found.`}
       </p>
-      <LeadsTable initialLeads={leads} readOnly={agent} />
+      <LeadsTable
+        initialLeads={leads}
+        readOnly={agent}
+        canApprove={isAdminRole(session.role)}
+        canDelete={isAdminRole(session.role)}
+      />
     </main>
   );
 }

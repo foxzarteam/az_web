@@ -1,4 +1,3 @@
-import { getPublicServicesListUrl } from "@/app/lib/services/serviceListUrl";
 import { servicesResultFromHttp } from "@/app/lib/services/servicesResultFromHttp";
 import type {
   FetchActiveServicesResult,
@@ -16,11 +15,10 @@ let inflight: Promise<FetchActiveServicesResult> | null = null;
 
 async function fetchFromApi(): Promise<FetchActiveServicesResult> {
   try {
-    const response = await fetch(getPublicServicesListUrl(), {
+    const response = await fetch("/api/services", {
       method: "GET",
       headers: { Accept: "application/json" },
-      mode: "cors",
-      credentials: "omit",
+      credentials: "same-origin",
     });
     return servicesResultFromHttp(response.ok, await response.text());
   } catch (e) {

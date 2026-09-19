@@ -1,11 +1,8 @@
 import {
-  absoluteUrl,
-  PUBLIC_API_BASE_URL,
   PUBLIC_CONTACT_ADDRESS,
   PUBLIC_CONTACT_EMAIL,
   PUBLIC_CONTACT_PHONE,
   PUBLIC_CONTACT_PHONE_TEL,
-  PUBLIC_FORM_SUBMIT_AJAX_URL,
   PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL,
   PUBLIC_GOOGLE_MAPS_EMBED_URL,
   PUBLIC_INDIA_MAP_FALLBACK_SVG_URL,
@@ -15,14 +12,9 @@ import {
 
 export const COLORS = {
   PRIMARY: "#4236FB",
-  PRIMARY_LIGHT: "#6B62FC",
-  ACCENT: "#FF7E29",
   GRADIENT_START: "#4236FB",
   GRADIENT_END: "#FF7E29",
 } as const;
-
-export const BRAND_GRADIENT =
-  "linear-gradient(90deg, #4236FB 0%, #4236FB 42%, #FF7E29 100%)" as const;
 
 /** Email from env; phone and address from publicEnv (display + tel/directions href). */
 export const CONTACT = {
@@ -34,13 +26,10 @@ export const CONTACT = {
 } as const;
 
 export {
-  absoluteUrl,
-  PUBLIC_API_BASE_URL,
   PUBLIC_CONTACT_ADDRESS,
   PUBLIC_CONTACT_EMAIL,
   PUBLIC_CONTACT_PHONE,
   PUBLIC_CONTACT_PHONE_TEL,
-  PUBLIC_FORM_SUBMIT_AJAX_URL,
   PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL,
   PUBLIC_GOOGLE_MAPS_EMBED_URL,
   PUBLIC_INDIA_MAP_FALLBACK_SVG_URL,
@@ -69,16 +58,9 @@ export const MOBILE_VALIDATION = {
   MAX_LENGTH: 10,
 } as const;
 
-export const SCROLL_THRESHOLD = 300;
-
 export const DEFAULT_IMAGES = {
   HERO: "/images/hero/hero.webp",
 } as const;
-
-export const FEATURED_SERVICES = [
-  { title: "Personal Loan", description: "Paperless process at low rate" },
-  { title: "Insurance", description: "Protect your life, health and assets" },
-] as const;
 
 export const SOCIAL_LINKS = {
   INSTAGRAM: "https://www.instagram.com/apni_zaroorat",

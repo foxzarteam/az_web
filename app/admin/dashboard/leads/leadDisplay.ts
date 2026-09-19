@@ -78,6 +78,29 @@ export function formatCurrencyInr(value: unknown): string {
   return `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
 }
 
+/** Same rules as Nest wallet: insurance ₹1000, loan 2% of amount (or loan_amt range midpoint). */
+export function leadCommissionAmount(
+  category: unknown,
+  requiredAmount: unknown,
+  loanAmt?: unknown,
+): number {
+  const cat = String(category ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/-/g, "_");
+  if (cat === "insurance") return 1000;
+  const exact = Number(requiredAmount);
+  if (Number.isFinite(exact) && exact > 0) {
+    return Math.round(exact * 0.02 * 100) / 100;
+  }
+  const range = String(loanAmt ?? "").trim();
+  const m = range.match(/^(\d+)_(\d+)$/);
+  if (!m) return 0;
+  const mid = (Number(m[1]) + Number(m[2])) / 2;
+  if (!Number.isFinite(mid) || mid <= 0) return 0;
+  return Math.round(mid * 0.02 * 100) / 100;
+}
+
 /** Admin: City, Region, Country (x.x.x.x) — location first, IP in brackets. */
 export function formatIpLocationCell(row: Pick<AdminLeadRow, "ip" | "ip_location"> | AdminLeadRow): string {
   return formatIpLocationDisplay(

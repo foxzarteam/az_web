@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AdminServiceRow } from "@/app/lib/admin/fetchServices";
-import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
-import AdminModal from "../AdminModal";
+import CrmDataTable, { CrmActionButton, type CrmColumn } from "@/app/components/shared/crm/DataTable";
+import AdminModal from "@/app/components/shared/crm/AppModal";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import { toPublicClientError } from "@/app/lib/publicClientError";
 import {
@@ -14,7 +14,7 @@ import {
   ADMIN_ERROR,
   ADMIN_INPUT,
   ADMIN_LABEL,
-} from "../adminUi";
+} from "@/app/components/shared/crm/ui";
 
 const VIEW_FIELDS = [
   "title",
@@ -81,7 +81,13 @@ function serviceToEditForm(row: AdminServiceRow): EditForm {
   };
 }
 
-export default function ServicesTable({ initialServices }: { initialServices: AdminServiceRow[] }) {
+export default function ServicesTable({
+  initialServices,
+  canDelete = false,
+}: {
+  initialServices: AdminServiceRow[];
+  canDelete?: boolean;
+}) {
   const router = useRouter();
   const [services, setServices] = useState(initialServices);
   const [viewRow, setViewRow] = useState<AdminServiceRow | null>(null);
@@ -261,6 +267,7 @@ export default function ServicesTable({ initialServices }: { initialServices: Ad
                 <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
               </svg>
             </CrmActionButton>
+            {canDelete ? (
             <CrmActionButton
               label="Delete"
               variant="danger"
@@ -271,12 +278,13 @@ export default function ServicesTable({ initialServices }: { initialServices: Ad
             >
               {deleteIcon}
             </CrmActionButton>
+            ) : null}
           </div>
         ),
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps -- action handlers use stable setters
-    [],
+    [canDelete],
   );
 
   return (

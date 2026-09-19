@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { PUBLIC_API_BASE_URL } from "@/app/config/constants";
 import { formatRupee } from "@/app/utils/format";
 import {
   AGE_OPTIONS,
@@ -308,7 +307,7 @@ export default function TaxSavingCalculator() {
       if (sentPhonesRef.current.has(mobile)) return;
       sentPhonesRef.current.add(mobile);
       try {
-        await fetch(`${PUBLIC_API_BASE_URL.replace(/\/+$/, "")}/api/contact/tax-calculator-lead`, {
+        await fetch("/api/contact/tax-calculator-lead", {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
           body: JSON.stringify({ name: trimmedName, phone: mobile }),

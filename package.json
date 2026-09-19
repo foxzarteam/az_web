@@ -9,6 +9,8 @@
     "build:verpex": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/test-lead-patch-gate.mjs",
     "optimize:images": "node scripts/optimize-images.mjs"
   },
   "dependencies": {

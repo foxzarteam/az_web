@@ -2,7 +2,7 @@ import { getAdminSession, isAgentRole } from "@/app/lib/admin/session";
 import { fetchAgentWallet } from "@/app/lib/admin/fetchAgentWallet";
 import { fetchLeadsByAgent, type AdminLeadRow } from "@/app/lib/admin/fetchLeads";
 import { redirect } from "next/navigation";
-import { ADMIN_CARD, ADMIN_UI } from "../adminUi";
+import { ADMIN_CARD, ADMIN_UI } from "@/app/components/shared/crm/ui";
 import EarningsTable, { type EarningLedgerRow } from "./EarningsTable";
 
 const LOAN_COMMISSION_RATE = 0.02;
@@ -25,16 +25,23 @@ function roundMoney(n: number): number {
   return Math.round(Math.max(0, n) * 100) / 100;
 }
 
-/** Same rules as Nest wallet: insurance ₹1000, loan 2% of amount. */
+/** Same rules as Nest wallet: insurance ₹1000, loan 2% of amount (or loan_amt range midpoint). */
 function commissionForLead(lead: AdminLeadRow): number {
   const cat = String(lead.category ?? "")
     .trim()
     .toLowerCase()
     .replace(/-/g, "_");
   if (cat === "insurance") return INSURANCE_COMMISSION_FLAT;
-  const amount = Number(lead.required_amount);
-  if (!Number.isFinite(amount) || amount <= 0) return 0;
-  return roundMoney(amount * LOAN_COMMISSION_RATE);
+  const exact = Number(lead.required_amount);
+  if (Number.isFinite(exact) && exact > 0) {
+    return roundMoney(exact * LOAN_COMMISSION_RATE);
+  }
+  const range = String(lead.loan_amt ?? "").trim();
+  const m = range.match(/^(\d+)_(\d+)$/);
+  if (!m) return 0;
+  const mid = (Number(m[1]) + Number(m[2])) / 2;
+  if (!Number.isFinite(mid) || mid <= 0) return 0;
+  return roundMoney(mid * LOAN_COMMISSION_RATE);
 }
 
 function formatLeadDate(iso: unknown): string {

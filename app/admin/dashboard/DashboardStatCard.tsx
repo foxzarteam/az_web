@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ADMIN_UI } from "./adminUi";
+import { ADMIN_UI } from "@/app/components/shared/crm/ui";
 
 type Props = {
   label: string;

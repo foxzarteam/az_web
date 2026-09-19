@@ -1,5 +1,3 @@
-import { PUBLIC_API_BASE_URL } from "@/app/config/constants";
-
 export interface CreateLeadRequest {
   pan: string;
   mobileNumber: string;
@@ -26,6 +24,7 @@ export interface CreateLeadResponse {
   success: boolean;
   data?: unknown;
   message?: string;
+  code?: string;
 }
 
 export type LeadRecord = {
@@ -36,6 +35,7 @@ export type LeadRecord = {
   category?: string;
 };
 
+/** Same-origin BFF — browser never calls Nest directly. */
 export function getLeadsApiBase(): string {
-  return `${PUBLIC_API_BASE_URL.replace(/\/+$/, "")}/api/leads`;
+  return "/api/leads";
 }

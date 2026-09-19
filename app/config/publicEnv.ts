@@ -118,12 +118,6 @@ function resolvePublicSiteUrl(): string {
 
 export const PUBLIC_SITE_URL = resolvePublicSiteUrl();
 
-/** Absolute URL for a site path (path must start with / or is normalized). */
-export function absoluteUrl(path: string): string {
-  const p = path.startsWith("/") ? path : `/${path}`;
-  return `${PUBLIC_SITE_URL}${p}`;
-}
-
 export const PUBLIC_CONTACT_EMAIL =
   normalizeEnvValue(process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "").trim() || DEFAULT_CONTACT_EMAIL;
 
@@ -143,11 +137,6 @@ const SITE_CONTACT_PHONE_NATIONAL = "9251283215";
 export const PUBLIC_CONTACT_PHONE = `+91 ${SITE_CONTACT_PHONE_NATIONAL.slice(0, 5)} ${SITE_CONTACT_PHONE_NATIONAL.slice(5)}`;
 /** Use in `href={\`tel:${...}\`}` (E.164-style, no spaces) */
 export const PUBLIC_CONTACT_PHONE_TEL = `+91${SITE_CONTACT_PHONE_NATIONAL}`;
-
-/** FormSubmit.co JSON endpoint for the contact email. */
-export const PUBLIC_FORM_SUBMIT_AJAX_URL = PUBLIC_CONTACT_EMAIL
-  ? `https://formsubmit.co/ajax/${PUBLIC_CONTACT_EMAIL}`
-  : "";
 
 export const PUBLIC_GOOGLE_MAPS_EMBED_URL =
   normalizeEnvValue(process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_URL ?? "").trim() ||

@@ -11,7 +11,6 @@ import {
   financialServiceJsonLd,
   pageSeoGlue,
   personalLoanProductJsonLd,
-  PERSONAL_LOAN_KEYWORDS,
 } from "@/app/lib/seo";
 
 const PAGE_TITLE = "Personal Loan Online up to ₹10 Lakh | Apply | Apni Zaroorat";
@@ -25,7 +24,6 @@ export const metadata: Metadata = buildPageMetadata({
   absoluteTitle: true,
   image: "/images/service/personal.webp",
   imageAlt: "Apply for a personal loan online with Apni Zaroorat",
-  keywords: [...PERSONAL_LOAN_KEYWORDS],
 });
 
 const structuredData = pageSeoGlue({

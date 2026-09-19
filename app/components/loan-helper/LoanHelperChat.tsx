@@ -203,9 +203,13 @@ function OptionGroup({
   );
 }
 
-export default function LoanHelperChat() {
+export default function LoanHelperChat({
+  initialOpen = false,
+}: {
+  initialOpen?: boolean;
+}) {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(initialOpen);
   const [step, setStep] = useState<Step>("employment");
   const [employment, setEmployment] = useState<EmploymentId | null>(null);
   const [salary, setSalary] = useState<SalaryId | null>(null);

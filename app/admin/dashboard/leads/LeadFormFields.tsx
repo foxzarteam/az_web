@@ -6,8 +6,8 @@ import { INSURANCE_TYPE_OPTIONS } from "@/app/utils/leadForm";
 import {
   ADMIN_BTN_SECONDARY,
   ADMIN_LABEL,
-} from "../adminUi";
-import { CATEGORIES, STATUSES } from "./leadDisplay";
+} from "@/app/components/shared/crm/ui";
+import { CATEGORIES, STATUSES, formatCurrencyInr, leadCommissionAmount } from "./leadDisplay";
 import {
   type EditForm,
   type FieldErrors,
@@ -31,6 +31,7 @@ export default function LeadFormFields({
   onRevealPan,
   revealingPan,
   hideStatus = false,
+  canApprove = false,
 }: {
   form: EditForm;
   setForm: (next: EditForm) => void;
@@ -42,18 +43,28 @@ export default function LeadFormFields({
   revealingPan?: boolean;
   /** Partners cannot set lead status (always pending). */
   hideStatus?: boolean;
+  /** Only admin can set Approved (credits partner commission). */
+  canApprove?: boolean;
 }) {
   const panLocked = panMode === "edit" && isMaskedPanValue(form.pan);
+  const commissionLocked = !canApprove && form.status === "approved";
+  const statusLocked = commissionLocked;
+  const statusOptions = STATUSES.filter(
+    (s) => s.value !== "approved" || canApprove || form.status === "approved",
+  );
 
   return (
     <div className="grid gap-5 sm:grid-cols-2">
       {form.category === "personal_loan" ? (
         <>
-          <div className="sm:col-span-2">
+          <div className={`sm:col-span-2${commissionLocked ? " pointer-events-none opacity-60" : ""}`}>
             <LoanAmountSlider
               id="admin-lead-loan-amount"
               value={form.requiredAmount}
-              onChange={(value) => setForm({ ...form, requiredAmount: value })}
+              onChange={(value) => {
+                if (commissionLocked) return;
+                setForm({ ...form, requiredAmount: value });
+              }}
             />
           </div>
           <div className="sm:col-span-2">
@@ -83,6 +94,7 @@ export default function LeadFormFields({
           <select
             className={inputClass}
             value={form.insType}
+            disabled={commissionLocked}
             onChange={(e) => setForm({ ...form, insType: e.target.value })}
           >
             {INSURANCE_TYPE_OPTIONS.map((o) => (
@@ -173,6 +185,7 @@ export default function LeadFormFields({
         <select
           className={inputClass}
           value={form.category}
+          disabled={commissionLocked}
           onChange={(e) => setForm({ ...form, category: e.target.value })}
         >
           {CATEGORIES.map((c) => (
@@ -188,14 +201,29 @@ export default function LeadFormFields({
           <select
             className={inputClass}
             value={form.status}
+            disabled={statusLocked}
             onChange={(e) => setForm({ ...form, status: e.target.value })}
           >
-            {STATUSES.map((s) => (
+            {statusOptions.map((s) => (
               <option key={s.value} value={s.value}>
                 {s.label}
               </option>
             ))}
           </select>
+          {statusLocked ? (
+            <span className="mt-1 block text-xs text-slate-500">
+              Only an admin can change an approved lead or its commission.
+            </span>
+          ) : null}
+          {canApprove && form.status === "approved" ? (
+            <span className="mt-2 block rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/40 dark:text-amber-200">
+              Approved credits partner commission (
+              {form.category === "insurance"
+                ? "₹1,000"
+                : `${formatCurrencyInr(leadCommissionAmount(form.category, form.requiredAmount))} (2%)`}
+              ).
+            </span>
+          ) : null}
         </label>
       ) : null}
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ADMIN_BTN_PRIMARY, ADMIN_BTN_SECONDARY } from "@/app/admin/dashboard/adminUi";
+import { ADMIN_BTN_PRIMARY, ADMIN_BTN_SECONDARY } from "@/app/components/shared/crm/ui";
 import { PUBLIC_SITE_URL } from "@/app/config/constants";
 import { affiliateQrSrc, affiliateShareUrl } from "@/app/lib/affiliate/refCookie";
 

@@ -4,7 +4,7 @@ import { fetchLeadsByAgent } from "@/app/lib/admin/fetchLeads";
 import Link from "next/link";
 import DashboardStatCard from "./DashboardStatCard";
 import AffiliateShareKit from "@/app/components/affiliate/AffiliateShareKit";
-import { ADMIN_BTN_PRIMARY, ADMIN_CARD, ADMIN_UI } from "./adminUi";
+import { ADMIN_BTN_PRIMARY, ADMIN_CARD, ADMIN_UI } from "@/app/components/shared/crm/ui";
 
 function LeadsIcon() {
   return (

@@ -71,9 +71,6 @@ export const FY_OPTIONS = Object.values(FINANCIAL_YEARS).map((fy) => ({
   label: fy.label,
 }));
 
-/** @deprecated use FINANCIAL_YEARS[DEFAULT_FY].label */
-export const FY_LABEL = FINANCIAL_YEARS[DEFAULT_FY].label;
-
 export const AGE_OPTIONS: { id: AgeBand; label: string }[] = [
   { id: "below_60", label: "Below 60 years" },
   { id: "senior", label: "60–79 years" },

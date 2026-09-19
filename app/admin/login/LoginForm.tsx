@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { PUBLIC_API_BASE_URL } from "@/app/config/constants";
 
 /** Dev-only prefill from NEXT_PUBLIC_ADMIN_LOGIN_PREFILL_* — never hardcode passwords. */
 const LOGIN_PREFILL = {
@@ -16,15 +15,6 @@ const LOGIN_PREFILL = {
       ? (process.env.NEXT_PUBLIC_ADMIN_LOGIN_PREFILL_PASSWORD ?? "").trim()
       : "",
 };
-
-type NestLoginJson = {
-  ok?: boolean;
-  user?: { id: string; email: string; role: string; full_name?: string };
-};
-
-function nestAuthLoginUrl(): string {
-  return `${PUBLIC_API_BASE_URL.replace(/\/+$/, "")}/api/auth/login`;
-}
 
 function digitsOnly(v: string): string {
   return v.replace(/\D/g, "");
@@ -88,21 +78,6 @@ export default function LoginForm({ mode = "admin" }: { mode?: "admin" | "partne
       }
 
       const email = identifier.trim();
-      const nestRes = await fetch(nestAuthLoginUrl(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ email, password }),
-        mode: "cors",
-        credentials: "omit",
-      });
-
-      const nestJson = (await nestRes.json().catch(() => ({}))) as NestLoginJson;
-
-      if (!nestRes.ok || !nestJson.ok || !nestJson.user?.id || !nestJson.user?.email || !nestJson.user?.role) {
-        setError("Invalid email or password");
-        return;
-      }
-
       const sessionRes = await fetch("/api/admin/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -112,7 +87,7 @@ export default function LoginForm({ mode = "admin" }: { mode?: "admin" | "partne
       const sessionData = (await sessionRes.json().catch(() => ({}))) as { error?: string };
 
       if (!sessionRes.ok) {
-        setError(sessionData.error?.trim() || "Could not create session.");
+        setError(sessionData.error?.trim() || "Invalid email or password");
         return;
       }
 

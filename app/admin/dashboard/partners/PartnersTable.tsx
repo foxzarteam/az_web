@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AdminPartnerRow, PartnerServiceOption } from "@/app/lib/admin/fetchPartners";
-import CrmDataTable, { CrmActionButton, type CrmColumn } from "../CrmDataTable";
-import AdminModal from "../AdminModal";
+import CrmDataTable, { CrmActionButton, type CrmColumn } from "@/app/components/shared/crm/DataTable";
+import AdminModal from "@/app/components/shared/crm/AppModal";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import { toPublicClientError } from "@/app/lib/publicClientError";
 import {
@@ -14,7 +14,7 @@ import {
   ADMIN_ERROR,
   ADMIN_INPUT,
   ADMIN_LABEL,
-} from "../adminUi";
+} from "@/app/components/shared/crm/ui";
 
 const PAYOUT_TYPES = [
   { value: "PERCENTAGE", label: "Percentage (%)" },
@@ -254,9 +254,11 @@ function PartnerFormFields({
 export default function PartnersTable({
   initialPartners,
   serviceOptions,
+  canDelete = false,
 }: {
   initialPartners: AdminPartnerRow[];
   serviceOptions: PartnerServiceOption[];
+  canDelete?: boolean;
 }) {
   const router = useRouter();
   const [partners, setPartners] = useState(initialPartners);
@@ -470,6 +472,7 @@ export default function PartnersTable({
                 <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
               </svg>
             </CrmActionButton>
+            {canDelete ? (
             <CrmActionButton
               label="Delete"
               variant="danger"
@@ -480,12 +483,13 @@ export default function PartnersTable({
             >
               {deleteIcon}
             </CrmActionButton>
+            ) : null}
           </div>
         ),
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps -- action handlers use stable setters
-    [],
+    [canDelete],
   );
 
   return (

@@ -9,7 +9,6 @@ import {
   faqPageJsonLd,
   financialServiceJsonLd,
   pageSeoGlue,
-  INSURANCE_KEYWORDS,
 } from "@/app/lib/seo";
 
 const PAGE_TITLE = "Insurance Online in India | Apni Zaroorat";
@@ -23,7 +22,6 @@ export const metadata: Metadata = buildPageMetadata({
   absoluteTitle: true,
   image: "/images/service/insurance.webp",
   imageAlt: "Insurance plans with Apni Zaroorat",
-  keywords: [...INSURANCE_KEYWORDS],
 });
 
 const structuredData = pageSeoGlue({

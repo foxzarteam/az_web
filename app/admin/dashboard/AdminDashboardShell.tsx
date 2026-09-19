@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import AdminSidebar from "./AdminSidebar";
-import { ADMIN_UI } from "./adminUi";
+import { ADMIN_UI } from "@/app/components/shared/crm/ui";
 
 const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
   "/admin/dashboard": {

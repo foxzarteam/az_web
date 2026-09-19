@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { getCustomerSession } from "@/app/lib/customer/session";
-import { buildPageMetadata, CUSTOMER_LOGIN_KEYWORDS } from "@/app/lib/seo";
+import { buildPageMetadata } from "@/app/lib/seo";
 import CustomerLoginForm from "./CustomerLoginForm";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -13,7 +13,6 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/customer/login",
   absoluteTitle: true,
   noIndex: true,
-  keywords: [...CUSTOMER_LOGIN_KEYWORDS],
 });
 
 export default async function CustomerLoginPage() {
