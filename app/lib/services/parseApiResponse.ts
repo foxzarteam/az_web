@@ -15,10 +15,17 @@ function rowToCard(row: ApiServiceRow): ServiceSliderCard | null {
   const slug = typeof row.slug === "string" ? row.slug.trim() : "";
   if (!slug || !isAllowedProductSlug(slug)) return null;
   const imageRaw = row.imageUrl ?? row.image_url;
+  const image =
+    typeof imageRaw === "string"
+      ? imageRaw.trim().replace(
+          /\/images\/service\/(personal|insurance)\.png$/i,
+          "/images/service/$1.webp",
+        )
+      : "";
   return {
     title: typeof row.title === "string" ? row.title : "",
     description: typeof row.description === "string" ? row.description : "",
-    image: typeof imageRaw === "string" ? imageRaw.trim() : "",
+    image,
     href: `/products/${slug}`,
   };
 }

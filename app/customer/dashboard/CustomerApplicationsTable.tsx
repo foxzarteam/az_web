@@ -290,12 +290,12 @@ export default function CustomerApplicationsTable({
           searchPlaceholder="Search application, product…"
           emptyMessage="No applications match this filter."
           toolbarLeft={
-            <label className="inline-flex items-center gap-2 text-xs font-medium text-slate-500">
+            <label className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap text-xs font-medium text-slate-500">
               <span className="hidden sm:inline">Status</span>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-2.5 text-sm text-slate-800 outline-none focus:border-[#4236FB] focus:ring-2 focus:ring-[#4236FB]/20"
+                className="h-9 max-w-[11rem] shrink-0 rounded-lg border border-slate-200 bg-white px-2.5 text-sm text-slate-800 outline-none focus:border-[#4236FB] focus:ring-2 focus:ring-[#4236FB]/20"
               >
                 <option value="all">All statuses</option>
                 <option value="pending">Under review</option>

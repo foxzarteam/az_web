@@ -483,8 +483,8 @@ INSERT INTO public.pan_access_audit (id, lead_id, action, admin_id, admin_email,
 INSERT INTO public.services (id, slug, title, description, image_url, sort_order, is_active, created_at, updated_at) VALUES
   ('3d887ea2-f276-4d3c-b93d-42d714a5701e', 'credit-card', 'Credit Card', 'Choose cards from all top banks', '/images/service/credit.png', '4', FALSE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
   ('c16701c4-ba72-4cdc-9643-b824dfe0da24', 'home-loan', 'Home Loan', 'Instant approval at lowest interest rates', '/images/service/home.png', '1', FALSE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
-  ('6b5dbdbf-acc5-432f-a149-8eda67a935f0', 'personal-loan', 'Personal Loan', 'Earn Up to 4%', '/images/service/personal.png', '2', TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
-  ('b299202a-d3f0-4220-8220-80f6b996ac18', 'insurance', 'Insurance', 'Earn Up to 2%', '/images/service/insurance.png', '5', TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('6b5dbdbf-acc5-432f-a149-8eda67a935f0', 'personal-loan', 'Personal Loan', 'Earn Up to 4%', '/images/service/personal.webp', '2', TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('b299202a-d3f0-4220-8220-80f6b996ac18', 'insurance', 'Insurance', 'Earn Up to 2%', '/images/service/insurance.webp', '5', TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
   ('c2871d5c-f36c-4e55-9069-0597aea107f5', 'business-loan', 'Business Loan', 'Fund your business with flexible tenure', '/images/service/business.png', '3', FALSE, '2026-04-05 18:05:20.388169+00', '2026-05-21 19:26:07.114+00');
 
 INSERT INTO public.users (id, mobile_number, user_name, email, mpin, is_active, is_logged_in, created_at, updated_at, last_login_at, referral_code) VALUES

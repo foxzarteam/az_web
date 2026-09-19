@@ -5,7 +5,6 @@ const FEATURES = [
   {
     title: "Secure",
     description: "Your data is 100% safe with us",
-    iconWrapClass: "bg-[#EEF0FF] text-[#4236FB]",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden>
         <path
@@ -26,7 +25,6 @@ const FEATURES = [
   {
     title: "Fast",
     description: "Quick application and approval",
-    iconWrapClass: "bg-[#FEF5E7] text-[#F59E0B]",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden>
         <path
@@ -46,7 +44,6 @@ const FEATURES = [
   {
     title: "Transparent",
     description: "No hidden charges, no surprises",
-    iconWrapClass: "bg-[#FDEBEC] text-[#EF4444]",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden>
         <circle cx="9" cy="8.5" r="3" fill="currentColor" opacity="0.2" />
@@ -79,40 +76,38 @@ export default function AboutIntro() {
             </h2>
 
             <p className="mt-4 max-w-xl text-sm leading-relaxed text-gray sm:mt-5 sm:text-base">
-              Apni Zaroorat is a digital platform that connects you with trusted
-              partners to help you get the right{" "}
+              Apni Zaroorat connects you with trusted partners for the right{" "}
               <Link
                 href="/products/personal-loan/"
                 className="font-semibold text-primary hover:underline"
               >
                 personal loan
               </Link>{" "}
-              with ease, transparency and security. We also help you find suitable{" "}
+              — easy, transparent and secure. We also help you apply for{" "}
               <Link
                 href="/products/insurance/"
                 className="font-semibold text-primary hover:underline"
               >
                 insurance
               </Link>{" "}
-              cover for life, health, and motor needs through the same simple online process.
+              cover for life, health and motor, all in one simple online process.
             </p>
 
-            <div className="mt-6 flex flex-nowrap items-start gap-1.5 sm:mt-8 sm:gap-2.5">
+            <div className="mt-6 grid grid-cols-3 gap-2 sm:mt-8 sm:gap-3">
               {FEATURES.map((feature) => (
-                <div key={feature.title} className="flex min-w-0 flex-1 items-start gap-1.5 sm:gap-2">
-                  <span
-                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full sm:h-8 sm:w-8 ${feature.iconWrapClass}`}
-                  >
-                    {feature.icon}
-                  </span>
-                  <span className="min-w-0 pt-0.5">
-                    <span className="block text-[11px] font-bold leading-tight text-midnight_text dark:text-white sm:text-sm">
-                      {feature.title}
+                <div
+                  key={feature.title}
+                  className="theme-gradient-bg min-w-0 rounded-2xl px-2 py-2.5 text-white shadow-[0_8px_20px_rgba(66,54,251,0.22)] sm:px-3.5 sm:py-3.5"
+                >
+                  <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20 text-white sm:h-8 sm:w-8">
+                      {feature.icon}
                     </span>
-                    <span className="mt-0.5 block text-[9px] leading-snug text-gray sm:text-[11px] sm:leading-snug">
-                      {feature.description}
-                    </span>
-                  </span>
+                    <p className="min-w-0 truncate text-[11px] font-bold leading-tight sm:text-sm">{feature.title}</p>
+                  </div>
+                  <p className="mt-1.5 line-clamp-2 text-[9px] leading-snug text-white/85 sm:text-[11px]">
+                    {feature.description}
+                  </p>
                 </div>
               ))}
             </div>

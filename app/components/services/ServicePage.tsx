@@ -189,7 +189,7 @@ export default function ServicePage({
   return (
     <section
       id="apply"
-      className="pt-16 sm:pt-20 md:pt-24 lg:pt-28 pb-12 sm:pb-16 bg-gradient-to-b from-light to-white dark:from-darkmode dark:to-semidark scroll-mt-24"
+      className="scroll-mt-24 bg-gradient-to-b from-light to-white pb-0 pt-8 dark:from-darkmode dark:to-semidark"
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md max-w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-stretch">
@@ -445,13 +445,14 @@ export default function ServicePage({
 
           <div className="flex min-w-0 order-2 lg:order-2 w-full items-center justify-center lg:col-span-5" data-aos="fade-left">
             <Image
-              src={imageSrc}
+              src={`${imageSrc}${imageSrc.includes("?") ? "&" : "?"}v=2`}
               alt={title}
               width={640}
               height={480}
               className="block h-auto w-full max-w-[560px] object-contain lg:max-w-none"
               sizes="(max-width: 1024px) 100vw, 560px"
               priority
+              unoptimized
             />
           </div>
         </div>

@@ -88,14 +88,34 @@ export default function Calculator() {
               Personal Loan EMI Calculator
             </h2>
             <p className="text-sm leading-relaxed text-gray sm:text-base md:text-lg">
-              Estimate your personal loan EMI on a reducing balance basis. Adjust amount, interest rate, and tenure to see
-              monthly EMI, total interest, and repayment amount before you apply.
+              Know your monthly EMI before you apply. Adjust amount, rate and tenure to see interest and total repayment.
             </p>
           </div>
 
-          <div className="flex w-full flex-col items-center gap-5 sm:gap-6">
-            <div className="relative w-56 h-56 xs:w-64 xs:h-64 sm:w-72 sm:h-72 md:w-80 md:h-80">
-              <svg viewBox="0 0 200 200" className="w-full h-full -rotate-90">
+          <div className="grid w-full grid-cols-2 gap-2.5 sm:gap-3">
+            {[
+              { label: "Monthly EMI", value: formatRupee(emi) },
+              { label: "Principal amount", value: formatRupee(principal) },
+              { label: "Total interest", value: formatRupee(totalInterest) },
+              { label: "Total amount", value: formatRupee(totalAmount) },
+            ].map((card) => (
+              <div
+                key={card.label}
+                className="theme-gradient-bg min-w-0 rounded-2xl px-3.5 py-2 text-white shadow-[0_8px_20px_rgba(66,54,251,0.22)] sm:px-4 sm:py-2.5"
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-white/80 sm:text-[11px]">
+                  {card.label}
+                </p>
+                <p className="mt-0.5 truncate text-base font-bold tabular-nums text-white sm:text-lg">
+                  {card.value}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex w-full flex-col items-center">
+            <div className="relative h-48 w-48 xs:h-56 xs:w-56 sm:h-64 sm:w-64 md:h-72 md:w-72">
+              <svg viewBox="0 0 200 200" className="h-full w-full -rotate-90">
                 <defs>
                   <linearGradient id="principalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor={COLORS.GRADIENT_START} />
@@ -128,36 +148,13 @@ export default function Calculator() {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs text-gray uppercase tracking-wide">Principal</span>
-                <span className="text-lg sm:text-xl font-bold text-midnight_text dark:text-white">
-                  {totalAmount ? Math.round((principalShare * 100)) : 100}%
+                <span className="text-xs uppercase tracking-wide text-gray">Principal</span>
+                <span className="text-lg font-bold text-midnight_text dark:text-white sm:text-xl">
+                  {totalAmount ? Math.round(principalShare * 100) : 100}%
                 </span>
-                <span className="text-xs text-gray mt-0.5">Interest {totalAmount ? Math.round((interestShare * 100)) : 0}%</span>
-              </div>
-            </div>
-
-            <div className="grid w-full grid-cols-2 gap-3 text-left sm:gap-4 md:grid-cols-4">
-              <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-wide text-gray sm:text-xs">Monthly EMI</p>
-                <p className="truncate text-sm font-bold text-primary sm:text-base md:text-lg">{formatRupee(emi)}</p>
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-wide text-gray sm:text-xs">Principal amount</p>
-                <p className="truncate text-sm font-bold text-midnight_text dark:text-white sm:text-base md:text-lg">
-                  {formatRupee(principal)}
-                </p>
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-wide text-gray sm:text-xs">Total interest</p>
-                <p className="truncate text-sm font-bold text-midnight_text dark:text-white sm:text-base md:text-lg">
-                  {formatRupee(totalInterest)}
-                </p>
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-wide text-gray sm:text-xs">Total amount</p>
-                <p className="truncate text-sm font-bold text-midnight_text dark:text-white sm:text-base md:text-lg">
-                  {formatRupee(totalAmount)}
-                </p>
+                <span className="mt-0.5 text-xs text-gray">
+                  Interest {totalAmount ? Math.round(interestShare * 100) : 0}%
+                </span>
               </div>
             </div>
           </div>
