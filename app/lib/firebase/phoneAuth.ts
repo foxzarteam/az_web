@@ -14,12 +14,8 @@ const MSG_OTP_DAILY_LIMIT =
   `Daily OTP limit reached for this mobile number (max ${OTP_DAILY_LIMIT} OTPs per day). Please try again tomorrow.`;
 
 let recaptchaVerifier: RecaptchaVerifier | null = null;
-let recaptchaVerifierContainerId: string | null = null;
 /** True after a verifier was used — next send needs a short DOM settle. */
 let recaptchaNeedsSettle = false;
-let prefetchPromise: Promise<RecaptchaVerifier | null> | null = null;
-/** While Firebase is sending SMS, do not tear down reCAPTCHA (modal close/apply-fail). */
-let otpSendInFlight = 0;
 
 function parseFirebaseError(error: unknown): { code: string; message: string } {
   if (error == null) return { code: "", message: "Unknown error" };
@@ -50,6 +46,7 @@ const OTP_SEND_HINTS: Record<string, string> = {
   "auth/billing-not-enabled": "OTP is temporarily unavailable. Please try again later.",
   "auth/too-many-requests": "Too many attempts. Wait a few minutes.",
   "auth/invalid-phone-number": "Invalid mobile number.",
+  "auth/missing-recaptcha": "Security check failed. Refresh the page and try again.",
 };
 
 function formatOtpError(error: unknown, hints: Record<string, string>, fallback: string): string {
@@ -93,6 +90,7 @@ function getFirebaseAuth() {
   return getAuth();
 }
 
+/** Off-screen but real size — 1×1 / opacity:0 widgets make Firebase SMS fail. */
 function ensureRecaptchaHost(containerId: string): HTMLElement {
   let el = document.getElementById(containerId);
   if (el) return el;
@@ -100,29 +98,24 @@ function ensureRecaptchaHost(containerId: string): HTMLElement {
   el.id = containerId;
   el.setAttribute("aria-hidden", "true");
   el.style.cssText =
-    "position:fixed;left:0;top:0;height:1px;width:1px;overflow:hidden;opacity:0;pointer-events:none;";
+    "position:fixed;left:-9999px;top:0;width:320px;height:80px;overflow:hidden;";
   document.body.appendChild(el);
   return el;
 }
 
-/** Warm Firebase Auth + invisible reCAPTCHA so Apply Now can send SMS immediately. */
+/** Warm Firebase Auth early so first OTP is not paying cold-init cost. */
 export function warmFirebaseAuth(containerId = RECAPTCHA_CONTAINER_ID): void {
   try {
     if (!isFirebaseWebConfigured()) return;
     getFirebaseAuth();
     if (typeof document === "undefined") return;
     ensureRecaptchaHost(containerId);
-    void prefetchRecaptchaVerifier(containerId);
   } catch {
     /* ignore */
   }
 }
 
-export function resetRecaptcha(
-  containerId = RECAPTCHA_CONTAINER_ID,
-  opts?: { force?: boolean },
-): void {
-  if (otpSendInFlight > 0 && !opts?.force) return;
+export function resetRecaptcha(containerId = RECAPTCHA_CONTAINER_ID): void {
   if (recaptchaVerifier) {
     try {
       recaptchaVerifier.clear();
@@ -131,12 +124,10 @@ export function resetRecaptcha(
     }
     recaptchaVerifier = null;
   }
-  recaptchaVerifierContainerId = null;
   const el = document.getElementById(containerId);
   if (el) el.innerHTML = "";
 }
 
-/** Replace the container node so Firebase cannot reuse a half-cleared widget. */
 function replaceRecaptchaContainer(containerId: string): HTMLElement {
   ensureRecaptchaHost(containerId);
   const el = document.getElementById(containerId);
@@ -155,9 +146,20 @@ function delay(ms: number): Promise<void> {
   });
 }
 
-function bindVerifier(containerId: string, el: HTMLElement): RecaptchaVerifier {
+async function createRecaptchaVerifier(containerId: string): Promise<RecaptchaVerifier> {
+  resetRecaptcha(containerId);
+  replaceRecaptchaContainer(containerId);
+
+  if (recaptchaNeedsSettle) {
+    await delay(450);
+  } else {
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve());
+    });
+  }
+
   const auth = getFirebaseAuth();
-  recaptchaVerifier = new RecaptchaVerifier(auth, el, {
+  recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
     size: "invisible",
     callback: () => {
       /* solved — signInWithPhoneNumber continues */
@@ -167,77 +169,29 @@ function bindVerifier(containerId: string, el: HTMLElement): RecaptchaVerifier {
       recaptchaNeedsSettle = true;
     },
   });
-  recaptchaVerifierContainerId = containerId;
-  return recaptchaVerifier;
-}
-
-/**
- * Fresh invisible reCAPTCHA for each send/resend.
- * Always clears + replaces the DOM node to avoid "already been rendered".
- */
-async function createRecaptchaVerifier(containerId: string): Promise<RecaptchaVerifier> {
-  resetRecaptcha(containerId, { force: true });
-  replaceRecaptchaContainer(containerId);
-
-  if (recaptchaNeedsSettle) {
-    await delay(200);
-  } else {
-    await new Promise<void>((resolve) => {
-      requestAnimationFrame(() => resolve());
-    });
-  }
-
-  const el = document.getElementById(containerId);
-  if (!el) {
-    throw new Error("auth/missing-recaptcha Recaptcha container is not in the page.");
-  }
-
-  recaptchaVerifier = bindVerifier(containerId, el);
 
   try {
     await recaptchaVerifier.render();
   } catch {
-    resetRecaptcha(containerId, { force: true });
-    const fresh = replaceRecaptchaContainer(containerId);
-    await delay(250);
-    recaptchaVerifier = bindVerifier(containerId, fresh);
+    resetRecaptcha(containerId);
+    replaceRecaptchaContainer(containerId);
+    await delay(500);
+    recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
+      size: "invisible",
+      callback: () => {},
+      "expired-callback": () => {
+        resetRecaptcha(containerId);
+        recaptchaNeedsSettle = true;
+      },
+    });
     await recaptchaVerifier.render();
   }
 
   return recaptchaVerifier;
 }
 
-async function prefetchRecaptchaVerifier(
-  containerId: string,
-): Promise<RecaptchaVerifier | null> {
-  if (typeof document === "undefined" || !isFirebaseWebConfigured()) return null;
-  if (recaptchaVerifier && recaptchaVerifierContainerId === containerId) {
-    return recaptchaVerifier;
-  }
-  if (prefetchPromise) return prefetchPromise;
-  prefetchPromise = createRecaptchaVerifier(containerId)
-    .then((v) => v)
-    .catch(() => null)
-    .finally(() => {
-      prefetchPromise = null;
-    });
-  return prefetchPromise;
-}
-
-async function takeRecaptchaVerifier(containerId: string): Promise<RecaptchaVerifier> {
-  if (recaptchaVerifier && recaptchaVerifierContainerId === containerId) {
-    return recaptchaVerifier;
-  }
-  if (prefetchPromise) {
-    const primed = await prefetchPromise;
-    if (primed && recaptchaVerifierContainerId === containerId) return primed;
-  }
-  return createRecaptchaVerifier(containerId);
-}
-
 export async function requestOtpSendSlot(
   mobileDigits: string,
-  opts?: { checkOnly?: boolean },
 ): Promise<{ allowed: boolean; message?: string; remainingSends?: number; dailyLimit?: boolean }> {
   const mobile = mobileDigits.replace(/\D/g, "");
   if (mobile.length !== 10) {
@@ -253,10 +207,7 @@ export async function requestOtpSendSlot(
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        mobileNumber: mobile,
-        ...(opts?.checkOnly ? { checkOnly: true } : {}),
-      }),
+      body: JSON.stringify({ mobileNumber: mobile }),
     });
 
     let data: {
@@ -332,46 +283,38 @@ export async function sendFirebasePhoneOtp(
     throw new Error("auth/missing-web-app-id Firebase Web app ID is not configured.");
   }
 
-  otpSendInFlight += 1;
   const auth = getFirebaseAuth();
   ensureRecaptchaHost(containerId);
 
-  if (auth.currentUser) {
-    try {
-      await auth.signOut();
-    } catch {
-      /* ignore */
-    }
+  try {
+    if (auth.currentUser) await auth.signOut();
+  } catch {
+    /* ignore */
   }
 
-  try {
-    const [slot, verifier] = await Promise.all([
-      requestOtpSendSlot(mobileDigits, { checkOnly: true }),
-      takeRecaptchaVerifier(containerId),
-    ]);
-    if (!slot.allowed && slot.dailyLimit) {
-      const err = new Error(slot.message || MSG_OTP_DAILY_LIMIT) as Error & { code?: string };
-      err.code = "otp/daily-limit";
-      throw err;
-    }
+  resetRecaptcha(containerId);
 
+  const slot = await requestOtpSendSlot(mobileDigits);
+  if (!slot.allowed && slot.dailyLimit) {
+    const err = new Error(slot.message || MSG_OTP_DAILY_LIMIT) as Error & { code?: string };
+    err.code = "otp/daily-limit";
+    throw err;
+  }
+
+  const verifier = await createRecaptchaVerifier(containerId);
+
+  try {
     const confirmation = await signInWithPhoneNumber(
       auth,
       `+91${mobileDigits}`,
       verifier,
     );
     recaptchaNeedsSettle = true;
-    recaptchaVerifier = null;
-    recaptchaVerifierContainerId = null;
-    void requestOtpSendSlot(mobileDigits).catch(() => undefined);
-    void prefetchRecaptchaVerifier(containerId);
     return confirmation;
   } catch (error) {
+    resetRecaptcha(containerId);
     recaptchaNeedsSettle = true;
-    resetRecaptcha(containerId, { force: true });
     throw error;
-  } finally {
-    otpSendInFlight = Math.max(0, otpSendInFlight - 1);
   }
 }
 
@@ -392,7 +335,6 @@ export async function verifyPhoneOtp(
   const syncServer = options.syncServer !== false;
   try {
     const result = await confirmation.confirm(otp);
-    // Prefer cached token right after confirm — avoids an extra network round-trip.
     const idToken = await result.user.getIdToken(/* forceRefresh */ false);
 
     if (syncServer) {
