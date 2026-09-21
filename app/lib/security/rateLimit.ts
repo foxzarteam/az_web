@@ -21,6 +21,15 @@ export function allowRateLimitedAction(
 }
 
 export function clientIpFromRequest(request: Request): string {
+  const cf = request.headers.get("cf-connecting-ip")?.trim();
+  if (cf) return cf;
+  const trueClient = request.headers.get("true-client-ip")?.trim();
+  if (trueClient) return trueClient;
+  const vercel = request.headers.get("x-vercel-forwarded-for")?.trim();
+  if (vercel) {
+    const first = vercel.split(",")[0]?.trim();
+    if (first) return first;
+  }
   const forwarded = request.headers.get("x-forwarded-for");
   const first = forwarded?.split(",")[0]?.trim();
   if (first) return first;

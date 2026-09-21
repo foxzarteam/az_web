@@ -56,6 +56,15 @@ export async function proxyPublicToNest(
   if (authorization) headers.Authorization = authorization;
   const firebaseToken = request.headers.get("x-firebase-id-token");
   if (firebaseToken) headers["x-firebase-id-token"] = firebaseToken;
+  // Nest geo/rate-limit must see the visitor, not this Next server's AWS IP.
+  if (ip && ip !== "unknown") {
+    headers["x-forwarded-for"] = ip;
+    headers["x-real-ip"] = ip;
+  }
+  const cf = request.headers.get("cf-connecting-ip")?.trim();
+  if (cf) headers["cf-connecting-ip"] = cf;
+  const trueClient = request.headers.get("true-client-ip")?.trim();
+  if (trueClient) headers["true-client-ip"] = trueClient;
 
   let body: string | undefined;
   if (method !== "GET" && method !== "HEAD") {
