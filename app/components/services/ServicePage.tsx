@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import type { ConfirmationResult } from "firebase/auth";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import { reportFormValidity } from "@/app/utils/formValidation";
@@ -13,7 +14,7 @@ import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { customerLogin } from "@/app/utils/customerAuthApi";
-import { applyLead, checkLeadApplication, mapServiceToCategory } from "@/app/utils/leadApi";
+import { applyLead, isExistingApplicationError, leadIdFromResponse, mapServiceToCategory, type CreateLeadResponse } from "@/app/utils/leadApi";
 import {
   firstLeadFieldError,
   personalLoanApplyPayload,
@@ -29,7 +30,7 @@ import {
   type LeadFieldErrors,
 } from "@/app/utils/leadForm";
 import { sanitizeMobileInput } from "@/app/utils/validation";
-import { warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
+import { sendFirebasePhoneOtp, warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
 
 type ServicePageProps = {
   title: string;
@@ -85,6 +86,8 @@ export default function ServicePage({
   const [existingAppMessage, setExistingAppMessage] = useState("");
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [pendingLeadId, setPendingLeadId] = useState("");
+  const [otpSendPromise, setOtpSendPromise] = useState<Promise<ConfirmationResult> | null>(null);
+  const applyPromiseRef = useRef<Promise<CreateLeadResponse> | null>(null);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
@@ -158,27 +161,56 @@ export default function ServicePage({
 
     try {
       const category = mapServiceToCategory(service);
-      const check = await checkLeadApplication({
-        mobileNumber: mobile.replace(/\D/g, ""),
+      const pin = pincode.replace(/\D/g, "");
+      const digits = mobile.replace(/\D/g, "");
+      const pl =
+        category === "personal_loan"
+          ? personalLoanApplyPayload({
+              pan,
+              mobile,
+              fullName,
+              pincode,
+              loanAmount,
+              employmentType,
+              netMonthlyIncome,
+            })
+          : null;
+      const payload = {
         pan: pan.trim().toUpperCase(),
+        mobileNumber: digits,
+        fullName: fullName.trim(),
+        pincode: pin,
         category,
+        ...(pl
+          ? {
+              requiredAmount: pl.requiredAmount,
+              employmentType: pl.employmentType,
+              netMonthlyIncome: pl.netMonthlyIncome,
+            }
+          : {}),
         ...(category === "insurance" ? { insType } : {}),
-      });
-      if (!check.success) {
-        setFormError(check.message || "Could not verify existing application. Please try again.");
-        return;
-      }
-      if (!check.allowed) {
-        setExistingAppMessage(
-          check.message ||
-            `Your ${check.categoryLabel || "product"} application is already ${check.statusLabel || "Under Review"}.`,
-        );
-        return;
-      }
-
-      // OTP only after same-category phone/PAN gate passes.
+      };
+      applyPromiseRef.current = applyLead(payload);
+      setOtpSendPromise(sendFirebasePhoneOtp(digits));
       setPendingLeadId("pending");
       setShowApplyModal(true);
+
+      void applyPromiseRef.current.then((res) => {
+        if (!res.success) {
+          setShowApplyModal(false);
+          setPendingLeadId("");
+          setOtpSendPromise(null);
+          if (isExistingApplicationError(res)) {
+            setExistingAppMessage(
+              res.message || "Your application is already Under Review.",
+            );
+          } else {
+            setFormError(res.message || "Could not submit application.");
+          }
+          return;
+        }
+        setPendingLeadId(leadIdFromResponse(res.data) || "saved");
+      });
     } catch {
       setFormError("Network error. Please try again.");
     } finally {
@@ -239,50 +271,22 @@ export default function ServicePage({
                 <LeadApplyModal
                   open={showApplyModal && Boolean(pendingLeadId)}
                   mobile={mobile.replace(/\D/g, "")}
+                  otpSendPromise={otpSendPromise}
                   onClose={() => {
                     setShowApplyModal(false);
                     setPendingLeadId("");
+                    setOtpSendPromise(null);
                   }}
                   onEditMobile={() => {
                     setShowApplyModal(false);
                     setPendingLeadId("");
+                    setOtpSendPromise(null);
                   }}
-                  syncServerVerify={false}
+                  syncServerVerify
                   onSuccess={async (result) => {
-                    const category = mapServiceToCategory(service);
-                    const pin = pincode.replace(/\D/g, "");
-                    const pl =
-                      category === "personal_loan"
-                        ? personalLoanApplyPayload({
-                            pan,
-                            mobile,
-                            fullName,
-                            pincode,
-                            loanAmount,
-                            employmentType,
-                            netMonthlyIncome,
-                          })
-                        : null;
-                    const applyRes = await applyLead(
-                      {
-                        pan: pan.trim().toUpperCase(),
-                        mobileNumber: mobile.replace(/\D/g, ""),
-                        fullName: fullName.trim(),
-                        pincode: pin,
-                        category,
-                        ...(pl
-                          ? {
-                              requiredAmount: pl.requiredAmount,
-                              employmentType: pl.employmentType,
-                              netMonthlyIncome: pl.netMonthlyIncome,
-                            }
-                          : {}),
-                        ...(category === "insurance" ? { insType } : {}),
-                      },
-                      result.idToken,
-                    );
-                    if (!applyRes.success) {
-                      throw new Error(applyRes.message || "Could not submit application.");
+                    const applyRes = await applyPromiseRef.current;
+                    if (!applyRes?.success) {
+                      throw new Error(applyRes?.message || "Could not submit application.");
                     }
                     const login = await customerLogin(result.mobile, result.idToken);
                     if (!login.ok) {

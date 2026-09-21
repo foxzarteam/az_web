@@ -3,16 +3,17 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
+import type { ConfirmationResult } from "firebase/auth";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationStatusLink";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
-import { warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
+import { sendFirebasePhoneOtp, warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
 import { reportFormValidity } from "@/app/utils/formValidation";
 import { customerLogin } from "@/app/utils/customerAuthApi";
-import { applyLead, checkLeadApplication } from "@/app/utils/leadApi";
+import { applyLead, isExistingApplicationError, leadIdFromResponse, type CreateLeadResponse } from "@/app/utils/leadApi";
 import {
   INSURANCE_TYPE_OPTIONS,
   sanitizeLeadNameInput,
@@ -71,6 +72,8 @@ export default function InsuranceApplyModal({ open, onClose }: InsuranceApplyMod
   const [existingAppMessage, setExistingAppMessage] = useState("");
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [pendingLeadId, setPendingLeadId] = useState("");
+  const [otpSendPromise, setOtpSendPromise] = useState<Promise<ConfirmationResult> | null>(null);
+  const applyPromiseRef = useRef<Promise<CreateLeadResponse> | null>(null);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const [isOpeningDashboard, setIsOpeningDashboard] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -100,6 +103,8 @@ export default function InsuranceApplyModal({ open, onClose }: InsuranceApplyMod
     setTermsAccepted(false);
     setFormError("");
     setPendingLeadId("");
+    setOtpSendPromise(null);
+    applyPromiseRef.current = null;
   }, []);
 
   const handleClose = useCallback(() => {
@@ -165,26 +170,37 @@ export default function InsuranceApplyModal({ open, onClose }: InsuranceApplyMod
     setIsSubmittingForm(true);
 
     try {
-      const check = await checkLeadApplication({
-        mobileNumber: mobile.replace(/\D/g, ""),
+      const pin = pincode.replace(/\D/g, "");
+      const digits = mobile.replace(/\D/g, "");
+      const payload = {
         pan: pan.trim().toUpperCase(),
-        category: "insurance",
+        mobileNumber: digits,
+        fullName: fullName.trim(),
+        pincode: pin,
+        category: "insurance" as const,
         insType,
-      });
-      if (!check.success) {
-        setFormError(check.message || "Could not verify existing application. Please try again.");
-        return;
-      }
-      if (!check.allowed) {
-        setExistingAppMessage(
-          check.message ||
-            `Your ${check.categoryLabel || "Insurance"} application is already ${check.statusLabel || "Under Review"}.`,
-        );
-        return;
-      }
-
+      };
+      applyPromiseRef.current = applyLead(payload);
+      setOtpSendPromise(sendFirebasePhoneOtp(digits));
       setPendingLeadId("pending");
       setShowOtpModal(true);
+
+      void applyPromiseRef.current.then((res) => {
+        if (!res.success) {
+          setShowOtpModal(false);
+          setPendingLeadId("");
+          setOtpSendPromise(null);
+          if (isExistingApplicationError(res)) {
+            setExistingAppMessage(
+              res.message || "Your Insurance application is already Under Review.",
+            );
+          } else {
+            setFormError(res.message || "Could not submit application.");
+          }
+          return;
+        }
+        setPendingLeadId(leadIdFromResponse(res.data) || "saved");
+      });
     } catch {
       setFormError("Network error. Please try again.");
       setIsOpeningDashboard(false);
@@ -419,31 +435,23 @@ export default function InsuranceApplyModal({ open, onClose }: InsuranceApplyMod
       <LeadApplyModal
         open={showOtpModal && Boolean(pendingLeadId)}
         mobile={mobile.replace(/\D/g, "")}
+        otpSendPromise={otpSendPromise}
         onClose={() => {
           if (isOpeningDashboard) return;
           setShowOtpModal(false);
           setPendingLeadId("");
+          setOtpSendPromise(null);
         }}
         onEditMobile={() => {
           setShowOtpModal(false);
           setPendingLeadId("");
+          setOtpSendPromise(null);
         }}
-        syncServerVerify={false}
+        syncServerVerify
         onSuccess={async (result) => {
-          const pin = pincode.replace(/\D/g, "");
-          const applyRes = await applyLead(
-            {
-              pan: pan.trim().toUpperCase(),
-              mobileNumber: mobile.replace(/\D/g, ""),
-              fullName: fullName.trim(),
-              pincode: pin,
-              category: "insurance",
-              insType,
-            },
-            result.idToken,
-          );
-          if (!applyRes.success) {
-            throw new Error(applyRes.message || "Could not submit application.");
+          const applyRes = await applyPromiseRef.current;
+          if (!applyRes?.success) {
+            throw new Error(applyRes?.message || "Could not submit application.");
           }
           setIsOpeningDashboard(true);
           const ok = await loginAndGoToDashboard(result.mobile, result.idToken, (href) => {

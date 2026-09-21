@@ -30,10 +30,12 @@ type LeadApplyModalProps = {
   /** May be async — modal stays open until it resolves (e.g. login → dashboard). */
   onSuccess: (result: LeadOtpSuccess) => void | Promise<void>;
   onEditMobile?: () => void;
+  /** When set, SMS starts immediately (don't wait for modal mount). */
+  otpSendPromise?: Promise<ConfirmationResult> | null;
   /**
    * When false, skips Nest /otp/verify-firebase (faster).
-   * Use when the next step (e.g. customer login) already verifies the Firebase token.
-   * Keep true for chat → /leads/start which needs a recent OTP session row.
+   * Keep true for public apply so the saved lead flips Verified Yes,
+   * and for chat → /leads/start which needs a recent OTP session row.
    */
   syncServerVerify?: boolean;
 };
@@ -44,6 +46,7 @@ export default function LeadApplyModal({
   onClose,
   onSuccess,
   onEditMobile,
+  otpSendPromise,
   syncServerVerify = true,
 }: LeadApplyModalProps) {
   const [otpDigits, setOtpDigits] = useState<string[]>(Array(OTP_LENGTH).fill(""));
@@ -78,7 +81,6 @@ export default function LeadApplyModal({
     if (opts?.isResend) {
       setOtpDigits(Array(OTP_LENGTH).fill(""));
       setFirebaseConfirmation(null);
-      resetRecaptcha(RECAPTCHA_CONTAINER_ID);
     }
 
     try {
@@ -111,8 +113,30 @@ export default function LeadApplyModal({
     warmFirebaseAuth();
     if (mobileDigits.length !== 10 || autoSentRef.current) return;
     autoSentRef.current = true;
+    if (otpSendPromise) {
+      void (async () => {
+        setIsSendingOtp(true);
+        setError("");
+        try {
+          const confirmation = await otpSendPromise;
+          setFirebaseConfirmation(confirmation);
+          setResendCooldown(RESEND_COOLDOWN_SEC);
+        } catch (err) {
+          const message = getFirebaseOtpSendErrorMessage(err);
+          setError(message);
+          const code =
+            err != null && typeof err === "object" ? (err as { code?: string }).code : undefined;
+          if (code === "otp/daily-limit") {
+            setRateLimited(true);
+          }
+        } finally {
+          setIsSendingOtp(false);
+        }
+      })();
+      return;
+    }
     void sendOtp();
-  }, [open, mobileDigits, resetState, sendOtp]);
+  }, [open, mobileDigits, resetState, sendOtp, otpSendPromise]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -188,11 +212,6 @@ export default function LeadApplyModal({
       role="dialog"
       aria-modal="true"
     >
-      <div
-        id={RECAPTCHA_CONTAINER_ID}
-        className="fixed left-0 top-0 h-px w-px overflow-hidden opacity-0 pointer-events-none"
-        aria-hidden
-      />
       <div className="relative bg-white dark:bg-darklight w-full max-w-md rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] overflow-y-auto">
         {isFinishing && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/95 px-6 text-center dark:bg-darklight/95">

@@ -39,7 +39,7 @@ export default function CustomerLoginForm() {
   const mobileDigits = mobile.replace(/\D/g, "");
 
   useEffect(() => {
-    warmFirebaseAuth();
+    warmFirebaseAuth("customer-track-recaptcha");
   }, []);
 
   useEffect(() => {

@@ -9,6 +9,22 @@ import { readAffiliateCode } from "@/app/lib/affiliate/refCookie";
 
 export type { CreateLeadRequest, CreateLeadResponse, LeadRecord } from "@/app/lib/leads/types";
 
+export function isExistingApplicationError(res: {
+  success: boolean;
+  message?: string;
+  code?: string;
+}): boolean {
+  if (res.success) return false;
+  const code = (res.code ?? "").toUpperCase();
+  if (code.includes("MOBILE_PAN") || code.includes("ALREADY")) return true;
+  const msg = (res.message ?? "").toLowerCase();
+  return (
+    msg.includes("already") ||
+    msg.includes("open application") ||
+    msg.includes("4 unique pan")
+  );
+}
+
 export function leadIdFromResponse(data: unknown): string | null {
   if (data == null || typeof data !== "object") return null;
   const id = (data as LeadRecord).id;
@@ -112,7 +128,7 @@ export async function checkLeadApplication(input: {
 }
 
 /**
- * Save full lead after phone OTP (idToken or recent Nest OTP session required server-side).
+ * Save full lead on form submit (no OTP required). Verified stays No until OTP.
  * Backend enforces max 4 unique PANs per mobile, then same PAN + product rules.
  */
 export async function applyLead(
