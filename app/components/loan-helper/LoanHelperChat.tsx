@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { Inter } from "next/font/google";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -12,11 +11,6 @@ const PersonalLoanApplyModal = dynamic(
   () => import("@/app/components/leads/PersonalLoanApplyModal"),
   { ssr: false },
 );
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-});
 
 const AVATAR_SRC = "/images/loan-helper/avatar.webp";
 const TIMESTAMP = "10:30 AM";
@@ -285,7 +279,7 @@ export default function LoanHelperChat({
 
   return (
     <div
-      className={`${inter.className} fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] z-[1000] flex flex-col items-end sm:bottom-6 sm:right-6`}
+      className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] z-[1000] flex flex-col items-end sm:bottom-6 sm:right-6"
     >
       {isOpen && (
         <div

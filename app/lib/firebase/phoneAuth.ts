@@ -360,16 +360,4 @@ export async function verifyPhoneOtp(
   }
 }
 
-/** Current Firebase user idToken after a recent phone OTP (e.g. chat → skipOtp apply). */
-export async function getCurrentFirebaseIdToken(): Promise<string | null> {
-  try {
-    if (!isFirebaseWebConfigured()) return null;
-    const user = getFirebaseAuth().currentUser;
-    if (!user) return null;
-    return await user.getIdToken(false);
-  } catch {
-    return null;
-  }
-}
-
 export { RECAPTCHA_CONTAINER_ID };

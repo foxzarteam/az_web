@@ -71,10 +71,7 @@ export async function proxyPublicToNest(
       return NextResponse.json({ success: false, message: "Invalid request body" }, { status: 400 });
     }
     // JSON body survives Cloudflare stripping x-forwarded-for / custom headers.
-    const injectVisitorIp =
-      nestPath.includes("/leads/apply") ||
-      nestPath.includes("/leads/start") ||
-      nestPath.includes("/complete");
+    const injectVisitorIp = nestPath.includes("/leads/apply");
     if (body && ip && ip !== "unknown" && injectVisitorIp) {
       try {
         const parsed = JSON.parse(body) as Record<string, unknown>;

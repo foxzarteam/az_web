@@ -23,8 +23,6 @@ export type LeadOtpSuccess = {
 
 type LeadApplyModalProps = {
   open: boolean;
-  /** Optional — OTP can run before a lead exists (chatbox flow). */
-  leadId?: string;
   mobile: string;
   onClose: () => void;
   /** May be async — modal stays open until it resolves (e.g. login → dashboard). */
@@ -32,11 +30,7 @@ type LeadApplyModalProps = {
   onEditMobile?: () => void;
   /** When set, SMS starts immediately (don't wait for modal mount). */
   otpSendPromise?: Promise<ConfirmationResult> | null;
-  /**
-   * When false, skips Nest /otp/verify-firebase (faster).
-   * Keep true for public apply so the saved lead flips Verified Yes,
-   * and for chat → /leads/start which needs a recent OTP session row.
-   */
+  /** Keep true so the saved lead flips Verified Yes after OTP. */
   syncServerVerify?: boolean;
 };
 

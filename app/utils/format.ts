@@ -18,14 +18,6 @@ export function formatRupee(amount: number): string {
   return `₹${result}`;
 }
 
-export function formatPhoneNumber(phone: string): string {
-  const cleaned = phone.replace(/\D/g, "");
-  if (cleaned.length === 10) {
-    return `${cleaned.slice(0, 5)} ${cleaned.slice(5)}`;
-  }
-  return phone;
-}
-
 /** IST clock, no locale/ICU differences — safe for SSR hydration. */
 export function formatAdminDateTime(value: unknown): string {
   if (value == null || value === "") return "—";

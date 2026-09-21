@@ -1,33 +1,3 @@
-export type ChatAnswerItem = {
-  id: string;
-  label: string;
-};
-
-/** Shape stored in public.chat.answers (jsonb). */
-export type ChatAnswers = {
-  employment: ChatAnswerItem;
-  salary: ChatAnswerItem;
-  existing_emi: ChatAnswerItem;
-  loan_amount: ChatAnswerItem;
-};
-
-export type ChatStatus =
-  | "started"
-  | "otp_sent"
-  | "otp_verified"
-  | "lead_submitted"
-  | "abandoned";
-
-export type ChatRow = {
-  id: string;
-  mobile_number: string | null;
-  answers: ChatAnswers;
-  status: ChatStatus;
-  lead_id: string | null;
-  created_at: string;
-  updated_at: string;
-};
-
 /** Map chat loan_amount option id → slider default (rupees). */
 export function chatLoanAmountToRupees(loanAmountId: string): number {
   switch (loanAmountId) {

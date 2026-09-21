@@ -12,11 +12,10 @@ import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
 import { MOBILE_VALIDATION, PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
-import { getCurrentFirebaseIdToken, sendFirebasePhoneOtp, warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
+import { sendFirebasePhoneOtp, warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
 import { reportFormValidity } from "@/app/utils/formValidation";
 import { customerLogin } from "@/app/utils/customerAuthApi";
-import { applyLead, checkLeadApplication, completeLead, isExistingApplicationError, leadIdFromResponse, type CreateLeadResponse } from "@/app/utils/leadApi";
-import { updateChatSession } from "@/app/utils/chatApi";
+import { applyLead, isExistingApplicationError, leadIdFromResponse, type CreateLeadResponse } from "@/app/utils/leadApi";
 import {
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
@@ -69,16 +68,6 @@ const modalFitVars = {
 type PersonalLoanApplyModalProps = {
   open: boolean;
   onClose: () => void;
-  /** Prefill mobile (e.g. from chatbox after OTP). */
-  initialMobile?: string;
-  /** When true, mobile field is read-only. */
-  lockMobile?: boolean;
-  /** OTP already verified — submit lead only, skip OTP modal. */
-  skipOtp?: boolean;
-  /** Existing draft/pending lead id (chat: created after OTP via /leads/start). */
-  leadId?: string;
-  /** Chat session to mark lead_submitted after apply. */
-  chatId?: string;
   /** Prefill loan slider (from chat answers). */
   initialLoanAmount?: number;
   /** Prefill employment type (`salaried` | `self_employed`). */
@@ -90,11 +79,6 @@ type PersonalLoanApplyModalProps = {
 export default function PersonalLoanApplyModal({
   open,
   onClose,
-  initialMobile = "",
-  lockMobile = false,
-  skipOtp = false,
-  leadId: existingLeadId,
-  chatId,
   initialLoanAmount,
   initialEmploymentType,
   initialNetMonthlyIncome,
@@ -125,14 +109,8 @@ export default function PersonalLoanApplyModal({
   }, [formError]);
 
   useEffect(() => {
-    if (open) warmFirebaseAuth();
-  }, [open]);
-
-  useEffect(() => {
     if (!open) return;
     warmFirebaseAuth();
-    const digits = initialMobile.replace(/\D/g, "").slice(0, 10);
-    if (digits) setMobile(digits);
     if (
       typeof initialLoanAmount === "number" &&
       Number.isFinite(initialLoanAmount) &&
@@ -152,11 +130,11 @@ export default function PersonalLoanApplyModal({
     ) {
       setNetMonthlyIncome(String(Math.round(initialNetMonthlyIncome)));
     }
-  }, [open, initialMobile, initialLoanAmount, initialEmploymentType, initialNetMonthlyIncome]);
+  }, [open, initialLoanAmount, initialEmploymentType, initialNetMonthlyIncome]);
 
   const resetForm = useCallback(() => {
     setFullName("");
-    setMobile(lockMobile ? initialMobile.replace(/\D/g, "").slice(0, 10) : "");
+    setMobile("");
     setPincode("");
     setLoanAmount(
       typeof initialLoanAmount === "number" && Number.isFinite(initialLoanAmount)
@@ -184,13 +162,7 @@ export default function PersonalLoanApplyModal({
     setPendingLeadId("");
     setOtpSendPromise(null);
     applyPromiseRef.current = null;
-  }, [
-    initialLoanAmount,
-    initialMobile,
-    lockMobile,
-    initialEmploymentType,
-    initialNetMonthlyIncome,
-  ]);
+  }, [initialLoanAmount, initialEmploymentType, initialNetMonthlyIncome]);
 
   const handleClose = useCallback(() => {
     if (showOtpModal || isSubmittingForm || isOpeningDashboard) return;
@@ -268,69 +240,6 @@ export default function PersonalLoanApplyModal({
         netMonthlyIncome,
       });
 
-      if (skipOtp && existingLeadId) {
-        const check = await checkLeadApplication({
-          mobileNumber: payload.mobileNumber,
-          pan: payload.pan,
-          category: "personal_loan",
-        });
-        if (!check.success) {
-          setFormError(check.message || "Could not verify existing application. Please try again.");
-          return;
-        }
-        if (!check.allowed) {
-          setExistingAppMessage(
-            check.message ||
-              `Your ${check.categoryLabel || "Personal Loan"} application is already ${check.statusLabel || "Under Review"}.`,
-          );
-          return;
-        }
-
-        const idToken = await getCurrentFirebaseIdToken();
-        const applyRes = await completeLead(
-          existingLeadId,
-          {
-            pan: payload.pan,
-            fullName: payload.fullName,
-            category: "personal_loan",
-            pincode: payload.pincode,
-            requiredAmount: payload.requiredAmount,
-            employmentType: payload.employmentType,
-            netMonthlyIncome: payload.netMonthlyIncome,
-          },
-          idToken,
-        );
-
-        if (!applyRes.success) {
-          setFormError(applyRes.message || "Could not submit application.");
-          return;
-        }
-
-        const leadId = leadIdFromResponse(applyRes.data) || existingLeadId || "";
-        if (!leadId) {
-          setFormError("Could not submit application. Please try again.");
-          return;
-        }
-
-        if (chatId) {
-          void updateChatSession(chatId, { status: "lead_submitted", leadId });
-        }
-
-        setIsOpeningDashboard(true);
-        if (
-          idToken &&
-          (await loginAndGoToDashboard(payload.mobileNumber, idToken, (href) => {
-            router.replace(href);
-            router.refresh();
-          }))
-        ) {
-          return;
-        }
-        setIsOpeningDashboard(false);
-        setShowSuccess(true);
-        return;
-      }
-
       // OTP immediately; lead save runs in parallel.
       applyPromiseRef.current = applyLead(payload);
       setOtpSendPromise(sendFirebasePhoneOtp(payload.mobileNumber));
@@ -352,11 +261,7 @@ export default function PersonalLoanApplyModal({
           }
           return;
         }
-        const leadId = leadIdFromResponse(res.data) || "saved";
-        setPendingLeadId(leadId);
-        if (chatId) {
-          void updateChatSession(chatId, { status: "lead_submitted", leadId });
-        }
+        setPendingLeadId(leadIdFromResponse(res.data) || "saved");
       });
     } catch {
       setFormError("Network error. Please try again.");
@@ -502,9 +407,7 @@ export default function PersonalLoanApplyModal({
                   >
                     Mobile Number *
                   </label>
-                  <div
-                    className={`${mobileShellClass} ${lockMobile ? "opacity-90" : ""}`}
-                  >
+                  <div className={mobileShellClass}>
                     <span className="flex shrink-0 items-center pl-3" aria-hidden>
                       <IndiaFlag />
                     </span>
@@ -519,19 +422,11 @@ export default function PersonalLoanApplyModal({
                       maxLength={MOBILE_VALIDATION.MAX_LENGTH}
                       placeholder="10-digit mobile"
                       value={mobile}
-                      readOnly={lockMobile}
-                      disabled={lockMobile}
-                      onChange={(e) => {
-                        if (lockMobile) return;
-                        setMobile(sanitizeMobileInput(e.target.value));
-                      }}
+                      onChange={(e) => setMobile(sanitizeMobileInput(e.target.value))}
                       pattern="[0-9]*"
                       className={mobileInputClass}
                     />
                   </div>
-                  {lockMobile ? (
-                    <p className="mt-1 text-xs text-gray">Verified mobile number</p>
-                  ) : null}
                 </div>
                 <div>
                   <label
@@ -592,8 +487,7 @@ export default function PersonalLoanApplyModal({
         </div>
       )}
 
-      {!skipOtp && (
-        <LeadApplyModal
+      <LeadApplyModal
           open={showOtpModal && Boolean(pendingLeadId)}
           mobile={mobile.replace(/\D/g, "")}
           otpSendPromise={otpSendPromise}
@@ -624,7 +518,6 @@ export default function PersonalLoanApplyModal({
             }
           }}
         />
-      )}
 
       {showSuccess && (
         <SuccessPopup
