@@ -18,6 +18,8 @@ let recaptchaVerifierContainerId: string | null = null;
 /** True after a verifier was used — next send needs a short DOM settle. */
 let recaptchaNeedsSettle = false;
 let prefetchPromise: Promise<RecaptchaVerifier | null> | null = null;
+/** While Firebase is sending SMS, do not tear down reCAPTCHA (modal close/apply-fail). */
+let otpSendInFlight = 0;
 
 function parseFirebaseError(error: unknown): { code: string; message: string } {
   if (error == null) return { code: "", message: "Unknown error" };
@@ -116,7 +118,11 @@ export function warmFirebaseAuth(containerId = RECAPTCHA_CONTAINER_ID): void {
   }
 }
 
-export function resetRecaptcha(containerId = RECAPTCHA_CONTAINER_ID): void {
+export function resetRecaptcha(
+  containerId = RECAPTCHA_CONTAINER_ID,
+  opts?: { force?: boolean },
+): void {
+  if (otpSendInFlight > 0 && !opts?.force) return;
   if (recaptchaVerifier) {
     try {
       recaptchaVerifier.clear();
@@ -170,11 +176,11 @@ function bindVerifier(containerId: string, el: HTMLElement): RecaptchaVerifier {
  * Always clears + replaces the DOM node to avoid "already been rendered".
  */
 async function createRecaptchaVerifier(containerId: string): Promise<RecaptchaVerifier> {
-  resetRecaptcha(containerId);
+  resetRecaptcha(containerId, { force: true });
   replaceRecaptchaContainer(containerId);
 
   if (recaptchaNeedsSettle) {
-    await delay(50);
+    await delay(200);
   } else {
     await new Promise<void>((resolve) => {
       requestAnimationFrame(() => resolve());
@@ -191,9 +197,9 @@ async function createRecaptchaVerifier(containerId: string): Promise<RecaptchaVe
   try {
     await recaptchaVerifier.render();
   } catch {
-    resetRecaptcha(containerId);
+    resetRecaptcha(containerId, { force: true });
     const fresh = replaceRecaptchaContainer(containerId);
-    await delay(80);
+    await delay(250);
     recaptchaVerifier = bindVerifier(containerId, fresh);
     await recaptchaVerifier.render();
   }
@@ -231,6 +237,7 @@ async function takeRecaptchaVerifier(containerId: string): Promise<RecaptchaVeri
 
 export async function requestOtpSendSlot(
   mobileDigits: string,
+  opts?: { checkOnly?: boolean },
 ): Promise<{ allowed: boolean; message?: string; remainingSends?: number; dailyLimit?: boolean }> {
   const mobile = mobileDigits.replace(/\D/g, "");
   if (mobile.length !== 10) {
@@ -246,7 +253,10 @@ export async function requestOtpSendSlot(
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ mobileNumber: mobile }),
+      body: JSON.stringify({
+        mobileNumber: mobile,
+        ...(opts?.checkOnly ? { checkOnly: true } : {}),
+      }),
     });
 
     let data: {
@@ -322,6 +332,7 @@ export async function sendFirebasePhoneOtp(
     throw new Error("auth/missing-web-app-id Firebase Web app ID is not configured.");
   }
 
+  otpSendInFlight += 1;
   const auth = getFirebaseAuth();
   ensureRecaptchaHost(containerId);
 
@@ -333,17 +344,17 @@ export async function sendFirebasePhoneOtp(
     }
   }
 
-  const [slot, verifier] = await Promise.all([
-    requestOtpSendSlot(mobileDigits),
-    takeRecaptchaVerifier(containerId),
-  ]);
-  if (!slot.allowed) {
-    const err = new Error(slot.message || MSG_OTP_DAILY_LIMIT) as Error & { code?: string };
-    err.code = slot.dailyLimit ? "otp/daily-limit" : "otp/send-blocked";
-    throw err;
-  }
-
   try {
+    const [slot, verifier] = await Promise.all([
+      requestOtpSendSlot(mobileDigits, { checkOnly: true }),
+      takeRecaptchaVerifier(containerId),
+    ]);
+    if (!slot.allowed && slot.dailyLimit) {
+      const err = new Error(slot.message || MSG_OTP_DAILY_LIMIT) as Error & { code?: string };
+      err.code = "otp/daily-limit";
+      throw err;
+    }
+
     const confirmation = await signInWithPhoneNumber(
       auth,
       `+91${mobileDigits}`,
@@ -352,12 +363,15 @@ export async function sendFirebasePhoneOtp(
     recaptchaNeedsSettle = true;
     recaptchaVerifier = null;
     recaptchaVerifierContainerId = null;
+    void requestOtpSendSlot(mobileDigits).catch(() => undefined);
     void prefetchRecaptchaVerifier(containerId);
     return confirmation;
   } catch (error) {
-    resetRecaptcha(containerId);
     recaptchaNeedsSettle = true;
+    resetRecaptcha(containerId, { force: true });
     throw error;
+  } finally {
+    otpSendInFlight = Math.max(0, otpSendInFlight - 1);
   }
 }
 
