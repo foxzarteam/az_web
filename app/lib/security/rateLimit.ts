@@ -21,18 +21,30 @@ export function allowRateLimitedAction(
 }
 
 export function clientIpFromRequest(request: Request): string {
-  const cf = request.headers.get("cf-connecting-ip")?.trim();
-  if (cf) return cf;
-  const trueClient = request.headers.get("true-client-ip")?.trim();
-  if (trueClient) return trueClient;
-  const vercel = request.headers.get("x-vercel-forwarded-for")?.trim();
-  if (vercel) {
-    const first = vercel.split(",")[0]?.trim();
-    if (first) return first;
+  const picks = [
+    request.headers.get("cf-connecting-ip"),
+    request.headers.get("true-client-ip"),
+    request.headers.get("x-vercel-forwarded-for"),
+    request.headers.get("x-forwarded-for"),
+    request.headers.get("x-real-ip"),
+  ];
+  for (const raw of picks) {
+    const value = raw?.trim();
+    if (!value) continue;
+    for (const part of value.split(",")) {
+      const hop = part.trim();
+      if (!hop || hop === "unknown") continue;
+      if (
+        hop === "::1" ||
+        hop.startsWith("127.") ||
+        hop.startsWith("10.") ||
+        hop.startsWith("192.168.") ||
+        hop.startsWith("169.254.")
+      ) {
+        continue;
+      }
+      return hop;
+    }
   }
-  const forwarded = request.headers.get("x-forwarded-for");
-  const first = forwarded?.split(",")[0]?.trim();
-  if (first) return first;
-  const realIp = request.headers.get("x-real-ip")?.trim();
-  return realIp || "unknown";
+  return "unknown";
 }

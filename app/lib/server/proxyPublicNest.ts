@@ -56,15 +56,12 @@ export async function proxyPublicToNest(
   if (authorization) headers.Authorization = authorization;
   const firebaseToken = request.headers.get("x-firebase-id-token");
   if (firebaseToken) headers["x-firebase-id-token"] = firebaseToken;
-  // Nest geo/rate-limit must see the visitor, not this Next server's AWS IP.
+  // Custom header survives Cloudflare/ALB overwriting X-Forwarded-For.
   if (ip && ip !== "unknown") {
+    headers["x-az-client-ip"] = ip;
     headers["x-forwarded-for"] = ip;
     headers["x-real-ip"] = ip;
   }
-  const cf = request.headers.get("cf-connecting-ip")?.trim();
-  if (cf) headers["cf-connecting-ip"] = cf;
-  const trueClient = request.headers.get("true-client-ip")?.trim();
-  if (trueClient) headers["true-client-ip"] = trueClient;
 
   let body: string | undefined;
   if (method !== "GET" && method !== "HEAD") {
@@ -72,6 +69,22 @@ export async function proxyPublicToNest(
       body = await request.text();
     } catch {
       return NextResponse.json({ success: false, message: "Invalid request body" }, { status: 400 });
+    }
+    // JSON body survives Cloudflare stripping x-forwarded-for / custom headers.
+    const injectVisitorIp =
+      nestPath.includes("/leads/apply") ||
+      nestPath.includes("/leads/start") ||
+      nestPath.includes("/complete");
+    if (body && ip && ip !== "unknown" && injectVisitorIp) {
+      try {
+        const parsed = JSON.parse(body) as Record<string, unknown>;
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          parsed.clientIp = ip;
+          body = JSON.stringify(parsed);
+        }
+      } catch {
+        // keep original body
+      }
     }
   }
 
