@@ -135,6 +135,17 @@ function openShareUrl(href: string) {
   }
 }
 
+/** Phone/tablet only — desktop Chrome also has navigator.share (Windows Share → apps). */
+function isPhoneShareEnv(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)) {
+    return true;
+  }
+  // iPadOS desktop UA
+  return navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+}
+
 export default function AffiliateShareKit({
   code,
   compact = false,
@@ -149,64 +160,71 @@ export default function AffiliateShareKit({
   const [downloading, setDownloading] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [canNativeShare, setCanNativeShare] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setCanNativeShare(typeof navigator.share === "function");
-    void loadShareImageFile();
+    const mobile = isPhoneShareEnv();
+    setIsMobile(mobile);
+    setCanNativeShare(mobile && typeof navigator.share === "function");
+    if (mobile) void loadShareImageFile();
     return () => {
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
     };
   }, []);
 
-  /** Mobile (file share): text + real image — no image URL. */
+  /** Text + link (mobile attaches image as a file; desktop web tabs don't send an image). */
   const shareMessage = useMemo(
     () => `${SHARE_TEXT}\n${shareUrl}`.trim(),
     [shareUrl],
   );
 
-  /** Desktop only: browsers can't attach files → keep image URL in text. */
-  const shareMessageDesktop = useMemo(
-    () => `${SHARE_TEXT}\n${SHARE_IMAGE_URL}\n${shareUrl}`.trim(),
-    [shareUrl],
-  );
-
-  const whatsappDesktopHref = useMemo(
-    () => `https://wa.me/?text=${encodeURIComponent(shareMessageDesktop)}`,
-    [shareMessageDesktop],
-  );
+  const emailSubject = "Apni Zaroorat — apply with my link";
 
   const socialLinks = useMemo<ShareItem[]>(() => {
     if (!shareUrl) return [];
     const u = encodeURIComponent(shareUrl);
     const t = encodeURIComponent(SHARE_TEXT);
-    const desktopBody = encodeURIComponent(shareMessageDesktop);
-    return [
+    const body = encodeURIComponent(shareMessage);
+    const whatsappHref = isMobile
+      ? `https://wa.me/?text=${body}`
+      : `https://web.whatsapp.com/send?text=${body}`;
+    const emailHref = isMobile
+      ? `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${body}`
+      : `https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(emailSubject)}&body=${body}`;
+    const telegramText = isMobile
+      ? encodeURIComponent(`${SHARE_TEXT}\n${SHARE_IMAGE_URL}`)
+      : t;
+    const items: ShareItem[] = [
       {
         id: "whatsapp",
         label: "WhatsApp",
-        href: whatsappDesktopHref,
+        href: whatsappHref,
         className: "bg-[#25D366] text-white hover:bg-[#1ebe57]",
         icon: <WhatsAppIcon />,
       },
       {
         id: "email",
         label: "Email",
-        href: `mailto:?subject=${encodeURIComponent("Apni Zaroorat — apply with my link")}&body=${desktopBody}`,
+        href: emailHref,
         className: "bg-slate-700 text-white hover:bg-slate-800",
         icon: <EmailIcon />,
       },
-      {
+    ];
+    if (isMobile) {
+      items.push({
         id: "sms",
         label: "SMS",
         href: `sms:?&body=${encodeURIComponent(shareMessage)}`,
         className: "bg-emerald-600 text-white hover:bg-emerald-700",
         icon: <SmsIcon />,
-      },
+      });
+    }
+    items.push(
       {
         id: "telegram",
         label: "Telegram",
-        href: `https://t.me/share/url?url=${u}&text=${encodeURIComponent(`${SHARE_TEXT}\n${SHARE_IMAGE_URL}`)}`,
+        href: `https://t.me/share/url?url=${u}&text=${telegramText}`,
         className: "bg-[#229ED9] text-white hover:bg-[#1b8bc0]",
         icon: <TelegramIcon />,
       },
@@ -231,8 +249,9 @@ export default function AffiliateShareKit({
         className: "bg-[#0A66C2] text-white hover:bg-[#08539c]",
         icon: <LinkedInIcon />,
       },
-    ];
-  }, [shareUrl, shareMessage, shareMessageDesktop, whatsappDesktopHref]);
+    );
+    return items;
+  }, [shareUrl, shareMessage, isMobile]);
 
   async function copyLink() {
     if (!shareUrl) return;
@@ -268,7 +287,7 @@ export default function AffiliateShareKit({
   }
 
   async function shareWithImage(opts?: { whatsapp?: boolean }) {
-    if (!shareUrl || sharing) return;
+    if (!shareUrl || sharing || !isMobile) return;
     setSharing(true);
     try {
       const file = await loadShareImageFile();
@@ -277,7 +296,6 @@ export default function AffiliateShareKit({
         typeof navigator.canShare === "function" &&
         navigator.canShare({ files: [file] });
 
-      // Mobile: real image file + text (no image URL in message)
       if (canFiles && typeof navigator.share === "function") {
         try {
           await navigator.share({
@@ -291,9 +309,8 @@ export default function AffiliateShareKit({
         }
       }
 
-      // Desktop: can't attach file — keep image URL in WhatsApp/text
       if (opts?.whatsapp) {
-        openShareUrl(whatsappDesktopHref);
+        openShareUrl(`https://wa.me/?text=${encodeURIComponent(shareMessage)}`);
         return;
       }
 
@@ -301,7 +318,7 @@ export default function AffiliateShareKit({
         try {
           await navigator.share({
             title: "Apni Zaroorat",
-            text: shareMessageDesktop,
+            text: shareMessage,
             url: shareUrl,
           });
         } catch {
@@ -362,7 +379,7 @@ export default function AffiliateShareKit({
           </p>
           <div className="flex flex-wrap gap-2.5">
             {socialLinks.map((item) =>
-              item.id === "whatsapp" ? (
+              item.id === "whatsapp" && isMobile ? (
                 <button
                   key={item.id}
                   type="button"
@@ -379,7 +396,7 @@ export default function AffiliateShareKit({
                 <a
                   key={item.id}
                   href={item.href}
-                  target={item.id === "email" || item.id === "sms" ? undefined : "_blank"}
+                  target={item.id === "sms" || (item.id === "email" && isMobile) ? undefined : "_blank"}
                   rel="noopener noreferrer"
                   aria-label={`Share on ${item.label}`}
                   title={item.label}
