@@ -19,7 +19,7 @@ const STEPS: HowItWorksStep[] = [
   {
     num: 2,
     title: "Choose Insurance Type",
-    description: "Select life, health or motor insurance as per your need.",
+    description: "Select life, health, motor or cyber insurance as per your need.",
     iconWrapClass: "bg-[#FFF1E7] text-[#F97316]",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>

@@ -20,6 +20,7 @@ export const INSURANCE_TYPE_OPTIONS = [
   { value: "life_insurance", label: "Life Insurance" },
   { value: "health_insurance", label: "Health Insurance" },
   { value: "motor_insurance", label: "Motor Insurance" },
+  { value: "cyber_insurance", label: "Cyber Insurance" },
 ] as const;
 
 export const EMPLOYMENT_TYPE_OPTIONS = [
