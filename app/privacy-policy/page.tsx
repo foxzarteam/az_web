@@ -87,8 +87,8 @@ export default function PrivacyPolicyPage() {
                     <span className="font-semibold text-midnight_text dark:text-white">
                       Personally Identifiable Information (PII):
                     </span>{" "}
-                    Name, Date of Birth, Gender, PAN (Permanent Account Number), Aadhaar details
-                    (voluntarily provided for KYC), and demographic information.
+                    Name, Date of Birth, Gender, PAN (Permanent Account Number), and demographic
+                    information.
                   </li>
                   <li>
                     <span className="font-semibold text-midnight_text dark:text-white">

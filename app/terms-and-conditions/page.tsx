@@ -111,7 +111,7 @@ export default function TermsAndConditionsPage() {
                 </p>
                 <p>
                   You are solely responsible for the authenticity of the data provided (including
-                  PAN, Aadhaar, Income Proofs, and Medical History). Submission of false, forged,
+                  PAN, Income Proofs, and Medical History). Submission of false, forged,
                   or third-party information without explicit authorization constitutes fraud and
                   will result in immediate permanent suspension of your profile and potential
                   reporting to law enforcement authorities.
