@@ -192,26 +192,20 @@ export default function ServicePage({
         ...(category === "insurance" ? { insType } : {}),
       };
       applyPromiseRef.current = applyLead(payload);
-      setOtpSendPromise(sendFirebasePhoneOtp(digits));
-      setPendingLeadId("pending");
-      setShowApplyModal(true);
-
-      void applyPromiseRef.current.then((res) => {
-        if (!res.success) {
-          setShowApplyModal(false);
-          setPendingLeadId("");
-          setOtpSendPromise(null);
-          if (isExistingApplicationError(res)) {
-            setExistingAppMessage(
-              res.message || "Your application is already Under Review.",
-            );
-          } else {
-            setFormError(res.message || "Could not submit application.");
-          }
-          return;
+      const res = await applyPromiseRef.current;
+      if (!res.success) {
+        if (isExistingApplicationError(res)) {
+          setExistingAppMessage(
+            res.message || "Your application is already Under Review.",
+          );
+        } else {
+          setFormError(res.message || "Could not submit application.");
         }
-        setPendingLeadId(leadIdFromResponse(res.data) || "saved");
-      });
+        return;
+      }
+      setOtpSendPromise(sendFirebasePhoneOtp(digits));
+      setPendingLeadId(leadIdFromResponse(res.data) || "saved");
+      setShowApplyModal(true);
     } catch {
       setFormError("Network error. Please try again.");
     } finally {

@@ -182,26 +182,20 @@ export default function InsuranceApplyModal({ open, onClose }: InsuranceApplyMod
         insType,
       };
       applyPromiseRef.current = applyLead(payload);
-      setOtpSendPromise(sendFirebasePhoneOtp(digits));
-      setPendingLeadId("pending");
-      setShowOtpModal(true);
-
-      void applyPromiseRef.current.then((res) => {
-        if (!res.success) {
-          setShowOtpModal(false);
-          setPendingLeadId("");
-          setOtpSendPromise(null);
-          if (isExistingApplicationError(res)) {
-            setExistingAppMessage(
-              res.message || "Your Insurance application is already Under Review.",
-            );
-          } else {
-            setFormError(res.message || "Could not submit application.");
-          }
-          return;
+      const res = await applyPromiseRef.current;
+      if (!res.success) {
+        if (isExistingApplicationError(res)) {
+          setExistingAppMessage(
+            res.message || "Your Insurance application is already Under Review.",
+          );
+        } else {
+          setFormError(res.message || "Could not submit application.");
         }
-        setPendingLeadId(leadIdFromResponse(res.data) || "saved");
-      });
+        return;
+      }
+      setOtpSendPromise(sendFirebasePhoneOtp(digits));
+      setPendingLeadId(leadIdFromResponse(res.data) || "saved");
+      setShowOtpModal(true);
     } catch {
       setFormError("Network error. Please try again.");
       setIsOpeningDashboard(false);
