@@ -13,7 +13,7 @@ import {
   pageSeoGlue,
 } from "@/app/lib/seo";
 
-export const revalidate = 120;
+export const revalidate = 60;
 
 const DEDICATED_SLUGS = new Set(["personal-loan", "insurance"]);
 

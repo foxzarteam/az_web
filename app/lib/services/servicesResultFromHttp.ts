@@ -1,11 +1,13 @@
-import { parseInsuranceTypesPayload, parseServicesApiPayload } from "@/app/lib/services/parseApiResponse";
+import {
+  fallbackInsuranceTypes,
+  parseInsuranceTypesPayload,
+  parseServicesApiPayload,
+} from "@/app/lib/services/parseApiResponse";
 import type { FetchActiveServicesResult } from "@/app/lib/services/types";
-import { INSURANCE_TYPE_OPTIONS } from "@/app/utils/leadForm";
 
-const FALLBACK_INSURANCE_TYPES = INSURANCE_TYPE_OPTIONS.map((o) => ({
-  value: o.value,
-  label: o.label,
-}));
+export function catalogFetchError(): FetchActiveServicesResult {
+  return { cards: [], insuranceTypes: fallbackInsuranceTypes(), status: "error" };
+}
 
 /**
  * Single response → cards path used by SSR (`getActiveServices`) and browser fetch.
@@ -19,17 +21,17 @@ export function servicesResultFromHttp(
     try {
       parsed = JSON.parse(rawBody) as unknown;
     } catch {
-      return { cards: [], insuranceTypes: FALLBACK_INSURANCE_TYPES, status: "error" };
+      return catalogFetchError();
     }
   }
-  if (!ok) return { cards: [], insuranceTypes: FALLBACK_INSURANCE_TYPES, status: "error" };
+  if (!ok) return catalogFetchError();
   if (
     parsed &&
     typeof parsed === "object" &&
     "success" in parsed &&
     (parsed as { success?: boolean }).success === false
   ) {
-    return { cards: [], insuranceTypes: FALLBACK_INSURANCE_TYPES, status: "error" };
+    return catalogFetchError();
   }
   return {
     cards: parseServicesApiPayload(parsed),

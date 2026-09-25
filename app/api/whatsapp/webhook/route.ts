@@ -1,19 +1,17 @@
 import { NextResponse } from "next/server";
 import { nestApiBase } from "@/app/lib/server/nestBase";
-import { allowRateLimitedAction, clientIpFromRequest } from "@/app/lib/security/rateLimit";
 
 const NEST_PATH = "/api/whatsapp/webhook";
 
+/**
+ * Meta server-to-server. Do not rate-limit: verify GET must not 429,
+ * and inbound POSTs retry from Facebook IPs.
+ */
 async function proxyMetaWebhook(request: Request): Promise<NextResponse> {
   const base = nestApiBase();
   const plain = { headers: { "Content-Type": "text/plain; charset=utf-8" } };
   if (!base) {
     return new NextResponse("API not configured", { status: 503, ...plain });
-  }
-
-  const ip = clientIpFromRequest(request);
-  if (!allowRateLimitedAction(`whatsapp-webhook:${ip}`, 120, 60_000)) {
-    return new NextResponse("Too many requests", { status: 429, ...plain });
   }
 
   const dest = `${base}${NEST_PATH}${new URL(request.url).search}`;

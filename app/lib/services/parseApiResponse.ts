@@ -60,11 +60,12 @@ export function parseServicesApiPayload(raw: unknown): ServiceSliderCard[] {
 
 const INS_TYPE_SLUG_PATTERN = /^[a-z][a-z0-9_]{0,63}$/;
 
+export function fallbackInsuranceTypes(): InsuranceTypeOption[] {
+  return INSURANCE_TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label }));
+}
+
 export function parseInsuranceTypesPayload(raw: unknown): InsuranceTypeOption[] {
-  const fallback: InsuranceTypeOption[] = INSURANCE_TYPE_OPTIONS.map((o) => ({
-    value: o.value,
-    label: o.label,
-  }));
+  const fallback = fallbackInsuranceTypes();
   if (!raw || typeof raw !== "object") return fallback;
   const list = (raw as { insuranceTypes?: unknown }).insuranceTypes;
   if (!Array.isArray(list) || list.length === 0) return fallback;

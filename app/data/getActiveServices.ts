@@ -2,7 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 import { getPublicServicesListUrl } from "@/app/lib/services/serviceListUrl";
-import { servicesResultFromHttp } from "@/app/lib/services/servicesResultFromHttp";
+import { catalogFetchError, servicesResultFromHttp } from "@/app/lib/services/servicesResultFromHttp";
 import type { FetchActiveServicesResult, ServiceSliderCard } from "@/app/lib/services/types";
 
 /**
@@ -13,11 +13,11 @@ export const getActiveCatalog = cache(async (): Promise<FetchActiveServicesResul
   try {
     const res = await fetch(getPublicServicesListUrl(), {
       headers: { Accept: "application/json" },
-      next: { revalidate: 120 },
+      next: { revalidate: 60 },
     });
     return servicesResultFromHttp(res.ok, await res.text());
   } catch {
-    return { cards: [], insuranceTypes: [], status: "error" };
+    return catalogFetchError();
   }
 });
 

@@ -1,4 +1,4 @@
-import { servicesResultFromHttp } from "@/app/lib/services/servicesResultFromHttp";
+import { catalogFetchError, servicesResultFromHttp } from "@/app/lib/services/servicesResultFromHttp";
 import type {
   FetchActiveServicesResult,
   InsuranceTypeOption,
@@ -11,8 +11,11 @@ export type {
   ServicesFetchStatus,
 } from "@/app/lib/services/types";
 
-let okCache: FetchActiveServicesResult | null = null;
+let okCache: { at: number; value: FetchActiveServicesResult } | null = null;
 let inflight: Promise<FetchActiveServicesResult> | null = null;
+
+/** Browser catalog TTL — new DB services show without a new tab. */
+const CATALOG_CLIENT_TTL_MS = 60_000;
 
 async function fetchFromApi(): Promise<FetchActiveServicesResult> {
   try {
@@ -24,17 +27,31 @@ async function fetchFromApi(): Promise<FetchActiveServicesResult> {
     return servicesResultFromHttp(response.ok, await response.text());
   } catch (e) {
     console.warn("[services] fetch failed:", e);
-    return { cards: [], insuranceTypes: [], status: "error" };
+    return catalogFetchError();
   }
 }
 
-/** Browser: first OK response cached for the session (dedupes parallel callers). */
+function cacheGet(): FetchActiveServicesResult | null {
+  if (!okCache) return null;
+  if (Date.now() - okCache.at > CATALOG_CLIENT_TTL_MS) {
+    okCache = null;
+    return null;
+  }
+  return okCache.value;
+}
+
+function cacheSet(value: FetchActiveServicesResult) {
+  okCache = { at: Date.now(), value };
+}
+
+/** Browser: OK responses cached briefly (dedupes parallel callers). */
 export async function fetchActiveServiceCards(): Promise<FetchActiveServicesResult> {
-  if (okCache) return okCache;
+  const hit = cacheGet();
+  if (hit) return hit;
   if (!inflight) {
     inflight = fetchFromApi().then((r) => {
       inflight = null;
-      if (r.status === "ok") okCache = r;
+      if (r.status === "ok") cacheSet(r);
       return r;
     });
   }
@@ -46,9 +63,9 @@ export function primeServicesClientCache(
   insuranceTypes?: InsuranceTypeOption[],
 ) {
   if (cards.length === 0 && !(insuranceTypes && insuranceTypes.length > 0)) return;
-  okCache = {
+  cacheSet({
     cards,
     insuranceTypes: insuranceTypes ?? [],
     status: "ok",
-  };
+  });
 }
