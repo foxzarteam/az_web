@@ -29,7 +29,6 @@ export async function POST(request: Request) {
   const email = String(obj.email ?? "").trim();
   const mobile = normalizeMobile(obj.mobileNumber);
   const mpin = String(obj.mpin ?? "").replace(/\D/g, "").slice(0, 4);
-  const idToken = String(obj.idToken ?? "").trim();
 
   const ip = clientIpFromRequest(request);
   if (!allowRateLimitedAction(`agent-register:${ip}:${mobile || "unknown"}`, 3, 60_000)) {
@@ -58,7 +57,6 @@ export async function POST(request: Request) {
         mobileNumber: mobile,
         mpin,
         ...(email ? { email } : {}),
-        ...(idToken ? { idToken } : {}),
       }),
       cache: "no-store",
     });
