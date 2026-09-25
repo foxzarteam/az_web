@@ -1,10 +1,26 @@
-/** Public site only shows these product slugs. */
-export const ALLOWED_PRODUCT_SLUGS = ["personal-loan", "insurance"] as const;
+/** Slugs that next.config permanently redirects — never show even if the DB row is active. */
+export const REDIRECTED_PRODUCT_SLUGS = new Set([
+  "home-loan",
+  "credit-card",
+  "business-loan",
+]);
 
-export type AllowedProductSlug = (typeof ALLOWED_PRODUCT_SLUGS)[number];
+export const PRODUCT_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-const ALLOWED_SET = new Set<string>(ALLOWED_PRODUCT_SLUGS);
+/** Shown when GET /api/services is empty. Not a whitelist of live products. */
+export const FALLBACK_PRODUCT_SLUGS = ["personal-loan", "insurance"] as const;
 
-export function isAllowedProductSlug(slug: string): boolean {
-  return ALLOWED_SET.has(slug.trim().toLowerCase());
+export function isPublicProductSlug(slug: string): boolean {
+  const s = slug.trim().toLowerCase();
+  return PRODUCT_SLUG_PATTERN.test(s) && !REDIRECTED_PRODUCT_SLUGS.has(s);
+}
+
+export function productHrefToSlug(href: string): string {
+  return href.replace(/^\/products\//, "").replace(/\/+$/, "").split("/")[0] ?? "";
+}
+
+export function slugToLeadCategory(slug: string): string {
+  const s = slug.trim().toLowerCase();
+  if (!s) return "personal_loan";
+  return s.replace(/-/g, "_");
 }

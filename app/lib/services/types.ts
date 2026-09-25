@@ -8,8 +8,14 @@ export type ServiceSliderCard = {
 
 export type ServicesFetchStatus = "ok" | "error";
 
+export type InsuranceTypeOption = {
+  value: string;
+  label: string;
+};
+
 export type FetchActiveServicesResult = {
   cards: ServiceSliderCard[];
+  insuranceTypes: InsuranceTypeOption[];
   status: ServicesFetchStatus;
 };
 

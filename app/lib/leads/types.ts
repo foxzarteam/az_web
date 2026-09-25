@@ -2,13 +2,8 @@ export interface CreateLeadRequest {
   pan: string;
   mobileNumber: string;
   fullName: string;
-  category:
-    | "personal_loan"
-    | "home_loan"
-    | "business_loan"
-    | "credit_card"
-    | "insurance"
-    | "vehicle_loan";
+  /** Service slug with underscores (personal-loan → personal_loan). */
+  category: string;
   userId?: string;
   email?: string;
   pincode?: string;

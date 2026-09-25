@@ -20,8 +20,8 @@ import {
   personalLoanApplyPayload,
   validatePersonalLoanApplyForm,
 } from "@/app/lib/leads/personalLoanApply";
+import { useInsuranceTypeOptions } from "@/app/lib/services/useInsuranceTypeOptions";
 import {
-  INSURANCE_TYPE_OPTIONS,
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
   sanitizeLeadPincodeInput,
@@ -115,6 +115,7 @@ export default function ServicePage({
   const selectedCategory = mapServiceToCategory(service);
   const showLoanAmount = selectedCategory === "personal_loan";
   const showInsuranceType = selectedCategory === "insurance";
+  const insuranceTypeOptions = useInsuranceTypeOptions();
 
   useEffect(() => {
     setInsType("");
@@ -325,7 +326,7 @@ export default function ServicePage({
                         className={inputClass}
                       >
                         <option value="">Select insurance type</option>
-                        {INSURANCE_TYPE_OPTIONS.map((opt) => (
+                        {insuranceTypeOptions.map((opt) => (
                           <option key={opt.value} value={opt.value}>
                             {opt.label}
                           </option>

@@ -1,6 +1,7 @@
 import { servicesResultFromHttp } from "@/app/lib/services/servicesResultFromHttp";
 import type {
   FetchActiveServicesResult,
+  InsuranceTypeOption,
   ServiceSliderCard,
 } from "@/app/lib/services/types";
 
@@ -23,7 +24,7 @@ async function fetchFromApi(): Promise<FetchActiveServicesResult> {
     return servicesResultFromHttp(response.ok, await response.text());
   } catch (e) {
     console.warn("[services] fetch failed:", e);
-    return { cards: [], status: "error" };
+    return { cards: [], insuranceTypes: [], status: "error" };
   }
 }
 
@@ -40,7 +41,14 @@ export async function fetchActiveServiceCards(): Promise<FetchActiveServicesResu
   return inflight;
 }
 
-export function primeServicesClientCache(cards: ServiceSliderCard[]) {
-  if (cards.length === 0) return;
-  okCache = { cards, status: "ok" };
+export function primeServicesClientCache(
+  cards: ServiceSliderCard[],
+  insuranceTypes?: InsuranceTypeOption[],
+) {
+  if (cards.length === 0 && !(insuranceTypes && insuranceTypes.length > 0)) return;
+  okCache = {
+    cards,
+    insuranceTypes: insuranceTypes ?? [],
+    status: "ok",
+  };
 }

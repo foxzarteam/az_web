@@ -1,13 +1,24 @@
 "use client";
 
+import { useMemo } from "react";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
-import { INSURANCE_TYPE_OPTIONS } from "@/app/utils/leadForm";
+import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
+import { productHrefToSlug } from "@/app/lib/services/allowedProducts";
+import { useInsuranceTypeOptions } from "@/app/lib/services/useInsuranceTypeOptions";
+import { mapServiceToCategory } from "@/app/utils/leadApi";
+import { insuranceTypeLabel } from "@/app/utils/leadForm";
 import {
   ADMIN_BTN_SECONDARY,
   ADMIN_LABEL,
 } from "@/app/components/shared/crm/ui";
-import { CATEGORIES, STATUSES, formatCurrencyInr, leadCommissionAmount } from "./leadDisplay";
+import {
+  CATEGORIES,
+  STATUSES,
+  categoryLabel,
+  formatCurrencyInr,
+  leadCommissionAmount,
+} from "./leadDisplay";
 import {
   type EditForm,
   type FieldErrors,
@@ -52,6 +63,35 @@ export default function LeadFormFields({
   const statusOptions = STATUSES.filter(
     (s) => s.value !== "approved" || canApprove || form.status === "approved",
   );
+  const insuranceTypeOptions = useInsuranceTypeOptions();
+  const serviceCards = useServiceCards();
+  const categoryOptions = useMemo(() => {
+    const seen = new Set<string>();
+    const out: { value: string; label: string }[] = [];
+    for (const card of serviceCards) {
+      const value = mapServiceToCategory(productHrefToSlug(card.href));
+      if (!value || seen.has(value)) continue;
+      seen.add(value);
+      out.push({ value, label: card.title });
+    }
+    if (out.length === 0) {
+      for (const c of CATEGORIES) {
+        out.push({ value: c.value, label: c.label });
+        seen.add(c.value);
+      }
+    }
+    if (form.category && !seen.has(form.category)) {
+      out.push({ value: form.category, label: categoryLabel(form.category) });
+    }
+    return out;
+  }, [serviceCards, form.category]);
+  const insSelectOptions = useMemo(() => {
+    const list = insuranceTypeOptions.map((o) => ({ ...o }));
+    if (form.insType && !list.some((o) => o.value === form.insType)) {
+      list.push({ value: form.insType, label: insuranceTypeLabel(form.insType) });
+    }
+    return list;
+  }, [insuranceTypeOptions, form.insType]);
 
   return (
     <div className="grid gap-5 sm:grid-cols-2">
@@ -88,7 +128,7 @@ export default function LeadFormFields({
             />
           </div>
         </>
-      ) : (
+      ) : form.category === "insurance" ? (
         <label className="block sm:col-span-2">
           <span className={ADMIN_LABEL}>Insurance type</span>
           <select
@@ -97,14 +137,15 @@ export default function LeadFormFields({
             disabled={commissionLocked}
             onChange={(e) => setForm({ ...form, insType: e.target.value })}
           >
-            {INSURANCE_TYPE_OPTIONS.map((o) => (
+            <option value="">Select insurance type</option>
+            {insSelectOptions.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>
             ))}
           </select>
         </label>
-      )}
+      ) : null}
       <label className="block sm:col-span-2">
         <span className={ADMIN_LABEL}>Name</span>
         <input
@@ -188,7 +229,7 @@ export default function LeadFormFields({
           disabled={commissionLocked}
           onChange={(e) => setForm({ ...form, category: e.target.value })}
         >
-          {CATEGORIES.map((c) => (
+          {categoryOptions.map((c) => (
             <option key={c.value} value={c.value}>
               {c.label}
             </option>

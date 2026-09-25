@@ -33,7 +33,11 @@ export function loanAmountLabel(value: string): string {
 }
 
 export function insuranceTypeLabel(value: string): string {
-  return INSURANCE_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? value;
+  const found = INSURANCE_TYPE_OPTIONS.find((o) => o.value === value)?.label;
+  if (found) return found;
+  const v = value.trim();
+  if (!v) return value;
+  return v.replace(/[_-]/g, " ").replace(/\b\w/g, (ch) => ch.toUpperCase());
 }
 
 export function employmentTypeLabel(value: string): string {

@@ -305,14 +305,14 @@ CREATE TABLE public.leads (
     email character varying(255),
     pincode character varying(6),
     required_amount numeric(12,2),
-    category character varying(50) DEFAULT 'personal_loan'::character varying NOT NULL,
+    category character varying(64) DEFAULT 'personal_loan'::character varying NOT NULL,
     status character varying(50) DEFAULT 'pending'::character varying,
     notes text,
     is_active boolean DEFAULT true,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
     loan_amt character varying(50),
-    ins_type character varying(50),
+    ins_type character varying(64),
     pan_encrypted text,
     pan_hash text,
     employment_type character varying(30),
@@ -321,9 +321,8 @@ CREATE TABLE public.leads (
     ip character varying(45),
     agent_id uuid,
     otp_verified boolean DEFAULT false NOT NULL,
-    CONSTRAINT leads_category_check CHECK (((category)::text = ANY (ARRAY['personal_loan'::text, 'home_loan'::text, 'business_loan'::text, 'credit_card'::text, 'insurance'::text, 'vehicle_loan'::text]))),
+    CONSTRAINT leads_category_check CHECK (((category)::text ~ '^[a-z][a-z0-9_]{0,63}$'::text)),
     CONSTRAINT leads_employment_type_check CHECK (((employment_type IS NULL) OR ((employment_type)::text = ANY ((ARRAY['salaried'::character varying, 'self_employed'::character varying])::text[])))),
-    CONSTRAINT leads_ins_type_check CHECK (((ins_type IS NULL) OR ((ins_type)::text = ANY ((ARRAY['life_insurance'::character varying, 'health_insurance'::character varying, 'motor_insurance'::character varying, 'cyber_insurance'::character varying])::text[])))),
     CONSTRAINT leads_loan_amt_check CHECK (((loan_amt IS NULL) OR ((loan_amt)::text = ANY ((ARRAY['25000_100000'::character varying, '100000_200000'::character varying, '200000_300000'::character varying, '300000_400000'::character varying, '400000_500000'::character varying, '500000_600000'::character varying, '600000_700000'::character varying, '700000_800000'::character varying, '800000_900000'::character varying, '900000_1000000'::character varying])::text[])))),
     CONSTRAINT leads_net_monthly_income_check CHECK (((net_monthly_income IS NULL) OR (net_monthly_income >= (0)::numeric))),
     CONSTRAINT leads_status_check CHECK (((status)::text = ANY ((ARRAY['pending'::character varying, 'in_process'::character varying, 'approved'::character varying, 'rejected'::character varying, 'action_required'::character varying])::text[])))
@@ -405,6 +404,17 @@ CREATE TABLE public.services (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
+
+CREATE TABLE public.insurance_types (
+    slug character varying(64) NOT NULL,
+    label character varying(120) NOT NULL,
+    sort_order integer DEFAULT 0 NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+COMMENT ON TABLE public.insurance_types IS 'Insurance subtypes for leads.ins_type. INSERT a row to add a type without a code deploy.';
 
 CREATE TABLE public.users (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
@@ -491,6 +501,12 @@ INSERT INTO public.services (id, slug, title, description, image_url, sort_order
   ('b299202a-d3f0-4220-8220-80f6b996ac18', 'insurance', 'Insurance', 'Earn Up to 2%', '/images/service/insurance.webp', '5', TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
   ('c2871d5c-f36c-4e55-9069-0597aea107f5', 'business-loan', 'Business Loan', 'Fund your business with flexible tenure', '/images/service/business.png', '3', FALSE, '2026-04-05 18:05:20.388169+00', '2026-05-21 19:26:07.114+00');
 
+INSERT INTO public.insurance_types (slug, label, sort_order, is_active, created_at, updated_at) VALUES
+  ('life_insurance', 'Life Insurance', 1, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('health_insurance', 'Health Insurance', 2, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('motor_insurance', 'Motor Insurance', 3, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('cyber_insurance', 'Cyber Insurance', 4, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00');
+
 INSERT INTO public.users (id, mobile_number, user_name, email, mpin, is_active, is_logged_in, created_at, updated_at, last_login_at, referral_code) VALUES
   ('ff7488d0-0ba7-459e-ad56-23594b0718b1', '9352984119', 'Gaurav Patel', 'incubers.gauravpatel@gmail.com', '$2b$10$6elpOQciWzvbv2A2awdxquSEOYwYzRfiZdvUHxVEzjeOCoj3V7Voa', TRUE, FALSE, '2026-09-15 08:36:07.285567+00', '2026-09-15 08:36:07.285567+00', NULL, 'A5SMRBXJ');
 
@@ -544,6 +560,9 @@ ALTER TABLE ONLY public.services
 
 ALTER TABLE ONLY public.services
     ADD CONSTRAINT services_slug_key UNIQUE (slug);
+
+ALTER TABLE ONLY public.insurance_types
+    ADD CONSTRAINT insurance_types_pkey PRIMARY KEY (slug);
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_mobile_number_key UNIQUE (mobile_number);
@@ -623,6 +642,8 @@ CREATE INDEX IF NOT EXISTS partner_name_idx ON public.partner USING btree (name)
 
 CREATE INDEX IF NOT EXISTS services_active_sort_idx ON public.services USING btree (is_active, sort_order);
 
+CREATE INDEX IF NOT EXISTS insurance_types_active_sort_idx ON public.insurance_types USING btree (is_active, sort_order);
+
 CREATE UNIQUE INDEX IF NOT EXISTS users_referral_code_key ON public.users USING btree (referral_code) WHERE (referral_code IS NOT NULL);
 
 DROP TRIGGER IF EXISTS on_auth_user_created_wallet ON auth.users;
@@ -657,6 +678,9 @@ ALTER TABLE ONLY public.leads
 
 ALTER TABLE ONLY public.leads
     ADD CONSTRAINT leads_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY public.leads
+    ADD CONSTRAINT leads_ins_type_fkey FOREIGN KEY (ins_type) REFERENCES public.insurance_types(slug);
 
 ALTER TABLE ONLY public.payment_accounts
     ADD CONSTRAINT payment_accounts_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;

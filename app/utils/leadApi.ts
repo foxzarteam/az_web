@@ -73,15 +73,8 @@ export async function applyLead(
   }
 }
 
-export function mapServiceToCategory(
-  service: string,
-): CreateLeadRequest["category"] {
-  const mapping: Record<string, CreateLeadRequest["category"]> = {
-    "personal-loan": "personal_loan",
-    "home-loan": "home_loan",
-    "business-loan": "business_loan",
-    "credit-card": "credit_card",
-    insurance: "insurance",
-  };
-  return mapping[service] || "personal_loan";
+export function mapServiceToCategory(service: string): string {
+  const slug = service.trim().toLowerCase().replace(/^\/+|\/+$/g, "");
+  if (!slug) return "personal_loan";
+  return slug.replace(/-/g, "_");
 }

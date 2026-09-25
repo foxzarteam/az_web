@@ -14,8 +14,8 @@ import { sendFirebasePhoneOtp, warmFirebaseAuth } from "@/app/lib/firebase/phone
 import { reportFormValidity } from "@/app/utils/formValidation";
 import { customerLogin } from "@/app/utils/customerAuthApi";
 import { applyLead, isExistingApplicationError, leadIdFromResponse, type CreateLeadResponse } from "@/app/utils/leadApi";
+import { useInsuranceTypeOptions } from "@/app/lib/services/useInsuranceTypeOptions";
 import {
-  INSURANCE_TYPE_OPTIONS,
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
   sanitizeLeadPincodeInput,
@@ -68,6 +68,7 @@ type InsuranceApplyModalProps = {
 
 export default function InsuranceApplyModal({ open, onClose }: InsuranceApplyModalProps) {
   const router = useRouter();
+  const insuranceTypeOptions = useInsuranceTypeOptions();
   const [showSuccess, setShowSuccess] = useState(false);
   const [existingAppMessage, setExistingAppMessage] = useState("");
   const [showOtpModal, setShowOtpModal] = useState(false);
@@ -310,7 +311,7 @@ export default function InsuranceApplyModal({ open, onClose }: InsuranceApplyMod
                   className={inputClass}
                 >
                   <option value="">Select insurance type</option>
-                  {INSURANCE_TYPE_OPTIONS.map((opt) => (
+                  {insuranceTypeOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>

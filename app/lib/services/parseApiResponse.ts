@@ -1,5 +1,6 @@
-import type { ApiServiceRow, ServiceSliderCard } from "@/app/lib/services/types";
-import { isAllowedProductSlug } from "@/app/lib/services/allowedProducts";
+import type { ApiServiceRow, InsuranceTypeOption, ServiceSliderCard } from "@/app/lib/services/types";
+import { isPublicProductSlug } from "@/app/lib/services/allowedProducts";
+import { INSURANCE_TYPE_OPTIONS } from "@/app/utils/leadForm";
 
 function rowSortKey(row: ApiServiceRow): number {
   const n = row.sort_order ?? row.sortOrder;
@@ -13,7 +14,7 @@ function isRowActive(row: ApiServiceRow): boolean {
 
 function rowToCard(row: ApiServiceRow): ServiceSliderCard | null {
   const slug = typeof row.slug === "string" ? row.slug.trim() : "";
-  if (!slug || !isAllowedProductSlug(slug)) return null;
+  if (!slug || !isPublicProductSlug(slug)) return null;
   const imageRaw = row.imageUrl ?? row.image_url;
   const image =
     typeof imageRaw === "string"
@@ -55,4 +56,31 @@ export function parseServicesApiPayload(raw: unknown): ServiceSliderCard[] {
     if (card) cards.push(card);
   }
   return cards;
+}
+
+const INS_TYPE_SLUG_PATTERN = /^[a-z][a-z0-9_]{0,63}$/;
+
+export function parseInsuranceTypesPayload(raw: unknown): InsuranceTypeOption[] {
+  const fallback: InsuranceTypeOption[] = INSURANCE_TYPE_OPTIONS.map((o) => ({
+    value: o.value,
+    label: o.label,
+  }));
+  if (!raw || typeof raw !== "object") return fallback;
+  const list = (raw as { insuranceTypes?: unknown }).insuranceTypes;
+  if (!Array.isArray(list) || list.length === 0) return fallback;
+
+  const out: InsuranceTypeOption[] = [];
+  const seen = new Set<string>();
+  for (const row of list) {
+    if (!row || typeof row !== "object") continue;
+    const rec = row as { value?: unknown; slug?: unknown; label?: unknown };
+    const value = String(rec.value ?? rec.slug ?? "")
+      .trim()
+      .toLowerCase();
+    const label = String(rec.label ?? "").trim();
+    if (!INS_TYPE_SLUG_PATTERN.test(value) || !label || seen.has(value)) continue;
+    seen.add(value);
+    out.push({ value, label });
+  }
+  return out.length > 0 ? out : fallback;
 }

@@ -4,7 +4,7 @@ import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import Aoscompo from "@/utils/aos";
 import { PUBLIC_SITE_URL } from "@/app/config/constants";
-import { getActiveServices } from "@/app/data/getActiveServices";
+import { getActiveCatalog } from "@/app/data/getActiveServices";
 import { ServiceCardsProvider } from "@/app/components/providers/ServiceCardsProvider";
 import {
   DEFAULT_OG_IMAGE,
@@ -110,7 +110,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const serviceCards = await getActiveServices();
+  const catalog = await getActiveCatalog();
 
   return (
     <html lang="en-IN" suppressHydrationWarning className="min-h-[100dvh]">
@@ -124,7 +124,7 @@ export default async function RootLayout({
           nonce=""
         >
           <Aoscompo>
-            <ServiceCardsProvider cards={serviceCards}>
+            <ServiceCardsProvider cards={catalog.cards} insuranceTypes={catalog.insuranceTypes}>
               <Header />
               <div
                 id="main-content"
