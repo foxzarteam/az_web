@@ -633,7 +633,7 @@ export default function LeadsTable({
       )}
 
       {createOpen && editForm && (
-        <AdminModal title="Add lead" onClose={closeModals}>
+        <AdminModal title="Add lead" fit onClose={closeModals}>
           <form onSubmit={handleCreate} className="space-y-6 p-6 sm:p-8" noValidate>
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <LeadFormFields
@@ -664,7 +664,7 @@ export default function LeadsTable({
       )}
 
       {editLead && editForm && (
-        <AdminModal title="Edit lead" onClose={closeModals}>
+        <AdminModal title="Edit lead" fit onClose={closeModals}>
           <form onSubmit={handleSaveEdit} className="space-y-6 p-6 sm:p-8" noValidate>
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <LeadFormFields

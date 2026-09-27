@@ -11,10 +11,12 @@ type Props = {
   children: React.ReactNode;
   /** Wider layout for detail / multi-column forms */
   wide?: boolean;
+  /** Lead add/edit: fill the screen and stay inside the device viewport. */
+  fit?: boolean;
   footer?: React.ReactNode;
 };
 
-export default function AdminModal({ title, onClose, children, wide = false, footer }: Props) {
+export default function AdminModal({ title, onClose, children, wide = false, fit = false, footer }: Props) {
   const mounted = useIsMounted();
 
   useEffect(() => {
@@ -28,7 +30,11 @@ export default function AdminModal({ title, onClose, children, wide = false, foo
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[99990] flex items-center justify-center p-3 sm:p-6 lg:p-8">
+    <div
+      className={`fixed inset-0 z-[99990] flex items-center justify-center ${
+        fit ? "p-2 sm:p-4" : "p-3 sm:p-6 lg:p-8"
+      }`}
+    >
       <button
         type="button"
         className="absolute inset-0 bg-slate-900/45 backdrop-blur-[2px]"
@@ -40,9 +46,11 @@ export default function AdminModal({ title, onClose, children, wide = false, foo
         aria-modal="true"
         aria-labelledby="admin-modal-title"
         className={`relative z-10 flex w-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-dark_border dark:bg-darklight ${
-          wide
-            ? "max-h-[92vh] min-h-[min(480px,85vh)] max-w-5xl"
-            : "max-h-[90vh] max-w-2xl"
+          fit
+            ? "h-[calc(100dvh-1rem)] max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-[1100px] sm:h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-2rem)] sm:w-[calc(100vw-2rem)]"
+            : wide
+              ? "max-h-[92vh] min-h-[min(480px,85vh)] max-w-5xl"
+              : "max-h-[90vh] max-w-2xl"
         }`}
       >
         <div
