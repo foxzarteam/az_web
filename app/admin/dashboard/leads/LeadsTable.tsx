@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { ConfirmationResult } from "firebase/auth";
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
 import CrmDataTable, { CrmActionButton, type CrmColumn } from "@/app/components/shared/crm/DataTable";
 import AdminModal from "@/app/components/shared/crm/AppModal";
@@ -14,6 +15,9 @@ import {
   ADMIN_ERROR,
   ADMIN_INPUT,
 } from "@/app/components/shared/crm/ui";
+import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
+import { sendFirebasePhoneOtp, warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
+import { LeadCreditDisclaimer } from "@/app/components/shared/TermsAgreementCheckbox";
 import LeadFormFields from "./LeadFormFields";
 import {
   VIEW_FIELDS,
@@ -22,6 +26,7 @@ import {
   cellText,
   amountOrInsuranceText,
   formatValue,
+  isConsentAccepted,
   isOtpVerified,
   statusCapsuleClass,
   statusLabel,
@@ -60,6 +65,10 @@ export default function LeadsTable({
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [revealingPan, setRevealingPan] = useState(false);
   const [viewPanFull, setViewPanFull] = useState<string | null>(null);
+  const [otpOpen, setOtpOpen] = useState(false);
+  const [otpMobile, setOtpMobile] = useState("");
+  const [otpSendPromise, setOtpSendPromise] = useState<Promise<ConfirmationResult> | null>(null);
+  const pendingCreateRef = useRef<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     setLeads(initialLeads);
@@ -75,6 +84,10 @@ export default function LeadsTable({
     setFieldErrors({});
     setViewPanFull(null);
     setRevealingPan(false);
+    setOtpOpen(false);
+    setOtpMobile("");
+    setOtpSendPromise(null);
+    pendingCreateRef.current = null;
   }, []);
 
   const clearFieldError = useCallback((key: keyof FieldErrors) => {
@@ -83,20 +96,31 @@ export default function LeadsTable({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeModals();
+      if (e.key === "Escape") {
+        if (otpOpen) {
+          setOtpOpen(false);
+          setOtpSendPromise(null);
+          return;
+        }
+        closeModals();
+      }
     };
     if (viewLead || editLead || deleteLead || createOpen) {
       document.addEventListener("keydown", onKey);
       return () => document.removeEventListener("keydown", onKey);
     }
-  }, [viewLead, editLead, deleteLead, createOpen, closeModals]);
+  }, [viewLead, editLead, deleteLead, createOpen, otpOpen, closeModals]);
 
   function openCreate() {
+    warmFirebaseAuth();
     setCreateOpen(true);
     setEditForm(emptyCreateForm());
     setError(null);
     setFieldErrors({});
     setViewPanFull(null);
+    setOtpOpen(false);
+    setOtpSendPromise(null);
+    pendingCreateRef.current = null;
   }
 
   function openEdit(lead: AdminLeadRow) {
@@ -107,7 +131,10 @@ export default function LeadsTable({
     setViewPanFull(null);
   }
 
-  function buildLeadPayload(form: EditForm, opts?: { omitMaskedPan?: boolean }): Record<string, unknown> {
+  function buildLeadPayload(
+    form: EditForm,
+    opts?: { omitMaskedPan?: boolean; includeConsent?: boolean },
+  ): Record<string, unknown> {
     const payload: Record<string, unknown> = {
       fullName: form.fullName.trim(),
       mobileNumber: form.mobileNumber.trim(),
@@ -132,6 +159,9 @@ export default function LeadsTable({
     const pan = form.pan.trim().toUpperCase();
     if (!(opts?.omitMaskedPan && isMaskedPanValue(pan))) {
       payload.pan = pan;
+    }
+    if (opts?.includeConsent) {
+      payload.consentAccepted = form.consentAccepted === true;
     }
     return payload;
   }
@@ -163,13 +193,14 @@ export default function LeadsTable({
     e.preventDefault();
     if (!editForm) return;
 
-    const validationErrors = validateLeadForm(editForm);
+    const validationErrors = validateLeadForm(editForm, { requireConsent: true });
     if (
       validationErrors.mobileNumber ||
       validationErrors.pan ||
       validationErrors.employmentType ||
       validationErrors.netMonthlyIncome ||
-      validationErrors.pincode
+      validationErrors.pincode ||
+      validationErrors.consent
     ) {
       setFieldErrors(validationErrors);
       return;
@@ -179,40 +210,85 @@ export default function LeadsTable({
     setError(null);
     setFieldErrors({});
 
+    const payload = buildLeadPayload(editForm, { includeConsent: true });
+
     try {
-      const res = await fetch("/api/admin/leads", {
+      const res = await fetch("/api/admin/leads/precheck", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildLeadPayload(editForm)),
+        body: JSON.stringify(payload),
       });
       const data = (await res.json()) as {
-        success?: boolean;
-        data?: AdminLeadRow;
         error?: string;
         message?: string;
         field?: string;
-        code?: string;
       };
       if (!res.ok) {
-        const message = toPublicClientError(data.error ?? data.message, "Could not add lead.");
-        if (data.field === "mobileNumber" || data.field === "pan") {
+        const message = toPublicClientError(data.error ?? data.message, "Could not check this lead.");
+        if (
+          data.field === "mobileNumber" ||
+          data.field === "pan" ||
+          data.field === "pincode" ||
+          data.field === "employmentType"
+        ) {
           setFieldErrors({ [data.field]: message });
         } else {
           setError(message);
         }
         return;
       }
-      if (data.data) {
-        setLeads((prev) => [data.data!, ...prev]);
-      }
-      closeModals();
-      setSuccessMsg("Lead added successfully.");
-      router.refresh();
+
+      const mobile = editForm.mobileNumber.trim();
+      pendingCreateRef.current = payload;
+      setOtpMobile(mobile);
+      setOtpSendPromise(sendFirebasePhoneOtp(mobile));
+      setOtpOpen(true);
     } catch {
       setError("Network error. Try again.");
     } finally {
       setSaving(false);
     }
+  }
+
+  async function finishCreateAfterOtp(idToken: string) {
+    const payload = pendingCreateRef.current;
+    if (!payload) {
+      throw new Error("Lead details were lost. Please submit the form again.");
+    }
+
+    const res = await fetch("/api/admin/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...payload, idToken }),
+    });
+    const data = (await res.json()) as {
+      success?: boolean;
+      data?: AdminLeadRow;
+      error?: string;
+      message?: string;
+      field?: string;
+    };
+    if (!res.ok) {
+      const message = toPublicClientError(data.error ?? data.message, "Could not add lead.");
+      if (
+        data.field === "mobileNumber" ||
+        data.field === "pan" ||
+        data.field === "pincode" ||
+        data.field === "employmentType"
+      ) {
+        setFieldErrors({ [data.field]: message });
+        setOtpOpen(false);
+        setOtpSendPromise(null);
+      }
+      throw new Error(message);
+    }
+
+    if (data.data) {
+      setLeads((prev) => [data.data!, ...prev]);
+    }
+    closeModals();
+    setSuccessMsg("Lead added successfully.");
+    router.refresh();
   }
 
   async function handleSaveEdit(e: React.FormEvent) {
@@ -377,6 +453,28 @@ export default function LeadsTable({
         },
       },
       {
+        id: "consent_accepted",
+        header: "Consent",
+        sortable: true,
+        sortValue: (row) => (isConsentAccepted(row) ? 1 : 0),
+        searchValue: (row) => (isConsentAccepted(row) ? "yes consent" : "no consent"),
+        className: "min-w-[6rem] whitespace-nowrap",
+        cell: (row) => {
+          const accepted = isConsentAccepted(row);
+          return (
+            <span
+              className={
+                accepted
+                  ? "inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+                  : "inline-flex rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600 dark:bg-red-950/40 dark:text-red-300"
+              }
+            >
+              {accepted ? "Yes" : "No"}
+            </span>
+          );
+        },
+      },
+      {
         id: "actions",
         header: "Action",
         searchable: false,
@@ -472,10 +570,10 @@ export default function LeadsTable({
                 <span className="shrink-0 font-semibold text-midnight_text dark:text-white">
                   {FIELD_LABELS[key] ?? key}:
                 </span>
-                {key === "otp_verified" ? (
+                {key === "otp_verified" || key === "consent_accepted" ? (
                   <span
                     className={
-                      isOtpVerified(viewLead)
+                      (key === "otp_verified" ? isOtpVerified(viewLead) : isConsentAccepted(viewLead))
                         ? "inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700"
                         : "inline-flex rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600"
                     }
@@ -552,10 +650,15 @@ export default function LeadsTable({
               <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
                 Cancel
               </button>
-              <button type="submit" disabled={saving} className={ADMIN_BTN_PRIMARY}>
-                {saving ? "Saving…" : "Create"}
+              <button
+                type="submit"
+                disabled={saving || !editForm.consentAccepted}
+                className={ADMIN_BTN_PRIMARY}
+              >
+                {saving ? "Checking…" : "Send OTP"}
               </button>
             </div>
+            <LeadCreditDisclaimer />
           </form>
         </AdminModal>
       )}
@@ -592,6 +695,24 @@ export default function LeadsTable({
           </form>
         </AdminModal>
       )}
+
+      <LeadApplyModal
+        open={otpOpen && otpMobile.length === 10}
+        mobile={otpMobile}
+        otpSendPromise={otpSendPromise}
+        syncServerVerify
+        onClose={() => {
+          setOtpOpen(false);
+          setOtpSendPromise(null);
+        }}
+        onEditMobile={() => {
+          setOtpOpen(false);
+          setOtpSendPromise(null);
+        }}
+        onSuccess={async (result) => {
+          await finishCreateAfterOtp(result.idToken);
+        }}
+      />
 
       {deleteLead && (
         <AdminModal title="Delete lead" onClose={closeModals}>

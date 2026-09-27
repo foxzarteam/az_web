@@ -5,7 +5,9 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import type { ConfirmationResult } from "firebase/auth";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
-import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
+import TermsAgreementCheckbox, {
+  LeadCreditDisclaimer,
+} from "@/app/components/shared/TermsAgreementCheckbox";
 import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationStatusLink";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
@@ -209,6 +211,10 @@ export default function PersonalLoanApplyModal({
 
   const handleSubmit = async (form: HTMLFormElement) => {
     if (!reportFormValidity(form) || isSubmittingForm || isOpeningDashboard) return;
+    if (!termsAccepted) {
+      setFormError("Please agree to the T&C and Privacy Policy to continue.");
+      return;
+    }
 
     const errors = validatePersonalLoanApplyForm({
       pan,
@@ -240,7 +246,10 @@ export default function PersonalLoanApplyModal({
         netMonthlyIncome,
       });
 
-      applyPromiseRef.current = applyLead(payload);
+      applyPromiseRef.current = applyLead({
+        ...payload,
+        consentAccepted: termsAccepted,
+      });
       const res = await applyPromiseRef.current;
       if (!res.success) {
         if (isExistingApplicationError(res)) {
@@ -460,19 +469,21 @@ export default function PersonalLoanApplyModal({
               <div className="shrink-0">
                 <TermsAgreementCheckbox
                   id="hero-pl-terms"
+                  variant="lead"
                   checked={termsAccepted}
                   onChange={setTermsAccepted}
-                  textClassName="text-xs leading-snug text-gray-600 dark:text-gray-400 sm:whitespace-nowrap sm:text-sm sm:leading-snug"
+                  textClassName="text-xs leading-snug text-gray-600 dark:text-gray-400 sm:text-sm sm:leading-snug"
                 />
               </div>
 
               <button
                 type="submit"
-                disabled={isSubmittingForm}
+                disabled={isSubmittingForm || !termsAccepted}
                 className="btn-gradient inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-base font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isSubmittingForm ? "Submitting…" : "Apply Now"}
               </button>
+              <LeadCreditDisclaimer className="shrink-0" />
 
               <CheckApplicationStatusLink className="shrink-0" onNavigate={handleClose} />
             </form>

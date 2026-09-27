@@ -13,6 +13,7 @@ export type EditForm = {
   employmentType: string;
   netMonthlyIncome: string;
   pincode: string;
+  consentAccepted: boolean;
 };
 
 export function clampLoanAmount(value: unknown): number {
@@ -42,6 +43,10 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
         ? String(lead.net_monthly_income)
         : "",
     pincode: String(lead.pincode ?? "").replace(/\D/g, "").slice(0, 6),
+    consentAccepted:
+      lead.consent_accepted === true ||
+      lead.consent_accepted === 1 ||
+      lead.consent_accepted === "true",
   };
 }
 
@@ -64,6 +69,7 @@ export function emptyCreateForm(): EditForm {
     employmentType: "",
     netMonthlyIncome: "",
     pincode: "",
+    consentAccepted: false,
   };
 }
 
@@ -73,6 +79,7 @@ export type FieldErrors = {
   employmentType?: string;
   netMonthlyIncome?: string;
   pincode?: string;
+  consent?: string;
 };
 
 const PHONE_PATTERN = /^[6-9]\d{9}$/;
@@ -84,7 +91,10 @@ export function isMaskedPanValue(value: string): boolean {
   return PAN_MASK_PATTERN.test(value.trim().toUpperCase());
 }
 
-export function validateLeadForm(form: EditForm, opts?: { allowMaskedPan?: boolean }): FieldErrors {
+export function validateLeadForm(
+  form: EditForm,
+  opts?: { allowMaskedPan?: boolean; requireConsent?: boolean },
+): FieldErrors {
   const errors: FieldErrors = {};
   if (!PHONE_PATTERN.test(form.mobileNumber.trim())) {
     errors.mobileNumber = "Enter a valid 10-digit mobile number";
@@ -107,6 +117,9 @@ export function validateLeadForm(form: EditForm, opts?: { allowMaskedPan?: boole
     if (!form.netMonthlyIncome.trim() || !Number.isFinite(income) || income <= 0) {
       errors.netMonthlyIncome = "Enter a valid net monthly income";
     }
+  }
+  if (opts?.requireConsent && !form.consentAccepted) {
+    errors.consent = "Please agree to the T&C and Privacy Policy to continue.";
   }
   return errors;
 }

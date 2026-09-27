@@ -13,6 +13,8 @@ export interface CreateLeadRequest {
   employmentType?: "salaried" | "self_employed";
   netMonthlyIncome?: number;
   referralCode?: string;
+  /** True only when the applicant checked the lead-form consent box. */
+  consentAccepted: boolean;
 }
 
 export interface CreateLeadResponse {

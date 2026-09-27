@@ -23,6 +23,7 @@ export type AdminLeadRow = {
   employment_type?: string | null;
   net_monthly_income?: number | string | null;
   otp_verified?: boolean | number | string | null;
+  consent_accepted?: boolean | number | string | null;
   ip?: string | null;
   ip_location?: string | null;
   agent_id?: string | null;

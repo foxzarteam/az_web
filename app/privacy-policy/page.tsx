@@ -200,6 +200,16 @@ export default function PrivacyPolicyPage() {
                     guidelines imposed by the RBI/IRDAI on our lending and insurance partners.
                   </li>
                 </ul>
+                <p>
+                  To request the deletion of your account and personal data, please email us at{" "}
+                  <a
+                    href="mailto:grievance@apnizaroorat.com"
+                    className="font-semibold text-primary hover:underline"
+                  >
+                    grievance@apnizaroorat.com
+                  </a>{" "}
+                  or use the &apos;Delete Account&apos; option within the App&apos;s profile section.
+                </p>
               </Section>
 
               <Section title="7. Changes to This Privacy Policy">

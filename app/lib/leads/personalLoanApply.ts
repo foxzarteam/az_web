@@ -58,6 +58,7 @@ export function personalLoanApplyPayload(
     requiredAmount: values.loanAmount,
     employmentType: values.employmentType as "salaried" | "self_employed",
     netMonthlyIncome: incomeNum,
+    consentAccepted: true,
   };
 }
 

@@ -5,7 +5,9 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import type { ConfirmationResult } from "firebase/auth";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
-import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
+import TermsAgreementCheckbox, {
+  LeadCreditDisclaimer,
+} from "@/app/components/shared/TermsAgreementCheckbox";
 import { reportFormValidity } from "@/app/utils/formValidation";
 import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationStatusLink";
@@ -126,6 +128,10 @@ export default function ServicePage({
 
   const handleSubmit = async (form: HTMLFormElement) => {
     if (!reportFormValidity(form) || isSubmittingForm) return;
+    if (!termsAccepted) {
+      setFormError("Please agree to the T&C and Privacy Policy to continue.");
+      return;
+    }
 
     const errors: LeadFieldErrors = validateLeadPanNameMobile({
       pan,
@@ -190,6 +196,7 @@ export default function ServicePage({
             }
           : {}),
         ...(category === "insurance" ? { insType } : {}),
+        consentAccepted: termsAccepted,
       };
       applyPromiseRef.current = applyLead(payload);
       const res = await applyPromiseRef.current;
@@ -422,6 +429,7 @@ export default function ServicePage({
 
                   <TermsAgreementCheckbox
                     id="service-terms"
+                    variant="lead"
                     checked={termsAccepted}
                     onChange={setTermsAccepted}
                     textClassName="text-xs leading-snug text-gray-600 dark:text-gray-400 sm:text-sm"
@@ -430,11 +438,12 @@ export default function ServicePage({
                   <div className="mt-auto w-full pt-2 sm:pt-3">
                     <button
                       type="submit"
-                      disabled={isSubmittingForm}
+                      disabled={isSubmittingForm || !termsAccepted}
                       className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl btn-gradient text-white text-sm sm:text-base font-semibold py-2.5 sm:py-3 px-4 transition-opacity shadow-md min-h-[44px] disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                       {isSubmittingForm ? "Submitting…" : "Apply Now"}
                     </button>
+                    <LeadCreditDisclaimer className="mt-2" />
                     <CheckApplicationStatusLink className="mt-3" />
                   </div>
                 </form>

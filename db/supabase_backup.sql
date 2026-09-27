@@ -321,6 +321,7 @@ CREATE TABLE public.leads (
     ip character varying(45),
     agent_id uuid,
     otp_verified boolean DEFAULT false NOT NULL,
+    consent_accepted boolean DEFAULT false NOT NULL,
     CONSTRAINT leads_category_check CHECK (((category)::text ~ '^[a-z][a-z0-9_]{0,63}$'::text)),
     CONSTRAINT leads_employment_type_check CHECK (((employment_type IS NULL) OR ((employment_type)::text = ANY ((ARRAY['salaried'::character varying, 'self_employed'::character varying])::text[])))),
     CONSTRAINT leads_loan_amt_check CHECK (((loan_amt IS NULL) OR ((loan_amt)::text = ANY ((ARRAY['25000_100000'::character varying, '100000_200000'::character varying, '200000_300000'::character varying, '300000_400000'::character varying, '400000_500000'::character varying, '500000_600000'::character varying, '600000_700000'::character varying, '700000_800000'::character varying, '800000_900000'::character varying, '900000_1000000'::character varying])::text[])))),
@@ -337,6 +338,8 @@ COMMENT ON COLUMN public.leads.pan_hash IS 'HMAC-SHA256 for duplicate detection 
 COMMENT ON COLUMN public.leads.ip_location IS 'Best-effort city/region/country resolved from client IP when the lead was saved.';
 
 COMMENT ON COLUMN public.leads.otp_verified IS 'True after customer OTP, or when admin/partner created the lead from CRM (no customer OTP).';
+
+COMMENT ON COLUMN public.leads.consent_accepted IS 'True when the applicant checked the lead-form consent box (T&C, Privacy Policy, and permission for Apni Zaroorat and its lending partners to contact them).';
 
 CREATE TABLE public.otp_sessions (
     id uuid DEFAULT gen_random_uuid() NOT NULL,

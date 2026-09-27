@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
 import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
@@ -266,6 +267,21 @@ export default function LeadFormFields({
             </span>
           ) : null}
         </label>
+      ) : null}
+      {panMode === "create" ? (
+        <div className="sm:col-span-2">
+          <TermsAgreementCheckbox
+            id="admin-lead-consent"
+            variant="lead"
+            checked={form.consentAccepted}
+            onChange={(checked) => {
+              setForm({ ...form, consentAccepted: checked });
+              clearFieldError("consent");
+            }}
+            textClassName="text-sm leading-snug text-slate-600 dark:text-gray-300"
+          />
+          <FieldErrorText message={fieldErrors.consent} />
+        </div>
       ) : null}
     </div>
   );

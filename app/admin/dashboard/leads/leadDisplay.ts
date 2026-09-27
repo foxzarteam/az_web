@@ -29,6 +29,7 @@ export const VIEW_FIELDS = [
   "status",
   "lead_source",
   "otp_verified",
+  "consent_accepted",
   "required_amount",
   "employment_type",
   "net_monthly_income",
@@ -59,6 +60,7 @@ export const FIELD_LABELS: Record<string, string> = {
   lead_source: "Source",
   partner_name: "Partner",
   otp_verified: "Verified",
+  consent_accepted: "Consent",
   notes: "Notes",
   is_active: "Active",
   created_at: "Created",
@@ -115,7 +117,7 @@ export function formatValue(key: string, value: unknown, row?: AdminLeadRow): st
     if (value == null || value === "") return "—";
     return String(value);
   }
-  if (key === "otp_verified") {
+  if (key === "otp_verified" || key === "consent_accepted") {
     return value === true || value === 1 || value === "true" ? "Yes" : "No";
   }
   if (key === "required_amount" || key === "net_monthly_income") {
@@ -141,6 +143,14 @@ export function formatValue(key: string, value: unknown, row?: AdminLeadRow): st
 
 export function isOtpVerified(row: AdminLeadRow): boolean {
   return row.otp_verified === true || row.otp_verified === 1 || row.otp_verified === "true";
+}
+
+export function isConsentAccepted(row: AdminLeadRow): boolean {
+  return (
+    row.consent_accepted === true ||
+    row.consent_accepted === 1 ||
+    row.consent_accepted === "true"
+  );
 }
 
 /** Capsule colors for lead status (view modal / badges). */
