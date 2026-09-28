@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ServicePage from "@/app/components/services/ServicePage";
 import HowItWorks from "@/app/components/products/insurance/HowItWorks";
+import InsuranceCategories from "@/app/components/products/insurance/InsuranceCategories";
 import FaqSection from "@/app/components/home/faq";
 import { INSURANCE_FAQ_ITEMS } from "@/app/components/home/faq/faq-data";
 import JsonLd from "@/app/components/seo/JsonLd";
@@ -76,6 +77,7 @@ export default function InsurancePage() {
         hideHeader
       />
 
+      <InsuranceCategories />
       <HowItWorks />
       <FaqSection items={INSURANCE_FAQ_ITEMS} />
     </>

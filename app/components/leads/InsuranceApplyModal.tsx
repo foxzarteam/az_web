@@ -17,6 +17,7 @@ import { reportFormValidity } from "@/app/utils/formValidation";
 import { customerLogin } from "@/app/utils/customerAuthApi";
 import { applyLead, isExistingApplicationError, leadIdFromResponse, type CreateLeadResponse } from "@/app/utils/leadApi";
 import { useInsuranceTypeOptions } from "@/app/lib/services/useInsuranceTypeOptions";
+import InsuranceTypeSelect from "@/app/components/leads/InsuranceTypeSelect";
 import {
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
@@ -305,19 +306,12 @@ export default function InsuranceApplyModal({ open, onClose }: InsuranceApplyMod
                 >
                   Insurance type *
                 </label>
-                <select
+                <InsuranceTypeSelect
                   id="hub-ins-type"
                   value={insType}
-                  onChange={(e) => setInsType(e.target.value)}
-                  className={inputClass}
-                >
-                  <option value="">Select insurance type</option>
-                  {insuranceTypeOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setInsType}
+                  options={insuranceTypeOptions}
+                />
               </div>
 
               <div className="grid shrink-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">

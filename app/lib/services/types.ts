@@ -11,6 +11,8 @@ export type ServicesFetchStatus = "ok" | "error";
 export type InsuranceTypeOption = {
   value: string;
   label: string;
+  /** File name from `insurance_types.image`, or a full path/URL. */
+  image?: string;
 };
 
 export type FetchActiveServicesResult = {

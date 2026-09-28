@@ -23,6 +23,7 @@ import {
   validatePersonalLoanApplyForm,
 } from "@/app/lib/leads/personalLoanApply";
 import { useInsuranceTypeOptions } from "@/app/lib/services/useInsuranceTypeOptions";
+import InsuranceTypeSelect from "@/app/components/leads/InsuranceTypeSelect";
 import {
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
@@ -320,19 +321,12 @@ export default function ServicePage({
                       <label htmlFor="service-ins-type" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
                         Insurance type *
                       </label>
-                      <select
+                      <InsuranceTypeSelect
                         id="service-ins-type"
                         value={insType}
-                        onChange={(e) => setInsType(e.target.value)}
-                        className={inputClass}
-                      >
-                        <option value="">Select insurance type</option>
-                        {insuranceTypeOptions.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={setInsType}
+                        options={insuranceTypeOptions}
+                      />
                     </div>
                   )}
 

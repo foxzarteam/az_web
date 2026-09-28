@@ -411,6 +411,7 @@ CREATE TABLE public.services (
 CREATE TABLE public.insurance_types (
     slug character varying(64) NOT NULL,
     label character varying(120) NOT NULL,
+    image character varying(160) DEFAULT ''::character varying NOT NULL,
     sort_order integer DEFAULT 0 NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
@@ -504,11 +505,25 @@ INSERT INTO public.services (id, slug, title, description, image_url, sort_order
   ('b299202a-d3f0-4220-8220-80f6b996ac18', 'insurance', 'Insurance', 'Earn Up to 2%', '/images/service/insurance.webp', '5', TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
   ('c2871d5c-f36c-4e55-9069-0597aea107f5', 'business-loan', 'Business Loan', 'Fund your business with flexible tenure', '/images/service/business.png', '3', FALSE, '2026-04-05 18:05:20.388169+00', '2026-05-21 19:26:07.114+00');
 
-INSERT INTO public.insurance_types (slug, label, sort_order, is_active, created_at, updated_at) VALUES
-  ('life_insurance', 'Life Insurance', 1, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
-  ('health_insurance', 'Health Insurance', 2, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
-  ('motor_insurance', 'Motor Insurance', 3, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
-  ('cyber_insurance', 'Cyber Insurance', 4, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00');
+INSERT INTO public.insurance_types (slug, label, image, sort_order, is_active, created_at, updated_at) VALUES
+  ('health_insurance', 'Health Insurance', 'health.svg', 1, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('health_renewal', 'Health Renewal', 'health_renewal.svg', 2, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('bike_insurance', 'Bike Insurance', 'bike.svg', 3, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('car_insurance', 'Car Insurance', 'car.svg', 4, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('pcv_insurance', 'PCV Insurance', 'pcv.svg', 5, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('gcv_insurance', 'GCV Insurance', 'gcv.svg', 6, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('travel_insurance', 'Travel Insurance', 'travel.svg', 7, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('life_insurance', 'Life Insurance', 'life.svg', 8, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('personal_accident_insurance', 'Personal Accident Insurance', 'pa.svg', 9, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('miscd_insurance', 'MISC-D Insurance', 'miscd.svg', 10, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('third_party_bike_insurance', 'Third Party Bike Insurance', 'third-party-bike-insurance.svg', 11, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('third_party_pvt_car_insurance', 'Third Party Pvt Car Insurance', 'third-party-pvt-car-insurance.svg', 12, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('third_party_pcv_insurance', 'Third Party PCV Insurance', 'third-party-pcv-insurance.svg', 13, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('third_party_gcv_insurance', 'Third Party GCV Insurance', 'third-party-gcv-insurance.svg', 14, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('third_party_miscd_insurance', 'Third Party MISC-D Insurance', 'third-party-miscd-insurance.svg', 15, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('marine_insurance', 'Marine Insurance', 'home_marine_icon.svg', 16, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('pet_insurance', 'Pet Insurance', 'pet-insurance.svg', 17, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('cyber_insurance', 'Cyber Insurance', 'cyber-insurance.svg', 18, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00');
 
 INSERT INTO public.users (id, mobile_number, user_name, email, mpin, is_active, is_logged_in, created_at, updated_at, last_login_at, referral_code) VALUES
   ('ff7488d0-0ba7-459e-ad56-23594b0718b1', '9352984119', 'Gaurav Patel', 'incubers.gauravpatel@gmail.com', '$2b$10$6elpOQciWzvbv2A2awdxquSEOYwYzRfiZdvUHxVEzjeOCoj3V7Voa', TRUE, FALSE, '2026-09-15 08:36:07.285567+00', '2026-09-15 08:36:07.285567+00', NULL, 'A5SMRBXJ');

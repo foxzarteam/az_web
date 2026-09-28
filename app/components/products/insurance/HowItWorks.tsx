@@ -5,19 +5,6 @@ const iconClass = "h-6 w-6 sm:h-7 sm:w-7";
 const STEPS: HowItWorksStep[] = [
   {
     num: 1,
-    title: "Fill Basic Details",
-    description: "Provide your basic information in simple steps.",
-    iconWrapClass: "bg-[#EEF0FF] text-[#4236FB]",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>
-        <rect x="5.5" y="3.5" width="13" height="17" rx="2" fill="currentColor" opacity="0.12" />
-        <rect x="5.5" y="3.5" width="13" height="17" rx="2" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M9 8.5h6M9 12h4.5M9 15.5h5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    num: 2,
     title: "Choose Insurance Type",
     description: "Select the insurance type that matches your need.",
     iconWrapClass: "bg-[#FFF1E7] text-[#F97316]",
@@ -29,6 +16,19 @@ const STEPS: HowItWorksStep[] = [
           d="M12 13.8c-1.6-1.3-3.2-2.5-3.2-4a1.9 1.9 0 0 1 3.2-1.3 1.9 1.9 0 0 1 3.2 1.3c0 1.5-1.6 2.7-3.2 4Z"
           fill="currentColor"
         />
+      </svg>
+    ),
+  },
+  {
+    num: 2,
+    title: "Fill Basic Details",
+    description: "Provide your basic information in simple steps.",
+    iconWrapClass: "bg-[#EEF0FF] text-[#4236FB]",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>
+        <rect x="5.5" y="3.5" width="13" height="17" rx="2" fill="currentColor" opacity="0.12" />
+        <rect x="5.5" y="3.5" width="13" height="17" rx="2" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M9 8.5h6M9 12h4.5M9 15.5h5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
     ),
   },

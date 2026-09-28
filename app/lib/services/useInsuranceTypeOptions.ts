@@ -7,5 +7,5 @@ import type { InsuranceTypeOption } from "@/app/lib/services/types";
 export function useInsuranceTypeOptions(): InsuranceTypeOption[] {
   const fromCatalog = useCatalogInsuranceTypes();
   if (fromCatalog.length > 0) return fromCatalog;
-  return INSURANCE_TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label }));
+  return INSURANCE_TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label, image: o.image }));
 }

@@ -61,7 +61,7 @@ export function parseServicesApiPayload(raw: unknown): ServiceSliderCard[] {
 const INS_TYPE_SLUG_PATTERN = /^[a-z][a-z0-9_]{0,63}$/;
 
 export function fallbackInsuranceTypes(): InsuranceTypeOption[] {
-  return INSURANCE_TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label }));
+  return INSURANCE_TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label, image: o.image }));
 }
 
 export function parseInsuranceTypesPayload(raw: unknown): InsuranceTypeOption[] {
@@ -74,14 +74,15 @@ export function parseInsuranceTypesPayload(raw: unknown): InsuranceTypeOption[] 
   const seen = new Set<string>();
   for (const row of list) {
     if (!row || typeof row !== "object") continue;
-    const rec = row as { value?: unknown; slug?: unknown; label?: unknown };
+    const rec = row as { value?: unknown; slug?: unknown; label?: unknown; image?: unknown };
     const value = String(rec.value ?? rec.slug ?? "")
       .trim()
       .toLowerCase();
     const label = String(rec.label ?? "").trim();
+    const image = typeof rec.image === "string" ? rec.image.trim() : "";
     if (!INS_TYPE_SLUG_PATTERN.test(value) || !label || seen.has(value)) continue;
     seen.add(value);
-    out.push({ value, label });
+    out.push({ value, label, image });
   }
   return out.length > 0 ? out : fallback;
 }
