@@ -186,3 +186,37 @@ export const TAX_FAQ_ITEMS: FaqItem[] = [
       "No. Results are estimates only — not a guaranteed tax liability. Special incomes, HRA, capital gains and other cases are not fully covered. Always verify with a qualified CA before filing your return.",
   },
 ];
+
+/** Become a Partner — DSA program. */
+export const DSA_FAQ_ITEMS: FaqItem[] = [
+  {
+    id: "what-is-dsa",
+    question: "What is DSA?",
+    answer:
+      "DSA means Direct Selling Agent. On Apni Zaroorat, a DSA partner refers customers for personal loans and insurance and earns commission when those applications are successfully approved.",
+  },
+  {
+    id: "what-does-dsa-do",
+    question: "What does a DSA do?",
+    answer:
+      "A DSA shares Apni Zaroorat loan and insurance products, helps customers apply with the right details, and tracks application status. Lending and insurance partners handle approval. You earn when a referred application is successfully completed.",
+  },
+  {
+    id: "dsa-commission",
+    question: "How much commission can I earn as a DSA?",
+    answer:
+      "Commission rates vary based on the loan type and amount. DSAs typically earn between 1% and 3% of the loan amount, and on the insurance policy, upon successful disbursement. Higher amounts and premium products may offer better commission rates.",
+  },
+  {
+    id: "dsa-qualifications",
+    question: "Do I need any specific qualifications to become a DSA?",
+    answer:
+      "No special degree or prior finance job is required. Register with your name, mobile number, and a 4-digit PIN. There is no joining fee and no investment. You can start after you agree to the Terms & Conditions and Privacy Policy.",
+  },
+  {
+    id: "dsa-part-time",
+    question: "Can I work as a DSA part-time?",
+    answer:
+      "Yes. You can work part-time from anywhere using your mobile. Share products and add customers in your own time, alongside a job or another business.",
+  },
+];

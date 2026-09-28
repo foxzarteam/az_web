@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import JsonLd from "@/app/components/seo/JsonLd";
+import FaqSection from "@/app/components/home/faq";
+import { DSA_FAQ_ITEMS } from "@/app/components/home/faq/faq-data";
+import PartnerAudience from "./components/partner-audience";
 import PartnerBenefits from "./components/partner-benefits";
 import ThreeSteps from "./components/three-steps";
 import IndiaMapClient from "./components/IndiaMapClient";
 import {
   buildPageMetadata,
+  faqPageJsonLd,
   pageSeoGlue,
 } from "@/app/lib/seo";
 
@@ -24,6 +28,7 @@ const structuredData = pageSeoGlue({
   description: PAGE_DESC,
   path: "/become-partner",
   includeServiceCatalog: true,
+  extra: [faqPageJsonLd(DSA_FAQ_ITEMS, "/become-partner")],
 });
 
 export default function BecomePartnerPage() {
@@ -48,8 +53,10 @@ export default function BecomePartnerPage() {
         </div>
       </div>
       <IndiaMapClient />
-      <ThreeSteps />
+      {false && <ThreeSteps />}
+      <PartnerAudience />
       <PartnerBenefits />
+      <FaqSection items={DSA_FAQ_ITEMS} />
     </>
   );
 }

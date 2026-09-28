@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
@@ -269,26 +270,29 @@ export default function IndiaMap() {
 
   return (
     <>
-      <section className="partner-hero-shine bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 py-12 sm:py-16 md:py-20 px-4 sm:px-6 relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-blue-900/50 to-blue-800/50" />
-        
+      <section className="relative overflow-hidden bg-gray-100 px-4 pt-12 pb-0 sm:px-6 sm:pt-16 md:pt-20">
         <div className="container relative z-[1] mx-auto max-w-full md:max-w-screen-lg lg:max-w-screen-2xl">
-          <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-3 sm:mb-4">
-            Agents Across India Are Earning Daily
-          </h2>
-
-          <p className="text-white/90 text-center text-sm sm:text-base md:text-lg max-w-3xl mx-auto mb-4 sm:mb-6 leading-relaxed">
-            Multiple agents are working with us every day and earning real money.
-          </p>
-
-          <div className="flex justify-center mb-6 sm:mb-8 md:mb-10 px-0">
+          <div className="mb-8 grid items-stretch gap-6 sm:mb-10 sm:gap-8 md:mb-12 lg:grid-cols-2 lg:gap-10">
+            <div className="relative min-h-64 w-full overflow-hidden rounded-2xl sm:min-h-80 sm:rounded-3xl lg:h-full lg:min-h-0">
+              <Image
+                src="/images/features/partner-dsa.webp"
+                alt="Partner working from a phone, with flexible schedule, zero investment, full support, and earnings up to one lakh per month"
+                fill
+                priority
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-cover object-center"
+              />
+            </div>
             <form
               onSubmit={handleHeroJoinSubmit}
-              className="w-full max-w-2xl"
+              className="w-full min-w-0"
               noValidate
               suppressHydrationWarning
             >
               <div className="rounded-2xl sm:rounded-3xl bg-white/95 backdrop-blur-md border border-white/40 shadow-[0_20px_50px_rgba(0,0,0,0.25)] p-5 sm:p-6 md:p-8 space-y-4">
+                <h2 className="text-center text-xl font-bold text-midnight_text sm:text-2xl">
+                  Register as a DSA partner
+                </h2>
                 <div className="min-w-0">
                     <label htmlFor="hero-full-name" className="sr-only">
                       Full Name
@@ -459,7 +463,15 @@ export default function IndiaMap() {
             </form>
           </div>
 
-          <div className="relative bg-purple-950/30 rounded-xl sm:rounded-2xl p-2 sm:p-4 md:p-5 lg:p-6 border border-purple-700/30 shadow-2xl backdrop-blur-sm">
+          <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 px-4 py-8 sm:px-6 sm:py-10 md:py-12">
+            <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-3 sm:mb-4">
+              Agents Across India Are Earning Daily
+            </h2>
+
+            <p className="text-white/90 text-center text-sm sm:text-base md:text-lg max-w-3xl mx-auto mb-4 sm:mb-6 leading-relaxed">
+              Multiple agents are working with us every day and earning real money.
+            </p>
+
             <div
               ref={mapWrapRef}
               className="relative mx-auto w-full min-h-[280px] h-[min(68vh,480px)] xs:h-[min(72vh,540px)] sm:h-[min(78vh,620px)] md:h-[min(82vh,700px)] lg:h-[min(85vh,820px)] xl:h-[min(86vh,900px)] overflow-hidden bg-purple-900/20"
@@ -538,29 +550,12 @@ export default function IndiaMap() {
                 );
               })}
             </div>
-          </div>
 
-          <div className="mt-6 sm:mt-8 text-center px-2">
-            <p className="max-w-full text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white inline-block px-3 xs:px-4 sm:px-6 py-2 xs:py-2.5 sm:py-3 theme-gradient-bg rounded-lg border border-purple-600/50 backdrop-blur-sm leading-snug">
-              India&apos;s Trusted Loan & Insurance Partner Platform
-            </p>
-            <p className="mt-3 text-sm text-white/90 sm:text-base">
-              Help your customers to get{" "}
-              <Link
-                href="/products/personal-loan/"
-                className="font-semibold text-white underline underline-offset-4 hover:text-white"
-              >
-                Loans
-              </Link>{" "}
-              &amp;{" "}
-              <Link
-                href="/products/insurance/"
-                className="font-semibold text-white underline underline-offset-4 hover:text-white"
-              >
-                Insurance
-              </Link>{" "}
-              easily online and earn extra income!
-            </p>
+            <div className="mt-6 text-center sm:mt-8">
+              <p className="theme-gradient-bg inline-block max-w-full rounded-lg border border-purple-600/50 px-3 py-2 text-sm font-bold leading-snug text-white backdrop-blur-sm xs:px-4 xs:py-2.5 xs:text-base sm:px-6 sm:py-3 sm:text-lg md:text-xl lg:text-2xl">
+                India&apos;s Trusted Loan & Insurance Partner Platform
+              </p>
+            </div>
           </div>
         </div>
       </section>
