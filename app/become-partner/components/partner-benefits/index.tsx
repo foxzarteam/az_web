@@ -5,7 +5,7 @@ function BenefitIcon({ kind }: { kind: "earn" | "anywhere" | "start" | "payout" 
       return (
         <svg viewBox="0 0 24 24" fill="none" className={common} aria-hidden>
           <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M12 7v10M9.5 9.5c.6-1 1.5-1.5 2.5-1.5 1.4 0 2.5.9 2.5 2s-1.1 2-2.5 2h-1c-1.4 0-2.5.9-2.5 2s1.1 2 2.5 2c1 0 1.9-.5 2.5-1.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <path d="M8.5 8h7M8.5 10.7h7M8.5 8c2.7.2 4.3 1.4 4.3 3.1S11.2 14.2 8.5 14.2m0 0 4.7 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       );
     case "anywhere":
