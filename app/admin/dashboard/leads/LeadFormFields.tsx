@@ -291,7 +291,7 @@ export default function LeadFormFields({
           ) : null}
         </label>
       ) : null}
-      {panMode === "edit" && canApprove && form.status === "approved" ? (
+      {panMode === "edit" && canApprove && form.partnerLead && form.status === "approved" ? (
         <ApprovedCommissionFields
           form={form}
           setForm={setForm}

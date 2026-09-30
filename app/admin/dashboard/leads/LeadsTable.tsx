@@ -189,7 +189,7 @@ export default function LeadsTable({
       payload.status = "pending";
     } else if (canApprove) {
       payload.status = form.status;
-      if (form.status === "approved") {
+      if (form.partnerLead && form.status === "approved") {
         payload.commissionType = form.category === "insurance" ? "fixed" : "percentage";
         const commission = Number(String(form.commissionValue).replace(/,/g, "").trim());
         payload.commissionValue = Number.isFinite(commission) ? commission : null;

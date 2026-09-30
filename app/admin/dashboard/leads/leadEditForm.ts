@@ -22,6 +22,8 @@ export type EditForm = {
   consentAccepted: boolean;
   commissionType: CommissionChoice;
   commissionValue: string;
+  /** False when the lead has no partner. Direct leads do not earn commission. */
+  partnerLead: boolean;
 };
 
 export function clampLoanAmount(value: unknown): number {
@@ -53,6 +55,7 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
         : "",
     pincode: String(lead.pincode ?? "").replace(/\D/g, "").slice(0, 6),
     ...commissionFromStoredLead(lead),
+    partnerLead: Boolean(String(lead.agent_id ?? "").trim()),
     consentAccepted:
       lead.consent_accepted === true ||
       lead.consent_accepted === 1 ||
@@ -92,6 +95,7 @@ export function emptyCreateForm(): EditForm {
     consentAccepted: false,
     commissionType: "",
     commissionValue: "",
+    partnerLead: false,
   };
 }
 
@@ -145,7 +149,7 @@ export function validateLeadForm(
   if (form.category === "insurance" && !form.insType.trim()) {
     errors.insType = "Select insurance type";
   }
-  if (form.status === "approved") {
+  if (form.partnerLead && form.status === "approved") {
     const commissionValue = commissionValueError(form.category, form.requiredAmount, form.commissionValue);
     if (commissionValue) errors.commissionValue = commissionValue;
   }
