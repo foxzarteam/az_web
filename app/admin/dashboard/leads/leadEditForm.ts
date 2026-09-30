@@ -1,6 +1,11 @@
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
 import { PERSONAL_LOAN_EMI_LIMITS, PERSONAL_LOAN_TENURE } from "@/app/config/constants";
 import { DEFAULT_LOAN_AMOUNT } from "./leadDisplay";
+import {
+  type CommissionChoice,
+  commissionFromStoredLead,
+  commissionValueError,
+} from "./leadCommission";
 
 export type EditForm = {
   fullName: string;
@@ -15,6 +20,8 @@ export type EditForm = {
   netMonthlyIncome: string;
   pincode: string;
   consentAccepted: boolean;
+  commissionType: CommissionChoice;
+  commissionValue: string;
 };
 
 export function clampLoanAmount(value: unknown): number {
@@ -45,6 +52,7 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
         ? String(lead.net_monthly_income)
         : "",
     pincode: String(lead.pincode ?? "").replace(/\D/g, "").slice(0, 6),
+    ...commissionFromStoredLead(lead),
     consentAccepted:
       lead.consent_accepted === true ||
       lead.consent_accepted === 1 ||
@@ -82,6 +90,8 @@ export function emptyCreateForm(): EditForm {
     netMonthlyIncome: "",
     pincode: "",
     consentAccepted: false,
+    commissionType: "",
+    commissionValue: "",
   };
 }
 
@@ -91,6 +101,8 @@ export type FieldErrors = {
   employmentType?: string;
   netMonthlyIncome?: string;
   pincode?: string;
+  insType?: string;
+  commissionValue?: string;
   consent?: string;
 };
 
@@ -129,6 +141,13 @@ export function validateLeadForm(
     if (!form.netMonthlyIncome.trim() || !Number.isFinite(income) || income <= 0) {
       errors.netMonthlyIncome = "Enter a valid net monthly income";
     }
+  }
+  if (form.category === "insurance" && !form.insType.trim()) {
+    errors.insType = "Select insurance type";
+  }
+  if (form.status === "approved") {
+    const commissionValue = commissionValueError(form.category, form.requiredAmount, form.commissionValue);
+    if (commissionValue) errors.commissionValue = commissionValue;
   }
   if (opts?.requireConsent && !form.consentAccepted) {
     errors.consent = "Please agree to the T&C and Privacy Policy to continue.";

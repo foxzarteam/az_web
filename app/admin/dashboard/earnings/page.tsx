@@ -4,9 +4,7 @@ import { fetchLeadsByAgent, type AdminLeadRow } from "@/app/lib/admin/fetchLeads
 import { redirect } from "next/navigation";
 import { ADMIN_CARD, ADMIN_UI } from "@/app/components/shared/crm/ui";
 import EarningsTable, { type EarningLedgerRow } from "./EarningsTable";
-
-const LOAN_COMMISSION_RATE = 0.02;
-const INSURANCE_COMMISSION_FLAT = 1000;
+import { partnerCommissionRupees } from "@/app/admin/dashboard/leads/leadCommission";
 
 function formatMoney(n: number) {
   try {
@@ -25,23 +23,8 @@ function roundMoney(n: number): number {
   return Math.round(Math.max(0, n) * 100) / 100;
 }
 
-/** Same rules as Nest wallet: insurance ₹1000, loan 2% of amount (or loan_amt range midpoint). */
 function commissionForLead(lead: AdminLeadRow): number {
-  const cat = String(lead.category ?? "")
-    .trim()
-    .toLowerCase()
-    .replace(/-/g, "_");
-  if (cat === "insurance") return INSURANCE_COMMISSION_FLAT;
-  const exact = Number(lead.required_amount);
-  if (Number.isFinite(exact) && exact > 0) {
-    return roundMoney(exact * LOAN_COMMISSION_RATE);
-  }
-  const range = String(lead.loan_amt ?? "").trim();
-  const m = range.match(/^(\d+)_(\d+)$/);
-  if (!m) return 0;
-  const mid = (Number(m[1]) + Number(m[2])) / 2;
-  if (!Number.isFinite(mid) || mid <= 0) return 0;
-  return roundMoney(mid * LOAN_COMMISSION_RATE);
+  return partnerCommissionRupees(lead);
 }
 
 function formatLeadDate(iso: unknown): string {

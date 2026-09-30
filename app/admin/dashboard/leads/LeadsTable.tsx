@@ -19,6 +19,7 @@ import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import { sendFirebasePhoneOtp, warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
 import { LeadCreditDisclaimer } from "@/app/components/shared/TermsAgreementCheckbox";
 import LeadFormFields from "./LeadFormFields";
+import AddLeadProductPicker, { type AddLeadProduct } from "./AddLeadProductPicker";
 import {
   VIEW_FIELDS,
   FIELD_LABELS,
@@ -57,6 +58,7 @@ export default function LeadsTable({
   const [editLead, setEditLead] = useState<AdminLeadRow | null>(null);
   const [deleteLead, setDeleteLead] = useState<AdminLeadRow | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [createStep, setCreateStep] = useState<"pick" | "form">("pick");
   const [editForm, setEditForm] = useState<EditForm | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -79,6 +81,7 @@ export default function LeadsTable({
     setEditLead(null);
     setDeleteLead(null);
     setCreateOpen(false);
+    setCreateStep("pick");
     setEditForm(null);
     setError(null);
     setFieldErrors({});
@@ -114,13 +117,33 @@ export default function LeadsTable({
   function openCreate() {
     warmFirebaseAuth();
     setCreateOpen(true);
-    setEditForm(emptyCreateForm());
+    setCreateStep("pick");
+    setEditForm(null);
     setError(null);
     setFieldErrors({});
     setViewPanFull(null);
     setOtpOpen(false);
     setOtpSendPromise(null);
     pendingCreateRef.current = null;
+  }
+
+  function chooseCreateProduct(product: AddLeadProduct) {
+    const base = emptyCreateForm();
+    setEditForm({
+      ...base,
+      category: product,
+      insType: product === "insurance" ? "" : base.insType,
+    });
+    setCreateStep("form");
+    setError(null);
+    setFieldErrors({});
+  }
+
+  function backToProductPick() {
+    setCreateStep("pick");
+    setEditForm(null);
+    setError(null);
+    setFieldErrors({});
   }
 
   function openEdit(lead: AdminLeadRow) {
@@ -139,7 +162,6 @@ export default function LeadsTable({
       fullName: form.fullName.trim(),
       mobileNumber: form.mobileNumber.trim(),
       category: form.category,
-      status: readOnly ? "pending" : form.status,
       pincode: form.pincode.trim() || null,
     };
     if (form.category === "personal_loan") {
@@ -164,6 +186,17 @@ export default function LeadsTable({
     }
     if (opts?.includeConsent) {
       payload.consentAccepted = form.consentAccepted === true;
+      payload.status = "pending";
+    } else if (canApprove) {
+      payload.status = form.status;
+      if (form.status === "approved") {
+        payload.commissionType = form.category === "insurance" ? "fixed" : "percentage";
+        const commission = Number(String(form.commissionValue).replace(/,/g, "").trim());
+        payload.commissionValue = Number.isFinite(commission) ? commission : null;
+      } else {
+        payload.commissionType = null;
+        payload.commissionValue = null;
+      }
     }
     return payload;
   }
@@ -202,6 +235,7 @@ export default function LeadsTable({
       validationErrors.employmentType ||
       validationErrors.netMonthlyIncome ||
       validationErrors.pincode ||
+      validationErrors.insType ||
       validationErrors.consent
     ) {
       setFieldErrors(validationErrors);
@@ -303,7 +337,9 @@ export default function LeadsTable({
       validationErrors.pan ||
       validationErrors.employmentType ||
       validationErrors.netMonthlyIncome ||
-      validationErrors.pincode
+      validationErrors.pincode ||
+      validationErrors.insType ||
+      validationErrors.commissionValue
     ) {
       setFieldErrors(validationErrors);
       return;
@@ -634,8 +670,18 @@ export default function LeadsTable({
         </AdminModal>
       )}
 
-      {createOpen && editForm && (
-        <AdminModal title="Add lead" fit onClose={closeModals}>
+      {createOpen && createStep === "pick" && (
+        <AdminModal title="Add lead" onClose={closeModals}>
+          <AddLeadProductPicker onSelect={chooseCreateProduct} />
+        </AdminModal>
+      )}
+
+      {createOpen && createStep === "form" && editForm && (
+        <AdminModal
+          title={editForm.category === "insurance" ? "Add insurance lead" : "Add personal loan lead"}
+          fit
+          onClose={closeModals}
+        >
           <form onSubmit={handleCreate} className="space-y-6 p-6 sm:p-8" noValidate>
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <LeadFormFields
@@ -645,10 +691,12 @@ export default function LeadsTable({
               fieldErrors={fieldErrors}
               clearFieldError={clearFieldError}
               panMode="create"
-              hideStatus={readOnly}
               canApprove={canApprove}
             />
-            <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
+            <div className="flex flex-wrap justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
+              <button type="button" onClick={backToProductPick} className={ADMIN_BTN_SECONDARY}>
+                Back
+              </button>
               <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
                 Cancel
               </button>

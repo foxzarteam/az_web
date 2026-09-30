@@ -151,27 +151,45 @@ BEGIN
 
   SELECT COALESCE(SUM(
     CASE
+      WHEN lower(btrim(COALESCE(commission_type, ''))) = 'percentage'
+           AND commission_value >= 0.1
+           AND commission_value <= 10
+           AND base_amount > 0
+        THEN ROUND(base_amount * commission_value / 100.0, 2)
+      WHEN lower(btrim(COALESCE(commission_type, ''))) = 'fixed'
+           AND commission_value >= 100
+           AND commission_value <= 30000
+        THEN ROUND(commission_value, 2)
       WHEN replace(lower(btrim(COALESCE(category::text, ''))), '-', '_') = 'insurance'
         THEN 1000::numeric
-      WHEN COALESCE(required_amount, 0) > 0
-        THEN ROUND((required_amount::numeric * 0.02), 2)
-      WHEN COALESCE(loan_amt, '') ~ '^[0-9]+_[0-9]+$'
-        THEN ROUND(
-          (
-            (
-              split_part(loan_amt, '_', 1)::numeric
-              + split_part(loan_amt, '_', 2)::numeric
-            ) / 2
-          ) * 0.02
-        , 2)
+      WHEN base_amount > 0
+        THEN ROUND(base_amount * 0.02, 2)
       ELSE 0::numeric
     END
   ), 0)
   INTO v_earning
-  FROM public.leads
-  WHERE agent_id = v_agent
-    AND lower(btrim(COALESCE(status, ''))) = 'approved'
-    AND COALESCE(is_active, true) = true;
+  FROM (
+    SELECT
+      category,
+      commission_type,
+      commission_value,
+      CASE
+        WHEN replace(lower(btrim(COALESCE(category::text, ''))), '-', '_') = 'insurance'
+          THEN 0::numeric
+        WHEN COALESCE(required_amount, 0) > 0
+          THEN required_amount::numeric
+        WHEN COALESCE(loan_amt, '') ~ '^[0-9]+_[0-9]+$'
+          THEN (
+            split_part(loan_amt, '_', 1)::numeric
+            + split_part(loan_amt, '_', 2)::numeric
+          ) / 2
+        ELSE 0::numeric
+      END AS base_amount
+    FROM public.leads
+    WHERE agent_id = v_agent
+      AND lower(btrim(COALESCE(status, ''))) = 'approved'
+      AND COALESCE(is_active, true) = true
+  ) approved_leads;
 
   SELECT id, redeem
   INTO v_id, v_redeem
@@ -318,6 +336,8 @@ CREATE TABLE public.leads (
     employment_type character varying(30),
     net_monthly_income numeric(12,0),
     loan_tenure_months integer,
+    commission_type character varying(20),
+    commission_value numeric(12,2),
     ip_location character varying(255),
     ip character varying(45),
     agent_id uuid,

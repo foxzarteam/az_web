@@ -19,13 +19,18 @@ import {
   STATUSES,
   categoryLabel,
   formatCurrencyInr,
-  leadCommissionAmount,
 } from "./leadDisplay";
 import {
   type EditForm,
   type FieldErrors,
   isMaskedPanValue,
 } from "./leadEditForm";
+import {
+  COMMISSION_LIMITS,
+  commissionPreviewRupees,
+  isInsuranceCategory,
+  lockedCommissionType,
+} from "./leadCommission";
 
 function FieldErrorText({ message }: { message?: string }) {
   if (!message) return null;
@@ -43,7 +48,6 @@ export default function LeadFormFields({
   panMode = "create",
   onRevealPan,
   revealingPan,
-  hideStatus = false,
   canApprove = false,
 }: {
   form: EditForm;
@@ -54,8 +58,6 @@ export default function LeadFormFields({
   panMode?: "create" | "edit";
   onRevealPan?: () => void;
   revealingPan?: boolean;
-  /** Partners cannot set lead status (always pending). */
-  hideStatus?: boolean;
   /** Only admin can set Approved (credits partner commission). */
   canApprove?: boolean;
 }) {
@@ -137,7 +139,10 @@ export default function LeadFormFields({
             className={inputClass}
             value={form.insType}
             disabled={commissionLocked}
-            onChange={(e) => setForm({ ...form, insType: e.target.value })}
+            onChange={(e) => {
+              setForm({ ...form, insType: e.target.value });
+              clearFieldError("insType");
+            }}
           >
             <option value="">Select insurance type</option>
             {insSelectOptions.map((o) => (
@@ -146,6 +151,7 @@ export default function LeadFormFields({
               </option>
             ))}
           </select>
+          <FieldErrorText message={fieldErrors.insType} />
         </label>
       ) : null}
       <label className="block sm:col-span-2">
@@ -223,29 +229,54 @@ export default function LeadFormFields({
         ) : null}
         <FieldErrorText message={fieldErrors.pan} />
       </div>
-      <label className="block">
-        <span className={ADMIN_LABEL}>Product</span>
-        <select
-          className={inputClass}
-          value={form.category}
-          disabled={commissionLocked}
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
-        >
-          {categoryOptions.map((c) => (
-            <option key={c.value} value={c.value}>
-              {c.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      {!hideStatus ? (
+      {panMode === "edit" ? (
+        <label className="block">
+          <span className={ADMIN_LABEL}>Product</span>
+          <select
+            className={inputClass}
+            value={form.category}
+            disabled={commissionLocked}
+            onChange={(e) => {
+              const category = e.target.value;
+              const commissionType = lockedCommissionType(category);
+              setForm({
+                ...form,
+                category,
+                commissionType: form.status === "approved" ? commissionType : "",
+                commissionValue: form.commissionType === commissionType ? form.commissionValue : "",
+              });
+              clearFieldError("commissionValue");
+            }}
+          >
+            {categoryOptions.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+      {panMode === "edit" && canApprove ? (
         <label className="block">
           <span className={ADMIN_LABEL}>Status</span>
           <select
             className={inputClass}
             value={form.status}
             disabled={statusLocked}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
+            onChange={(e) => {
+              const status = e.target.value;
+              const commissionType = lockedCommissionType(form.category);
+              setForm({
+                ...form,
+                status,
+                commissionType: status === "approved" ? commissionType : form.commissionType,
+                commissionValue:
+                  status === "approved" && form.commissionType !== commissionType
+                    ? ""
+                    : form.commissionValue,
+              });
+              clearFieldError("commissionValue");
+            }}
           >
             {statusOptions.map((s) => (
               <option key={s.value} value={s.value}>
@@ -258,16 +289,17 @@ export default function LeadFormFields({
               Only an admin can change an approved lead or its commission.
             </span>
           ) : null}
-          {canApprove && form.status === "approved" ? (
-            <span className="mt-2 block rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/40 dark:text-amber-200">
-              Approved credits partner commission (
-              {form.category === "insurance"
-                ? "₹1,000"
-                : `${formatCurrencyInr(leadCommissionAmount(form.category, form.requiredAmount))} (2%)`}
-              ).
-            </span>
-          ) : null}
         </label>
+      ) : null}
+      {panMode === "edit" && canApprove && form.status === "approved" ? (
+        <ApprovedCommissionFields
+          form={form}
+          setForm={setForm}
+          inputClass={inputClass}
+          fieldErrors={fieldErrors}
+          clearFieldError={clearFieldError}
+          disabled={commissionLocked}
+        />
       ) : null}
       {form.category === "personal_loan" ? (
         <div className={`sm:col-span-2${commissionLocked ? " pointer-events-none opacity-60" : ""}`}>
@@ -296,6 +328,54 @@ export default function LeadFormFields({
           <FieldErrorText message={fieldErrors.consent} />
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function ApprovedCommissionFields({
+  form,
+  setForm,
+  inputClass,
+  fieldErrors,
+  clearFieldError,
+  disabled,
+}: {
+  form: EditForm;
+  setForm: (next: EditForm) => void;
+  inputClass: string;
+  fieldErrors: FieldErrors;
+  clearFieldError: (key: keyof FieldErrors) => void;
+  disabled: boolean;
+}) {
+  const fixed = isInsuranceCategory(form.category);
+  const preview = commissionPreviewRupees(form.category, form.requiredAmount, form.commissionValue);
+  const { percentMin, percentMax, fixedMin, fixedMax } = COMMISSION_LIMITS;
+
+  return (
+    <div className="block">
+      <label className="block" htmlFor="admin-lead-commission-value">
+        <span className={ADMIN_LABEL}>{fixed ? "Fixed amount" : "Percentage"}</span>
+        <input
+          id="admin-lead-commission-value"
+          className={inputClass}
+          value={form.commissionValue}
+          disabled={disabled}
+          inputMode="decimal"
+          placeholder={fixed ? `${fixedMin} to ${fixedMax}` : `${percentMin} to ${percentMax}`}
+          onChange={(e) => {
+            const commissionValue = e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
+            setForm({ ...form, commissionType: lockedCommissionType(form.category), commissionValue });
+            clearFieldError("commissionValue");
+          }}
+        />
+      </label>
+      <span className="mt-1 block text-xs text-slate-500">
+        {fixed
+          ? `Enter a fixed amount from ₹${fixedMin.toLocaleString("en-IN")} to ₹${fixedMax.toLocaleString("en-IN")}.`
+          : `Enter a percentage from ${percentMin} to ${percentMax}.`}
+        {preview != null ? ` Partner gets ${formatCurrencyInr(preview)}.` : ""}
+      </span>
+      <FieldErrorText message={fieldErrors.commissionValue} />
     </div>
   );
 }
