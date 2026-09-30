@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { AFFILIATE_COOKIE, normalizeAffiliateCode } from "@/app/lib/affiliate/code";
 
-/** Drop legacy `az_ref` cookie — attribution is URL-only now. */
+/** Drop legacy `az_ref` cookie — attribution is tab session, not a cookie. */
 function clearAffiliateCookie(res: NextResponse) {
   res.cookies.set(AFFILIATE_COOKIE, "", {
     path: "/",

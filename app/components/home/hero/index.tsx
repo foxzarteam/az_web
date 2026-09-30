@@ -1,22 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { DEFAULT_IMAGES } from "@/app/config/constants";
 import HeroFeatureIcons from "./HeroFeatureIcons";
 import HeroTrustStrip from "./HeroTrustStrip";
 
-const PersonalLoanApplyModal = dynamic(
-  () => import("@/app/components/leads/PersonalLoanApplyModal"),
-  { ssr: false },
-);
-
 export default function Hero() {
-  const [applyOpen, setApplyOpen] = useState(false);
-  const [applyModalMounted, setApplyModalMounted] = useState(false);
-
   return (
     <section
       id="home"
@@ -45,19 +35,15 @@ export default function Hero() {
             <HeroFeatureIcons />
 
             <div className="mt-6 flex w-full flex-col gap-3 sm:mt-7 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setApplyModalMounted(true);
-                  setApplyOpen(true);
-                }}
+              <Link
+                href="/products/personal-loan/"
                 className="btn-gradient btn-shine relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-6 py-3.5 text-sm font-bold text-white shadow-[0_8px_24px_rgba(66,54,251,0.35)] transition duration-300 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 Apply for Personal Loan
                 <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden>
                   <path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-              </button>
+              </Link>
               <Link
                 href="/check-eligibility/"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-primary/30 bg-white px-6 py-3.5 text-sm font-bold text-primary transition duration-300 hover:border-primary hover:bg-primary/5 dark:bg-darklight dark:text-white sm:w-auto sm:px-8 sm:py-4 sm:text-base"
@@ -65,10 +51,6 @@ export default function Hero() {
                 Check Eligibility
               </Link>
             </div>
-
-            {applyModalMounted && (
-              <PersonalLoanApplyModal open={applyOpen} onClose={() => setApplyOpen(false)} />
-            )}
 
             <p className="mt-4 sm:mt-5 flex items-center gap-2 text-xs sm:text-sm font-medium text-gray">
               <svg viewBox="0 0 20 20" className="h-4 w-4 sm:h-[18px] sm:w-[18px] shrink-0" fill="none" aria-hidden>

@@ -2,7 +2,7 @@
 
 import { useProductsApply } from "@/app/components/affiliate/ProductsApplyProvider";
 
-/** Bottom CTA on products hub — opens apply modals (does not leave partner `/r/CODE` URL). */
+/** Bottom CTA on products hub — opens the personal loan or insurance page. */
 export default function ProductsHubReadyCta() {
   const { openPersonalLoan, openInsurance } = useProductsApply();
 

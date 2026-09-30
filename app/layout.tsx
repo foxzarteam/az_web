@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { DM_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
@@ -17,6 +18,7 @@ import {
 import Header from "./components/layout/header";
 import Footer from "./components/layout/footer";
 import LoanHelperChatLazy from "./components/loan-helper/LoanHelperChatLazy";
+import PartnerRefSession from "./components/affiliate/PartnerRefSession";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -124,6 +126,9 @@ export default async function RootLayout({
           nonce=""
         >
           <Aoscompo>
+            <Suspense fallback={null}>
+              <PartnerRefSession />
+            </Suspense>
             <ServiceCardsProvider cards={catalog.cards} insuranceTypes={catalog.insuranceTypes}>
               <Header />
               <div

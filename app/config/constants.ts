@@ -53,6 +53,13 @@ export const PERSONAL_LOAN_EMI_LIMITS = {
   STEP_RATE: 0.1,
 } as const;
 
+/** Personal loan apply form tenure, in months. */
+export const PERSONAL_LOAN_TENURE = {
+  MIN_MONTHS: 12,
+  MAX_MONTHS: 72,
+  DEFAULT_MONTHS: 12,
+} as const;
+
 export const MOBILE_VALIDATION = {
   MIN_LENGTH: 10,
   MAX_LENGTH: 10,

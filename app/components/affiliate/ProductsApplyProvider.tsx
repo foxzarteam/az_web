@@ -1,23 +1,14 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
   useContext,
   useMemo,
-  useState,
   type ReactNode,
 } from "react";
-
-const PersonalLoanApplyModal = dynamic(
-  () => import("@/app/components/leads/PersonalLoanApplyModal"),
-  { ssr: false },
-);
-const InsuranceApplyModal = dynamic(
-  () => import("@/app/components/leads/InsuranceApplyModal"),
-  { ssr: false },
-);
+import { captureAffiliateCodeFromLocation } from "@/app/lib/affiliate/refCookie";
 
 type ProductsApplyContextValue = {
   openPersonalLoan: () => void;
@@ -34,24 +25,24 @@ export function useProductsApply(): ProductsApplyContextValue {
   return ctx;
 }
 
-/** Shared apply modals for products hub (cards + bottom CTA) so partner `/r/CODE` URL stays. */
+/** Products hub apply buttons go to the product page. Partner code stays in the tab session. */
 export default function ProductsApplyProvider({ children }: { children: ReactNode }) {
-  const [loanOpen, setLoanOpen] = useState(false);
-  const [insuranceOpen, setInsuranceOpen] = useState(false);
+  const router = useRouter();
 
-  const openPersonalLoan = useCallback(() => setLoanOpen(true), []);
-  const openInsurance = useCallback(() => setInsuranceOpen(true), []);
+  const openPersonalLoan = useCallback(() => {
+    captureAffiliateCodeFromLocation();
+    router.push("/products/personal-loan/");
+  }, [router]);
+
+  const openInsurance = useCallback(() => {
+    captureAffiliateCodeFromLocation();
+    router.push("/products/insurance/");
+  }, [router]);
 
   const value = useMemo(
     () => ({ openPersonalLoan, openInsurance }),
     [openPersonalLoan, openInsurance],
   );
 
-  return (
-    <ProductsApplyContext.Provider value={value}>
-      {children}
-      <PersonalLoanApplyModal open={loanOpen} onClose={() => setLoanOpen(false)} />
-      <InsuranceApplyModal open={insuranceOpen} onClose={() => setInsuranceOpen(false)} />
-    </ProductsApplyContext.Provider>
-  );
+  return <ProductsApplyContext.Provider value={value}>{children}</ProductsApplyContext.Provider>;
 }

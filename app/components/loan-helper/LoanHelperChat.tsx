@@ -1,23 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
-import { chatLoanAmountToRupees } from "@/app/lib/chat/types";
+import { usePathname, useRouter } from "next/navigation";
 import { hidePublicChrome } from "@/app/lib/layout/hidePublicChrome";
-
-const PersonalLoanApplyModal = dynamic(
-  () => import("@/app/components/leads/PersonalLoanApplyModal"),
-  { ssr: false },
-);
+import { captureAffiliateCodeFromLocation } from "@/app/lib/affiliate/refCookie";
 
 const AVATAR_SRC = "/images/loan-helper/avatar.webp";
 const TIMESTAMP = "10:30 AM";
 
 const EMPLOYMENT_OPTIONS = [
   { id: "salaried", label: "Salaried" },
-  { id: "self-employed", label: "Self-employed" },
+  { id: "self-employed", label: "Self employee / business" },
 ] as const;
 
 const SALARY_OPTIONS = [
@@ -44,25 +38,6 @@ type SalaryId = (typeof SALARY_OPTIONS)[number]["id"];
 type EmiId = (typeof EMI_OPTIONS)[number]["id"];
 type LoanAmountId = (typeof LOAN_AMOUNT_OPTIONS)[number]["id"];
 type Step = "employment" | "salary" | "emi" | "loan_amount" | "done";
-
-function chatSalaryToIncome(id: SalaryId | null): number | undefined {
-  if (!id) return undefined;
-  const map: Record<SalaryId, number> = {
-    "under-20k": 15_000,
-    "20-40k": 30_000,
-    "40-70k": 55_000,
-    "above-70k": 80_000,
-  };
-  return map[id];
-}
-
-function chatEmploymentToApi(
-  id: EmploymentId | null,
-): "salaried" | "self_employed" | undefined {
-  if (id === "salaried") return "salaried";
-  if (id === "self-employed") return "self_employed";
-  return undefined;
-}
 
 function ChatIcon({ className }: { className?: string }) {
   return (
@@ -209,7 +184,7 @@ export default function LoanHelperChat({
   const [salary, setSalary] = useState<SalaryId | null>(null);
   const [emi, setEmi] = useState<EmiId | null>(null);
   const [loanAmount, setLoanAmount] = useState<LoanAmountId | null>(null);
-  const [showApplyForm, setShowApplyForm] = useState(false);
+  const router = useRouter();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const handleFabClick = () => {
@@ -249,17 +224,9 @@ export default function LoanHelperChat({
 
   const openApplyForm = () => {
     setIsOpen(false);
-    setShowApplyForm(true);
+    captureAffiliateCodeFromLocation();
+    router.push("/products/personal-loan/");
   };
-
-  const resetChatFlow = useCallback(() => {
-    setStep("employment");
-    setEmployment(null);
-    setSalary(null);
-    setEmi(null);
-    setLoanAmount(null);
-    setShowApplyForm(false);
-  }, []);
 
   if (hidePublicChrome(pathname)) {
     return null;
@@ -463,19 +430,6 @@ export default function LoanHelperChat({
           <ChatIcon className="h-6 w-6" />
         )}
       </button>
-
-      <PersonalLoanApplyModal
-        open={showApplyForm}
-        onClose={() => {
-          setShowApplyForm(false);
-          resetChatFlow();
-        }}
-        initialLoanAmount={
-          loanAmount ? chatLoanAmountToRupees(loanAmount) : undefined
-        }
-        initialEmploymentType={chatEmploymentToApi(employment)}
-        initialNetMonthlyIncome={chatSalaryToIncome(salary)}
-      />
     </div>
   );
 }

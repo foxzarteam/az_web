@@ -150,7 +150,7 @@ export default function InsuranceTypeSelect({ id, value, onChange, options, clas
         onClick={() => setOpen((current) => !current)}
         className={
           className ??
-          "flex w-full min-h-11 items-center gap-2.5 rounded-xl border border-gray-300 bg-white px-3.5 py-2 text-left text-base text-midnight_text focus:outline-none focus:ring-2 focus:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80 dark:text-white"
+          "flex w-full min-h-10 items-center gap-2.5 rounded-xl border border-gray-300 bg-white px-3.5 py-2 text-left text-base text-midnight_text focus:outline-none focus:ring-2 focus:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80 dark:text-white"
         }
       >
         {selected ? <TypeIcon src={selectedSrc} /> : null}

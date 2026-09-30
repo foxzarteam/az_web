@@ -31,6 +31,7 @@ export const VIEW_FIELDS = [
   "otp_verified",
   "consent_accepted",
   "required_amount",
+  "loan_tenure_months",
   "employment_type",
   "net_monthly_income",
   "pincode",
@@ -49,6 +50,7 @@ export const FIELD_LABELS: Record<string, string> = {
   email: "Email",
   pincode: "Pincode",
   required_amount: "Loan amount",
+  loan_tenure_months: "Loan tenure",
   employment_type: "Employment type",
   net_monthly_income: "Net monthly income",
   ip: "Location",
@@ -119,6 +121,11 @@ export function formatValue(key: string, value: unknown, row?: AdminLeadRow): st
   }
   if (key === "otp_verified" || key === "consent_accepted") {
     return value === true || value === 1 || value === "true" ? "Yes" : "No";
+  }
+  if (key === "loan_tenure_months") {
+    const n = typeof value === "number" ? value : Number(value);
+    if (!Number.isFinite(n) || n <= 0) return "—";
+    return `${Math.round(n)} Months`;
   }
   if (key === "required_amount" || key === "net_monthly_income") {
     if (value == null || value === "") return "—";

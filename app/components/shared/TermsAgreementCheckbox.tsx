@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 
 type Props = {
@@ -17,8 +18,7 @@ type Props = {
 };
 
 const VALIDITY_MESSAGE = "Please agree to the terms and conditions to continue.";
-const LEAD_VALIDITY_MESSAGE =
-  "Please agree to the T&C and Privacy Policy to continue.";
+const LEAD_VALIDITY_MESSAGE = "Please tick the checkbox to continue.";
 
 export function LeadCreditDisclaimer({ className = "" }: { className?: string }) {
   return (
@@ -45,6 +45,13 @@ export default function TermsAgreementCheckbox({
   variant = "default",
 }: Props) {
   const validityMessage = variant === "lead" ? LEAD_VALIDITY_MESSAGE : VALIDITY_MESSAGE;
+
+  useEffect(() => {
+    const el = document.getElementById(id);
+    if (!(el instanceof HTMLInputElement)) return;
+    el.setCustomValidity(!required || checked ? "" : validityMessage);
+  }, [checked, id, required, validityMessage]);
+
   return (
     <div className={className}>
       <div className={`flex gap-2 ${compact ? "items-center" : "items-start gap-2.5"}`}>
@@ -53,11 +60,12 @@ export default function TermsAgreementCheckbox({
           type="checkbox"
           checked={checked}
           onChange={(e) => {
-            e.target.setCustomValidity("");
-            onChange(e.target.checked);
+            const next = e.target.checked;
+            e.target.setCustomValidity(!required || next ? "" : validityMessage);
+            onChange(next);
           }}
           onInvalid={(e) => {
-            e.currentTarget.setCustomValidity(validityMessage);
+            if (required) e.currentTarget.setCustomValidity(validityMessage);
           }}
           required={required}
           className={

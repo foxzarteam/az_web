@@ -13,6 +13,7 @@ export type CustomerLead = {
   ins_type: string | null;
   employment_type: string | null;
   net_monthly_income: number | null;
+  loan_tenure_months: number | null;
   created_at: string | null;
   updated_at: string | null;
   otp_verified: boolean;
@@ -59,6 +60,11 @@ function asCustomerLead(row: unknown): CustomerLead | null {
     ins_type: String(r.ins_type ?? "").trim() || null,
     employment_type: String(r.employment_type ?? "").trim() || null,
     net_monthly_income: income != null && Number.isFinite(income) ? income : null,
+    loan_tenure_months: (() => {
+      const raw = r.loan_tenure_months;
+      const n = typeof raw === "number" ? raw : Number(raw);
+      return Number.isFinite(n) ? n : null;
+    })(),
     created_at: r.created_at != null ? String(r.created_at) : null,
     updated_at: r.updated_at != null ? String(r.updated_at) : null,
     otp_verified: r.otp_verified === true,

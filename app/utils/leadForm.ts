@@ -47,7 +47,7 @@ export function insuranceTypeImageSrc(image?: string | null): string {
 
 export const EMPLOYMENT_TYPE_OPTIONS = [
   { value: "salaried", label: "Salaried" },
-  { value: "self_employed", label: "Self-Employed" },
+  { value: "self_employed", label: "Self employee / business" },
 ] as const;
 
 export function loanAmountLabel(value: string): string {
@@ -89,6 +89,7 @@ export type LeadFieldErrors = Partial<{
   fullName: string;
   service: string;
   loanAmt: string;
+  loanTenure: string;
   insType: string;
   employmentType: string;
   netMonthlyIncome: string;

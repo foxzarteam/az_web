@@ -346,6 +346,14 @@ export default function CustomerApplicationsTable({
                 {viewLead.category === "personal_loan" ? (
                   <>
                     <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
+                      <span className="text-gray-500">Loan tenure</span>
+                      <span className="text-right font-medium">
+                        {viewLead.loan_tenure_months != null && Number(viewLead.loan_tenure_months) > 0
+                          ? `${Math.round(Number(viewLead.loan_tenure_months))} Months`
+                          : "—"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
                       <span className="text-gray-500">Employment type</span>
                       <span className="text-right font-medium">
                         {viewLead.employment_type

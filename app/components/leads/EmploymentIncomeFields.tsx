@@ -40,18 +40,18 @@ export default function EmploymentIncomeFields({
   const incomeId = `${idPrefix}-income`;
 
   const employmentLabel = labelAsSpan ? (
-    <span className={labelClassName}>Employment type *</span>
+    <span className={labelClassName}>Employment type <span className="text-red-500">*</span></span>
   ) : (
     <label htmlFor={employmentId} className={labelClassName} style={labelStyle}>
-      Employment Type *
+      Employment Type <span className="text-red-500">*</span>
     </label>
   );
 
   const incomeLabel = labelAsSpan ? (
-    <span className={labelClassName}>Net monthly income *</span>
+    <span className={labelClassName}>Net monthly income <span className="text-red-500">*</span></span>
   ) : (
     <label htmlFor={incomeId} className={labelClassName} style={labelStyle}>
-      Net Monthly Income *
+      Net Monthly Income <span className="text-red-500">*</span>
     </label>
   );
 

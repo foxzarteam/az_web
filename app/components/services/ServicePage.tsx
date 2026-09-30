@@ -13,8 +13,9 @@ import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationStatusLink";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
+import LoanTenureSlider from "@/app/components/services/LoanTenureSlider";
 import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
-import { MOBILE_VALIDATION } from "@/app/config/constants";
+import { MOBILE_VALIDATION, PERSONAL_LOAN_TENURE } from "@/app/config/constants";
 import { customerLogin } from "@/app/utils/customerAuthApi";
 import { applyLead, isExistingApplicationError, leadIdFromResponse, mapServiceToCategory, type CreateLeadResponse } from "@/app/utils/leadApi";
 import {
@@ -62,13 +63,13 @@ function getSuccessMessage(title: string): string {
 const DEFAULT_LOAN_AMOUNT = 5_00_000;
 
 const inputClass =
-  "w-full min-h-11 px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode/80 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70";
+  "w-full min-h-10 px-3.5 py-2 rounded-xl border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode/80 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70";
 
 const mobileShellClass =
-  "flex min-h-11 items-center overflow-hidden rounded-xl border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80";
+  "flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80";
 
 const mobileInputClass =
-  "min-h-11 min-w-0 flex-1 bg-transparent px-3 py-2.5 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none";
+  "min-h-10 min-w-0 flex-1 bg-transparent px-3 py-2 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none";
 
 export default function ServicePage({
   title,
@@ -102,6 +103,7 @@ export default function ServicePage({
   const [mobile, setMobile] = useState("");
   const [pincode, setPincode] = useState("");
   const [loanAmount, setLoanAmount] = useState(DEFAULT_LOAN_AMOUNT);
+  const [loanTenure, setLoanTenure] = useState<number>(PERSONAL_LOAN_TENURE.DEFAULT_MONTHS);
   const [insType, setInsType] = useState("");
   const [employmentType, setEmploymentType] = useState("");
   const [netMonthlyIncome, setNetMonthlyIncome] = useState("");
@@ -128,9 +130,13 @@ export default function ServicePage({
   }, [pageServiceSlug]);
 
   const handleSubmit = async (form: HTMLFormElement) => {
-    if (!reportFormValidity(form) || isSubmittingForm) return;
+    if (isSubmittingForm) return;
+    if (!reportFormValidity(form)) {
+      setFormError("");
+      return;
+    }
     if (!termsAccepted) {
-      setFormError("Please agree to the T&C and Privacy Policy to continue.");
+      setFormError("Please tick the checkbox to continue.");
       return;
     }
 
@@ -151,6 +157,7 @@ export default function ServicePage({
           fullName,
           pincode,
           loanAmount,
+          loanTenureMonths: loanTenure,
           employmentType,
           netMonthlyIncome,
         }),
@@ -179,6 +186,7 @@ export default function ServicePage({
               fullName,
               pincode,
               loanAmount,
+              loanTenureMonths: loanTenure,
               employmentType,
               netMonthlyIncome,
             })
@@ -192,6 +200,7 @@ export default function ServicePage({
         ...(pl
           ? {
               requiredAmount: pl.requiredAmount,
+              loanTenureMonths: pl.loanTenureMonths,
               employmentType: pl.employmentType,
               netMonthlyIncome: pl.netMonthlyIncome,
             }
@@ -313,13 +322,13 @@ export default function ServicePage({
                   )}
 
                   {showLoanAmount && (
-                    <LoanAmountSlider value={loanAmount} onChange={setLoanAmount} />
+                    <LoanAmountSlider value={loanAmount} onChange={setLoanAmount} required />
                   )}
 
                   {showInsuranceType && (
-                    <div>
+                    <div className="relative">
                       <label htmlFor="service-ins-type" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
-                        Insurance type *
+                        Insurance type <span className="text-red-500">*</span>
                       </label>
                       <InsuranceTypeSelect
                         id="service-ins-type"
@@ -327,13 +336,26 @@ export default function ServicePage({
                         onChange={setInsType}
                         options={insuranceTypeOptions}
                       />
+                      <input
+                        value={insType}
+                        required
+                        onChange={() => undefined}
+                        tabIndex={-1}
+                        aria-label="Insurance type"
+                        ref={(node) => {
+                          node?.setCustomValidity(
+                            insType.trim() ? "" : "Please select insurance type",
+                          );
+                        }}
+                        className="pointer-events-none absolute inset-x-0 bottom-0 h-10 opacity-0"
+                      />
                     </div>
                   )}
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                     <div>
                       <label htmlFor="service-fullname" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
-                        Full Name *
+                        Full Name <span className="text-red-500">*</span>
                       </label>
                       <input
                         id="service-fullname"
@@ -342,11 +364,12 @@ export default function ServicePage({
                         onChange={(e) => setFullName(sanitizeLeadNameInput(e.target.value))}
                         placeholder="Full Name (As per PAN)"
                         className={inputClass}
+                        required
                       />
                     </div>
                     <div>
                       <label htmlFor="service-pan" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
-                        PAN Card number *
+                        PAN Card number <span className="text-red-500">*</span>
                       </label>
                       <input
                         id="service-pan"
@@ -356,6 +379,7 @@ export default function ServicePage({
                         maxLength={10}
                         placeholder="e.g. ABCDE1234F"
                         className={inputClass}
+                        required
                       />
                     </div>
                   </div>
@@ -363,7 +387,7 @@ export default function ServicePage({
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                     <div>
                       <label className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                        Mobile Number *
+                        Mobile Number <span className="text-red-500">*</span>
                       </label>
                       <div className={mobileShellClass}>
                         <span className="flex shrink-0 items-center pl-3" aria-hidden>
@@ -383,6 +407,7 @@ export default function ServicePage({
                           onChange={(e) => setMobile(sanitizeMobileInput(e.target.value))}
                           pattern="[0-9]*"
                           className={mobileInputClass}
+                          required
                         />
                       </div>
                     </div>
@@ -391,7 +416,7 @@ export default function ServicePage({
                         htmlFor="service-pincode"
                         className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
                       >
-                        Pincode *
+                        Pincode <span className="text-red-500">*</span>
                       </label>
                       <input
                         id="service-pincode"
@@ -421,6 +446,14 @@ export default function ServicePage({
                     />
                   )}
 
+                  {showLoanAmount && (
+                    <LoanTenureSlider
+                      value={loanTenure}
+                      onChange={setLoanTenure}
+                      label="Select Loan Tenure"
+                    />
+                  )}
+
                   <TermsAgreementCheckbox
                     id="service-terms"
                     variant="lead"
@@ -429,10 +462,10 @@ export default function ServicePage({
                     textClassName="text-xs leading-snug text-gray-600 dark:text-gray-400 sm:text-sm"
                   />
 
-                  <div className="mt-auto w-full pt-2 sm:pt-3">
+                  <div className={showLoanAmount ? "w-full" : "mt-auto w-full pt-2 sm:pt-3"}>
                     <button
                       type="submit"
-                      disabled={isSubmittingForm || !termsAccepted}
+                      disabled={isSubmittingForm}
                       className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl btn-gradient text-white text-sm sm:text-base font-semibold py-2.5 sm:py-3 px-4 transition-opacity shadow-md min-h-[44px] disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                       {isSubmittingForm ? "Submitting…" : "Apply Now"}

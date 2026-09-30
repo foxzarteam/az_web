@@ -144,6 +144,7 @@ export default function LeadsTable({
     };
     if (form.category === "personal_loan") {
       payload.requiredAmount = form.requiredAmount;
+      payload.loanTenureMonths = form.loanTenureMonths;
       payload.insType = null;
       payload.loanAmt = null;
       payload.employmentType = form.employmentType || null;
@@ -152,6 +153,7 @@ export default function LeadsTable({
     } else if (form.category === "insurance") {
       payload.insType = form.insType;
       payload.requiredAmount = null;
+      payload.loanTenureMonths = null;
       payload.loanAmt = null;
       payload.employmentType = null;
       payload.netMonthlyIncome = null;

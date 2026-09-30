@@ -1,13 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { formatRupee } from "@/app/utils/format";
-
-const PersonalLoanApplyModal = dynamic(
-  () => import("@/app/components/leads/PersonalLoanApplyModal"),
-  { ssr: false },
-);
+import { captureAffiliateCodeFromLocation } from "@/app/lib/affiliate/refCookie";
 
 type Profession = "salaried" | "self_employed";
 
@@ -25,7 +21,7 @@ const LIMITS = {
 const EMPLOYMENT_OPTIONS = [
   { value: "", label: "Select Employment Type" },
   { value: "salaried", label: "Salaried" },
-  { value: "self_employed", label: "Self Employed" },
+  { value: "self_employed", label: "Self employee / business" },
 ] as const;
 
 function clamp(value: number, min: number, max: number): number {
@@ -316,12 +312,11 @@ function SliderField({
 }
 
 export default function EligibilityCalculator() {
+  const router = useRouter();
   const [monthlyIncome, setMonthlyIncome] = useState(50_000);
   const [employment, setEmployment] = useState<Profession | "">("salaried");
   const [existingEmi, setExistingEmi] = useState(0);
   const [error, setError] = useState("");
-  const [applyOpen, setApplyOpen] = useState(false);
-  const [applyModalMounted, setApplyModalMounted] = useState(false);
 
   const result = useMemo(() => {
     const profession: Profession = employment || "salaried";
@@ -334,8 +329,8 @@ export default function EligibilityCalculator() {
       return;
     }
     setError("");
-    setApplyModalMounted(true);
-    setApplyOpen(true);
+    captureAffiliateCodeFromLocation();
+    router.push("/products/personal-loan/");
   };
 
   return (
@@ -426,22 +421,6 @@ export default function EligibilityCalculator() {
                 This will not impact your credit score
               </p>
 
-              {applyModalMounted && (
-                <PersonalLoanApplyModal
-                  open={applyOpen}
-                  onClose={() => setApplyOpen(false)}
-                  initialEmploymentType={
-                    employment === "salaried" || employment === "self_employed"
-                      ? employment
-                      : undefined
-                  }
-                  initialNetMonthlyIncome={
-                    Number.isFinite(monthlyIncome) && monthlyIncome > 0
-                      ? monthlyIncome
-                      : undefined
-                  }
-                />
-              )}
             </div>
 
             {/* Right — live result (updates on every slider change) */}

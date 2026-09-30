@@ -1,5 +1,5 @@
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
-import { PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
+import { PERSONAL_LOAN_EMI_LIMITS, PERSONAL_LOAN_TENURE } from "@/app/config/constants";
 import { DEFAULT_LOAN_AMOUNT } from "./leadDisplay";
 
 export type EditForm = {
@@ -9,6 +9,7 @@ export type EditForm = {
   category: string;
   status: string;
   requiredAmount: number;
+  loanTenureMonths: number;
   insType: string;
   employmentType: string;
   netMonthlyIncome: string;
@@ -36,6 +37,7 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
     requiredAmount: clampLoanAmount(
       lead.required_amount ?? (fromRange > 0 ? fromRange : DEFAULT_LOAN_AMOUNT),
     ),
+    loanTenureMonths: clampTenure(lead.loan_tenure_months),
     insType: String(lead.ins_type ?? "life_insurance"),
     employmentType: String(lead.employment_type ?? ""),
     netMonthlyIncome:
@@ -48,6 +50,15 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
       lead.consent_accepted === 1 ||
       lead.consent_accepted === "true",
   };
+}
+
+function clampTenure(value: unknown): number {
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isInteger(n)) return PERSONAL_LOAN_TENURE.DEFAULT_MONTHS;
+  return Math.min(
+    PERSONAL_LOAN_TENURE.MAX_MONTHS,
+    Math.max(PERSONAL_LOAN_TENURE.MIN_MONTHS, n),
+  );
 }
 
 function amountFromRange(loanAmt: unknown): number {
@@ -65,6 +76,7 @@ export function emptyCreateForm(): EditForm {
     category: "personal_loan",
     status: "pending",
     requiredAmount: DEFAULT_LOAN_AMOUNT,
+    loanTenureMonths: PERSONAL_LOAN_TENURE.DEFAULT_MONTHS,
     insType: "life_insurance",
     employmentType: "",
     netMonthlyIncome: "",

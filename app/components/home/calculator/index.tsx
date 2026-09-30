@@ -1,14 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { PERSONAL_LOAN_EMI_LIMITS, COLORS } from "@/app/config/constants";
 import { formatRupee } from "@/app/utils/format";
-
-const PersonalLoanApplyModal = dynamic(
-  () => import("@/app/components/leads/PersonalLoanApplyModal"),
-  { ssr: false },
-);
+import { captureAffiliateCodeFromLocation } from "@/app/lib/affiliate/refCookie";
 
 /** Monthly reducing-balance EMI — same method lenders use for personal loans. */
 function calculateEMI(principal: number, annualRate: number, years: number) {
@@ -46,11 +42,10 @@ function snapToStep(value: number, min: number, max: number, step: number): numb
 }
 
 export default function Calculator() {
+  const router = useRouter();
   const [principal, setPrincipal] = useState(500_000);
   const [annualRate, setAnnualRate] = useState(12);
   const [tenureYears, setTenureYears] = useState(4);
-  const [applyOpen, setApplyOpen] = useState(false);
-  const [applyModalMounted, setApplyModalMounted] = useState(false);
 
   const { emi, totalInterest, totalAmount } = useMemo(
     () => calculateEMI(principal, annualRate, tenureYears),
@@ -333,8 +328,8 @@ export default function Calculator() {
               <button
                 type="button"
                 onClick={() => {
-                  setApplyModalMounted(true);
-                  setApplyOpen(true);
+                  captureAffiliateCodeFromLocation();
+                  router.push("/products/personal-loan/");
                 }}
                 className="btn-gradient btn-shine relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-6 py-3 text-sm font-bold text-white shadow-[0_8px_24px_rgba(66,54,251,0.3)] transition duration-300 sm:py-3.5 sm:text-base"
               >
@@ -346,9 +341,6 @@ export default function Calculator() {
               <p className="mt-3 text-center text-[11px] leading-relaxed text-gray italic">
                 *Indicative EMI only. Actual rate, tenure, and EMI depend on the lender and your profile.
               </p>
-              {applyModalMounted && (
-                <PersonalLoanApplyModal open={applyOpen} onClose={() => setApplyOpen(false)} />
-              )}
             </div>
           </div>
         </div>

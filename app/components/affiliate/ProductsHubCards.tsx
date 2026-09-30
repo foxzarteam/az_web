@@ -47,7 +47,7 @@ function ProductGif({ src, alt }: { src: string; alt: string }) {
 }
 
 /**
- * Products hub cards — Apply opens same-page modals so partner `/r/CODE` URL stays put.
+ * Products hub cards — Apply opens the personal loan or insurance page.
  */
 export default function ProductsHubCards() {
   const { openPersonalLoan, openInsurance } = useProductsApply();

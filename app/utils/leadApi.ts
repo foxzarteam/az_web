@@ -32,15 +32,15 @@ export function leadIdFromResponse(data: unknown): string | null {
 }
 
 /**
- * Partner attribution only from current URL (`/r/CODE` or `?ref=`).
- * Cookie / client-supplied referralCode are ignored so leaving the partner URL
- * and applying elsewhere does not credit the partner.
+ * Partner attribution from this browser tab's session.
+ * A partner link (`/r/CODE` or `?ref=`) stores the code until the tab is closed.
+ * Cookie / client-supplied referralCode are ignored.
  */
 function withReferralCode<T extends object>(data: T): T {
-  const fromUrl = readAffiliateCode().trim();
+  const partnerCode = readAffiliateCode().trim();
   const next = { ...data } as T & { referralCode?: string };
   delete next.referralCode;
-  if (fromUrl) next.referralCode = fromUrl;
+  if (partnerCode) next.referralCode = partnerCode;
   return next;
 }
 

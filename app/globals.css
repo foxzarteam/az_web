@@ -170,6 +170,51 @@ html {
     background: transparent;
   }
 
+  /* Loan tenure — gray track, blue ring thumb */
+  .loan-tenure-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 9999px;
+    background: #e5e7eb;
+    outline: none;
+  }
+
+  .loan-tenure-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    margin-top: -8px;
+    border-radius: 9999px;
+    background: #fff;
+    border: 3px solid #3b82f6;
+    box-shadow: 0 1px 4px rgba(59, 130, 246, 0.35);
+    cursor: pointer;
+  }
+
+  .loan-tenure-slider::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 9999px;
+    background: transparent;
+  }
+
+  .loan-tenure-slider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fff;
+    border: 3px solid #3b82f6;
+    box-shadow: 0 1px 4px rgba(59, 130, 246, 0.35);
+    cursor: pointer;
+  }
+
+  .loan-tenure-slider::-moz-range-track {
+    height: 6px;
+    border-radius: 9999px;
+    background: #e5e7eb;
+  }
+
   /* Become a Partner hero — subtle sweep across the blue band */
   .partner-hero-shine {
     @apply relative overflow-hidden;

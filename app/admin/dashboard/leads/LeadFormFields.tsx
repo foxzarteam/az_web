@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
+import LoanTenureSlider from "@/app/components/services/LoanTenureSlider";
 import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
 import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
 import { productHrefToSlug } from "@/app/lib/services/allowedProducts";
@@ -267,6 +268,18 @@ export default function LeadFormFields({
             </span>
           ) : null}
         </label>
+      ) : null}
+      {form.category === "personal_loan" ? (
+        <div className={`sm:col-span-2${commissionLocked ? " pointer-events-none opacity-60" : ""}`}>
+          <LoanTenureSlider
+            id="admin-lead-loan-tenure"
+            value={form.loanTenureMonths}
+            onChange={(months) => {
+              if (commissionLocked) return;
+              setForm({ ...form, loanTenureMonths: months });
+            }}
+          />
+        </div>
       ) : null}
       {panMode === "create" ? (
         <div className="sm:col-span-2">

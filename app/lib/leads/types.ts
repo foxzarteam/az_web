@@ -8,6 +8,8 @@ export interface CreateLeadRequest {
   email?: string;
   pincode?: string;
   requiredAmount?: number;
+  /** Personal loan tenure in months (12–72). */
+  loanTenureMonths?: number;
   loanAmt?: string;
   insType?: string;
   employmentType?: "salaried" | "self_employed";
