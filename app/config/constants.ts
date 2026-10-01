@@ -73,4 +73,5 @@ export const SOCIAL_LINKS = {
   INSTAGRAM: "https://www.instagram.com/apni_zaroorat",
   YOUTUBE: "https://www.youtube.com/@Apni_Zaroorat",
   FACEBOOK: "https://www.facebook.com/apnizaroorat",
+  LINKEDIN: "https://www.linkedin.com/company/apni-zaroorat/",
 } as const;

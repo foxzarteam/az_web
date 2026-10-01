@@ -10,7 +10,7 @@ import CtaBanner from "./components/cta-banner";
 
 const Features = dynamic(() => import("../components/shared/features"));
 
-const PAGE_TITLE = "About Apni Zaroorat | Personal Loans & Insurance";
+const PAGE_TITLE = "About Us | Apni Zaroorat";
 const PAGE_DESC =
   "About Apni Zaroorat — A to Z finance solutions for personal loans and insurance across India, with a secure and transparent digital process.";
 

@@ -6,13 +6,14 @@ import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-09-19";
+export const SEO_CONTENT_VERSION = "2026-10-01";
 
 /** Official social profiles — wired to Organization sameAs + footer + AEO/GEO docs. */
 export const SOCIAL_PROFILES = [
   { name: "Instagram", url: SOCIAL_LINKS.INSTAGRAM },
   { name: "YouTube", url: SOCIAL_LINKS.YOUTUBE },
   { name: "Facebook", url: SOCIAL_LINKS.FACEBOOK },
+  { name: "LinkedIn", url: SOCIAL_LINKS.LINKEDIN },
 ] as const;
 
 export const SOCIAL_SAME_AS = SOCIAL_PROFILES.map((p) => p.url);
@@ -77,9 +78,9 @@ export const SITE_TREE: SiteTreeNode[] = [
     ],
   },
   {
-    name: "Company",
+    name: "About Us",
     path: "/about",
-    description: "About Apni Zaroorat — A to Z finance partner for loans and insurance in India.",
+    description: "About Us — Apni Zaroorat’s mission, team, and finance services across India.",
     children: [
       {
         name: "About Us",
@@ -104,7 +105,8 @@ export const SITE_TREE: SiteTreeNode[] = [
 function flattenSiteTree(nodes: SiteTreeNode[]): SiteTreeNode[] {
   const out: SiteTreeNode[] = [];
   for (const node of nodes) {
-    if (node.path !== "/" || node.name !== "Home") {
+    const samePathAsChild = node.children?.some((child) => child.path === node.path);
+    if (!samePathAsChild && (node.path !== "/" || node.name !== "Home")) {
       out.push(node);
     }
     if (node.children?.length) {
