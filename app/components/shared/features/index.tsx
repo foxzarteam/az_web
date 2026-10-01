@@ -2,15 +2,12 @@
 
 import Image from "next/image";
 import { COLORS } from "@/app/config/constants";
-import { PROPERTY_DATA } from "@/app/data/propertyData";
 
 const FEATURES = [
   { id: 1, imgSrc: "/images/features/rating.svg", title: "Best Rates", description: "Compare interest rates from multiple banks and NBFCs. Get the best deal on loans and insurance." },
   { id: 2, imgSrc: "/images/features/Give-Women's-Rights.svg", title: "Trusted Partners", description: "We work with leading banks and insurers. Safe, transparent process with no hidden charges." },
   { id: 3, imgSrc: "/images/features/live-chat.svg", title: "24/7 Support", description: "Apply anytime, anywhere. Our team is here to help you with applications and queries round the clock." },
 ] as const;
-
-const UNCHECKED_PROPERTY = PROPERTY_DATA.find((item) => !item.check) ?? null;
 
 export default function Features() {
 
@@ -30,13 +27,12 @@ export default function Features() {
                 sizes="(max-width: 768px) 100vw, 34rem"
                 loading="lazy"
               />
-              {UNCHECKED_PROPERTY && (
-                <div className="absolute bottom-0 left-1/2 w-[min(94%,20rem)] xs:w-[min(92%,22rem)] sm:w-[20rem] md:w-[22rem] lg:w-[26rem] xl:w-[28rem] -translate-x-1/2">
+              <div className="absolute bottom-0 left-1/2 w-[min(94%,20rem)] xs:w-[min(92%,22rem)] sm:w-[20rem] md:w-[22rem] lg:w-[26rem] xl:w-[28rem] -translate-x-1/2">
                   <div className="bg-white shadow-lg rounded-t-lg overflow-hidden" data-aos="fade-up" data-aos-delay="100">
                     <div className="relative">
                       <Image
-                        src={UNCHECKED_PROPERTY.property_img}
-                        alt={UNCHECKED_PROPERTY.property_title}
+                        src="/images/service/about.webp"
+                        alt="Apni Zaroorat financial services"
                         height={280}
                         width={448}
                         className="w-full h-auto object-cover"
@@ -55,7 +51,6 @@ export default function Features() {
                     </div>
                   </div>
                 </div>
-              )}
             </div>
           </div>
           <div className="flex-1 min-w-0 w-full">
