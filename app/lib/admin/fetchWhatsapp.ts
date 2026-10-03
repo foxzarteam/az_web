@@ -1,6 +1,5 @@
 import "server-only";
-import { PUBLIC_API_BASE_URL } from "@/app/config/publicEnv";
-import { adminInternalHeadersFromSession } from "@/app/lib/admin/adminInternalKey";
+import { adminNestGet } from "@/app/lib/admin/adminNestGet";
 
 export type WhatsappSettingsView = {
   accessTokenConfigured: boolean;
@@ -61,28 +60,12 @@ const EMPTY_SETTINGS: WhatsappSettingsView = {
   displayPhone: "",
 };
 
-async function adminGet<T>(path: string): Promise<T | null> {
-  const base = PUBLIC_API_BASE_URL.trim().replace(/\/+$/, "");
-  if (!base) return null;
-  const headers = await adminInternalHeadersFromSession();
-  if (!headers) return null;
-  try {
-    const res = await fetch(`${base}${path}`, { headers, cache: "no-store" });
-    if (!res.ok) return null;
-    const body = (await res.json()) as { success?: boolean; data?: T };
-    if (!body.success || body.data == null) return null;
-    return body.data;
-  } catch {
-    return null;
-  }
-}
-
 export async function fetchWhatsappSettings(): Promise<WhatsappSettingsView> {
-  const data = await adminGet<WhatsappSettingsView>("/api/whatsapp/admin/settings");
+  const data = await adminNestGet<WhatsappSettingsView>("/api/whatsapp/admin/settings");
   return data ?? EMPTY_SETTINGS;
 }
 
 export async function fetchWhatsappEnquiries(): Promise<WhatsappEnquiryRow[]> {
-  const data = await adminGet<WhatsappEnquiryRow[]>("/api/whatsapp/admin/enquiries");
+  const data = await adminNestGet<WhatsappEnquiryRow[]>("/api/whatsapp/admin/enquiries");
   return Array.isArray(data) ? data : [];
 }

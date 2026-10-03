@@ -1,6 +1,7 @@
 import "server-only";
 import { PUBLIC_API_BASE_URL } from "@/app/config/publicEnv";
 import { adminInternalHeadersFromSession } from "@/app/lib/admin/adminInternalKey";
+import { adminNestGet } from "@/app/lib/admin/adminNestGet";
 
 /** Shape of admin lead rows returned by GET /api/leads/admin/all */
 export type AdminLeadRow = {
@@ -52,28 +53,8 @@ function stripPanForAgent(rows: AdminLeadRow[]): AdminLeadRow[] {
 }
 
 export async function fetchAdminLeads(): Promise<AdminLeadRow[]> {
-  const base = PUBLIC_API_BASE_URL.trim().replace(/\/+$/, "");
-  if (!base) return [];
-
-  const headers = await adminInternalHeadersFromSession();
-  if (!headers) return [];
-
-  const url = `${base}/api/leads/admin/all`;
-
-  try {
-    const res = await fetch(url, {
-      headers,
-      cache: "no-store",
-    });
-
-    if (!res.ok) return [];
-
-    const body = (await res.json()) as { success?: boolean; data?: AdminLeadRow[] };
-    if (!body.success || !Array.isArray(body.data)) return [];
-    return body.data;
-  } catch {
-    return [];
-  }
+  const data = await adminNestGet<AdminLeadRow[]>("/api/leads/admin/all");
+  return Array.isArray(data) ? data : [];
 }
 
 /** Leads attributed to one agent (referral). PAN masked client-side. */

@@ -8,6 +8,13 @@ html {
   min-width: 0;
 }
 
+/* AOS hides [data-aos] until its JS runs. Keep text visible so a slow script never blanks the page. */
+html:not([data-aos-ready]) [data-aos] {
+  opacity: 1 !important;
+  transform: none !important;
+  pointer-events: auto !important;
+}
+
 * {
   margin: 0;
   padding: 0;

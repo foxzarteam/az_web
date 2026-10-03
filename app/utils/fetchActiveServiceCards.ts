@@ -23,6 +23,7 @@ async function fetchFromApi(): Promise<FetchActiveServicesResult> {
       method: "GET",
       headers: { Accept: "application/json" },
       credentials: "same-origin",
+      signal: AbortSignal.timeout(8000),
     });
     return servicesResultFromHttp(response.ok, await response.text());
   } catch (e) {

@@ -1,6 +1,5 @@
 import "server-only";
-import { PUBLIC_API_BASE_URL } from "@/app/config/publicEnv";
-import { adminInternalHeadersFromSession } from "@/app/lib/admin/adminInternalKey";
+import { adminNestGet } from "@/app/lib/admin/adminNestGet";
 
 export type DashboardStats = {
   totalLeads: number;
@@ -8,44 +7,16 @@ export type DashboardStats = {
   totalPartners: number;
 };
 
+const EMPTY: DashboardStats = { totalLeads: 0, totalAgents: 0, totalPartners: 0 };
+
 export async function fetchDashboardStats(): Promise<DashboardStats> {
-  const base = PUBLIC_API_BASE_URL.trim().replace(/\/+$/, "");
-  if (!base) {
-    return { totalLeads: 0, totalAgents: 0, totalPartners: 0 };
-  }
-
-  const headers = await adminInternalHeadersFromSession();
-  if (!headers) {
-    return { totalLeads: 0, totalAgents: 0, totalPartners: 0 };
-  }
-
-  const url = `${base}/api/admin/stats`;
-
-  try {
-    const res = await fetch(url, {
-      headers,
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      return { totalLeads: 0, totalAgents: 0, totalPartners: 0 };
-    }
-
-    const body = (await res.json()) as {
-      success?: boolean;
-      data?: { totalLeads?: number; totalAgents?: number; totalPartners?: number };
-    };
-
-    if (!body.success || !body.data) {
-      return { totalLeads: 0, totalAgents: 0, totalPartners: 0 };
-    }
-
-    return {
-      totalLeads: Number(body.data.totalLeads ?? 0),
-      totalAgents: Number(body.data.totalAgents ?? 0),
-      totalPartners: Number(body.data.totalPartners ?? 0),
-    };
-  } catch {
-    return { totalLeads: 0, totalAgents: 0, totalPartners: 0 };
-  }
+  const data = await adminNestGet<{ totalLeads?: number; totalAgents?: number; totalPartners?: number }>(
+    "/api/admin/stats",
+  );
+  if (!data) return EMPTY;
+  return {
+    totalLeads: Number(data.totalLeads ?? 0),
+    totalAgents: Number(data.totalAgents ?? 0),
+    totalPartners: Number(data.totalPartners ?? 0),
+  };
 }

@@ -13,7 +13,7 @@ function ChatFabPlaceholder({
   onOpen?: () => void;
 }) {
   return (
-    <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] z-[1000] sm:bottom-6 sm:right-6">
+    <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-[max(0.75rem,env(safe-area-inset-left))] z-[1000] sm:bottom-6 sm:left-6">
       <button
         type="button"
         onClick={onOpen}
@@ -22,7 +22,7 @@ function ChatFabPlaceholder({
         className="btn-gradient relative flex h-14 w-14 items-center justify-center rounded-full text-white shadow-[0_4px_20px_rgba(66,54,251,0.35)] transition-all duration-300 hover:scale-105 hover:shadow-[0_6px_28px_rgba(66,54,251,0.45)] active:scale-95 animate-pulse-subtle disabled:hover:scale-100"
       >
         <span
-          className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-[#EF4444] px-1 text-[11px] font-bold leading-none text-white shadow-sm"
+          className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-[#EF4444] text-[11px] font-bold leading-none text-white shadow-sm"
           aria-hidden
         >
           1
@@ -33,7 +33,7 @@ function ChatFabPlaceholder({
             aria-hidden
           />
         ) : (
-          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" aria-hidden>
             <path
               d="M12 3C7.03 3 3 6.58 3 11c0 2.13 1.05 4.05 2.74 5.45L4 21l4.86-1.71C10.47 19.76 11.21 20 12 20c4.97 0 9-3.58 9-8s-4.03-8-9-8z"
               stroke="currentColor"

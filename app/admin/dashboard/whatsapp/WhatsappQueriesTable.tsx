@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { WhatsappChatMessage, WhatsappEnquiryDetail, WhatsappEnquiryRow } from "@/app/lib/admin/fetchWhatsapp";
 import { toPublicClientError } from "@/app/lib/publicClientError";
-import CrmDataTable, { type CrmColumn } from "@/app/components/shared/crm/DataTable";
+import CrmDataTable, { CrmActionButton, type CrmColumn } from "@/app/components/shared/crm/DataTable";
 import AdminModal from "@/app/components/shared/crm/AppModal";
+import { ADMIN_BTN_DANGER, ADMIN_BTN_SECONDARY, ADMIN_ERROR } from "@/app/components/shared/crm/ui";
 
 function formatPhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
@@ -64,7 +66,7 @@ function ChatThread({ messages }: { messages: WhatsappChatMessage[] }) {
                 <p className="mt-1 text-[11px] leading-snug text-[#b42318]">AI: {message.aiError}</p>
               ) : null}
               <p className={`mt-1 text-[10px] ${mine ? "text-right text-[#667781]" : "text-[#667781]"}`}>
-                {mine ? "Ritika" : "Customer"} · {formatClock(message.at)}
+                {mine ? "Navya" : "Customer"} · {formatClock(message.at)}
               </p>
             </div>
           </div>
@@ -74,11 +76,41 @@ function ChatThread({ messages }: { messages: WhatsappChatMessage[] }) {
   );
 }
 
+const deleteIcon = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <path d="M3 6h18" />
+    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+    <line x1="10" y1="11" x2="10" y2="17" />
+    <line x1="14" y1="11" x2="14" y2="17" />
+  </svg>
+);
+
 export default function WhatsappQueriesTable({ initialRows }: { initialRows: WhatsappEnquiryRow[] }) {
+  const router = useRouter();
+  const [rows, setRows] = useState(initialRows);
   const [openId, setOpenId] = useState<string | null>(null);
   const [detail, setDetail] = useState<WhatsappEnquiryDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deleteRow, setDeleteRow] = useState<WhatsappEnquiryRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setRows(initialRows);
+  }, [initialRows]);
 
   async function viewChat(row: WhatsappEnquiryRow) {
     setOpenId(row.id);
@@ -97,6 +129,34 @@ export default function WhatsappQueriesTable({ initialRows }: { initialRows: Wha
       setError("Network error. Try again.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function confirmDelete() {
+    if (!deleteRow) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch(`/api/admin/whatsapp/enquiries/${encodeURIComponent(deleteRow.id)}`, {
+        method: "DELETE",
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        setDeleteError(toPublicClientError(data.error, "Could not delete this chat."));
+        return;
+      }
+      const removedId = deleteRow.id;
+      setRows((prev) => prev.filter((row) => row.id !== removedId));
+      if (openId === removedId) {
+        setOpenId(null);
+        setDetail(null);
+      }
+      setDeleteRow(null);
+      router.refresh();
+    } catch {
+      setDeleteError("Network error. Try again.");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -134,13 +194,25 @@ export default function WhatsappQueriesTable({ initialRows }: { initialRows: Wha
       header: "View Chat",
       searchable: false,
       cell: (row) => (
-        <button
-          type="button"
-          onClick={() => void viewChat(row)}
-          className="inline-flex h-9 items-center rounded-lg bg-[#128C7E] px-3 text-xs font-semibold text-white transition hover:bg-[#075e54]"
-        >
-          View Chat
-        </button>
+        <span className="inline-flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void viewChat(row)}
+            className="inline-flex h-9 items-center rounded-lg bg-[#128C7E] px-3 text-xs font-semibold text-white transition hover:bg-[#075e54]"
+          >
+            View Chat
+          </button>
+          <CrmActionButton
+            label="Delete chat"
+            variant="danger"
+            onClick={() => {
+              setDeleteRow(row);
+              setDeleteError(null);
+            }}
+          >
+            {deleteIcon}
+          </CrmActionButton>
+        </span>
       ),
     },
   ];
@@ -150,7 +222,7 @@ export default function WhatsappQueriesTable({ initialRows }: { initialRows: Wha
   return (
     <>
       <CrmDataTable
-        rows={initialRows}
+        rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
         searchPlaceholder="Search phone or message…"
@@ -171,6 +243,32 @@ export default function WhatsappQueriesTable({ initialRows }: { initialRows: Wha
           {loading ? <p className="px-6 py-10 text-sm text-slate-500">Loading chat…</p> : null}
           {error ? <p className="px-6 py-10 text-sm text-red-600">{error}</p> : null}
           {detail ? <ChatThread messages={detail.messages} /> : null}
+        </AdminModal>
+      ) : null}
+
+      {deleteRow ? (
+        <AdminModal title="Delete chat" onClose={() => !deleting && setDeleteRow(null)}>
+          <div className="p-6 sm:p-8">
+            <p className="text-sm text-slate-700">
+              Delete the chat for{" "}
+              <strong>{deleteRow.profileName || "this number"}</strong> ({formatPhone(deleteRow.phone)})?
+              This removes it from the database and cannot be undone.
+            </p>
+            {deleteError ? <p className={`mt-3 ${ADMIN_ERROR}`}>{deleteError}</p> : null}
+            <div className="mt-8 flex justify-end gap-3">
+              <button type="button" onClick={() => setDeleteRow(null)} disabled={deleting} className={ADMIN_BTN_SECONDARY}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleting}
+                className={ADMIN_BTN_DANGER}
+                onClick={() => void confirmDelete()}
+              >
+                {deleting ? "Deleting…" : "Delete"}
+              </button>
+            </div>
+          </div>
         </AdminModal>
       ) : null}
     </>

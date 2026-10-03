@@ -14,6 +14,7 @@ export const getActiveCatalog = cache(async (): Promise<FetchActiveServicesResul
     const res = await fetch(getPublicServicesListUrl(), {
       headers: { Accept: "application/json" },
       next: { revalidate: 60 },
+      signal: AbortSignal.timeout(2500),
     });
     return servicesResultFromHttp(res.ok, await res.text());
   } catch {

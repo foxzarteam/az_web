@@ -246,7 +246,7 @@ export default function LoanHelperChat({
 
   return (
     <div
-      className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] z-[1000] flex flex-col items-end sm:bottom-6 sm:right-6"
+      className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-[max(0.75rem,env(safe-area-inset-left))] z-[1000] flex flex-col items-start sm:bottom-6 sm:left-6"
     >
       {isOpen && (
         <div
@@ -416,18 +416,18 @@ export default function LoanHelperChat({
       >
         {!isOpen && (
           <span
-            className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-[#EF4444] px-1 text-[11px] font-bold leading-none text-white shadow-sm"
+            className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-[#EF4444] text-[11px] font-bold leading-none text-white shadow-sm"
             aria-hidden
           >
             1
           </span>
         )}
         {isOpen ? (
-          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+          <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
             <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
           </svg>
         ) : (
-          <ChatIcon className="h-6 w-6" />
+          <ChatIcon className="h-7 w-7" />
         )}
       </button>
     </div>
