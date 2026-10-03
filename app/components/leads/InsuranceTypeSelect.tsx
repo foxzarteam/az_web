@@ -35,9 +35,17 @@ type Props = {
   onChange: (value: string) => void;
   options: InsuranceTypeOption[];
   className?: string;
+  disabled?: boolean;
 };
 
-export default function InsuranceTypeSelect({ id, value, onChange, options, className }: Props) {
+export default function InsuranceTypeSelect({
+  id,
+  value,
+  onChange,
+  options,
+  className,
+  disabled = false,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [menuBox, setMenuBox] = useState<MenuBox | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -147,11 +155,14 @@ export default function InsuranceTypeSelect({ id, value, onChange, options, clas
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listId}
-        onClick={() => setOpen((current) => !current)}
-        className={
+        disabled={disabled}
+        onClick={() => {
+          if (!disabled) setOpen((current) => !current);
+        }}
+        className={`${
           className ??
           "flex w-full min-h-10 items-center gap-2.5 rounded-xl border border-gray-300 bg-white px-3.5 py-2 text-left text-base text-midnight_text focus:outline-none focus:ring-2 focus:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80 dark:text-white"
-        }
+        }${disabled ? " cursor-not-allowed opacity-60" : ""}`}
       >
         {selected ? <TypeIcon src={selectedSrc} /> : null}
         <span className={`min-w-0 flex-1 truncate ${selected ? "" : "text-gray-400"}`}>

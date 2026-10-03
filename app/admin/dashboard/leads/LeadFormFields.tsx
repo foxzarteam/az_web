@@ -5,6 +5,8 @@ import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckb
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import LoanTenureSlider from "@/app/components/services/LoanTenureSlider";
 import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
+import InsuranceTypeSelect from "@/app/components/leads/InsuranceTypeSelect";
+import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
 import { productHrefToSlug } from "@/app/lib/services/allowedProducts";
 import { useInsuranceTypeOptions } from "@/app/lib/services/useInsuranceTypeOptions";
@@ -129,30 +131,26 @@ export default function LeadFormFields({
               labelAsSpan
               employmentError={<FieldErrorText message={fieldErrors.employmentType} />}
               incomeError={<FieldErrorText message={fieldErrors.netMonthlyIncome} />}
+              incomeWithRupee
             />
           </div>
         </>
       ) : form.category === "insurance" ? (
-        <label className="block sm:col-span-2">
+        <div className="block sm:col-span-2">
           <span className={ADMIN_LABEL}>Insurance type</span>
-          <select
-            className={inputClass}
+          <InsuranceTypeSelect
+            id="admin-lead-insurance-type"
             value={form.insType}
             disabled={commissionLocked}
-            onChange={(e) => {
-              setForm({ ...form, insType: e.target.value });
+            options={insSelectOptions}
+            onChange={(value) => {
+              setForm({ ...form, insType: value });
               clearFieldError("insType");
             }}
-          >
-            <option value="">Select insurance type</option>
-            {insSelectOptions.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+            className="flex w-full min-h-[46px] items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-left text-sm text-slate-800 shadow-sm outline-none focus:border-[#4236FB] focus:ring-2 focus:ring-[#4236FB]/20 dark:border-dark_border dark:bg-darkmode dark:text-white"
+          />
           <FieldErrorText message={fieldErrors.insType} />
-        </label>
+        </div>
       ) : null}
       <label className="block sm:col-span-2">
         <span className={ADMIN_LABEL}>Name</span>
@@ -166,18 +164,25 @@ export default function LeadFormFields({
       </label>
       <label className="block">
         <span className={ADMIN_LABEL}>Phone</span>
-        <input
-          className={inputClass}
-          value={form.mobileNumber}
-          onChange={(e) => {
-            setForm({ ...form, mobileNumber: e.target.value.replace(/\D/g, "") });
-            clearFieldError("mobileNumber");
-          }}
-          placeholder="enter phone number"
-          inputMode="numeric"
-          required
-          maxLength={10}
-        />
+        <div className="flex min-h-[46px] items-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm focus-within:border-[#4236FB] focus-within:ring-2 focus-within:ring-[#4236FB]/20 dark:border-dark_border dark:bg-darkmode">
+          <span className="flex shrink-0 items-center pl-3" aria-hidden>
+            <IndiaFlag />
+          </span>
+          <span className="px-2 text-sm font-semibold text-slate-800 dark:text-white">+91</span>
+          <span className="h-6 w-px shrink-0 bg-slate-200 dark:bg-dark_border" aria-hidden />
+          <input
+            className="min-h-[46px] min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none dark:text-white"
+            value={form.mobileNumber}
+            onChange={(e) => {
+              setForm({ ...form, mobileNumber: e.target.value.replace(/\D/g, "") });
+              clearFieldError("mobileNumber");
+            }}
+            placeholder="10-digit mobile"
+            inputMode="numeric"
+            required
+            maxLength={10}
+          />
+        </div>
         <FieldErrorText message={fieldErrors.mobileNumber} />
       </label>
       <label className="block">
@@ -355,19 +360,43 @@ function ApprovedCommissionFields({
     <div className="block">
       <label className="block" htmlFor="admin-lead-commission-value">
         <span className={ADMIN_LABEL}>{fixed ? "Fixed amount" : "Percentage"}</span>
-        <input
-          id="admin-lead-commission-value"
-          className={inputClass}
-          value={form.commissionValue}
-          disabled={disabled}
-          inputMode="decimal"
-          placeholder={fixed ? `${fixedMin} to ${fixedMax}` : `${percentMin} to ${percentMax}`}
-          onChange={(e) => {
-            const commissionValue = e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
-            setForm({ ...form, commissionType: lockedCommissionType(form.category), commissionValue });
-            clearFieldError("commissionValue");
-          }}
-        />
+        {fixed ? (
+          <div className="flex min-h-[46px] items-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm focus-within:border-[#4236FB] focus-within:ring-2 focus-within:ring-[#4236FB]/20 dark:border-dark_border dark:bg-darkmode">
+            <span className="flex shrink-0 items-center pl-3" aria-hidden>
+              <span className="theme-gradient-bg flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold leading-none text-white shadow-[0_2px_8px_rgba(66,54,251,0.35)]">
+                ₹
+              </span>
+            </span>
+            <span className="ml-2.5 h-6 w-px shrink-0 bg-slate-200 dark:bg-dark_border" aria-hidden />
+            <input
+              id="admin-lead-commission-value"
+              className="min-h-[46px] min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none disabled:opacity-60 dark:text-white"
+              value={form.commissionValue}
+              disabled={disabled}
+              inputMode="decimal"
+              placeholder={`${fixedMin} to ${fixedMax}`}
+              onChange={(e) => {
+                const commissionValue = e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
+                setForm({ ...form, commissionType: lockedCommissionType(form.category), commissionValue });
+                clearFieldError("commissionValue");
+              }}
+            />
+          </div>
+        ) : (
+          <input
+            id="admin-lead-commission-value"
+            className={inputClass}
+            value={form.commissionValue}
+            disabled={disabled}
+            inputMode="decimal"
+            placeholder={`${percentMin} to ${percentMax}`}
+            onChange={(e) => {
+              const commissionValue = e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
+              setForm({ ...form, commissionType: lockedCommissionType(form.category), commissionValue });
+              clearFieldError("commissionValue");
+            }}
+          />
+        )}
       </label>
       <span className="mt-1 block text-xs text-slate-500">
         {fixed
