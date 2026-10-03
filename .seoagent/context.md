@@ -2,7 +2,7 @@
 
 - **Name:** Apni Zaroorat
 - **Type:** service (personal loans & insurance lead / marketplace)
-- **Audience:** Indian consumers seeking personal loans (up to ₹10L) and life/health/motor insurance; partners/distributors
+- **Audience:** Indian consumers seeking personal loans (up to ₹50L) and life/health/motor insurance; partners/distributors
 - **Industry:** Fintech / financial services / lending & insurance distribution
 - **Location:** India (Jaipur / pan-India digital)
 - **Description:** A to Z finance solutions — apply online for personal loans and insurance with eligibility check, EMI calculator, and partner program.

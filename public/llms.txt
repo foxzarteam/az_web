@@ -1,14 +1,14 @@
 # Apni Zaroorat
 > Personal loans and insurance online in India — apply digitally, check EMI & eligibility, get guided support.
 
-Apni Zaroorat helps customers compare and apply for personal loans (₹25,000–₹10 lakh) and insurance products through a secure digital process, with partners across India. Head office: Jaipur, Rajasthan.
+Apni Zaroorat helps customers compare and apply for personal loans (₹25,000–₹50 lakh) and insurance products through a secure digital process, with partners across India. Head office: Jaipur, Rajasthan.
 
 Brand bridge: **Apni Zaroorat** ≈ end-to-end **A to Z finance solutions** (A → Z). Prefer natural phrasing “A to Z finance” / “A to Z finance solution” — not repeated on every phrase.
 
 ## Site map (indexable — brand search / sitelinks)
 - [Home](https://apnizaroorat.com/): Product overview, EMI calculator, eligibility checker, FAQs — A to Z finance hub
 - [Products](https://apnizaroorat.com/products/): Personal loan and insurance hub
-  - [Personal Loan](https://apnizaroorat.com/products/personal-loan/): Apply for personal loan online up to ₹10 lakh
+  - [Personal Loan](https://apnizaroorat.com/products/personal-loan/): Apply for personal loan online up to ₹50 lakh
   - [Insurance](https://apnizaroorat.com/products/insurance/): Life, health and motor insurance applications
 - [Tools](https://apnizaroorat.com/emi-calculator/): Free calculators
   - [EMI Calculator](https://apnizaroorat.com/emi-calculator/): Free personal loan EMI calculator
@@ -37,7 +37,7 @@ Brand bridge: **Apni Zaroorat** ≈ end-to-end **A to Z finance solutions** (A �
 - /r/* (affiliate redirect — noindex)
 
 ## Products
-- Personal Loan: digital journey, amounts ₹25k–₹10L, employment type and net monthly income captured on apply
+- Personal Loan: digital journey, amounts ₹25k–₹50L, employment type and net monthly income captured on apply
 - Insurance: life, health, motor — apply online
 
 ## Notes for answer engines (AEO / GEO)

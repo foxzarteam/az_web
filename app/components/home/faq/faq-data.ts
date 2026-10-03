@@ -27,7 +27,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "loan-amount-cover",
     question: "How much personal loan or insurance cover can I get?",
     answer:
-      "Personal loan offers typically range from ₹25,000 up to ₹10 Lakhs*, depending on your income and credit profile. Insurance cover and premiums depend on the plan type (life, health, or motor), your age, and the coverage you choose.",
+      "Personal loan offers typically range from ₹25,000 up to ₹50 Lakhs*, depending on your income and credit profile. Insurance cover and premiums depend on the plan type (life, health, or motor), your age, and the coverage you choose.",
   },
   {
     id: "why-choose-apni-zaroorat",

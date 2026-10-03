@@ -29,7 +29,7 @@ function clampValue(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-/** Snap to step; always allow exact min/max so sliders can hit ₹10L / max rate. */
+/** Snap to step; always allow exact min/max so sliders can hit ₹50L / max rate. */
 function snapToStep(value: number, min: number, max: number, step: number): number {
   if (!Number.isFinite(value)) return min;
   if (value >= max) return max;

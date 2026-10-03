@@ -34,6 +34,14 @@ const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
     title: "Contact",
     subtitle: "Messages from the website contact form",
   },
+  "/admin/dashboard/whatsapp": {
+    title: "WhatsApp Queries",
+    subtitle: "Customer chats answered by the WhatsApp assistant",
+  },
+  "/admin/dashboard/settings": {
+    title: "Settings",
+    subtitle: "WhatsApp Integration",
+  },
 };
 
 function resolvePageMeta(pathname: string, basePath: "/admin" | "/partner") {

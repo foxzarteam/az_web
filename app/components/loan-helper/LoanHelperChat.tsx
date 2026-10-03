@@ -30,7 +30,7 @@ const LOAN_AMOUNT_OPTIONS = [
   { id: "under-2", label: "Under ₹2 lakh" },
   { id: "2-5", label: "₹2 – ₹5 lakh" },
   { id: "5-10", label: "₹5 – ₹10 lakh" },
-  { id: "above-10", label: "Above ₹10 lakh" },
+  { id: "10-50", label: "₹10 – ₹50 lakh" },
 ] as const;
 
 type EmploymentId = (typeof EMPLOYMENT_OPTIONS)[number]["id"];

@@ -8,9 +8,9 @@ const PRODUCTS = [
     name: "Personal Loan",
     gif: "/images/loan.webp",
     imageAlt: "Personal loan",
-    badge: "Up to ₹10 lakh",
+    badge: "Up to ₹50 lakh",
     blurb: "Paperless apply, quick digital process with minimal documentation.",
-    points: ["₹25,000 to ₹10 lakh", "Salaried & self-employed", "Digital application"],
+    points: ["₹25,000 to ₹50 lakh", "Salaried & self-employed", "Digital application"],
     cta: "Apply for personal loan",
   },
   {

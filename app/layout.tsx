@@ -18,6 +18,7 @@ import {
 import Header from "./components/layout/header";
 import Footer from "./components/layout/footer";
 import LoanHelperChatLazy from "./components/loan-helper/LoanHelperChatLazy";
+import WhatsAppFloat from "./components/whatsapp/WhatsAppFloat";
 import PartnerRefSession from "./components/affiliate/PartnerRefSession";
 
 const dmSans = DM_Sans({
@@ -140,6 +141,7 @@ export default async function RootLayout({
               <Footer />
             </ServiceCardsProvider>
             <LoanHelperChatLazy />
+            <WhatsAppFloat />
           </Aoscompo>
         </ThemeProvider>
       </body>

@@ -24,7 +24,7 @@ export default function Hero() {
             <h1 className="!text-[1.75rem] xs:!text-[2rem] sm:!text-[clamp(2.25rem,3.5vw+0.5rem,3.25rem)] !leading-[1.12] font-bold text-midnight_text dark:text-white">
               Instant Personal Loan
               <br />
-              up to <span className="theme-gradient-text">₹10 Lakh</span>
+              up to <span className="theme-gradient-text">₹50 Lakh</span>
             </h1>
 
             <p className="mt-3 sm:mt-4 max-w-xl text-sm sm:text-base md:text-lg text-gray leading-relaxed">

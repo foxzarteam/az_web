@@ -19,6 +19,8 @@ async function proxyMetaWebhook(request: Request): Promise<NextResponse> {
   const headers: Record<string, string> = { Accept: "text/plain" };
   const contentType = request.headers.get("content-type");
   if (contentType) headers["Content-Type"] = contentType;
+  const signature = request.headers.get("x-hub-signature-256");
+  if (signature) headers["x-hub-signature-256"] = signature;
 
   let body: string | undefined;
   if (method !== "GET" && method !== "HEAD") {

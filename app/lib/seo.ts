@@ -6,7 +6,7 @@ import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-10-01";
+export const SEO_CONTENT_VERSION = "2026-10-03";
 
 /** Official social profiles — wired to Organization sameAs + footer + AEO/GEO docs. */
 export const SOCIAL_PROFILES = [
@@ -44,7 +44,7 @@ export const SITE_TREE: SiteTreeNode[] = [
         name: "Personal Loan",
         path: "/products/personal-loan",
         description:
-          "Apply for personal loan online up to ₹10 lakh — quick digital process with Apni Zaroorat.",
+          "Apply for personal loan online up to ₹50 lakh — quick digital process with Apni Zaroorat.",
       },
       {
         name: "Insurance",
@@ -458,7 +458,7 @@ export function serviceCatalogJsonLd() {
           "@type": "Service",
           name: "Personal Loan",
           description:
-            "Personal loans from Rs 25,000 to Rs 10 lakh with online application.",
+            "Personal loans from Rs 25,000 to Rs 50 lakh with online application.",
           url: absoluteSeoUrl("/products/personal-loan"),
           provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
         },
@@ -541,7 +541,7 @@ export function personalLoanProductJsonLd() {
     "@id": `${absoluteSeoUrl("/products/personal-loan")}#loan`,
     name: "Personal Loan",
     description:
-      "Unsecured personal loan online from Rs 25,000 to Rs 10 lakh via Apni Zaroorat partner lenders.",
+      "Unsecured personal loan online from Rs 25,000 to Rs 50 lakh via Apni Zaroorat partner lenders.",
     url: absoluteSeoUrl("/products/personal-loan"),
     provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
     areaServed: { "@type": "Country", name: "India" },
@@ -550,7 +550,7 @@ export function personalLoanProductJsonLd() {
       "@type": "MonetaryAmount",
       currency: "INR",
       minValue: 25000,
-      maxValue: 1000000,
+      maxValue: 5000000,
     },
   };
 }

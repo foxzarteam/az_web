@@ -36,7 +36,7 @@ const structuredData = pageSeoGlue({
     financialServiceJsonLd({
       name: "Personal Loan",
       description:
-        "Quick personal loans from Rs 25,000 to Rs 10 lakh with digital application and competitive rates.",
+        "Quick personal loans from Rs 25,000 to Rs 50 lakh with digital application and competitive rates.",
       path: "/products/personal-loan",
       serviceType: "Personal loan",
     }),
