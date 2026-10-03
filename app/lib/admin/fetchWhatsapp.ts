@@ -55,7 +55,7 @@ const EMPTY_SETTINGS: WhatsappSettingsView = {
   verifyTokenHint: "",
   geminiApiKeyConfigured: false,
   geminiApiKeyHint: "",
-  geminiModel: "gemini-2.5-flash",
+  geminiModel: "gemini-3.8-flash",
   displayPhone: "",
 };
 

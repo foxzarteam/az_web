@@ -15,7 +15,7 @@ import {
 
 type Props = { initial: WhatsappSettingsView };
 
-const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite"];
+const MODELS = ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-2.5-pro"];
 
 function Field({
   label,
@@ -43,7 +43,7 @@ export default function WhatsappSettingsForm({ initial }: Props) {
   const [appSecret, setAppSecret] = useState("");
   const [verifyToken, setVerifyToken] = useState("");
   const [geminiApiKey, setGeminiApiKey] = useState("");
-  const [geminiModel, setGeminiModel] = useState(initial.geminiModel || "gemini-2.5-flash");
+  const [geminiModel, setGeminiModel] = useState(initial.geminiModel || "gemini-3.8-flash");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
@@ -82,7 +82,7 @@ export default function WhatsappSettingsForm({ initial }: Props) {
       setSaved(data.data);
       setPhoneNumberId(data.data.phoneNumberId);
       setBusinessAccountId(data.data.businessAccountId);
-      setGeminiModel(data.data.geminiModel || "gemini-2.5-flash");
+      setGeminiModel(data.data.geminiModel || "gemini-3.8-flash");
       setAccessToken("");
       setAppSecret("");
       setVerifyToken("");
