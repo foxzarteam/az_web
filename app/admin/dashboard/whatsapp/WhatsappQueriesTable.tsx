@@ -57,8 +57,14 @@ function ChatThread({ messages }: { messages: WhatsappChatMessage[] }) {
               }`}
             >
               <p className="whitespace-pre-wrap break-words leading-relaxed">{message.text}</p>
+              {message.sendError ? (
+                <p className="mt-1 text-[11px] leading-snug text-[#b42318]">Not delivered: {message.sendError}</p>
+              ) : null}
+              {message.aiError ? (
+                <p className="mt-1 text-[11px] leading-snug text-[#b42318]">AI: {message.aiError}</p>
+              ) : null}
               <p className={`mt-1 text-[10px] ${mine ? "text-right text-[#667781]" : "text-[#667781]"}`}>
-                {mine ? "Apni Zaroorat" : "Customer"} · {formatClock(message.at)}
+                {mine ? "Ritika" : "Customer"} · {formatClock(message.at)}
               </p>
             </div>
           </div>
@@ -121,12 +127,7 @@ export default function WhatsappQueriesTable({ initialRows }: { initialRows: Wha
       sortable: true,
       sortValue: (row) => row.lastChatAt ?? "",
       searchValue: (row) => row.lastMessage,
-      cell: (row) => (
-        <span className="block max-w-md">
-          <span className="block text-sm text-slate-800">{formatWhen(row.lastChatAt)}</span>
-          <span className="mt-0.5 block truncate text-xs text-slate-500">{row.lastMessage || "—"}</span>
-        </span>
-      ),
+      cell: (row) => <span className="text-sm text-slate-800">{formatWhen(row.lastChatAt)}</span>,
     },
     {
       id: "actions",

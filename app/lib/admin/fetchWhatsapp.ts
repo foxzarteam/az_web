@@ -31,6 +31,8 @@ export type WhatsappChatMessage = {
   role: "user" | "assistant";
   text: string;
   at: string;
+  sendError?: string;
+  aiError?: string;
 };
 
 export type WhatsappEnquiryDetail = {
