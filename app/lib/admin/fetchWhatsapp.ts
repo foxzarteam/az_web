@@ -14,6 +14,7 @@ export type WhatsappSettingsView = {
   geminiApiKeyConfigured: boolean;
   geminiApiKeyHint: string;
   geminiModel: string;
+  geminiModels: string[];
   displayPhone: string;
 };
 
@@ -55,7 +56,8 @@ const EMPTY_SETTINGS: WhatsappSettingsView = {
   verifyTokenHint: "",
   geminiApiKeyConfigured: false,
   geminiApiKeyHint: "",
-  geminiModel: "gemini-3.8-flash",
+  geminiModel: "",
+  geminiModels: [],
   displayPhone: "",
 };
 

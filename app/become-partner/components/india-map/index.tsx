@@ -49,7 +49,6 @@ type MapInset = { left: number; top: number; w: number; h: number };
 
 type HeroFieldErrors = {
   fullName?: string;
-  email?: string;
   phone?: string;
   password?: string;
   submit?: string;
@@ -84,7 +83,6 @@ export default function IndiaMap() {
   const [visiblePins, setVisiblePins] = useState<Set<number>>(new Set());
   const [fieldErrors, setFieldErrors] = useState<HeroFieldErrors>({});
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -186,14 +184,10 @@ export default function IndiaMap() {
     setFieldErrors({});
 
     const trimmedName = fullName.trim();
-    const trimmedEmail = email.trim();
     const errors: HeroFieldErrors = {};
 
     if (!trimmedName) {
       errors.fullName = "Please enter your full name.";
-    }
-    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-      errors.email = "Please enter a valid email address.";
     }
     const mobileCheck = validateMobileNumber(mobile);
     if (!mobileCheck.isValid) {
@@ -203,7 +197,7 @@ export default function IndiaMap() {
       errors.password = "Password must be a 4-digit PIN.";
     }
 
-    if (errors.fullName || errors.email || errors.phone || errors.password) {
+    if (errors.fullName || errors.phone || errors.password) {
       setFieldErrors(errors);
       return;
     }
@@ -215,7 +209,6 @@ export default function IndiaMap() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userName: trimmedName,
-          ...(trimmedEmail ? { email: trimmedEmail } : {}),
           mobileNumber: mobile,
           mpin: password,
         }),
@@ -228,7 +221,6 @@ export default function IndiaMap() {
         return;
       }
       setFullName("");
-      setEmail("");
       setMobile("");
       setPassword("");
       setTermsAccepted(false);
@@ -319,33 +311,7 @@ export default function IndiaMap() {
                       </p>
                     ) : null}
                 </div>
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
-                  <div className="min-w-0">
-                    <label htmlFor="hero-email" className="sr-only">
-                      Email Address
-                    </label>
-                    <input
-                      id="hero-email"
-                      type="email"
-                      name="email"
-                      autoComplete="email"
-                      placeholder="Email Address (optional)"
-                      value={email}
-                      onChange={(e) => {
-                        clearFieldError("email");
-                        setEmail(e.target.value);
-                      }}
-                      aria-invalid={!!fieldErrors.email}
-                      aria-describedby={fieldErrors.email ? "hero-email-error" : undefined}
-                      className={fieldErrors.email ? inputErrClass : inputOkClass}
-                    />
-                    {fieldErrors.email ? (
-                      <p id="hero-email-error" className="mt-1.5 text-sm text-red-600" role="alert">
-                        {fieldErrors.email}
-                      </p>
-                    ) : null}
-                  </div>
-                  <div className="min-w-0">
+                <div className="min-w-0">
                     <label htmlFor="hero-phone" className="sr-only">
                       Phone Number
                     </label>
@@ -385,7 +351,6 @@ export default function IndiaMap() {
                         {fieldErrors.phone}
                       </p>
                     ) : null}
-                  </div>
                 </div>
                 <div>
                   <label htmlFor="hero-password" className="sr-only">

@@ -15,24 +15,17 @@ import {
 
 type Props = { initial: WhatsappSettingsView };
 
-const MODELS = ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-2.5-pro"];
-
-function Field({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
       <span className={ADMIN_LABEL}>{label}</span>
       {children}
-      {hint ? <span className="mt-1.5 block text-xs text-slate-500">{hint}</span> : null}
     </label>
   );
+}
+
+function savedPlaceholder(configured: boolean, hint: string, empty: string): string {
+  return configured && hint ? `Saved ${hint}` : empty;
 }
 
 export default function WhatsappSettingsForm({ initial }: Props) {
@@ -43,7 +36,8 @@ export default function WhatsappSettingsForm({ initial }: Props) {
   const [appSecret, setAppSecret] = useState("");
   const [verifyToken, setVerifyToken] = useState("");
   const [geminiApiKey, setGeminiApiKey] = useState("");
-  const [geminiModel, setGeminiModel] = useState(initial.geminiModel || "gemini-3.8-flash");
+  const [geminiModel, setGeminiModel] = useState(initial.geminiModel);
+  const [geminiModels, setGeminiModels] = useState(initial.geminiModels ?? []);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
@@ -82,13 +76,18 @@ export default function WhatsappSettingsForm({ initial }: Props) {
       setSaved(data.data);
       setPhoneNumberId(data.data.phoneNumberId);
       setBusinessAccountId(data.data.businessAccountId);
-      setGeminiModel(data.data.geminiModel || "gemini-3.8-flash");
+      setGeminiModel(data.data.geminiModel);
+      setGeminiModels(data.data.geminiModels ?? []);
       setAccessToken("");
       setAppSecret("");
       setVerifyToken("");
       setGeminiApiKey("");
-      if (data.warning) setWarning(data.warning);
-      setSuccess("WhatsApp settings saved.");
+      if (data.warning && /not available|did not return|No Gemini model/i.test(data.warning)) {
+        setError(data.warning);
+      } else if (data.warning) {
+        setWarning(data.warning);
+      }
+      setSuccess(data.warning ? "Settings saved. Read the Gemini note above." : "WhatsApp settings saved.");
     } catch {
       setError("Network error. Try again.");
     } finally {
@@ -116,15 +115,12 @@ export default function WhatsappSettingsForm({ initial }: Props) {
 
       <div className="mb-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
         <p className={ADMIN_LABEL}>Webhook URL</p>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <input readOnly value={webhookUrl} className={ADMIN_INPUT} />
-          <button type="button" onClick={() => void copyWebhook()} className={ADMIN_BTN_PRIMARY}>
+        <div className="flex gap-2">
+          <input readOnly value={webhookUrl} className={`${ADMIN_INPUT} min-w-0 flex-1`} />
+          <button type="button" onClick={() => void copyWebhook()} className={`${ADMIN_BTN_PRIMARY} shrink-0 whitespace-nowrap`}>
             Copy
           </button>
         </div>
-        <p className="mt-2 text-xs text-slate-500">
-          Paste this in Meta → WhatsApp → Configuration → Callback URL. Use the same verify token you save below.
-        </p>
       </div>
 
       {saved.displayPhone ? (
@@ -138,13 +134,13 @@ export default function WhatsappSettingsForm({ initial }: Props) {
       )}
 
       <div className="grid gap-5 md:grid-cols-2">
-        <Field label="WhatsApp Access Token" hint={saved.accessTokenConfigured ? `Saved ${saved.accessTokenHint}` : "Not saved yet"}>
+        <Field label="WhatsApp Access Token">
           <input
             type="password"
             autoComplete="new-password"
             value={accessToken}
             onChange={(e) => setAccessToken(e.target.value)}
-            placeholder={saved.accessTokenConfigured ? "Leave blank to keep current" : "EAAG..."}
+            placeholder={savedPlaceholder(saved.accessTokenConfigured, saved.accessTokenHint, "Not saved yet")}
             className={ADMIN_INPUT}
           />
         </Field>
@@ -164,33 +160,33 @@ export default function WhatsappSettingsForm({ initial }: Props) {
             className={ADMIN_INPUT}
           />
         </Field>
-        <Field label="App Secret" hint={saved.appSecretConfigured ? `Saved ${saved.appSecretHint}` : "Used to reject fake webhooks"}>
+        <Field label="App Secret">
           <input
             type="password"
             autoComplete="new-password"
             value={appSecret}
             onChange={(e) => setAppSecret(e.target.value)}
-            placeholder={saved.appSecretConfigured ? "Leave blank to keep current" : ""}
+            placeholder={savedPlaceholder(saved.appSecretConfigured, saved.appSecretHint, "Not saved yet")}
             className={ADMIN_INPUT}
           />
         </Field>
-        <Field label="Webhook Verify Token" hint={saved.verifyTokenConfigured ? `Saved ${saved.verifyTokenHint}` : "At least 8 characters"}>
+        <Field label="Webhook Verify Token">
           <input
             type="password"
             autoComplete="new-password"
             value={verifyToken}
             onChange={(e) => setVerifyToken(e.target.value)}
-            placeholder={saved.verifyTokenConfigured ? "Leave blank to keep current" : ""}
+            placeholder={savedPlaceholder(saved.verifyTokenConfigured, saved.verifyTokenHint, "At least 8 characters")}
             className={ADMIN_INPUT}
           />
         </Field>
-        <Field label="Gemini API Key" hint={saved.geminiApiKeyConfigured ? `Saved ${saved.geminiApiKeyHint}` : "Not saved yet"}>
+        <Field label="Gemini API Key">
           <input
             type="password"
             autoComplete="new-password"
             value={geminiApiKey}
             onChange={(e) => setGeminiApiKey(e.target.value)}
-            placeholder={saved.geminiApiKeyConfigured ? "Leave blank to keep current" : ""}
+            placeholder={savedPlaceholder(saved.geminiApiKeyConfigured, saved.geminiApiKeyHint, "Not saved yet")}
             className={ADMIN_INPUT}
           />
         </Field>
@@ -199,10 +195,11 @@ export default function WhatsappSettingsForm({ initial }: Props) {
             list="gemini-models"
             value={geminiModel}
             onChange={(e) => setGeminiModel(e.target.value)}
+            placeholder="Current free-tier model"
             className={ADMIN_INPUT}
           />
           <datalist id="gemini-models">
-            {MODELS.map((model) => (
+            {geminiModels.map((model) => (
               <option key={model} value={model} />
             ))}
           </datalist>
