@@ -191,18 +191,17 @@ export default function WhatsappSettingsForm({ initial }: Props) {
           />
         </Field>
         <Field label="Gemini Model">
-          <input
-            list="gemini-models"
+          <select
             value={geminiModel}
             onChange={(e) => setGeminiModel(e.target.value)}
-            placeholder="Current free-tier model"
             className={ADMIN_INPUT}
-          />
-          <datalist id="gemini-models">
-            {geminiModels.map((model) => (
-              <option key={model} value={model} />
+          >
+            {[...new Set([geminiModel, ...geminiModels].filter(Boolean))].map((model) => (
+              <option key={model} value={model}>
+                {model}
+              </option>
             ))}
-          </datalist>
+          </select>
         </Field>
       </div>
 
