@@ -31,7 +31,7 @@ export default function BankPartners() {
           id="trusted-banking-partners"
           className="mb-8 text-center text-xl font-bold text-midnight_text dark:text-white xs:text-2xl sm:mb-10 sm:text-3xl md:text-4xl"
         >
-          Our <span className="theme-gradient-text">100+</span> Trusted Banking <span className="theme-gradient-text">Partners</span>
+          Our <span className="theme-gradient-text">100+</span> Trusted Financial <span className="theme-gradient-text">Partners</span>
         </h2>
         <BankLogoCarousel logos={logos} />
         <div className="mt-8 flex flex-row flex-wrap items-center justify-center gap-3 sm:mt-10 sm:gap-4">
