@@ -181,20 +181,44 @@ function AudienceCard({ item }: { item: (typeof audiences)[number] }) {
   );
 }
 
-const partnerCollage = (
-  <Image
-    src="/images/features/work.webp"
-    alt="People who can become partners, including DSA and loan agents, insurance advisors, property dealers, CAs, shopkeepers, freelancers, students, retired professionals, CSC operators, influencers, homemakers, and sales consultants"
-    width={1024}
-    height={1536}
-    sizes="(min-width: 1024px) 28vw, 100vw"
-    className="h-auto w-full rounded-xl shadow-[0_16px_40px_rgba(15,23,42,0.16)] lg:h-full lg:object-cover"
-  />
-);
+const collageAlt =
+  "People who can become partners, including DSA and loan agents, insurance advisors, property dealers, CAs, shopkeepers, freelancers, students, retired professionals, CSC operators, influencers, homemakers, and sales consultants";
+
+function PartnerCollage() {
+  return (
+    <Image
+      src="/images/features/work.webp"
+      alt={collageAlt}
+      width={1024}
+      height={1536}
+      sizes="100vw"
+      className="h-auto w-full rounded-xl shadow-[0_16px_40px_rgba(15,23,42,0.16)]"
+    />
+  );
+}
+
+const imageLeft = [
+  "Existing DSA & Loan Agents",
+  "Real Estate Agents & Property Dealers",
+  "Small Business Owners & Shopkeepers",
+  "Students & Freshers",
+  "CSC & E-Mitra Operators",
+  "Social Media Influencers",
+] as const;
+
+const imageRight = [
+  "Insurance Agents & Financial Advisors",
+  "CA & Tax Consultants",
+  "Freelancers & Finance Enthusiasts",
+  "Retired Professionals & Bank Employees",
+  "Sales Professionals & Business Consultants",
+  "Housewives & Homemakers",
+] as const;
 
 export default function PartnerAudience() {
-  const left = audiences.slice(0, 6);
-  const right = audiences.slice(6);
+  const byTitle = new Map(audiences.map((item) => [item.title, item]));
+  const left = imageLeft.map((title) => byTitle.get(title)!);
+  const right = imageRight.map((title) => byTitle.get(title)!);
 
   return (
     <section aria-labelledby="who-can-become-dsa" className="bg-white px-4 py-10 dark:bg-darkmode sm:px-6 sm:py-14">
@@ -204,7 +228,9 @@ export default function PartnerAudience() {
         </h2>
 
         <div className="grid items-center gap-6 lg:hidden">
-          <div className="order-1 flex items-center justify-center">{partnerCollage}</div>
+          <div className="order-1 flex items-center justify-center">
+            <PartnerCollage />
+          </div>
           <ul className="order-2 grid grid-cols-1 gap-y-3 sm:gap-x-2.5 sm:gap-y-4 md:grid-cols-2">
             {audiences.map((item) => (
               <li
@@ -217,31 +243,28 @@ export default function PartnerAudience() {
           </ul>
         </div>
 
-        <div className="hidden lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(240px,0.95fr)_minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-6 lg:items-stretch lg:gap-4">
-          <ul className="contents">
-            {left.map((item, index) => (
-              <li
-                key={item.title}
-                style={{ gridColumn: 1, gridRow: index + 1 }}
-                className={`flex min-h-0 items-center gap-3 rounded-xl px-3.5 py-2 ${item.chip}`}
-              >
+        <div className="hidden w-full lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-stretch lg:gap-4">
+          <ul className="grid grid-rows-6 gap-3">
+            {left.map((item) => (
+              <li key={item.title} className={`flex h-[4.75rem] items-center gap-2.5 rounded-xl px-3 ${item.chip}`}>
                 <AudienceCard item={item} />
               </li>
             ))}
           </ul>
-          <div className="min-h-0" style={{ gridColumn: 2, gridRow: "1 / span 6" }}>
-            {partnerCollage}
+          <div className="flex h-full min-h-0 items-stretch self-stretch">
+            <div className="relative h-full" style={{ aspectRatio: "1024 / 1536" }}>
+              <Image
+                src="/images/features/work.webp"
+                alt={collageAlt}
+                fill
+                sizes="420px"
+                className="rounded-xl object-contain shadow-[0_16px_40px_rgba(15,23,42,0.16)]"
+              />
+            </div>
           </div>
-          <ul className="contents">
-            {right.map((item, index) => (
-              <li
-                key={item.title}
-                style={{
-                  gridColumn: 3 + (index % 2),
-                  gridRow: `${Math.floor(index / 2) * 2 + 1} / span 2`,
-                }}
-                className={`flex min-h-0 items-center gap-3 rounded-xl px-3.5 py-2 ${item.chip}`}
-              >
+          <ul className="grid grid-rows-6 gap-3">
+            {right.map((item) => (
+              <li key={item.title} className={`flex h-[4.75rem] items-center gap-2.5 rounded-xl px-3 ${item.chip}`}>
                 <AudienceCard item={item} />
               </li>
             ))}
