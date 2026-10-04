@@ -203,13 +203,18 @@ export default function LeadsTable({
     e.preventDefault();
     if (!editForm) return;
 
-    const validationErrors = validateLeadForm(editForm);
+    const validationErrors = validateLeadForm(editForm, {
+      requireConsent: readOnly,
+      requirePincode: true,
+    });
     if (
+      validationErrors.fullName ||
       validationErrors.mobileNumber ||
       validationErrors.pan ||
       validationErrors.netMonthlyIncome ||
       validationErrors.pincode ||
-      validationErrors.insType
+      validationErrors.insType ||
+      validationErrors.consent
     ) {
       setFieldErrors(validationErrors);
       return;
@@ -267,6 +272,7 @@ export default function LeadsTable({
 
     const validationErrors = validateLeadForm(editForm, { allowMaskedPan: true });
     if (
+      validationErrors.fullName ||
       validationErrors.mobileNumber ||
       validationErrors.pan ||
       validationErrors.netMonthlyIncome ||
@@ -497,6 +503,7 @@ export default function LeadsTable({
               clearFieldError={clearFieldError}
               panMode="create"
               canApprove={canApprove}
+              partnerConsent={readOnly}
             />
             <div className="flex flex-wrap justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
               <button type="button" onClick={backToProductPick} className={ADMIN_BTN_SECONDARY}>
@@ -507,7 +514,7 @@ export default function LeadsTable({
               </button>
               <button
                 type="submit"
-                disabled={saving}
+                disabled={saving || (readOnly && !editForm.consentAccepted)}
                 className={ADMIN_BTN_PRIMARY}
               >
                 {saving ? "Saving…" : "Add lead"}

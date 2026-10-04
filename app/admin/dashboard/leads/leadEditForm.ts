@@ -6,6 +6,7 @@ import {
   commissionFromStoredLead,
   commissionValueError,
 } from "./leadCommission";
+import { validateLeadPincode } from "@/app/utils/leadForm";
 
 export type EditForm = {
   fullName: string;
@@ -97,6 +98,7 @@ export function emptyCreateForm(): EditForm {
 }
 
 export type FieldErrors = {
+  fullName?: string;
   mobileNumber?: string;
   pan?: string;
   netMonthlyIncome?: string;
@@ -117,9 +119,15 @@ export function isMaskedPanValue(value: string): boolean {
 
 export function validateLeadForm(
   form: EditForm,
-  opts?: { allowMaskedPan?: boolean; requireConsent?: boolean },
+  opts?: { allowMaskedPan?: boolean; requireConsent?: boolean; requirePincode?: boolean },
 ): FieldErrors {
   const errors: FieldErrors = {};
+  const name = form.fullName.trim();
+  if (!/^[A-Za-z][A-Za-z\s.]{1,253}$/.test(name)) {
+    errors.fullName = name
+      ? "Name should not contain special characters or numbers"
+      : "Full name is required";
+  }
   if (!PHONE_PATTERN.test(form.mobileNumber.trim())) {
     errors.mobileNumber = "Enter a valid 10-digit mobile number";
   }
@@ -129,9 +137,14 @@ export function validateLeadForm(
   } else if (!PAN_PATTERN.test(pan)) {
     errors.pan = "Enter a valid PAN (e.g. ABCDE1234F)";
   }
-  const pin = form.pincode.trim();
-  if (pin && !PINCODE_PATTERN.test(pin)) {
-    errors.pincode = "Enter a valid 6-digit Indian pincode";
+  if (opts?.requirePincode) {
+    const pinErr = validateLeadPincode(form.pincode);
+    if (pinErr) errors.pincode = pinErr;
+  } else {
+    const pin = form.pincode.trim();
+    if (pin && !PINCODE_PATTERN.test(pin)) {
+      errors.pincode = "Enter a valid 6-digit Indian pincode";
+    }
   }
   if (form.category === "personal_loan") {
     const income = Number(form.netMonthlyIncome);
@@ -147,7 +160,7 @@ export function validateLeadForm(
     if (commissionValue) errors.commissionValue = commissionValue;
   }
   if (opts?.requireConsent && !form.consentAccepted) {
-    errors.consent = "Please agree to the T&C and Privacy Policy to continue.";
+    errors.consent = "Please tick the checkbox to continue.";
   }
   return errors;
 }

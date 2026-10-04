@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import LoanTenureSlider from "@/app/components/services/LoanTenureSlider";
 import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
@@ -50,6 +51,7 @@ export default function LeadFormFields({
   onRevealPan,
   revealingPan,
   canApprove = false,
+  partnerConsent = false,
 }: {
   form: EditForm;
   setForm: (next: EditForm) => void;
@@ -61,6 +63,8 @@ export default function LeadFormFields({
   revealingPan?: boolean;
   /** Only admin can set Approved (credits partner commission). */
   canApprove?: boolean;
+  /** Partner add-lead must confirm the customer's details before save. */
+  partnerConsent?: boolean;
 }) {
   const panLocked = panMode === "edit" && isMaskedPanValue(form.pan);
   const commissionLocked = !canApprove && form.status === "approved";
@@ -131,10 +135,14 @@ export default function LeadFormFields({
           <input
             className={publicInput}
             value={form.fullName}
-            onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+            onChange={(e) => {
+              setForm({ ...form, fullName: e.target.value });
+              clearFieldError("fullName");
+            }}
             placeholder="Full Name (As per PAN)"
             required
           />
+          <FieldErrorText message={fieldErrors.fullName} />
         </label>
         <div className="block">
           <span className={fieldLabel}>
@@ -323,6 +331,21 @@ export default function LeadFormFields({
               setForm({ ...form, loanTenureMonths: months });
             }}
           />
+        </div>
+      ) : null}
+      {panMode === "create" && partnerConsent ? (
+        <div className="sm:col-span-2">
+          <TermsAgreementCheckbox
+            id="partner-lead-consent"
+            variant="partner"
+            checked={form.consentAccepted}
+            onChange={(checked) => {
+              setForm({ ...form, consentAccepted: checked });
+              clearFieldError("consent");
+            }}
+            textClassName="text-sm leading-snug text-slate-600 dark:text-gray-300"
+          />
+          <FieldErrorText message={fieldErrors.consent} />
         </div>
       ) : null}
     </div>

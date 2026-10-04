@@ -13,8 +13,8 @@ type Props = {
   showPrivacyPolicy?: boolean;
   /** Shorter single-line copy for tight layouts (e.g. modals). */
   compact?: boolean;
-  /** Lead apply forms: contact consent plus T&C and Privacy Policy links. */
-  variant?: "default" | "lead";
+  /** Lead apply forms: contact consent plus T&C and Privacy Policy links. Partner add-lead confirms the customer's details. */
+  variant?: "default" | "lead" | "partner";
 };
 
 const VALIDITY_MESSAGE = "Please agree to the terms and conditions to continue.";
@@ -106,6 +106,39 @@ export default function TermsAgreementCheckbox({
               </Link>
               <label htmlFor={id} className="cursor-pointer">
                 , and authorize Apni Zaroorat and its lending partners to contact me.
+              </label>
+            </>
+          ) : variant === "partner" ? (
+            <>
+              <label htmlFor={id} className="cursor-pointer">
+                I confirm that I am adding my customer&apos;s details with their permission, and I agree to the{" "}
+              </label>
+              <Link
+                href="/terms-and-conditions"
+                className="text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={stopLinkToggle}
+                onMouseDown={stopLinkToggle}
+              >
+                T&amp;C
+              </Link>
+              <label htmlFor={id} className="cursor-pointer">
+                {" "}
+                and{" "}
+              </label>
+              <Link
+                href="/privacy-policy"
+                className="text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={stopLinkToggle}
+                onMouseDown={stopLinkToggle}
+              >
+                Privacy Policy
+              </Link>
+              <label htmlFor={id} className="cursor-pointer">
+                .
               </label>
             </>
           ) : compact ? (
