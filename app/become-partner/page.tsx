@@ -52,9 +52,10 @@ export default function BecomePartnerPage() {
           </p>
         </div>
       </div>
-      <IndiaMapClient />
+      <IndiaMapClient>
+        <PartnerAudience />
+      </IndiaMapClient>
       {false && <ThreeSteps />}
-      <PartnerAudience />
       <PartnerBenefits />
       <FaqSection items={DSA_FAQ_ITEMS} />
     </>

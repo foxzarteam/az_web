@@ -78,7 +78,7 @@ function EyeIcon({ open }: { open: boolean }) {
   );
 }
 
-export default function IndiaMap() {
+export default function IndiaMap({ children }: { children?: React.ReactNode }) {
   const router = useRouter();
   const [visiblePins, setVisiblePins] = useState<Set<number>>(new Set());
   const [fieldErrors, setFieldErrors] = useState<HeroFieldErrors>({});
@@ -262,17 +262,18 @@ export default function IndiaMap() {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-gray-100 px-4 pt-12 pb-0 sm:px-6 sm:pt-16 md:pt-20">
+      <section className="relative overflow-hidden bg-gray-100 px-4 py-12 sm:px-6 sm:py-16 md:py-20">
         <div className="container relative z-[1] mx-auto max-w-full md:max-w-screen-lg lg:max-w-screen-2xl">
-          <div className="mb-8 grid items-stretch gap-6 sm:mb-10 sm:gap-8 md:mb-12 lg:grid-cols-2 lg:gap-10">
-            <div className="relative min-h-64 w-full overflow-hidden rounded-2xl sm:min-h-80 sm:rounded-3xl lg:h-full lg:min-h-0">
+          <div className="mb-0 grid items-center gap-6 sm:gap-8 lg:grid-cols-2 lg:gap-10">
+            <div className="w-full">
               <Image
                 src="/images/features/partner-dsa.webp"
                 alt="Partner working from a phone, with flexible schedule, zero investment, full support, and earnings up to one lakh per month"
-                fill
+                width={1384}
+                height={1136}
                 priority
                 sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover object-center"
+                className="h-auto w-full rounded-2xl object-contain sm:rounded-3xl"
               />
             </div>
             <form
@@ -427,8 +428,12 @@ export default function IndiaMap() {
               </div>
             </form>
           </div>
+        </div>
+      </section>
 
-          <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 px-4 py-8 sm:px-6 sm:py-10 md:py-12">
+      {children}
+
+      <section className="bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 px-4 py-8 sm:px-6 sm:py-10 md:py-12">
             <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-3 sm:mb-4">
               Agents Across India Are Earning Daily
             </h2>
@@ -521,8 +526,6 @@ export default function IndiaMap() {
                 India&apos;s Trusted Loan & Insurance Partner Platform
               </p>
             </div>
-          </div>
-        </div>
       </section>
 
       <style jsx global>{`
