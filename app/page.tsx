@@ -13,6 +13,7 @@ import Hero from "./components/home/hero";
 import HomeDisclaimerBanner from "./components/home/HomeDisclaimerBanner";
 import LoanPurposes from "./components/home/loan-purposes";
 import EligibilityCalculator from "./components/home/eligibility-calculator";
+import BankPartners from "./components/home/bank-partners";
 import Listing from "./components/home/property-list";
 import PartnersMarquee from "./components/home/partners-marquee";
 import FaqSection from "./components/home/faq";
@@ -46,6 +47,8 @@ export default function Home() {
       <Calculator />
       <LoanPurposes />
       <EligibilityCalculator />
+      <BankPartners />
+      <div className="h-8 bg-[#F7F8FC] sm:h-12 dark:bg-semidark" aria-hidden />
       <Listing />
       <PartnersMarquee />
       <FaqSection />

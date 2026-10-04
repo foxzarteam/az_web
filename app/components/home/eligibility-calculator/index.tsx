@@ -278,7 +278,7 @@ export default function EligibilityCalculator() {
   return (
     <section
       id="eligibility-calculator"
-      className="w-full min-w-0 bg-[#F7F8FC] py-10 dark:bg-darkmode sm:py-12 md:py-14"
+      className="w-full min-w-0 bg-[#F7F8FC] pb-10 pt-4 dark:bg-darkmode sm:pb-12 sm:pt-5 md:pb-14 md:pt-6"
       aria-labelledby="eligibility-heading"
     >
       <div className="container mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 md:max-w-screen-md lg:max-w-screen-xl lg:px-8">
