@@ -463,6 +463,33 @@ html:not([data-aos-ready]) [data-aos] {
   }
 }
 
+@keyframes partner-lead-info {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.partner-lead-info-track {
+  animation: partner-lead-info 28s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partner-lead-info-track {
+    animation: none;
+    width: 100%;
+  }
+  .partner-lead-info-track > span:nth-child(n + 2) {
+    display: none;
+  }
+  .partner-lead-info-track > span {
+    min-width: 0;
+    white-space: normal;
+  }
+}
+
 /* About page — cities carousel (infinite loop) */
 @keyframes city-marquee {
   0% {

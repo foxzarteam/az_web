@@ -281,15 +281,6 @@ export default function UsersTable({
         cell: (row) => cellText(row, "user_name"),
       },
       {
-        id: "email",
-        header: "Email",
-        sortable: true,
-        sortValue: (row) => String(row.email ?? ""),
-        searchValue: (row) => cellText(row, "email"),
-        className: "max-w-[200px] truncate whitespace-nowrap",
-        cell: (row) => cellText(row, "email"),
-      },
-      {
         id: "mobile_number",
         header: "Phone",
         sortable: true,
@@ -365,7 +356,7 @@ export default function UsersTable({
         rows={users}
         columns={columns}
         getRowId={(row, i) => String(row.id ?? i)}
-        searchPlaceholder="Search name, email, phone…"
+        searchPlaceholder="Search name, phone…"
         emptyMessage="No partners to display."
         toolbarRight={
           <button type="button" onClick={openCreate} className={ADMIN_BTN_PRIMARY}>

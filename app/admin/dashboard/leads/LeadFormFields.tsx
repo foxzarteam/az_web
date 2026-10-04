@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import LoanTenureSlider from "@/app/components/services/LoanTenureSlider";
 import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
@@ -99,112 +98,57 @@ export default function LeadFormFields({
     return list;
   }, [insuranceTypeOptions, form.insType]);
 
+  const fieldLabel = "mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300";
+  const publicInput =
+    "w-full min-h-10 px-3.5 py-2 rounded-xl border border-gray-300 bg-white text-base text-midnight_text placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80 dark:text-white";
+
   return (
     <div className="grid gap-5 sm:grid-cols-2">
-      {form.category === "personal_loan" ? (
-        <>
-          <div className={`sm:col-span-2${commissionLocked ? " pointer-events-none opacity-60" : ""}`}>
-            <LoanAmountSlider
-              id="admin-lead-loan-amount"
-              value={form.requiredAmount}
-              onChange={(value) => {
-                if (commissionLocked) return;
-                setForm({ ...form, requiredAmount: value });
-              }}
-            />
-          </div>
+      <div className="grid grid-cols-2 gap-3 sm:col-span-2 sm:gap-4">
+        {form.category === "insurance" ? (
           <div className="sm:col-span-2">
-            <EmploymentIncomeFields
-              idPrefix="admin-lead"
-              netMonthlyIncome={form.netMonthlyIncome}
-              onIncomeChange={(value) => {
-                setForm({ ...form, netMonthlyIncome: value });
-                clearFieldError("netMonthlyIncome");
+            <span className={fieldLabel}>
+              Insurance type <span className="text-red-500">*</span>
+            </span>
+            <InsuranceTypeSelect
+              id="admin-lead-insurance-type"
+              value={form.insType}
+              disabled={commissionLocked}
+              options={insSelectOptions}
+              onChange={(value) => {
+                setForm({ ...form, insType: value });
+                clearFieldError("insType");
               }}
-              inputClassName={inputClass}
-              labelClassName={ADMIN_LABEL}
-              labelAsSpan
-              incomeError={<FieldErrorText message={fieldErrors.netMonthlyIncome} />}
-              incomeWithRupee
+              className="flex min-h-10 w-full items-center gap-2.5 rounded-xl border border-gray-300 bg-white px-3.5 py-2 text-left text-base text-midnight_text outline-none focus:ring-2 focus:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80 dark:text-white"
             />
+            <FieldErrorText message={fieldErrors.insType} />
           </div>
-        </>
-      ) : form.category === "insurance" ? (
-        <div className="block sm:col-span-2">
-          <span className={ADMIN_LABEL}>Insurance type</span>
-          <InsuranceTypeSelect
-            id="admin-lead-insurance-type"
-            value={form.insType}
-            disabled={commissionLocked}
-            options={insSelectOptions}
-            onChange={(value) => {
-              setForm({ ...form, insType: value });
-              clearFieldError("insType");
-            }}
-            className="flex w-full min-h-[46px] items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-left text-sm text-slate-800 shadow-sm outline-none focus:border-[#4236FB] focus:ring-2 focus:ring-[#4236FB]/20 dark:border-dark_border dark:bg-darkmode dark:text-white"
-          />
-          <FieldErrorText message={fieldErrors.insType} />
-        </div>
-      ) : null}
-      <label className="block sm:col-span-2">
-        <span className={ADMIN_LABEL}>Name</span>
-        <input
-          className={inputClass}
-          value={form.fullName}
-          onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-          placeholder="enter name"
-          required
-        />
-      </label>
-      <label className="block">
-        <span className={ADMIN_LABEL}>Phone</span>
-        <div className="flex min-h-[46px] items-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm focus-within:border-[#4236FB] focus-within:ring-2 focus-within:ring-[#4236FB]/20 dark:border-dark_border dark:bg-darkmode">
-          <span className="flex shrink-0 items-center pl-3" aria-hidden>
-            <IndiaFlag />
+        ) : null}
+        <label className="block">
+          <span className={fieldLabel}>
+            Full Name <span className="text-red-500">*</span>
           </span>
-          <span className="px-2 text-sm font-semibold text-slate-800 dark:text-white">+91</span>
-          <span className="h-6 w-px shrink-0 bg-slate-200 dark:bg-dark_border" aria-hidden />
           <input
-            className="min-h-[46px] min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none dark:text-white"
-            value={form.mobileNumber}
-            onChange={(e) => {
-              setForm({ ...form, mobileNumber: e.target.value.replace(/\D/g, "") });
-              clearFieldError("mobileNumber");
-            }}
-            placeholder="10-digit mobile"
-            inputMode="numeric"
+            className={publicInput}
+            value={form.fullName}
+            onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+            placeholder="Full Name (As per PAN)"
             required
-            maxLength={10}
           />
-        </div>
-        <FieldErrorText message={fieldErrors.mobileNumber} />
-      </label>
-      <label className="block">
-        <span className={ADMIN_LABEL}>Current Residence Pincode</span>
-        <input
-          className={inputClass}
-          value={form.pincode}
-          onChange={(e) => {
-            setForm({ ...form, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) });
-            clearFieldError("pincode");
-          }}
-          placeholder="6-digit pincode"
-          inputMode="numeric"
-          maxLength={6}
-        />
-        <FieldErrorText message={fieldErrors.pincode} />
-      </label>
-      <div className="block">
-        <span className={ADMIN_LABEL}>PAN</span>
+        </label>
+        <div className="block">
+          <span className={fieldLabel}>
+            PAN Card number <span className="text-red-500">*</span>
+          </span>
         <div className="flex items-center gap-2">
           <input
-            className={`${inputClass} min-w-0 flex-1 font-mono tracking-wide`}
+            className={`${publicInput} min-w-0 flex-1 font-mono tracking-wide`}
             value={form.pan}
             onChange={(e) => {
               setForm({ ...form, pan: e.target.value.toUpperCase() });
               clearFieldError("pan");
             }}
-            placeholder="enter PAN number"
+            placeholder="e.g. ABCDE1234F"
             required={panMode === "create"}
             maxLength={10}
             readOnly={panLocked}
@@ -227,6 +171,75 @@ export default function LeadFormFields({
           </span>
         ) : null}
         <FieldErrorText message={fieldErrors.pan} />
+        </div>
+        <label className="block">
+          <span className={fieldLabel}>
+            Mobile Number <span className="text-red-500">*</span>
+          </span>
+          <div className="flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80">
+            <span className="flex shrink-0 items-center pl-3" aria-hidden>
+              <IndiaFlag />
+            </span>
+            <span className="px-2 text-base font-semibold text-midnight_text dark:text-white">+91</span>
+            <span className="h-6 w-px shrink-0 bg-gray-300 dark:bg-dark_border" aria-hidden />
+            <input
+              className="min-h-10 min-w-0 flex-1 bg-transparent px-3 py-2 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none dark:text-white"
+              value={form.mobileNumber}
+              onChange={(e) => {
+                setForm({ ...form, mobileNumber: e.target.value.replace(/\D/g, "") });
+                clearFieldError("mobileNumber");
+              }}
+              placeholder="10-digit mobile"
+              inputMode="numeric"
+              required
+              maxLength={10}
+            />
+          </div>
+          <FieldErrorText message={fieldErrors.mobileNumber} />
+        </label>
+        <label className="block">
+          <span className={fieldLabel}>
+            Current Residence Pincode <span className="text-red-500">*</span>
+          </span>
+          <input
+            className={publicInput}
+            value={form.pincode}
+            onChange={(e) => {
+              setForm({ ...form, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) });
+              clearFieldError("pincode");
+            }}
+            placeholder="e.g. 302002"
+            inputMode="numeric"
+            maxLength={6}
+          />
+          <FieldErrorText message={fieldErrors.pincode} />
+        </label>
+        {form.category === "personal_loan" ? (
+          <>
+            <div className={commissionLocked ? "pointer-events-none opacity-60" : ""}>
+              <LoanAmountSlider
+                id="admin-lead-loan-amount"
+                value={form.requiredAmount}
+                onChange={(value) => {
+                  if (commissionLocked) return;
+                  setForm({ ...form, requiredAmount: value });
+                }}
+              />
+            </div>
+            <EmploymentIncomeFields
+              idPrefix="admin-lead"
+              netMonthlyIncome={form.netMonthlyIncome}
+              onIncomeChange={(value) => {
+                setForm({ ...form, netMonthlyIncome: value });
+                clearFieldError("netMonthlyIncome");
+              }}
+              inputClassName={publicInput}
+              labelClassName={fieldLabel}
+              incomeError={<FieldErrorText message={fieldErrors.netMonthlyIncome} />}
+              incomeWithRupee
+            />
+          </>
+        ) : null}
       </div>
       {panMode === "edit" ? (
         <label className="block">
@@ -310,21 +323,6 @@ export default function LeadFormFields({
               setForm({ ...form, loanTenureMonths: months });
             }}
           />
-        </div>
-      ) : null}
-      {panMode === "create" ? (
-        <div className="sm:col-span-2">
-          <TermsAgreementCheckbox
-            id="admin-lead-consent"
-            variant="lead"
-            checked={form.consentAccepted}
-            onChange={(checked) => {
-              setForm({ ...form, consentAccepted: checked });
-              clearFieldError("consent");
-            }}
-            textClassName="text-sm leading-snug text-slate-600 dark:text-gray-300"
-          />
-          <FieldErrorText message={fieldErrors.consent} />
         </div>
       ) : null}
     </div>
