@@ -4,73 +4,73 @@ const audiences = [
   {
     title: "Existing DSA & Loan Agents",
     text: "Earn extra income by offering more financial products.",
-    chip: "bg-gradient-to-r from-blue-200 to-blue-50 text-blue-900",
+    chip: "bg-blue-400 text-blue-950",
     icon: "briefcase",
   },
   {
     title: "Insurance Agents & Financial Advisors",
     text: "Earn additional commission through client referrals.",
-    chip: "bg-gradient-to-r from-emerald-200 to-emerald-50 text-emerald-900",
+    chip: "bg-emerald-400 text-emerald-950",
     icon: "shield",
   },
   {
     title: "Real Estate Agents & Property Dealers",
     text: "Earn extra income by referring customers for loans.",
-    chip: "bg-gradient-to-r from-amber-200 to-amber-50 text-amber-950",
+    chip: "bg-amber-400 text-amber-950",
     icon: "building",
   },
   {
     title: "CA & Tax Consultants",
     text: "Generate additional income through financial referrals.",
-    chip: "bg-gradient-to-r from-violet-200 to-violet-50 text-violet-900",
+    chip: "bg-violet-400 text-violet-950",
     icon: "calculator",
   },
   {
     title: "Small Business Owners & Shopkeepers",
     text: "Earn extra income alongside your existing business.",
-    chip: "bg-gradient-to-r from-teal-200 to-teal-50 text-teal-900",
+    chip: "bg-teal-400 text-teal-950",
     icon: "store",
   },
   {
     title: "Freelancers & Finance Enthusiasts",
     text: "Earn money with flexible financial service opportunities.",
-    chip: "bg-gradient-to-r from-rose-200 to-rose-50 text-rose-900",
+    chip: "bg-rose-400 text-rose-950",
     icon: "laptop",
   },
   {
     title: "Students & Freshers",
     text: "Earn while learning and building your career.",
-    chip: "bg-gradient-to-r from-indigo-200 to-indigo-50 text-indigo-900",
+    chip: "bg-indigo-400 text-indigo-950",
     icon: "cap",
   },
   {
     title: "Retired Professionals & Bank Employees",
     text: "Earn additional income using your experience and network.",
-    chip: "bg-gradient-to-r from-orange-200 to-orange-50 text-orange-950",
+    chip: "bg-orange-400 text-orange-950",
     icon: "badge",
   },
   {
     title: "CSC & E-Mitra Operators",
     text: "Earn extra commission by offering financial services.",
-    chip: "bg-gradient-to-r from-sky-200 to-sky-50 text-sky-950",
+    chip: "bg-sky-400 text-sky-950",
     icon: "id",
   },
   {
     title: "Social Media Influencers",
     text: "Monetize your audience through eligible customer referrals.",
-    chip: "bg-gradient-to-r from-fuchsia-200 to-fuchsia-50 text-fuchsia-900",
+    chip: "bg-fuchsia-400 text-fuchsia-950",
     icon: "megaphone",
   },
   {
     title: "Housewives & Homemakers",
     text: "Earn from home with flexible working opportunities.",
-    chip: "bg-gradient-to-r from-yellow-200 to-yellow-50 text-yellow-950",
+    chip: "bg-yellow-400 text-yellow-950",
     icon: "home",
   },
   {
     title: "Sales Professionals & Business Consultants",
     text: "Earn extra commission through successful customer referrals.",
-    chip: "bg-gradient-to-r from-pink-300 to-pink-100 text-pink-900",
+    chip: "bg-pink-400 text-pink-950",
     icon: "chart",
   },
 ] as const;
@@ -167,40 +167,85 @@ function AudienceIcon({ name }: { name: (typeof audiences)[number]["icon"] }) {
   }
 }
 
+function AudienceCard({ item }: { item: (typeof audiences)[number] }) {
+  return (
+    <>
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/80">
+        <AudienceIcon name={item.icon} />
+      </span>
+      <div className="min-w-0">
+        <h3 className="m-0 break-words text-sm font-bold leading-tight text-black">{item.title}</h3>
+        <p className="m-0 break-words pt-0.5 text-xs font-medium leading-snug">{item.text}</p>
+      </div>
+    </>
+  );
+}
+
+const partnerCollage = (
+  <Image
+    src="/images/features/work.webp"
+    alt="People who can become partners, including DSA and loan agents, insurance advisors, property dealers, CAs, shopkeepers, freelancers, students, retired professionals, CSC operators, influencers, homemakers, and sales consultants"
+    width={1024}
+    height={1536}
+    sizes="(min-width: 1024px) 28vw, 100vw"
+    className="h-auto w-full rounded-xl shadow-[0_16px_40px_rgba(15,23,42,0.16)] lg:h-full lg:object-cover"
+  />
+);
+
 export default function PartnerAudience() {
+  const left = audiences.slice(0, 6);
+  const right = audiences.slice(6);
+
   return (
     <section aria-labelledby="who-can-become-dsa" className="bg-white px-4 py-10 dark:bg-darkmode sm:px-6 sm:py-14">
       <div className="container mx-auto md:max-w-screen-md lg:max-w-screen-xl">
         <h2 id="who-can-become-dsa" className="mb-6 text-center text-xl font-bold text-midnight_text dark:text-white xs:text-2xl sm:mb-8 sm:text-3xl md:text-4xl">
           Who Can Become a DSA Partner?
         </h2>
-        <div className="grid items-center gap-6 lg:grid-cols-[3fr_2fr] lg:items-stretch lg:gap-8">
-          <ul className="order-2 grid grid-cols-1 gap-y-3 sm:gap-x-2.5 sm:gap-y-4 md:grid-cols-2 lg:order-1 lg:gap-x-3 lg:gap-y-5">
+
+        <div className="grid items-center gap-6 lg:hidden">
+          <div className="order-1 flex items-center justify-center">{partnerCollage}</div>
+          <ul className="order-2 grid grid-cols-1 gap-y-3 sm:gap-x-2.5 sm:gap-y-4 md:grid-cols-2">
             {audiences.map((item) => (
               <li
                 key={item.title}
                 className={`flex min-h-0 items-center gap-2.5 rounded-xl px-3 py-2 sm:gap-3 sm:px-3.5 ${item.chip}`}
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/80">
-                  <AudienceIcon name={item.icon} />
-                </span>
-                <div className="min-w-0">
-                  <h3 className="m-0 break-words text-sm font-bold leading-tight text-black">{item.title}</h3>
-                  <p className="m-0 break-words pt-0.5 text-xs font-medium leading-snug">{item.text}</p>
-                </div>
+                <AudienceCard item={item} />
               </li>
             ))}
           </ul>
-          <div className="order-1 flex items-center justify-center lg:order-2 lg:h-full lg:min-h-0">
-            <Image
-              src="/images/features/work.webp"
-              alt="People who can become partners, including DSA and loan agents, insurance advisors, property dealers, CAs, shopkeepers, freelancers, students, retired professionals, CSC operators, influencers, homemakers, and sales consultants"
-              width={1024}
-              height={1536}
-              sizes="(min-width: 1024px) 32vw, 100vw"
-              className="h-auto w-full rounded-xl shadow-[0_16px_40px_rgba(15,23,42,0.16)] lg:h-full lg:w-auto lg:max-h-full lg:max-w-full"
-            />
+        </div>
+
+        <div className="hidden lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(240px,0.95fr)_minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-6 lg:items-stretch lg:gap-4">
+          <ul className="contents">
+            {left.map((item, index) => (
+              <li
+                key={item.title}
+                style={{ gridColumn: 1, gridRow: index + 1 }}
+                className={`flex min-h-0 items-center gap-3 rounded-xl px-3.5 py-2 ${item.chip}`}
+              >
+                <AudienceCard item={item} />
+              </li>
+            ))}
+          </ul>
+          <div className="min-h-0" style={{ gridColumn: 2, gridRow: "1 / span 6" }}>
+            {partnerCollage}
           </div>
+          <ul className="contents">
+            {right.map((item, index) => (
+              <li
+                key={item.title}
+                style={{
+                  gridColumn: 3 + (index % 2),
+                  gridRow: `${Math.floor(index / 2) * 2 + 1} / span 2`,
+                }}
+                className={`flex min-h-0 items-center gap-3 rounded-xl px-3.5 py-2 ${item.chip}`}
+              >
+                <AudienceCard item={item} />
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>
