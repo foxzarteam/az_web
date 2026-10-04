@@ -38,15 +38,15 @@ export default function AddLeadProductPicker({
             key={product.key}
             type="button"
             onClick={() => onSelect(product.key)}
-            className={`flex min-h-36 flex-col items-start justify-between rounded-2xl p-5 text-left text-white transition hover:brightness-110 ${product.className}`}
+            className={`flex min-h-36 flex-col items-start rounded-2xl p-5 text-left text-white transition hover:brightness-110 ${product.className}`}
           >
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white/20">
-              {product.key === "personal_loan" ? <LoanIcon /> : <InsuranceIcon />}
+            <span className="flex items-center gap-3">
+              <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/20">
+                {product.key === "personal_loan" ? <LoanIcon /> : <InsuranceIcon />}
+              </span>
+              <span className="text-lg font-bold">{product.title}</span>
             </span>
-            <span>
-              <span className="mt-4 block text-lg font-bold">{product.title}</span>
-              <span className="mt-1 block text-sm text-white/85">{product.detail}</span>
-            </span>
+            <span className="mt-3 block text-sm text-white/85">{product.detail}</span>
           </button>
         ))}
       </div>

@@ -3,7 +3,7 @@ import path from "node:path";
 import Link from "next/link";
 import BankLogoCarousel, { type BankLogo } from "../bank-logo-carousel";
 
-function bankLogos(): BankLogo[] {
+export function bankLogos(): BankLogo[] {
   const dir = path.join(process.cwd(), "public", "images", "bank-logos");
   return fs
     .readdirSync(dir)

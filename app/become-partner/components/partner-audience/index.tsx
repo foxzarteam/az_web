@@ -97,7 +97,7 @@ export default function PartnerAudience() {
     <section aria-labelledby="who-can-become-dsa" className="bg-light px-4 py-10 dark:bg-darkmode sm:px-6 sm:py-14">
       <div className="container mx-auto md:max-w-screen-md lg:max-w-screen-xl">
         <h2 id="who-can-become-dsa" className="mb-6 text-center text-xl font-bold text-midnight_text dark:text-white xs:text-2xl sm:mb-8 sm:text-3xl md:text-4xl">
-          Who Can Become a DSA Partner?
+          Who Can Become a <span className="theme-gradient-text">DSA Partner?</span>
         </h2>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
           <ul className="grid gap-3">

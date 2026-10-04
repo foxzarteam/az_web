@@ -82,12 +82,12 @@ function LogoRow({
   );
 }
 
-export default function BankLogoCarousel({ logos }: { logos: BankLogo[] }) {
+export default function BankLogoCarousel({ logos, rows = 2 }: { logos: BankLogo[]; rows?: 1 | 2 }) {
   const [reduced, setReduced] = useState(false);
   const [paused, setPaused] = useState(false);
-  const mid = Math.ceil(logos.length / 2);
+  const mid = rows === 1 ? logos.length : Math.ceil(logos.length / 2);
   const top = logos.slice(0, mid);
-  const bottom = logos.slice(mid);
+  const bottom = rows === 1 ? [] : logos.slice(mid);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -107,7 +107,7 @@ export default function BankLogoCarousel({ logos }: { logos: BankLogo[] }) {
       onMouseLeave={() => setPaused(false)}
     >
       <LogoRow logos={top} direction="left" paused={paused} reduced={reduced} />
-      <LogoRow logos={bottom} direction="right" paused={paused} reduced={reduced} />
+      {bottom.length > 0 ? <LogoRow logos={bottom} direction="right" paused={paused} reduced={reduced} /> : null}
     </div>
   );
 }

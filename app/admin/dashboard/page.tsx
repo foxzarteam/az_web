@@ -4,6 +4,8 @@ import { fetchLeadsByAgent } from "@/app/lib/admin/fetchLeads";
 import Link from "next/link";
 import DashboardStatCard from "./DashboardStatCard";
 import AffiliateShareKit from "@/app/components/affiliate/AffiliateShareKit";
+import BankLogoCarousel from "@/app/components/home/bank-logo-carousel";
+import { bankLogos } from "@/app/components/home/bank-partners";
 import { ADMIN_BTN_PRIMARY, ADMIN_CARD, ADMIN_UI } from "@/app/components/shared/crm/ui";
 
 function LeadsIcon() {
@@ -56,24 +58,6 @@ export default async function AdminDashboardPage() {
     return (
       <main className="px-4 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-3 lg:px-6 lg:pb-6 lg:pt-4">
         <div className="space-y-3">
-          <div
-            className="flex flex-col gap-2.5 rounded-xl border bg-white p-3.5 sm:flex-row sm:items-center sm:justify-between sm:p-4 dark:border-dark_border dark:bg-darklight"
-            style={{ borderColor: ADMIN_UI.border }}
-          >
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-slate-400">Overview</p>
-              <h2 className="mt-0.5 text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
-                Welcome{session.name ? `, ${session.name}` : ""}
-              </h2>
-              <p className="mt-0.5 max-w-xl text-sm text-slate-500 dark:text-gray-400">
-                Your leads and share link.
-              </p>
-            </div>
-            <Link href="/partner/dashboard/leads" className={ADMIN_BTN_PRIMARY}>
-              Open Leads
-            </Link>
-          </div>
-
           {session.code ? (
             <div className={`${ADMIN_CARD} overflow-hidden`}>
               <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-2.5">
@@ -87,6 +71,18 @@ export default async function AdminDashboardPage() {
               </div>
             </div>
           ) : null}
+
+          <div className={`${ADMIN_CARD} overflow-hidden px-4 py-4 sm:px-6`}>
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white sm:text-lg">
+              Work with <span className="theme-gradient-text">100+</span> Financial Partners
+            </h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">
+              Offer more financial products. Serve more customers. Earn more money.
+            </p>
+            <div className="mt-4">
+              <BankLogoCarousel logos={bankLogos()} rows={1} />
+            </div>
+          </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
             <DashboardStatCard
