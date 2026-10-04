@@ -12,7 +12,6 @@ export interface CreateLeadRequest {
   loanTenureMonths?: number;
   loanAmt?: string;
   insType?: string;
-  employmentType?: "salaried" | "self_employed";
   netMonthlyIncome?: number;
   referralCode?: string;
   /** True only when the applicant checked the lead-form consent box. */

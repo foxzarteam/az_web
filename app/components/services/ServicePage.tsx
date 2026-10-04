@@ -105,7 +105,6 @@ export default function ServicePage({
   const [loanAmount, setLoanAmount] = useState(DEFAULT_LOAN_AMOUNT);
   const [loanTenure, setLoanTenure] = useState<number>(PERSONAL_LOAN_TENURE.DEFAULT_MONTHS);
   const [insType, setInsType] = useState("");
-  const [employmentType, setEmploymentType] = useState("");
   const [netMonthlyIncome, setNetMonthlyIncome] = useState("");
   const [pan, setPan] = useState("");
   const [formError, setFormError] = useState("");
@@ -124,7 +123,6 @@ export default function ServicePage({
 
   useEffect(() => {
     setInsType("");
-    setEmploymentType("");
     setNetMonthlyIncome("");
     setLoanAmount(DEFAULT_LOAN_AMOUNT);
   }, [pageServiceSlug]);
@@ -158,7 +156,6 @@ export default function ServicePage({
           pincode,
           loanAmount,
           loanTenureMonths: loanTenure,
-          employmentType,
           netMonthlyIncome,
         }),
       );
@@ -187,7 +184,6 @@ export default function ServicePage({
               pincode,
               loanAmount,
               loanTenureMonths: loanTenure,
-              employmentType,
               netMonthlyIncome,
             })
           : null;
@@ -201,7 +197,6 @@ export default function ServicePage({
           ? {
               requiredAmount: pl.requiredAmount,
               loanTenureMonths: pl.loanTenureMonths,
-              employmentType: pl.employmentType,
               netMonthlyIncome: pl.netMonthlyIncome,
             }
           : {}),
@@ -321,10 +316,6 @@ export default function ServicePage({
                     </div>
                   )}
 
-                  {showLoanAmount && (
-                    <LoanAmountSlider value={loanAmount} onChange={setLoanAmount} required />
-                  )}
-
                   {showInsuranceType && (
                     <div className="relative">
                       <label htmlFor="service-ins-type" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
@@ -416,7 +407,7 @@ export default function ServicePage({
                         htmlFor="service-pincode"
                         className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
                       >
-                        Pincode <span className="text-red-500">*</span>
+                        Current Residence Pincode <span className="text-red-500">*</span>
                       </label>
                       <input
                         id="service-pincode"
@@ -435,15 +426,22 @@ export default function ServicePage({
                   </div>
 
                   {showLoanAmount && (
-                    <EmploymentIncomeFields
-                      idPrefix="service"
-                      employmentType={employmentType}
-                      netMonthlyIncome={netMonthlyIncome}
-                      onEmploymentChange={setEmploymentType}
-                      onIncomeChange={setNetMonthlyIncome}
-                      inputClassName={inputClass}
-                      labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
-                    />
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                      <LoanAmountSlider
+                        id="service-loan-amount"
+                        value={loanAmount}
+                        onChange={setLoanAmount}
+                        required
+                      />
+                      <EmploymentIncomeFields
+                        idPrefix="service"
+                        netMonthlyIncome={netMonthlyIncome}
+                        onIncomeChange={setNetMonthlyIncome}
+                        inputClassName={inputClass}
+                        labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                        incomeWithRupee
+                      />
+                    </div>
                   )}
 
                   {showLoanAmount && (

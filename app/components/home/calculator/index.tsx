@@ -87,7 +87,7 @@ export default function Calculator() {
             </p>
           </div>
 
-          <div className="grid w-full grid-cols-2 gap-2.5 sm:gap-3">
+          <div className="order-2 grid w-full grid-cols-2 gap-2.5 sm:gap-3 md:order-none">
             {[
               { label: "Monthly EMI", value: formatRupee(emi) },
               { label: "Principal amount", value: formatRupee(principal) },
@@ -108,7 +108,7 @@ export default function Calculator() {
             ))}
           </div>
 
-          <div className="flex w-full flex-col items-center">
+          <div className="order-1 flex w-full flex-col items-center md:order-none">
             <div className="relative h-48 w-48 xs:h-56 xs:w-56 sm:h-64 sm:w-64 md:h-72 md:w-72">
               <svg viewBox="0 0 200 200" className="h-full w-full -rotate-90">
                 <defs>

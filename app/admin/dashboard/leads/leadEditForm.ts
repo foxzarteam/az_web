@@ -16,7 +16,6 @@ export type EditForm = {
   requiredAmount: number;
   loanTenureMonths: number;
   insType: string;
-  employmentType: string;
   netMonthlyIncome: string;
   pincode: string;
   consentAccepted: boolean;
@@ -48,7 +47,6 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
     ),
     loanTenureMonths: clampTenure(lead.loan_tenure_months),
     insType: String(lead.ins_type ?? "life_insurance"),
-    employmentType: String(lead.employment_type ?? ""),
     netMonthlyIncome:
       lead.net_monthly_income != null && lead.net_monthly_income !== ""
         ? String(lead.net_monthly_income)
@@ -89,7 +87,6 @@ export function emptyCreateForm(): EditForm {
     requiredAmount: DEFAULT_LOAN_AMOUNT,
     loanTenureMonths: PERSONAL_LOAN_TENURE.DEFAULT_MONTHS,
     insType: "life_insurance",
-    employmentType: "",
     netMonthlyIncome: "",
     pincode: "",
     consentAccepted: false,
@@ -102,7 +99,6 @@ export function emptyCreateForm(): EditForm {
 export type FieldErrors = {
   mobileNumber?: string;
   pan?: string;
-  employmentType?: string;
   netMonthlyIncome?: string;
   pincode?: string;
   insType?: string;
@@ -138,9 +134,6 @@ export function validateLeadForm(
     errors.pincode = "Enter a valid 6-digit Indian pincode";
   }
   if (form.category === "personal_loan") {
-    if (!form.employmentType) {
-      errors.employmentType = "Select employment type";
-    }
     const income = Number(form.netMonthlyIncome);
     if (!form.netMonthlyIncome.trim() || !Number.isFinite(income) || income <= 0) {
       errors.netMonthlyIncome = "Enter a valid net monthly income";

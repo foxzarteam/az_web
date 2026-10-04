@@ -14,7 +14,6 @@ export type PersonalLoanFormValues = {
   pincode: string;
   loanAmount: number;
   loanTenureMonths: number;
-  employmentType: string;
   netMonthlyIncome: string;
 };
 
@@ -46,10 +45,7 @@ export function validatePersonalLoanApplyForm(
     errors.loanTenure = `Loan tenure must be between ${PERSONAL_LOAN_TENURE.MIN_MONTHS} and ${PERSONAL_LOAN_TENURE.MAX_MONTHS} months`;
   }
 
-  Object.assign(
-    errors,
-    validatePersonalLoanEmployment(values.employmentType, values.netMonthlyIncome),
-  );
+  Object.assign(errors, validatePersonalLoanEmployment(values.netMonthlyIncome));
 
   return errors;
 }
@@ -66,7 +62,6 @@ export function personalLoanApplyPayload(
     category: "personal_loan",
     requiredAmount: values.loanAmount,
     loanTenureMonths: values.loanTenureMonths,
-    employmentType: values.employmentType as "salaried" | "self_employed",
     netMonthlyIncome: incomeNum,
     consentAccepted: true,
   };

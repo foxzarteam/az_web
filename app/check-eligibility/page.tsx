@@ -13,7 +13,7 @@ import {
 const PATH = "/check-eligibility";
 const PAGE_TITLE = "Check Personal Loan Eligibility | Apni Zaroorat";
 const PAGE_DESC =
-  "Check your personal loan eligibility in under a minute. Enter income, employment type, and existing EMI for a free indicative score — no impact on your credit score.";
+  "Check your personal loan eligibility in under a minute. Enter income and any existing EMI for a free indicative score — no impact on your credit score.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: PAGE_TITLE,

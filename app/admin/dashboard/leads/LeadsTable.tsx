@@ -168,7 +168,6 @@ export default function LeadsTable({
       payload.loanTenureMonths = form.loanTenureMonths;
       payload.insType = null;
       payload.loanAmt = null;
-      payload.employmentType = form.employmentType || null;
       const income = Number(form.netMonthlyIncome);
       payload.netMonthlyIncome = Number.isFinite(income) && income > 0 ? income : null;
     } else if (form.category === "insurance") {
@@ -176,7 +175,6 @@ export default function LeadsTable({
       payload.requiredAmount = null;
       payload.loanTenureMonths = null;
       payload.loanAmt = null;
-      payload.employmentType = null;
       payload.netMonthlyIncome = null;
     }
     const pan = form.pan.trim().toUpperCase();
@@ -231,7 +229,6 @@ export default function LeadsTable({
     if (
       validationErrors.mobileNumber ||
       validationErrors.pan ||
-      validationErrors.employmentType ||
       validationErrors.netMonthlyIncome ||
       validationErrors.pincode ||
       validationErrors.insType ||
@@ -263,8 +260,7 @@ export default function LeadsTable({
         if (
           data.field === "mobileNumber" ||
           data.field === "pan" ||
-          data.field === "pincode" ||
-          data.field === "employmentType"
+          data.field === "pincode"
         ) {
           setFieldErrors({ [data.field]: message });
         } else {
@@ -308,8 +304,7 @@ export default function LeadsTable({
       if (
         data.field === "mobileNumber" ||
         data.field === "pan" ||
-        data.field === "pincode" ||
-        data.field === "employmentType"
+        data.field === "pincode"
       ) {
         setFieldErrors({ [data.field]: message });
         setOtpOpen(false);
@@ -334,7 +329,6 @@ export default function LeadsTable({
     if (
       validationErrors.mobileNumber ||
       validationErrors.pan ||
-      validationErrors.employmentType ||
       validationErrors.netMonthlyIncome ||
       validationErrors.pincode ||
       validationErrors.insType ||
@@ -462,7 +456,7 @@ export default function LeadsTable({
           <ul className="grid grid-cols-1 gap-x-8 gap-y-5 p-6 sm:grid-cols-2 sm:p-8">
             {VIEW_FIELDS.map((rawKey) => {
               if (
-                (rawKey === "employment_type" || rawKey === "net_monthly_income") &&
+                rawKey === "net_monthly_income" &&
                 String(viewLead.category ?? "") !== "personal_loan"
               ) {
                 return null;

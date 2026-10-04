@@ -1,7 +1,6 @@
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
 import { formatIpLocationDisplay } from "@/app/lib/admin/formatIpLocation";
 import {
-  employmentTypeLabel,
   insuranceTypeLabel,
   loanAmountLabel,
 } from "@/app/utils/leadForm";
@@ -32,7 +31,6 @@ export const VIEW_FIELDS = [
   "consent_accepted",
   "required_amount",
   "loan_tenure_months",
-  "employment_type",
   "net_monthly_income",
   "pincode",
   "ip",
@@ -48,10 +46,9 @@ export const FIELD_LABELS: Record<string, string> = {
   mobile_number: "Phone",
   full_name: "Name",
   email: "Email",
-  pincode: "Pincode",
+  pincode: "Current Residence Pincode",
   required_amount: "Loan amount",
   loan_tenure_months: "Loan tenure",
-  employment_type: "Employment type",
   net_monthly_income: "Net monthly income",
   ip: "Location",
   ip_location: "Location",
@@ -110,7 +107,6 @@ export function formatValue(key: string, value: unknown, row?: AdminLeadRow): st
   }
   if (value == null || value === "") return "—";
   if (key === "category") return categoryLabel(value);
-  if (key === "employment_type") return employmentTypeLabel(String(value));
   if (key === "loan_amt") return loanAmountLabel(String(value));
   if (key === "ins_type") return insuranceTypeLabel(String(value));
   if (key === "status") return statusLabel(value);

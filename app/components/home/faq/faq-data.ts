@@ -56,7 +56,7 @@ export const ELIGIBILITY_FAQ_ITEMS: FaqItem[] = [
     id: "eligibility-what-needed",
     question: "What details do I need to check personal loan eligibility?",
     answer:
-      "You only need your monthly income, employment type (salaried or self-employed), and any existing EMI amount. In under a minute you get an indicative score and chance based on income comfort and EMI burden.",
+      "You only need your monthly income and any existing EMI amount. In under a minute you get an indicative score and chance based on income comfort and EMI burden.",
   },
   {
     id: "eligibility-who-qualifies",

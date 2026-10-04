@@ -18,12 +18,6 @@ const LIMITS = {
   FOIR_SELF_EMPLOYED: 0.45,
 } as const;
 
-const EMPLOYMENT_OPTIONS = [
-  { value: "", label: "Select Employment Type" },
-  { value: "salaried", label: "Salaried" },
-  { value: "self_employed", label: "Self employee / business" },
-] as const;
-
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
@@ -203,51 +197,6 @@ function ReasonIcon({ ok }: { ok: boolean }) {
   );
 }
 
-function SelectField({
-  id,
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: readonly { value: string; label: string }[];
-}) {
-  const isPlaceholder = value === "";
-
-  return (
-    <div>
-      <label htmlFor={id} className="mb-2 block text-sm font-medium text-[#1B2A4A] dark:text-gray-300">
-        {label}
-      </label>
-      <div className="relative">
-        <select
-          id={id}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className={`w-full appearance-none rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5 pr-10 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-dark_border dark:bg-darkmode dark:text-white ${
-            isPlaceholder ? "text-gray" : "font-medium text-[#1B2A4A] dark:text-white"
-          }`}
-        >
-          {options.map((opt) => (
-            <option key={opt.value || "placeholder"} value={opt.value} disabled={opt.value === ""}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-        <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-gray" aria-hidden>
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-            <path d="M5 7.5 10 12.5 15 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </span>
-      </div>
-    </div>
-  );
-}
-
 function SliderField({
   id,
   label,
@@ -314,21 +263,14 @@ function SliderField({
 export default function EligibilityCalculator() {
   const router = useRouter();
   const [monthlyIncome, setMonthlyIncome] = useState(50_000);
-  const [employment, setEmployment] = useState<Profession | "">("salaried");
   const [existingEmi, setExistingEmi] = useState(0);
-  const [error, setError] = useState("");
 
-  const result = useMemo(() => {
-    const profession: Profession = employment || "salaried";
-    return computeEligibility(monthlyIncome, profession, existingEmi);
-  }, [monthlyIncome, employment, existingEmi]);
+  const result = useMemo(
+    () => computeEligibility(monthlyIncome, "salaried", existingEmi),
+    [monthlyIncome, existingEmi],
+  );
 
   const handleCheck = () => {
-    if (!employment) {
-      setError("Please select employment type to check eligibility.");
-      return;
-    }
-    setError("");
     captureAffiliateCodeFromLocation();
     router.push("/products/personal-loan/");
   };
@@ -365,21 +307,7 @@ export default function EligibilityCalculator() {
                   min={LIMITS.MIN_INCOME}
                   max={LIMITS.MAX_INCOME}
                   step={LIMITS.STEP_INCOME}
-                  onChange={(n) => {
-                    setMonthlyIncome(n);
-                    setError("");
-                  }}
-                />
-
-                <SelectField
-                  id="elig-employment"
-                  label="Employment Type"
-                  value={employment}
-                  onChange={(v) => {
-                    setEmployment(v as Profession | "");
-                    setError("");
-                  }}
-                  options={EMPLOYMENT_OPTIONS}
+                  onChange={setMonthlyIncome}
                 />
 
                 <SliderField
@@ -389,14 +317,9 @@ export default function EligibilityCalculator() {
                   min={LIMITS.MIN_EMI}
                   max={LIMITS.MAX_EMI}
                   step={LIMITS.STEP_EMI}
-                  onChange={(n) => {
-                    setExistingEmi(n);
-                    setError("");
-                  }}
+                  onChange={setExistingEmi}
                 />
               </div>
-
-              {error && <p className="mt-3 text-sm text-red-500">{error}</p>}
 
               <button
                 type="button"

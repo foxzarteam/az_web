@@ -45,11 +45,6 @@ export function insuranceTypeImageSrc(image?: string | null): string {
   return `/images/insurance/${name}`;
 }
 
-export const EMPLOYMENT_TYPE_OPTIONS = [
-  { value: "salaried", label: "Salaried" },
-  { value: "self_employed", label: "Self employee / business" },
-] as const;
-
 export function loanAmountLabel(value: string): string {
   return LOAN_AMOUNT_OPTIONS.find((o) => o.value === value)?.label ?? value;
 }
@@ -60,10 +55,6 @@ export function insuranceTypeLabel(value: string): string {
   const v = value.trim();
   if (!v) return value;
   return v.replace(/[_-]/g, " ").replace(/\b\w/g, (ch) => ch.toUpperCase());
-}
-
-export function employmentTypeLabel(value: string): string {
-  return EMPLOYMENT_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? value;
 }
 
 export const LEAD_PAN_PATTERN = /^[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}$/;
@@ -91,7 +82,6 @@ export type LeadFieldErrors = Partial<{
   loanAmt: string;
   loanTenure: string;
   insType: string;
-  employmentType: string;
   netMonthlyIncome: string;
   pincode: string;
 }>;
@@ -106,21 +96,11 @@ export function validateLeadPincode(pincode: string): string | undefined {
   return undefined;
 }
 
-/** Personal-loan employment + net monthly income (shared apply forms). */
+/** Personal-loan net monthly income. */
 export function validatePersonalLoanEmployment(
-  employmentType: string,
   netMonthlyIncome: string,
-): Pick<LeadFieldErrors, "employmentType" | "netMonthlyIncome"> {
-  const errors: Pick<LeadFieldErrors, "employmentType" | "netMonthlyIncome"> = {};
-  if (!employmentType.trim()) {
-    errors.employmentType = "Please select employment type";
-  } else if (
-    employmentType !== "salaried" &&
-    employmentType !== "self_employed"
-  ) {
-    errors.employmentType = "Invalid employment type";
-  }
-
+): Pick<LeadFieldErrors, "netMonthlyIncome"> {
+  const errors: Pick<LeadFieldErrors, "netMonthlyIncome"> = {};
   const incomeNum = Number(String(netMonthlyIncome).replace(/,/g, "").trim());
   if (
     !String(netMonthlyIncome).trim() ||

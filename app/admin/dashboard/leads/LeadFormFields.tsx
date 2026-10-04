@@ -116,12 +116,7 @@ export default function LeadFormFields({
           <div className="sm:col-span-2">
             <EmploymentIncomeFields
               idPrefix="admin-lead"
-              employmentType={form.employmentType}
               netMonthlyIncome={form.netMonthlyIncome}
-              onEmploymentChange={(value) => {
-                setForm({ ...form, employmentType: value });
-                clearFieldError("employmentType");
-              }}
               onIncomeChange={(value) => {
                 setForm({ ...form, netMonthlyIncome: value });
                 clearFieldError("netMonthlyIncome");
@@ -129,7 +124,6 @@ export default function LeadFormFields({
               inputClassName={inputClass}
               labelClassName={ADMIN_LABEL}
               labelAsSpan
-              employmentError={<FieldErrorText message={fieldErrors.employmentType} />}
               incomeError={<FieldErrorText message={fieldErrors.netMonthlyIncome} />}
               incomeWithRupee
             />
@@ -186,7 +180,7 @@ export default function LeadFormFields({
         <FieldErrorText message={fieldErrors.mobileNumber} />
       </label>
       <label className="block">
-        <span className={ADMIN_LABEL}>Pincode</span>
+        <span className={ADMIN_LABEL}>Current Residence Pincode</span>
         <input
           className={inputClass}
           value={form.pincode}

@@ -10,7 +10,7 @@ const PRODUCTS = [
     imageAlt: "Personal loan",
     badge: "Up to ₹50 lakh",
     blurb: "Paperless apply, quick digital process with minimal documentation.",
-    points: ["₹25,000 to ₹50 lakh", "Salaried & self-employed", "Digital application"],
+    points: ["₹25,000 to ₹50 lakh", "Paperless digital process", "Digital application"],
     cta: "Apply for personal loan",
   },
   {
@@ -20,7 +20,7 @@ const PRODUCTS = [
     imageAlt: "Insurance",
     badge: "Life · Health · Motor",
     blurb: "Choose your cover and apply online in a few guided steps.",
-    points: ["Life, health & motor", "Compare what fits you", "Simple online application"],
+    points: ["All type of insurance available", "Compare what fits you", "Simple online application"],
     cta: "Apply for insurance",
   },
 ] as const;
