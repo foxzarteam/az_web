@@ -6,7 +6,7 @@ import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-10-04";
+export const SEO_CONTENT_VERSION = "2026-10-05";
 
 /** Official social profiles — wired to Organization sameAs + footer + AEO/GEO docs. */
 export const SOCIAL_PROFILES = [
@@ -53,6 +53,11 @@ export const SITE_TREE: SiteTreeNode[] = [
           "Compare life, health and motor insurance online with guided digital applications.",
       },
     ],
+  },
+  {
+    name: "Banking Partners",
+    path: "/banking-partners",
+    description: "Banks and lenders partnered with Apni Zaroorat for personal loans.",
   },
   {
     name: "Tools",
@@ -128,6 +133,7 @@ export const INDEXABLE_ROUTES = [
   { path: "/check-eligibility", changeFrequency: "daily" as const, priority: 0.96 },
   { path: "/emi-calculator", changeFrequency: "daily" as const, priority: 0.96 },
   { path: "/tax-saving-calculator", changeFrequency: "daily" as const, priority: 0.96 },
+  { path: "/banking-partners", changeFrequency: "weekly" as const, priority: 0.8 },
   { path: "/about", changeFrequency: "weekly" as const, priority: 0.92 },
   { path: "/contact", changeFrequency: "weekly" as const, priority: 0.92 },
   { path: "/become-partner", changeFrequency: "weekly" as const, priority: 0.9 },

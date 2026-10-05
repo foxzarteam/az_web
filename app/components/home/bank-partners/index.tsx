@@ -34,30 +34,12 @@ export default function BankPartners() {
           Our <span className="theme-gradient-text">100+</span> Trusted Financial <span className="theme-gradient-text">Partners</span>
         </h2>
         <BankLogoCarousel logos={logos} />
-        <div className="mt-8 flex flex-row flex-wrap items-center justify-center gap-3 sm:mt-10 sm:gap-4">
+        <div className="mt-8 flex justify-center sm:mt-10">
           <Link
-            href="/products/personal-loan"
-            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary/30 bg-white px-4 py-2.5 text-sm font-bold text-primary transition duration-300 hover:border-primary hover:bg-primary/5 dark:bg-darklight dark:text-white sm:px-6 sm:py-3 sm:text-base"
+            href="/banking-partners"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary/30 bg-white px-6 py-2.5 text-sm font-bold text-primary transition duration-300 hover:border-primary hover:bg-primary/5 dark:bg-darklight dark:text-white sm:px-8 sm:py-3 sm:text-base"
           >
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEEAFF] text-base font-bold leading-none text-[#4236FB]" aria-hidden>
-              ₹
-            </span>
-            Apply for Personal Loan
-            <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden>
-              <path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </Link>
-          <Link
-            href="/products/insurance"
-            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary/30 bg-white px-4 py-2.5 text-sm font-bold text-primary transition duration-300 hover:border-primary hover:bg-primary/5 dark:bg-darklight dark:text-white sm:px-6 sm:py-3 sm:text-base"
-          >
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#E7F8EF] text-[#059669]" aria-hidden>
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
-                <path d="M12 3.5 5.5 6.2v5.2c0 3.8 2.6 6.7 6.5 8.1 3.9-1.4 6.5-4.3 6.5-8.1V6.2L12 3.5Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
-                <path d="m9.2 12.1 1.8 1.8 3.8-3.9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </span>
-            Apply for Insurance
+            View all
             <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden>
               <path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
