@@ -15,11 +15,20 @@ import {
 
 type Props = { initial: WhatsappSettingsView };
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
       <span className={ADMIN_LABEL}>{label}</span>
       {children}
+      {hint ? <span className="mt-1 block text-xs leading-snug text-slate-500">{hint}</span> : null}
     </label>
   );
 }
@@ -38,6 +47,9 @@ export default function WhatsappSettingsForm({ initial }: Props) {
   const [geminiApiKey, setGeminiApiKey] = useState("");
   const [geminiModel, setGeminiModel] = useState(initial.geminiModel);
   const [geminiModels, setGeminiModels] = useState(initial.geminiModels ?? []);
+  const [groqApiKey, setGroqApiKey] = useState("");
+  const [groqModel, setGroqModel] = useState(initial.groqModel || "openai/gpt-oss-20b");
+  const [groqModels, setGroqModels] = useState(initial.groqModels ?? []);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
@@ -62,6 +74,8 @@ export default function WhatsappSettingsForm({ initial }: Props) {
           verifyToken,
           geminiApiKey,
           geminiModel,
+          groqApiKey,
+          groqModel,
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {
@@ -78,16 +92,19 @@ export default function WhatsappSettingsForm({ initial }: Props) {
       setBusinessAccountId(data.data.businessAccountId);
       setGeminiModel(data.data.geminiModel);
       setGeminiModels(data.data.geminiModels ?? []);
+      setGroqModel(data.data.groqModel || "openai/gpt-oss-20b");
+      setGroqModels(data.data.groqModels ?? []);
       setAccessToken("");
       setAppSecret("");
       setVerifyToken("");
       setGeminiApiKey("");
-      if (data.warning && /not available|did not return|No Gemini model/i.test(data.warning)) {
+      setGroqApiKey("");
+      if (data.warning && /not available|did not return|No Gemini model|Groq API key was rejected/i.test(data.warning)) {
         setError(data.warning);
       } else if (data.warning) {
         setWarning(data.warning);
       }
-      setSuccess(data.warning ? "Settings saved. Read the Gemini note above." : "WhatsApp settings saved.");
+      setSuccess(data.warning ? "Settings saved. Read the note above." : "WhatsApp settings saved.");
     } catch {
       setError("Network error. Try again.");
     } finally {
@@ -180,13 +197,45 @@ export default function WhatsappSettingsForm({ initial }: Props) {
             className={ADMIN_INPUT}
           />
         </Field>
-        <Field label="Gemini API Key">
+        <p className="text-sm text-slate-500 md:col-span-2">
+          Paste the keys here yourself. Groq answers first. If Groq fails, Gemini replies. Leave a key blank to keep the saved one.
+        </p>
+        <Field
+          label="Groq API Key"
+          hint="console.groq.com → API Keys → Create API Key. It starts with gsk_."
+        >
+          <input
+            type="password"
+            autoComplete="new-password"
+            value={groqApiKey}
+            onChange={(e) => setGroqApiKey(e.target.value)}
+            placeholder={savedPlaceholder(saved.groqApiKeyConfigured, saved.groqApiKeyHint, "Paste Groq API key")}
+            className={ADMIN_INPUT}
+          />
+        </Field>
+        <Field label="Groq Model" hint="Fast default is fine. Change it only if Groq shows another model.">
+          <select
+            value={groqModel}
+            onChange={(e) => setGroqModel(e.target.value)}
+            className={ADMIN_INPUT}
+          >
+            {[...new Set([groqModel, "openai/gpt-oss-20b", "openai/gpt-oss-120b", ...groqModels].filter(Boolean))].map((model) => (
+              <option key={model} value={model}>
+                {model}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field
+          label="Gemini API Key"
+          hint="aistudio.google.com → Get API key. Used only when Groq does not reply."
+        >
           <input
             type="password"
             autoComplete="new-password"
             value={geminiApiKey}
             onChange={(e) => setGeminiApiKey(e.target.value)}
-            placeholder={savedPlaceholder(saved.geminiApiKeyConfigured, saved.geminiApiKeyHint, "Not saved yet")}
+            placeholder={savedPlaceholder(saved.geminiApiKeyConfigured, saved.geminiApiKeyHint, "Paste Gemini API key")}
             className={ADMIN_INPUT}
           />
         </Field>

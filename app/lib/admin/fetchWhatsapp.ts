@@ -14,6 +14,10 @@ export type WhatsappSettingsView = {
   geminiApiKeyHint: string;
   geminiModel: string;
   geminiModels: string[];
+  groqApiKeyConfigured: boolean;
+  groqApiKeyHint: string;
+  groqModel: string;
+  groqModels: string[];
   displayPhone: string;
 };
 
@@ -33,6 +37,7 @@ export type WhatsappChatMessage = {
   at: string;
   sendError?: string;
   aiError?: string;
+  replyBy?: "groq" | "gemini";
 };
 
 export type WhatsappEnquiryDetail = {
@@ -57,6 +62,10 @@ const EMPTY_SETTINGS: WhatsappSettingsView = {
   geminiApiKeyHint: "",
   geminiModel: "",
   geminiModels: [],
+  groqApiKeyConfigured: false,
+  groqApiKeyHint: "",
+  groqModel: "",
+  groqModels: [],
   displayPhone: "",
 };
 

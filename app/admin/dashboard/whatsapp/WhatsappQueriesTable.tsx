@@ -66,7 +66,8 @@ function ChatThread({ messages }: { messages: WhatsappChatMessage[] }) {
                 <p className="mt-1 text-[11px] leading-snug text-[#b42318]">AI: {message.aiError}</p>
               ) : null}
               <p className={`mt-1 text-[10px] ${mine ? "text-right text-[#667781]" : "text-[#667781]"}`}>
-                {mine ? "Navya" : "Customer"} · {formatClock(message.at)}
+                {mine ? "Navya" : "Customer"}
+                {message.replyBy === "groq" ? " · Groq" : message.replyBy === "gemini" ? " · Gemini" : ""} · {formatClock(message.at)}
               </p>
             </div>
           </div>
