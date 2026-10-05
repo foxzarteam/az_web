@@ -17,7 +17,30 @@ export function allowRateLimitedAction(
   }
   recent.push(now);
   buckets.set(key, recent);
+  if (buckets.size > 4000) {
+    for (const [bucketKey, times] of buckets) {
+      if (!times.some((t) => now - t < windowMs)) buckets.delete(bucketKey);
+    }
+  }
   return true;
+}
+
+function isPrivateHop(hop: string): boolean {
+  if (
+    hop === "::1" ||
+    hop.startsWith("127.") ||
+    hop.startsWith("10.") ||
+    hop.startsWith("192.168.") ||
+    hop.startsWith("169.254.")
+  ) {
+    return true;
+  }
+  const m = /^172\.(\d+)\./.exec(hop);
+  if (m) {
+    const n = Number(m[1]);
+    if (n >= 16 && n <= 31) return true;
+  }
+  return false;
 }
 
 export function clientIpFromRequest(request: Request): string {
@@ -34,15 +57,7 @@ export function clientIpFromRequest(request: Request): string {
     for (const part of value.split(",")) {
       const hop = part.trim();
       if (!hop || hop === "unknown") continue;
-      if (
-        hop === "::1" ||
-        hop.startsWith("127.") ||
-        hop.startsWith("10.") ||
-        hop.startsWith("192.168.") ||
-        hop.startsWith("169.254.")
-      ) {
-        continue;
-      }
+      if (isPrivateHop(hop)) continue;
       return hop;
     }
   }

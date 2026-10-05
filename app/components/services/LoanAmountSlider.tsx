@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
 
 type LoanAmountSliderProps = {
@@ -26,13 +26,13 @@ export default function LoanAmountSlider({
   required = false,
 }: LoanAmountSliderProps) {
   const [digits, setDigits] = useState(() => (Number.isFinite(value) && value > 0 ? String(Math.round(value)) : ""));
-
-  useEffect(() => {
-    setDigits((current) => {
-      if (Number(current) === value) return current;
-      return Number.isFinite(value) && value > 0 ? String(Math.round(value)) : "";
-    });
-  }, [value]);
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
+    if (Number(digits) !== value) {
+      setDigits(Number.isFinite(value) && value > 0 ? String(Math.round(value)) : "");
+    }
+  }
 
   return (
     <div>
