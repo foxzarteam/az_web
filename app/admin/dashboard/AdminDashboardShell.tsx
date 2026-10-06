@@ -35,8 +35,8 @@ const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
     subtitle: "Messages from the website contact form",
   },
   "/admin/dashboard/whatsapp": {
-    title: "WhatsApp Queries",
-    subtitle: "Customer chats answered by the WhatsApp assistant",
+    title: "WhatsApp",
+    subtitle: "Customer chats",
   },
   "/admin/dashboard/settings": {
     title: "Settings",

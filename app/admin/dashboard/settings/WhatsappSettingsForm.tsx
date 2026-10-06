@@ -44,12 +44,6 @@ export default function WhatsappSettingsForm({ initial }: Props) {
   const [businessAccountId, setBusinessAccountId] = useState(initial.businessAccountId);
   const [appSecret, setAppSecret] = useState("");
   const [verifyToken, setVerifyToken] = useState("");
-  const [geminiApiKey, setGeminiApiKey] = useState("");
-  const [geminiModel, setGeminiModel] = useState(initial.geminiModel);
-  const [geminiModels, setGeminiModels] = useState(initial.geminiModels ?? []);
-  const [groqApiKey, setGroqApiKey] = useState("");
-  const [groqModel, setGroqModel] = useState(initial.groqModel || "openai/gpt-oss-20b");
-  const [groqModels, setGroqModels] = useState(initial.groqModels ?? []);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
@@ -72,10 +66,6 @@ export default function WhatsappSettingsForm({ initial }: Props) {
           businessAccountId,
           appSecret,
           verifyToken,
-          geminiApiKey,
-          geminiModel,
-          groqApiKey,
-          groqModel,
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {
@@ -90,18 +80,10 @@ export default function WhatsappSettingsForm({ initial }: Props) {
       setSaved(data.data);
       setPhoneNumberId(data.data.phoneNumberId);
       setBusinessAccountId(data.data.businessAccountId);
-      setGeminiModel(data.data.geminiModel);
-      setGeminiModels(data.data.geminiModels ?? []);
-      setGroqModel(data.data.groqModel || "openai/gpt-oss-20b");
-      setGroqModels(data.data.groqModels ?? []);
       setAccessToken("");
       setAppSecret("");
       setVerifyToken("");
-      setGeminiApiKey("");
-      setGroqApiKey("");
-      if (data.warning && /not available|did not return|No Gemini model|Groq API key was rejected/i.test(data.warning)) {
-        setError(data.warning);
-      } else if (data.warning) {
+      if (data.warning) {
         setWarning(data.warning);
       }
       setSuccess(data.warning ? "Settings saved. Read the note above." : "WhatsApp settings saved.");
@@ -198,60 +180,8 @@ export default function WhatsappSettingsForm({ initial }: Props) {
           />
         </Field>
         <p className="text-sm text-slate-500 md:col-span-2">
-          Paste the keys here yourself. Groq answers first. If Groq fails, Gemini replies. Leave a key blank to keep the saved one.
+          First customer message gets a welcome with Personal Loan and Insurance buttons. After that, reply from the chat screen.
         </p>
-        <Field
-          label="Groq API Key"
-          hint="console.groq.com → API Keys → Create API Key. It starts with gsk_."
-        >
-          <input
-            type="password"
-            autoComplete="new-password"
-            value={groqApiKey}
-            onChange={(e) => setGroqApiKey(e.target.value)}
-            placeholder={savedPlaceholder(saved.groqApiKeyConfigured, saved.groqApiKeyHint, "Paste Groq API key")}
-            className={ADMIN_INPUT}
-          />
-        </Field>
-        <Field label="Groq Model" hint="Fast default is fine. Change it only if Groq shows another model.">
-          <select
-            value={groqModel}
-            onChange={(e) => setGroqModel(e.target.value)}
-            className={ADMIN_INPUT}
-          >
-            {[...new Set([groqModel, "openai/gpt-oss-20b", "openai/gpt-oss-120b", ...groqModels].filter(Boolean))].map((model) => (
-              <option key={model} value={model}>
-                {model}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field
-          label="Gemini API Key"
-          hint="aistudio.google.com → Get API key. Used only when Groq does not reply."
-        >
-          <input
-            type="password"
-            autoComplete="new-password"
-            value={geminiApiKey}
-            onChange={(e) => setGeminiApiKey(e.target.value)}
-            placeholder={savedPlaceholder(saved.geminiApiKeyConfigured, saved.geminiApiKeyHint, "Paste Gemini API key")}
-            className={ADMIN_INPUT}
-          />
-        </Field>
-        <Field label="Gemini Model">
-          <select
-            value={geminiModel}
-            onChange={(e) => setGeminiModel(e.target.value)}
-            className={ADMIN_INPUT}
-          >
-            {[...new Set([geminiModel, ...geminiModels].filter(Boolean))].map((model) => (
-              <option key={model} value={model}>
-                {model}
-              </option>
-            ))}
-          </select>
-        </Field>
       </div>
 
       {error ? <p className={`${ADMIN_ERROR} mt-5`}>{error}</p> : null}

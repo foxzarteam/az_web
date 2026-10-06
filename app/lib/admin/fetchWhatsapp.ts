@@ -10,14 +10,6 @@ export type WhatsappSettingsView = {
   appSecretHint: string;
   verifyTokenConfigured: boolean;
   verifyTokenHint: string;
-  geminiApiKeyConfigured: boolean;
-  geminiApiKeyHint: string;
-  geminiModel: string;
-  geminiModels: string[];
-  groqApiKeyConfigured: boolean;
-  groqApiKeyHint: string;
-  groqModel: string;
-  groqModels: string[];
   displayPhone: string;
 };
 
@@ -36,8 +28,10 @@ export type WhatsappChatMessage = {
   text: string;
   at: string;
   sendError?: string;
-  aiError?: string;
-  replyBy?: "groq" | "gemini";
+  replyBy?: string;
+  kind?: string;
+  waType?: string;
+  filename?: string;
 };
 
 export type WhatsappEnquiryDetail = {
@@ -58,14 +52,6 @@ const EMPTY_SETTINGS: WhatsappSettingsView = {
   appSecretHint: "",
   verifyTokenConfigured: false,
   verifyTokenHint: "",
-  geminiApiKeyConfigured: false,
-  geminiApiKeyHint: "",
-  geminiModel: "",
-  geminiModels: [],
-  groqApiKeyConfigured: false,
-  groqApiKeyHint: "",
-  groqModel: "",
-  groqModels: [],
   displayPhone: "",
 };
 
