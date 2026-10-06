@@ -97,7 +97,11 @@ export default function AdminDashboardShell({
   }, [sidebarOpen]);
 
   return (
-    <div className="flex h-[100dvh] overflow-hidden" style={{ backgroundColor: ADMIN_UI.surface }}>
+    <div
+      data-admin-shell
+      className="flex h-[100dvh] overflow-hidden"
+      style={{ backgroundColor: ADMIN_UI.surface }}
+    >
       <button
         type="button"
         aria-label="Close menu"
