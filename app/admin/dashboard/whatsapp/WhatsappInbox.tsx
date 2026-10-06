@@ -49,7 +49,7 @@ function ProfileIcon({ name }: { name: string }) {
 function senderLabel(message: WhatsappChatMessage): string {
   if (message.role !== "assistant") return "Customer";
   if (message.replyBy === "admin") return "You";
-  if (message.kind === "welcome" || message.kind === "personal_loan" || message.kind === "insurance" || message.replyBy === "template") {
+  if (message.kind === "welcome" || message.kind === "personal_loan" || message.kind === "insurance" || message.kind === "thanks" || message.replyBy === "template") {
     return "Template";
   }
   return "Team";
