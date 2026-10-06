@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS public.wp_enquiries (
   CONSTRAINT wp_enquiries_phone_digits CHECK (phone ~ '^[0-9]{8,15}$')
 );
 
-COMMENT ON TABLE public.wp_enquiries IS 'One row per WhatsApp phone. chat JSON holds the full user + AI conversation.';
+COMMENT ON TABLE public.wp_enquiries IS 'One row per WhatsApp phone. chat JSON holds the full conversation.';
 
 CREATE INDEX IF NOT EXISTS wp_enquiries_last_chat_at_idx
   ON public.wp_enquiries (last_chat_at DESC NULLS LAST);

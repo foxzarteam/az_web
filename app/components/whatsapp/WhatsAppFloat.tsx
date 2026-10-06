@@ -44,15 +44,9 @@ export default function WhatsAppFloat() {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Chat on WhatsApp, 1 new message"
+      aria-label="Chat on WhatsApp"
       className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] z-[1000] inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_4px_20px_rgba(37,211,102,0.35)] transition hover:scale-105 hover:bg-[#1ebe5d] sm:bottom-6 sm:right-6"
     >
-      <span
-        className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-[#EF4444] text-[11px] font-bold leading-none text-white shadow-sm"
-        aria-hidden
-      >
-        1
-      </span>
       <WhatsAppGlyph />
     </a>
   );

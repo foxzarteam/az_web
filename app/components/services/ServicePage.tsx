@@ -50,16 +50,6 @@ function slugFromPathname(pathname: string): string {
   return m?.[1]?.trim() ?? "";
 }
 
-function getSuccessMessage(title: string): string {
-  const t = title.toLowerCase();
-  if (t.includes("personal")) return "Your Personal Loan application has been received. We'll contact you shortly.";
-  if (t.includes("home")) return "Your Home Loan application has been received. We'll contact you shortly.";
-  if (t.includes("business")) return "Your Business Loan application has been received. We'll contact you shortly.";
-  if (t.includes("credit")) return "Your Credit Card application has been received. We'll contact you shortly.";
-  if (t.includes("insurance")) return "Your Insurance request has been received. We'll contact you shortly.";
-  return `Your ${title} application has been received. We'll contact you shortly.`;
-}
-
 const DEFAULT_LOAN_AMOUNT = 5_00_000;
 
 const inputClass =
@@ -86,7 +76,6 @@ export default function ServicePage({
     [serviceSlugProp, pathname],
   );
 
-  const [showSuccess, setShowSuccess] = useState(false);
   const [existingAppMessage, setExistingAppMessage] = useState("");
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [pendingLeadId, setPendingLeadId] = useState("");
@@ -267,14 +256,6 @@ export default function ServicePage({
                   />
                 )}
 
-                {showSuccess && (
-                  <SuccessPopup
-                    message={getSuccessMessage(title)}
-                    onClose={() => setShowSuccess(false)}
-                    footer={<CheckApplicationStatusLink />}
-                  />
-                )}
-
                 <LeadApplyModal
                   open={showApplyModal && Boolean(pendingLeadId)}
                   mobile={mobile.replace(/\D/g, "")}
@@ -289,7 +270,7 @@ export default function ServicePage({
                     setPendingLeadId("");
                     setOtpSendPromise(null);
                   }}
-                  syncServerVerify
+                  syncServerVerify={false}
                   onSuccess={async (result) => {
                     const applyRes = await applyPromiseRef.current;
                     if (!applyRes?.success) {

@@ -407,21 +407,13 @@ export default function LoanHelperChat({
         aria-label={
           isOpen
             ? "Close Loan Advisor"
-            : "Open Loan Advisor, 1 new message"
+            : "Open Loan Advisor"
         }
         aria-expanded={isOpen}
         className={`btn-gradient relative flex h-14 w-14 items-center justify-center rounded-full text-white shadow-[0_4px_20px_rgba(66,54,251,0.35)] transition-all duration-300 hover:scale-105 hover:shadow-[0_6px_28px_rgba(66,54,251,0.45)] active:scale-95 ${
           !isOpen ? "animate-pulse-subtle" : ""
         }`}
       >
-        {!isOpen && (
-          <span
-            className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-[#EF4444] text-[11px] font-bold leading-none text-white shadow-sm"
-            aria-hidden
-          >
-            1
-          </span>
-        )}
         {isOpen ? (
           <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
             <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />

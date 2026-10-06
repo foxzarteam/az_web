@@ -40,7 +40,7 @@ export async function fetchAgentWallet(userId: string): Promise<AgentWallet | nu
     };
 
     if (!res.ok || !body.success || !body.data) {
-      return { earning: 0, redeem: 0, balance: 0, currency: "INR" };
+      return null;
     }
 
     return {

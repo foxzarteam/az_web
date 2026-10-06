@@ -55,7 +55,7 @@ export default function PersonalLoanPage() {
     <>
       <JsonLd data={structuredData} />
       <section className="pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 text-white theme-gradient-bg">
-        <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md max-w-full">
+        <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md max-w-full px-4 sm:px-6">
           <div className="max-w-3xl mx-auto text-center">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/10 text-[10px] sm:text-xs font-semibold px-3 sm:px-4 py-1 mb-3 sm:mb-4 border border-white/20">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />

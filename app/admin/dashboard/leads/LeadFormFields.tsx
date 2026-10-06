@@ -276,7 +276,7 @@ export default function LeadFormFields({
           </select>
         </label>
       ) : null}
-      {panMode === "edit" && canApprove ? (
+      {panMode === "edit" ? (
         <label className="block">
           <span className={ADMIN_LABEL}>Status</span>
           <select

@@ -38,7 +38,7 @@ type Props = {
 
 export default function HowItWorksSection({ headingPrefix, headingHighlight, steps, className }: Props) {
   return (
-    <section className={`bg-[#F5F7FB] dark:bg-darkmode ${className ?? ""}`} aria-labelledby="how-it-works-heading">
+    <section className={`bg-[#F5F7FB] !py-10 dark:bg-darkmode lg:!py-14 ${className ?? ""}`} aria-labelledby="how-it-works-heading">
       <div className="container mx-auto max-w-full px-4 sm:px-6 md:max-w-screen-md lg:max-w-screen-xl lg:px-8">
         <div className="mb-8 text-center sm:mb-10" data-aos="fade-up">
           <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary sm:text-xs">

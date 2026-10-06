@@ -100,6 +100,11 @@ export default async function EarningsPage() {
       <p className="mb-4 text-sm text-slate-500 dark:text-gray-400">
         Your commission wallet for referred leads.
       </p>
+      {!wallet ? (
+        <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          Wallet could not be loaded. Refresh the page or sign in again.
+        </p>
+      ) : null}
       <div className="mb-5 grid gap-4 sm:grid-cols-3">
         <div className={`${ADMIN_CARD} p-5`}>
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total earning</p>

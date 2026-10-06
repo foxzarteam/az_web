@@ -28,6 +28,9 @@ export async function POST(request: Request, { params }: Params) {
   outbound.append("text", text.slice(0, 4000));
   const file = incoming.get("file");
   if (file instanceof File && file.size > 0) {
+    if (file.size > 16 * 1024 * 1024) {
+      return NextResponse.json({ error: "File is too large (max 16 MB)." }, { status: 400 });
+    }
     outbound.append("file", file, file.name);
   }
 

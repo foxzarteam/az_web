@@ -295,9 +295,9 @@ export async function sendFirebasePhoneOtp(
   resetRecaptcha(containerId);
 
   const slot = await requestOtpSendSlot(mobileDigits);
-  if (!slot.allowed && slot.dailyLimit) {
+  if (!slot.allowed) {
     const err = new Error(slot.message || MSG_OTP_DAILY_LIMIT) as Error & { code?: string };
-    err.code = "otp/daily-limit";
+    err.code = slot.dailyLimit ? "otp/daily-limit" : "otp/send-blocked";
     throw err;
   }
 

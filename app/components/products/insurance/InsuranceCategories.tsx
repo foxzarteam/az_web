@@ -19,7 +19,7 @@ export default function InsuranceCategories() {
   if (cards.length === 0) return null;
 
   return (
-    <section className="bg-white dark:bg-darkmode" aria-labelledby="insurance-categories-heading">
+    <section className="bg-white !py-10 dark:bg-darkmode lg:!py-14" aria-labelledby="insurance-categories-heading">
       <div className="container mx-auto max-w-full px-4 sm:px-6 md:max-w-screen-md lg:max-w-screen-xl lg:px-8">
         <div className="mb-8 text-center sm:mb-10" data-aos="fade-up">
           <h2

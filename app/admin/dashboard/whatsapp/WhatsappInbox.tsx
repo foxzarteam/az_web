@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import type { WhatsappChatMessage, WhatsappEnquiryDetail, WhatsappEnquiryRow } from "@/app/lib/admin/fetchWhatsapp";
 import { toPublicClientError } from "@/app/lib/publicClientError";
 
-const EMOJIS = ["🙏", "😊", "👍", "🎉", "✅", "❤️"];
+const EMOJIS = [
+  "😀", "😁", "😂", "🤣", "😊", "😍", "😘", "😎", "🤗", "🤔",
+  "😅", "😭", "😡", "👍", "👎", "🙏", "👏", "🎉", "✅", "❤️",
+  "🔥", "💯", "🤝", "👋", "💪", "✨", "📌", "📞", "🏠", "💰",
+  "🛡️", "📄",
+];
 
 function formatPhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
@@ -71,9 +76,10 @@ function ChatThread({ messages }: { messages: WhatsappChatMessage[] }) {
                 mine ? "rounded-tr-none bg-[#d9fdd3] text-[#111b21]" : "rounded-tl-none bg-white text-[#111b21]"
               }`}
             >
-              {message.filename ? (
+              {message.filename || message.waType === "image" ? (
                 <p className="mb-1 text-[11px] font-medium text-[#128C7E]">
-                  {message.waType === "image" ? "Photo" : "File"} · {message.filename}
+                  {message.waType === "image" ? "Photo" : "File"}
+                  {message.filename ? ` · ${message.filename}` : ""}
                 </p>
               ) : null}
               <p className="whitespace-pre-wrap break-words leading-relaxed">{message.text}</p>
@@ -106,10 +112,64 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
   const [sendError, setSendError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [emojiOpen, setEmojiOpen] = useState(false);
+  const emojiRef = useRef<HTMLDivElement>(null);
+  const openIdRef = useRef<string | null>(null);
+  const chatAbort = useRef<AbortController | null>(null);
+
+  openIdRef.current = openId;
 
   useEffect(() => {
     setRows(initialRows);
   }, [initialRows]);
+
+  useEffect(() => {
+    if (!emojiOpen) return;
+    function onPointer(event: MouseEvent) {
+      if (!emojiRef.current?.contains(event.target as Node)) setEmojiOpen(false);
+    }
+    document.addEventListener("mousedown", onPointer);
+    return () => document.removeEventListener("mousedown", onPointer);
+  }, [emojiOpen]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      void (async () => {
+        try {
+          const res = await fetch("/api/admin/whatsapp/enquiries");
+          const data = (await res.json().catch(() => ({}))) as { data?: WhatsappEnquiryRow[] };
+          if (res.ok && Array.isArray(data.data)) setRows(data.data);
+        } catch {
+          /* keep current list */
+        }
+      })();
+    }, 15_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  async function loadChat(id: string) {
+    chatAbort.current?.abort();
+    const ac = new AbortController();
+    chatAbort.current = ac;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/whatsapp/enquiries/${encodeURIComponent(id)}`, { signal: ac.signal });
+      const data = (await res.json().catch(() => ({}))) as { error?: string; data?: WhatsappEnquiryDetail };
+      if (openIdRef.current !== id) return;
+      if (!res.ok || !data.data) {
+        setError(toPublicClientError(data.error, "Could not load this chat."));
+        return;
+      }
+      setDetail(data.data);
+    } catch (error) {
+      if ((error as { name?: string }).name === "AbortError") return;
+      if (openIdRef.current !== id) return;
+      setError("Network error. Try again.");
+    } finally {
+      if (openIdRef.current === id) setLoading(false);
+    }
+  }
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -126,20 +186,8 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
     setFile(null);
     setSendError(null);
     setConfirmDelete(false);
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/admin/whatsapp/enquiries/${encodeURIComponent(row.id)}`);
-      const data = (await res.json().catch(() => ({}))) as { error?: string; data?: WhatsappEnquiryDetail };
-      if (!res.ok || !data.data) {
-        setError(toPublicClientError(data.error, "Could not load this chat."));
-        return;
-      }
-      setDetail(data.data);
-    } catch {
-      setError("Network error. Try again.");
-    } finally {
-      setLoading(false);
-    }
+    setEmojiOpen(false);
+    await loadChat(row.id);
   }
 
   async function sendManual() {
@@ -164,13 +212,15 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
       setDetail(data.data);
       setDraft("");
       setFile(null);
+      setEmojiOpen(false);
       setRows((prev) =>
         prev
-          .map((row) =>
-            row.id === openId
-              ? { ...row, lastMessage: data.data?.messages.at(-1)?.text ?? row.lastMessage, lastChatAt: new Date().toISOString() }
-              : row,
-          )
+          .map((row) => {
+            if (row.id !== openId) return row;
+            const last = data.data?.messages.at(-1);
+            const preview = last?.text?.trim() || (last?.waType === "image" ? "Photo" : last?.filename) || row.lastMessage;
+            return { ...row, lastMessage: preview, lastChatAt: new Date().toISOString() };
+          })
           .sort((a, b) => (b.lastChatAt ?? "").localeCompare(a.lastChatAt ?? "")),
       );
       router.refresh();
@@ -303,19 +353,7 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
               {detail && !loading ? <ChatThread messages={detail.messages} /> : null}
             </div>
 
-            <div className="shrink-0 border-t border-[#e9edef] bg-[#f0f2f5] p-2 sm:p-3">
-              <div className="mb-2 flex flex-wrap gap-1">
-                {EMOJIS.map((emoji) => (
-                  <button
-                    key={emoji}
-                    type="button"
-                    className="rounded-md px-1.5 py-0.5 text-base hover:bg-white"
-                    onClick={() => setDraft((prev) => `${prev}${emoji}`)}
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
+            <div className="relative shrink-0 border-t border-[#e9edef] bg-[#f0f2f5] p-2 sm:p-3">
               {file ? (
                 <p className="mb-2 px-1 text-xs text-[#667781]">
                   {file.name}
@@ -326,15 +364,43 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
               ) : null}
               {sendError ? <p className="mb-2 px-1 text-xs text-[#b42318]">{sendError}</p> : null}
               <div className="flex items-end gap-2">
-                <label className="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-white text-[#54656f] shadow-sm hover:bg-[#e9edef]">
-                  <input
-                    type="file"
-                    className="sr-only"
-                    accept="image/jpeg,image/png,image/webp,application/pdf,audio/mpeg,audio/ogg,video/mp4,.doc,.docx"
-                    onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-                  />
-                  +
-                </label>
+                <div ref={emojiRef} className="relative flex shrink-0 items-end gap-2">
+                  {emojiOpen ? (
+                    <div className="absolute bottom-full left-0 z-20 mb-2 w-[min(20rem,calc(100vw-6rem))] max-h-44 overflow-y-auto rounded-xl border border-[#e9edef] bg-white p-2 shadow-lg">
+                      <div className="grid grid-cols-8 gap-0.5">
+                        {EMOJIS.map((emoji) => (
+                          <button
+                            key={emoji}
+                            type="button"
+                            className="rounded-md p-1.5 text-lg leading-none hover:bg-[#f0f2f5]"
+                            onClick={() => setDraft((prev) => `${prev}${emoji}`)}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  <label className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white text-[#54656f] shadow-sm hover:bg-[#e9edef]" title="Attach">
+                    <input
+                      type="file"
+                      className="sr-only"
+                      accept="image/jpeg,image/png,image/webp,application/pdf,audio/mpeg,audio/ogg,video/mp4,.doc,.docx"
+                      onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+                    />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                      <path d="M21.44 11.05l-8.49 8.49a5.5 5.5 0 1 1-7.78-7.78l8.49-8.49a3.5 3.5 0 0 1 4.95 4.95l-8.49 8.49a1.5 1.5 0 1 1-2.12-2.12l7.78-7.78" />
+                    </svg>
+                  </label>
+                  <button
+                    type="button"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-lg shadow-sm hover:bg-[#e9edef]"
+                    aria-label="Emoji"
+                    onClick={() => setEmojiOpen((open) => !open)}
+                  >
+                    😊
+                  </button>
+                </div>
                 <textarea
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
