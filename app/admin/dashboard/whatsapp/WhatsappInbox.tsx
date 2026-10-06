@@ -206,13 +206,13 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
   const selected = rows.find((row) => row.id === openId) ?? null;
 
   return (
-    <div className="flex h-[calc(100dvh-4.5rem)] min-h-0 overflow-hidden bg-white">
+    <div className="flex min-h-0 flex-1 overflow-hidden bg-white">
       <aside
-        className={`flex w-full shrink-0 flex-col border-r border-[#e9edef] bg-white md:w-[22rem] ${
+        className={`flex min-h-0 w-full shrink-0 flex-col border-r border-[#e9edef] bg-white md:w-[22rem] ${
           openId ? "hidden md:flex" : "flex"
         }`}
       >
-        <div className="border-b border-[#e9edef] bg-[#f0f2f5] p-3">
+        <div className="shrink-0 border-b border-[#e9edef] bg-[#f0f2f5] px-3 py-2">
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -250,7 +250,7 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
         </div>
       </aside>
 
-      <section className={`min-w-0 flex-1 flex-col ${openId ? "flex" : "hidden md:flex"}`}>
+      <section className={`min-h-0 min-w-0 flex-1 flex-col ${openId ? "flex" : "hidden md:flex"}`}>
         {!openId ? (
           <div className="flex flex-1 items-center justify-center bg-[#f0f2f5] text-sm text-[#667781]">
             Select a chat to reply

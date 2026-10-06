@@ -65,6 +65,7 @@ export default function AdminDashboardShell({
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const page = useMemo(() => resolvePageMeta(pathname, basePath), [pathname, basePath]);
+  const isWhatsappInbox = pathname.replace(/\/+$/, "").endsWith("/whatsapp");
 
   function toggleSidebar() {
     setSidebarOpen((v) => !v);
@@ -164,7 +165,15 @@ export default function AdminDashboardShell({
           </div>
         </header>
 
-        <div className="admin-scroll-light min-h-0 flex-1 overflow-y-auto overflow-x-hidden">{children}</div>
+        <div
+          className={
+            isWhatsappInbox
+              ? "flex min-h-0 flex-1 flex-col overflow-hidden"
+              : "admin-scroll-light min-h-0 flex-1 overflow-y-auto overflow-x-hidden"
+          }
+        >
+          {children}
+        </div>
       </div>
     </div>
   );
