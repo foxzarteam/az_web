@@ -37,6 +37,7 @@ async function proxyMetaWebhook(request: Request): Promise<NextResponse> {
       headers,
       ...(body != null ? { body } : {}),
       cache: "no-store",
+      signal: AbortSignal.timeout(8_000),
     });
     const text = await res.text();
     return new NextResponse(text, {
