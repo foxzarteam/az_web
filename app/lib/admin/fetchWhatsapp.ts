@@ -32,6 +32,8 @@ export type WhatsappChatMessage = {
   kind?: string;
   waType?: string;
   filename?: string;
+  mime?: string;
+  hasMedia?: boolean;
 };
 
 export type WhatsappEnquiryDetail = {

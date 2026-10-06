@@ -55,7 +55,11 @@ function senderLabel(message: WhatsappChatMessage): string {
   return "Team";
 }
 
-function ChatThread({ messages }: { messages: WhatsappChatMessage[] }) {
+function mediaSrc(enquiryId: string, messageId: string): string {
+  return `/api/admin/whatsapp/enquiries/${encodeURIComponent(enquiryId)}/media/${encodeURIComponent(messageId)}`;
+}
+
+function ChatThread({ enquiryId, messages }: { enquiryId: string; messages: WhatsappChatMessage[] }) {
   const endRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
@@ -69,6 +73,8 @@ function ChatThread({ messages }: { messages: WhatsappChatMessage[] }) {
     <div className="space-y-2 px-3 py-4 sm:px-5">
       {messages.map((message) => {
         const mine = message.role === "assistant";
+        const src = message.hasMedia ? mediaSrc(enquiryId, message.id) : "";
+        const kind = message.waType || "";
         return (
           <div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
             <div
@@ -76,13 +82,28 @@ function ChatThread({ messages }: { messages: WhatsappChatMessage[] }) {
                 mine ? "rounded-tr-none bg-[#d9fdd3] text-[#111b21]" : "rounded-tl-none bg-white text-[#111b21]"
               }`}
             >
-              {message.filename || message.waType === "image" ? (
-                <p className="mb-1 text-[11px] font-medium text-[#128C7E]">
-                  {message.waType === "image" ? "Photo" : "File"}
-                  {message.filename ? ` · ${message.filename}` : ""}
-                </p>
+              {src && kind === "image" ? (
+                <a href={src} target="_blank" rel="noreferrer" className="mb-1 block">
+                  <img src={src} alt={message.filename || "Photo"} className="max-h-72 max-w-full rounded-md object-contain" />
+                </a>
               ) : null}
-              <p className="whitespace-pre-wrap break-words leading-relaxed">{message.text}</p>
+              {src && kind === "video" ? (
+                <video src={src} controls className="mb-1 max-h-72 max-w-full rounded-md" />
+              ) : null}
+              {src && kind === "audio" ? <audio src={src} controls className="mb-1 w-full max-w-xs" /> : null}
+              {src && kind === "document" ? (
+                <a href={src} target="_blank" rel="noreferrer" className="mb-1 inline-flex items-center gap-1 text-[#128C7E] underline">
+                  {message.filename || "Download file"}
+                </a>
+              ) : null}
+              {src && kind !== "image" && kind !== "video" && kind !== "audio" && kind !== "document" ? (
+                <a href={src} target="_blank" rel="noreferrer" className="mb-1 inline-flex text-[#128C7E] underline">
+                  {message.filename || "Open file"}
+                </a>
+              ) : null}
+              {message.text && message.text !== "Photo" ? (
+                <p className="whitespace-pre-wrap break-words leading-relaxed">{message.text}</p>
+              ) : null}
               {message.sendError ? (
                 <p className="mt-1 text-[11px] leading-snug text-[#b42318]">Not delivered: {message.sendError}</p>
               ) : null}
@@ -350,7 +371,7 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
             <div className="min-h-0 flex-1 overflow-y-auto" style={{ backgroundColor: "#efeae2" }}>
               {loading ? <p className="px-4 py-10 text-center text-sm text-[#667781]">Loading chat…</p> : null}
               {error ? <p className="px-4 py-10 text-center text-sm text-[#b42318]">{error}</p> : null}
-              {detail && !loading ? <ChatThread messages={detail.messages} /> : null}
+              {detail && !loading ? <ChatThread enquiryId={detail.id} messages={detail.messages} /> : null}
             </div>
 
             <div className="relative shrink-0 border-t border-[#e9edef] bg-[#f0f2f5] p-2 sm:p-3">
