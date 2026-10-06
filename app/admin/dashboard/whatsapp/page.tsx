@@ -7,7 +7,7 @@ export default async function AdminWhatsappQueriesPage() {
   const rows = await fetchWhatsappEnquiries();
 
   return (
-    <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
+    <main className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <WhatsappInbox initialRows={rows} />
     </main>
   );

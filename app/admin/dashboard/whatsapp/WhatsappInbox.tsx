@@ -206,7 +206,7 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
   const selected = rows.find((row) => row.id === openId) ?? null;
 
   return (
-    <div className="flex min-h-0 flex-1 overflow-hidden bg-white">
+    <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden bg-white">
       <aside
         className={`flex min-h-0 w-full shrink-0 flex-col border-r border-[#e9edef] bg-white md:w-[22rem] ${
           openId ? "hidden md:flex" : "flex"
@@ -250,7 +250,7 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
         </div>
       </aside>
 
-      <section className={`min-h-0 min-w-0 flex-1 flex-col ${openId ? "flex" : "hidden md:flex"}`}>
+      <div className={`min-h-0 min-w-0 flex-1 flex-col ${openId ? "flex" : "hidden md:flex"}`}>
         {!openId ? (
           <div className="flex flex-1 items-center justify-center bg-[#f0f2f5] text-sm text-[#667781]">
             Select a chat to reply
@@ -360,7 +360,7 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
             </div>
           </>
         )}
-      </section>
+      </div>
     </div>
   );
 }

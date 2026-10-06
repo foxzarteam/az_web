@@ -168,7 +168,7 @@ export default function AdminDashboardShell({
         <div
           className={
             isWhatsappInbox
-              ? "flex min-h-0 flex-1 flex-col overflow-hidden"
+              ? "relative flex h-full min-h-0 flex-1 flex-col overflow-hidden"
               : "admin-scroll-light min-h-0 flex-1 overflow-y-auto overflow-x-hidden"
           }
         >
