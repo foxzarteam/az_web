@@ -1,4 +1,4 @@
-import { after, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { nestApiBase } from "@/app/lib/server/nestBase";
 
 const NEST_PATH = "/api/whatsapp/webhook";
@@ -6,6 +6,9 @@ const NEST_PATH = "/api/whatsapp/webhook";
 /**
  * Meta server-to-server. Do not rate-limit: verify GET must not 429,
  * and inbound POSTs retry from Facebook IPs.
+ *
+ * Wait for Nest HMAC (milliseconds). Nest then replies to the customer in the
+ * background. Returning 200 before Nest would drop messages with no Meta retry.
  */
 async function proxyMetaWebhook(request: Request): Promise<NextResponse> {
   const base = nestApiBase();
@@ -37,7 +40,7 @@ async function proxyMetaWebhook(request: Request): Promise<NextResponse> {
       headers,
       ...(body != null ? { body } : {}),
       cache: "no-store",
-      signal: AbortSignal.timeout(8_000),
+      signal: AbortSignal.timeout(method === "GET" ? 8_000 : 5_000),
     });
     const text = await res.text();
     return new NextResponse(text, {
@@ -55,38 +58,6 @@ export async function GET(request: Request) {
   return proxyMetaWebhook(request);
 }
 
-/** Ack Meta immediately, then forward to Nest so the customer reply is not stuck on this hop. */
 export async function POST(request: Request) {
-  const base = nestApiBase();
-  const plain = { headers: { "Content-Type": "text/plain; charset=utf-8" } };
-  if (!base) {
-    return new NextResponse("API not configured", { status: 503, ...plain });
-  }
-
-  const dest = `${base}${NEST_PATH}${new URL(request.url).search}`;
-  const headers: Record<string, string> = { Accept: "text/plain" };
-  const contentType = request.headers.get("content-type");
-  if (contentType) headers["Content-Type"] = contentType;
-  const signature = request.headers.get("x-hub-signature-256");
-  if (signature) headers["x-hub-signature-256"] = signature;
-
-  let body = "";
-  try {
-    body = await request.text();
-  } catch {
-    return new NextResponse("Invalid request body", { status: 400, ...plain });
-  }
-
-  const forward = fetch(dest, {
-    method: "POST",
-    headers,
-    body,
-    cache: "no-store",
-    signal: AbortSignal.timeout(30_000),
-  }).catch((error) => {
-    console.error("whatsapp webhook nest", error);
-  });
-  after(() => forward);
-
-  return new NextResponse("", { status: 200, ...plain });
+  return proxyMetaWebhook(request);
 }
