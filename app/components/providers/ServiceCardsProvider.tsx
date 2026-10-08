@@ -10,7 +10,7 @@ import type { InsuranceTypeOption, ServiceSliderCard } from "@/app/lib/services/
 import {
   fetchActiveServiceCards,
   primeServicesClientCache,
-} from "@/app/utils/fetchActiveServiceCards";
+} from "@/app/lib/services/fetchActiveServiceCards";
 
 const ServiceCardsContext = createContext<ServiceSliderCard[] | null>(null);
 const InsuranceTypesContext = createContext<InsuranceTypeOption[] | null>(null);

@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
-import { reportFormValidity } from "@/app/utils/formValidation";
+import { reportFormValidity } from "@/app/lib/formValidation";
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({

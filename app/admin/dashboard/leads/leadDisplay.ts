@@ -3,7 +3,7 @@ import { formatIpLocationDisplay } from "@/app/lib/admin/formatIpLocation";
 import {
   insuranceTypeLabel,
   loanAmountLabel,
-} from "@/app/utils/leadForm";
+} from "@/app/lib/leads/leadForm";
 
 export const DEFAULT_LOAN_AMOUNT = 5_00_000;
 

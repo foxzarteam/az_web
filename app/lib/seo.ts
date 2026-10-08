@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { CONTACT, PUBLIC_SITE_URL, SOCIAL_LINKS } from "@/app/config/constants";
 import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
+import { SITE_TREE, SITELINK_PAGES } from "@/app/lib/seo-site-tree";
+
+export type { SiteTreeNode } from "@/app/lib/seo-site-tree";
+export { INDEXABLE_ROUTES, SITE_TREE, SITELINK_PAGES } from "@/app/lib/seo-site-tree";
 
 /**
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
@@ -18,156 +22,14 @@ export const SOCIAL_PROFILES = [
 
 export const SOCIAL_SAME_AS = SOCIAL_PROFILES.map((p) => p.url);
 
-export type SiteTreeNode = {
-  name: string;
-  path: string;
-  description: string;
-  children?: SiteTreeNode[];
-};
-
-/**
- * Canonical site tree for sitelinks, JSON-LD SiteNavigation, footer map, llms.txt.
- * Order matches priority for brand-name search (Google may surface as sitelinks).
- */
-export const SITE_TREE: SiteTreeNode[] = [
-  {
-    name: "Home",
-    path: "/",
-    description: "Apni Zaroorat — apply for personal loans and insurance online in India.",
-  },
-  {
-    name: "Products",
-    path: "/products",
-    description: "Personal loans and insurance — compare and apply online with Apni Zaroorat.",
-    children: [
-      {
-        name: "Personal Loan",
-        path: "/products/personal-loan",
-        description:
-          "Apply for personal loan online up to ₹50 lakh — quick digital process with Apni Zaroorat.",
-      },
-      {
-        name: "Insurance",
-        path: "/products/insurance",
-        description:
-          "Compare life, health and motor insurance online with guided digital applications.",
-      },
-    ],
-  },
-  {
-    name: "Banking Partners",
-    path: "/banking-partners",
-    description: "Banks and lenders partnered with Apni Zaroorat for personal loans.",
-  },
-  {
-    name: "Tools",
-    path: "/emi-calculator",
-    description: "Free financial tools — EMI, eligibility and tax saving calculators.",
-    children: [
-      {
-        name: "EMI Calculator",
-        path: "/emi-calculator",
-        description: "Free personal loan EMI calculator — monthly EMI, interest, and total repayment.",
-      },
-      {
-        name: "Check Eligibility",
-        path: "/check-eligibility",
-        description: "Free personal loan eligibility check online — no credit score impact.",
-      },
-      {
-        name: "Tax Saving Calculator",
-        path: "/tax-saving-calculator",
-        description:
-          "Free tax saving calculator — compare New vs Old regime for FY 2025-26 with 80C, 80D and more.",
-      },
-    ],
-  },
-  {
-    name: "About Us",
-    path: "/about",
-    description: "About Us — Apni Zaroorat’s mission, team, and finance services across India.",
-    children: [
-      {
-        name: "About Us",
-        path: "/about",
-        description: "Know Apni Zaroorat — mission, team, and A to Z finance solutions across India.",
-      },
-      {
-        name: "Contact Us",
-        path: "/contact",
-        description:
-          "Get support for loans, insurance and applications across India. Call, email, or visit our Jaipur office.",
-      },
-      {
-        name: "Become a Partner",
-        path: "/become-partner",
-        description: "Join Apni Zaroorat as a partner — earn by referring personal loan and insurance leads.",
-      },
-    ],
-  },
-];
-
-function flattenSiteTree(nodes: SiteTreeNode[]): SiteTreeNode[] {
-  const out: SiteTreeNode[] = [];
-  for (const node of nodes) {
-    const samePathAsChild = node.children?.some((child) => child.path === node.path);
-    if (!samePathAsChild && (node.path !== "/" || node.name !== "Home")) {
-      out.push(node);
-    }
-    if (node.children?.length) {
-      out.push(...flattenSiteTree(node.children));
-    }
-  }
-  return out;
-}
-
-/**
- * All Google-indexable marketing URLs (no admin / api / customer / agent).
- * Keep in sync with page.tsx metadata (noIndex: false).
- */
-export const INDEXABLE_ROUTES = [
-  { path: "/", changeFrequency: "daily" as const, priority: 1 },
-  { path: "/products", changeFrequency: "daily" as const, priority: 0.99 },
-  { path: "/products/personal-loan", changeFrequency: "daily" as const, priority: 0.98 },
-  { path: "/products/insurance", changeFrequency: "daily" as const, priority: 0.97 },
-  { path: "/check-eligibility", changeFrequency: "daily" as const, priority: 0.96 },
-  { path: "/emi-calculator", changeFrequency: "daily" as const, priority: 0.96 },
-  { path: "/tax-saving-calculator", changeFrequency: "daily" as const, priority: 0.96 },
-  { path: "/banking-partners", changeFrequency: "weekly" as const, priority: 0.8 },
-  { path: "/about", changeFrequency: "weekly" as const, priority: 0.92 },
-  { path: "/contact", changeFrequency: "weekly" as const, priority: 0.92 },
-  { path: "/become-partner", changeFrequency: "weekly" as const, priority: 0.9 },
-  { path: "/terms-and-conditions", changeFrequency: "monthly" as const, priority: 0.35 },
-  { path: "/privacy-policy", changeFrequency: "monthly" as const, priority: 0.35 },
-  { path: "/refund-policy", changeFrequency: "monthly" as const, priority: 0.3 },
-  { path: "/disclaimer", changeFrequency: "monthly" as const, priority: 0.3 },
-] as const;
-
-/** Site-wide brand strings — keep in sync with root layout defaults. */
 export const SITE_NAME = "Apni Zaroorat";
 export const SITE_TAGLINE = "Apply for Personal Loans & Insurance Online";
-/**
- * Home / default meta. “A to Z finance” = brand bridge (Apni → Zaroorat).
- * Use only on flagship surfaces (home, about, schema) — not every page title.
- */
 export const SITE_DEFAULT_DESCRIPTION =
   "Apni Zaroorat offers A to Z finance solutions in India. Apply online for personal loans & insurance with minimal documentation, fast approval, and secure processing.";
-
 export const DEFAULT_OG_IMAGE = "/images/og-default.jpg";
 export const DEFAULT_OG_IMAGE_ALT =
   "Apni Zaroorat — A to Z finance solutions for personal loans and insurance";
-
-/**
- * Flip to false on staging clones that must not be indexed.
- * Wired into buildPageMetadata + root layout robots.
- */
 export const SEO_INDEXING_ENABLED = true;
-
-/**
- * Primary deep links Google may surface as sitelinks (must match real, strong pages).
- * Derived from SITE_TREE — order + clear names help; Google still chooses which to show.
- */
-export const SITELINK_PAGES = flattenSiteTree(SITE_TREE);
 
 /** Trailing-slash path for sitemap / canonical (matches next.config trailingSlash). */
 export function seoPath(path: string): string {

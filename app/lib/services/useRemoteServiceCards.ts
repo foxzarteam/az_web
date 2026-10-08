@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
-import { fetchActiveServiceCards } from "@/app/utils/fetchActiveServiceCards";
+import { fetchActiveServiceCards } from "@/app/lib/services/fetchActiveServiceCards";
 import type {
   FetchActiveServicesResult,
   ServiceSliderCard,

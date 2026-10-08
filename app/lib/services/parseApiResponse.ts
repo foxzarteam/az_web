@@ -1,6 +1,6 @@
 import type { ApiServiceRow, InsuranceTypeOption, ServiceSliderCard } from "@/app/lib/services/types";
 import { isPublicProductSlug } from "@/app/lib/services/allowedProducts";
-import { INSURANCE_TYPE_OPTIONS } from "@/app/utils/leadForm";
+import { INSURANCE_TYPE_OPTIONS } from "@/app/lib/leads/leadForm";
 
 function rowSortKey(row: ApiServiceRow): number {
   const n = row.sort_order ?? row.sortOrder;

@@ -2,7 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { useBodyScrollLock } from "@/app/utils/useBodyScrollLock";
+import { useBodyScrollLock } from "@/app/lib/useBodyScrollLock";
 
 export type PopupVariant = "success" | "warning" | "danger";
 

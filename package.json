@@ -10,7 +10,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "node scripts/test-lead-patch-gate.mjs && node scripts/test-catalog.mjs",
+    "test": "node scripts/test-lead-patch-gate.mjs && node scripts/test-catalog.mjs && node scripts/test-lead-form.mjs",
     "optimize:images": "node scripts/optimize-images.mjs"
   },
   "dependencies": {

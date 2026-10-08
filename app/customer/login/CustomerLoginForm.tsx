@@ -13,8 +13,8 @@ import {
   verifyPhoneOtp,
   warmFirebaseAuth,
 } from "@/app/lib/firebase/phoneAuth";
-import { checkCustomerMobile, customerLogin } from "@/app/utils/customerAuthApi";
-import { sanitizeMobileInput } from "@/app/utils/validation";
+import { checkCustomerMobile, customerLogin } from "@/app/lib/customer/authApi";
+import { sanitizeMobileInput } from "@/app/lib/validation";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
 
 const OTP_LENGTH = 6;

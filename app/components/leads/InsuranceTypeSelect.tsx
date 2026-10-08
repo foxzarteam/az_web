@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { InsuranceTypeOption } from "@/app/lib/services/types";
-import { INSURANCE_TYPE_OPTIONS, insuranceTypeImageSrc } from "@/app/utils/leadForm";
+import { INSURANCE_TYPE_OPTIONS, insuranceTypeImageSrc } from "@/app/lib/leads/leadForm";
 
 type MenuBox = {
   top: number;

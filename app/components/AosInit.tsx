@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import "aos/dist/aos.css";
 
-/** Lazy-load AOS runtime after paint (CSS above is small); animate once per element. */
-export default function Aoscompo({ children }: { children: React.ReactNode }) {
+/** Lazy-load AOS after paint; animate once per element. */
+export default function AosInit({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     const start = () => {

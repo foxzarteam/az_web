@@ -6,7 +6,7 @@ import {
   commissionFromStoredLead,
   commissionValueError,
 } from "./leadCommission";
-import { validateLeadPincode } from "@/app/utils/leadForm";
+import { validateLeadPincode } from "@/app/lib/leads/leadForm";
 
 export type EditForm = {
   fullName: string;
@@ -163,5 +163,50 @@ export function validateLeadForm(
     errors.consent = "Please tick the checkbox to continue.";
   }
   return errors;
+}
+
+export function buildLeadPayload(
+  form: EditForm,
+  opts?: { omitMaskedPan?: boolean; includeConsent?: boolean; canApprove?: boolean },
+): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    fullName: form.fullName.trim(),
+    mobileNumber: form.mobileNumber.trim(),
+    category: form.category,
+    pincode: form.pincode.trim() || null,
+  };
+  if (form.category === "personal_loan") {
+    payload.requiredAmount = form.requiredAmount;
+    payload.loanTenureMonths = form.loanTenureMonths;
+    payload.insType = null;
+    payload.loanAmt = null;
+    const income = Number(form.netMonthlyIncome);
+    payload.netMonthlyIncome = Number.isFinite(income) && income > 0 ? income : null;
+  } else if (form.category === "insurance") {
+    payload.insType = form.insType;
+    payload.requiredAmount = null;
+    payload.loanTenureMonths = null;
+    payload.loanAmt = null;
+    payload.netMonthlyIncome = null;
+  }
+  const pan = form.pan.trim().toUpperCase();
+  if (!(opts?.omitMaskedPan && isMaskedPanValue(pan))) {
+    payload.pan = pan;
+  }
+  if (opts?.includeConsent) {
+    payload.consentAccepted = true;
+    payload.status = "pending";
+  } else if (opts?.canApprove) {
+    payload.status = form.status;
+    if (form.partnerLead && form.status === "approved") {
+      payload.commissionType = form.category === "insurance" ? "fixed" : "percentage";
+      const commission = Number(String(form.commissionValue).replace(/,/g, "").trim());
+      payload.commissionValue = Number.isFinite(commission) ? commission : null;
+    } else {
+      payload.commissionType = null;
+      payload.commissionValue = null;
+    }
+  }
+  return payload;
 }
 

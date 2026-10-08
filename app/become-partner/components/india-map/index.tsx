@@ -5,13 +5,13 @@ import Image from "next/image";
 import Link from "next/link";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
-import { reportFormValidity } from "@/app/utils/formValidation";
+import { reportFormValidity } from "@/app/lib/formValidation";
 import { useRouter } from "next/navigation";
 import {
   PUBLIC_INDIA_MAP_FALLBACK_SVG_URL,
   PUBLIC_INDIA_MAP_SVG_URL,
 } from "@/app/config/constants";
-import { sanitizeMobileInput, validateMobileNumber } from "@/app/utils/validation";
+import { sanitizeMobileInput, validateMobileNumber } from "@/app/lib/validation";
 import { toPublicClientError } from "@/app/lib/publicClientError";
 
 interface Pin {

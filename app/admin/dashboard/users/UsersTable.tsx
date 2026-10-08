@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { formatAdminDateTime } from "@/app/utils/format";
+import { formatAdminDateTime } from "@/app/lib/format";
 import CrmDataTable, { CrmActionButton, type CrmColumn } from "@/app/components/shared/crm/DataTable";
 import AdminModal from "@/app/components/shared/crm/AppModal";
 import AffiliateShareKit from "@/app/components/affiliate/AffiliateShareKit";

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { formatRupee } from "@/app/utils/format";
+import { formatRupee } from "@/app/lib/format";
 import { captureAffiliateCodeFromLocation } from "@/app/lib/affiliate/refCookie";
 
 type Profession = "salaried" | "self_employed";

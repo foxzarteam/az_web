@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CustomerLead } from "@/app/lib/customer/leadsByMobile";
-import { insuranceTypeLabel } from "@/app/utils/leadForm";
+import { insuranceTypeLabel } from "@/app/lib/leads/leadForm";
 import CrmDataTable, {
   CrmActionButton,
   type CrmColumn,

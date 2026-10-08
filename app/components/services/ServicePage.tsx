@@ -8,7 +8,7 @@ import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox, {
   LeadCreditDisclaimer,
 } from "@/app/components/shared/TermsAgreementCheckbox";
-import { reportFormValidity } from "@/app/utils/formValidation";
+import { reportFormValidity } from "@/app/lib/formValidation";
 import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationStatusLink";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
@@ -16,8 +16,8 @@ import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import LoanTenureSlider from "@/app/components/services/LoanTenureSlider";
 import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
 import { MOBILE_VALIDATION, PERSONAL_LOAN_TENURE } from "@/app/config/constants";
-import { customerLogin } from "@/app/utils/customerAuthApi";
-import { applyLead, isExistingApplicationError, leadIdFromResponse, mapServiceToCategory, type CreateLeadResponse } from "@/app/utils/leadApi";
+import { customerLogin } from "@/app/lib/customer/authApi";
+import { applyLead, isExistingApplicationError, leadIdFromResponse, mapServiceToCategory, type CreateLeadResponse } from "@/app/lib/leads/leadApi";
 import {
   firstLeadFieldError,
   personalLoanApplyPayload,
@@ -32,8 +32,8 @@ import {
   validateLeadPanNameMobile,
   validateLeadPincode,
   type LeadFieldErrors,
-} from "@/app/utils/leadForm";
-import { sanitizeMobileInput } from "@/app/utils/validation";
+} from "@/app/lib/leads/leadForm";
+import { sanitizeMobileInput } from "@/app/lib/validation";
 import { sendFirebasePhoneOtp, warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
 
 type ServicePageProps = {

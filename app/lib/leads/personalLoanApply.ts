@@ -4,7 +4,7 @@ import {
   validateLeadPincode,
   validatePersonalLoanEmployment,
   type LeadFieldErrors,
-} from "@/app/utils/leadForm";
+} from "@/app/lib/leads/leadForm";
 import { PERSONAL_LOAN_EMI_LIMITS, PERSONAL_LOAN_TENURE } from "@/app/config/constants";
 
 export type PersonalLoanFormValues = {

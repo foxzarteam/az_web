@@ -10,8 +10,8 @@ import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
 import { productHrefToSlug } from "@/app/lib/services/allowedProducts";
 import { useInsuranceTypeOptions } from "@/app/lib/services/useInsuranceTypeOptions";
-import { mapServiceToCategory } from "@/app/utils/leadApi";
-import { insuranceTypeLabel } from "@/app/utils/leadForm";
+import { mapServiceToCategory } from "@/app/lib/leads/leadApi";
+import { insuranceTypeLabel } from "@/app/lib/leads/leadForm";
 import {
   ADMIN_BTN_SECONDARY,
   ADMIN_LABEL,

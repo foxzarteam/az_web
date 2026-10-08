@@ -1,7 +1,7 @@
 "use client";
 
 import { useCatalogInsuranceTypes } from "@/app/components/providers/ServiceCardsProvider";
-import { INSURANCE_TYPE_OPTIONS } from "@/app/utils/leadForm";
+import { INSURANCE_TYPE_OPTIONS } from "@/app/lib/leads/leadForm";
 import type { InsuranceTypeOption } from "@/app/lib/services/types";
 
 export function useInsuranceTypeOptions(): InsuranceTypeOption[] {

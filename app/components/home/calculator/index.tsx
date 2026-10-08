@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { PERSONAL_LOAN_EMI_LIMITS, COLORS } from "@/app/config/constants";
-import { formatRupee } from "@/app/utils/format";
+import { formatRupee } from "@/app/lib/format";
 import { captureAffiliateCodeFromLocation } from "@/app/lib/affiliate/refCookie";
 
 /** Monthly reducing-balance EMI — same method lenders use for personal loans. */

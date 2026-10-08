@@ -4,8 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { customerLogout } from "@/app/utils/customerAuthApi";
-import { useBodyScrollLock } from "@/app/utils/useBodyScrollLock";
+import { customerLogout } from "@/app/lib/customer/authApi";
+import { useBodyScrollLock } from "@/app/lib/useBodyScrollLock";
 import CustomerProfileMenu from "./CustomerProfileMenu";
 
 const CUSTOMER_NAV = [

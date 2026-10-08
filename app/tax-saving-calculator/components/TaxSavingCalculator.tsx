@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { formatRupee } from "@/app/utils/format";
+import { formatRupee } from "@/app/lib/format";
 import {
   AGE_OPTIONS,
   DEFAULT_FY,

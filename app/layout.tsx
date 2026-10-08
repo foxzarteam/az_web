@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { DM_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import Aoscompo from "@/utils/aos";
+import AosInit from "@/app/components/AosInit";
 import { PUBLIC_SITE_URL } from "@/app/config/constants";
 import { getActiveCatalog } from "@/app/data/getActiveServices";
 import { ServiceCardsProvider } from "@/app/components/providers/ServiceCardsProvider";
@@ -126,7 +126,7 @@ export default async function RootLayout({
           disableTransitionOnChange
           nonce=""
         >
-          <Aoscompo>
+          <AosInit>
             <Suspense fallback={null}>
               <PartnerRefSession />
             </Suspense>
@@ -142,7 +142,7 @@ export default async function RootLayout({
             </ServiceCardsProvider>
             <LoanHelperChatLazy />
             <WhatsAppFloat />
-          </Aoscompo>
+          </AosInit>
         </ThemeProvider>
       </body>
     </html>

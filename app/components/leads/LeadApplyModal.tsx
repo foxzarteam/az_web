@@ -11,7 +11,7 @@ import {
   verifyPhoneOtp,
   warmFirebaseAuth,
 } from "@/app/lib/firebase/phoneAuth";
-import { useBodyScrollLock } from "@/app/utils/useBodyScrollLock";
+import { useBodyScrollLock } from "@/app/lib/useBodyScrollLock";
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN_SEC = 60;

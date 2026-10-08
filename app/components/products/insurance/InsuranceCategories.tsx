@@ -1,7 +1,7 @@
 "use client";
 
 import { useInsuranceTypeOptions } from "@/app/lib/services/useInsuranceTypeOptions";
-import { insuranceTypeImageSrc, INSURANCE_TYPE_OPTIONS } from "@/app/utils/leadForm";
+import { insuranceTypeImageSrc, INSURANCE_TYPE_OPTIONS } from "@/app/lib/leads/leadForm";
 
 function cardImage(value: string, image?: string): string {
   const fromDb = insuranceTypeImageSrc(image);
