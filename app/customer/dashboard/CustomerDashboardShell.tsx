@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { customerLogout } from "@/app/lib/customer/authApi";
 import { useBodyScrollLock } from "@/app/lib/useBodyScrollLock";
 import CustomerProfileMenu from "./CustomerProfileMenu";
+import ApplyThanksPopup from "./ApplyThanksPopup";
 
 const CUSTOMER_NAV = [
   { href: "/", label: "Home" },
@@ -168,6 +169,7 @@ export default function CustomerDashboardShell({
       </aside>
 
       <main className="relative mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">{children}</main>
+      <ApplyThanksPopup />
     </div>
   );
 }

@@ -35,6 +35,7 @@ import {
 } from "@/app/lib/leads/leadForm";
 import { sanitizeMobileInput } from "@/app/lib/validation";
 import { sendFirebasePhoneOtp, warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
+import { stashApplyThanks } from "@/app/lib/customer/applyThanks";
 
 type ServicePageProps = {
   title: string;
@@ -280,6 +281,10 @@ export default function ServicePage({
                     if (!login.ok) {
                       throw new Error(login.message || "Login failed");
                     }
+                    stashApplyThanks({
+                      name: fullName.trim(),
+                      product: title.trim() || "application",
+                    });
                     router.replace("/customer/dashboard");
                   }}
                 />
