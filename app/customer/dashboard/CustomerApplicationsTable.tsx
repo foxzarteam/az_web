@@ -10,7 +10,7 @@ import CrmDataTable, {
 } from "@/app/components/shared/crm/DataTable";
 import AppModal from "@/app/components/shared/crm/AppModal";
 
-type StatusFilter = "all" | "pending" | "approved" | "rejected";
+type StatusFilter = "all" | "pending" | "in_process" | "approved" | "rejected";
 
 function formatInr(amount: number | null): string {
   if (amount == null || !Number.isFinite(amount)) return "—";
@@ -40,6 +40,11 @@ function categoryLabel(category: string): string {
   return map[category] || category.replace(/_/g, " ");
 }
 
+function isKycPendingStatus(status: string): boolean {
+  const s = status.toLowerCase();
+  return !s || s === "pending" || s === "action_required";
+}
+
 function statusMeta(status: string): {
   label: string;
   badge: string;
@@ -47,19 +52,23 @@ function statusMeta(status: string): {
 } {
   const s = status.toLowerCase();
   if (s === "approved") {
-    return { label: "Approved", badge: "bg-emerald-100 text-emerald-800", step: 3 };
+    return { label: "Approved", badge: "bg-emerald-100 text-emerald-800", step: 4 };
   }
   if (s === "rejected") {
-    return { label: "Not Approved", badge: "bg-red-100 text-red-800", step: 3 };
+    return { label: "Not Approved", badge: "bg-red-100 text-red-800", step: 4 };
   }
-  return { label: "Under Review", badge: "bg-amber-100 text-amber-900", step: 2 };
+  if (s === "in_process") {
+    return { label: "Under Review", badge: "bg-blue-100 text-blue-800", step: 3 };
+  }
+  return { label: "KYC pending", badge: "bg-amber-100 text-amber-900", step: 2 };
 }
 
 function Timeline({ lead }: { lead: CustomerLead }) {
   const meta = statusMeta(lead.status);
   const steps = [
     { key: "submitted", label: "Submitted", done: true },
-    { key: "review", label: "Under Review", done: meta.step >= 2 },
+    { key: "kyc", label: "KYC pending", done: meta.step >= 2 },
+    { key: "review", label: "Under Review", done: meta.step >= 3 },
     {
       key: "decision",
       label:
@@ -68,24 +77,27 @@ function Timeline({ lead }: { lead: CustomerLead }) {
           : lead.status === "approved"
             ? "Approved"
             : "Decision",
-      done: meta.step >= 3,
+      done: meta.step >= 4,
     },
   ];
 
   return (
     <ol className="mt-4 space-y-0">
       {steps.map((step, i) => {
-        const active = step.done && (i === steps.length - 1 ? meta.step >= 3 : true);
-        const current = (meta.step === 2 && i === 1) || (meta.step === 3 && i === 2);
+        const active = step.done && (i === steps.length - 1 ? meta.step >= 4 : true);
+        const current =
+          (meta.step === 2 && i === 1) ||
+          (meta.step === 3 && i === 2) ||
+          (meta.step === 4 && i === 3);
         return (
           <li key={step.key} className="flex gap-3">
             <div className="flex flex-col items-center">
               <span
                 className={`mt-0.5 flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
                   step.done
-                    ? lead.status === "rejected" && i === 2
+                    ? lead.status === "rejected" && i === 3
                       ? "bg-red-500 text-white"
-                      : lead.status === "approved" && i === 2
+                      : lead.status === "approved" && i === 3
                         ? "bg-emerald-500 text-white"
                         : "bg-primary text-white"
                     : "bg-gray-200 text-gray-500"
@@ -155,14 +167,14 @@ export default function CustomerApplicationsTable({
   const filteredRows = useMemo(() => {
     if (statusFilter === "all") return rows;
     if (statusFilter === "pending") {
-      return rows.filter((r) => r.status === "pending" || !r.status);
+      return rows.filter((r) => isKycPendingStatus(r.status));
     }
     return rows.filter((r) => r.status === statusFilter);
   }, [rows, statusFilter]);
 
   const total = rows.length;
-  const pending = rows.filter((a) => a.status === "pending" || !a.status).length;
-  const approved = rows.filter((a) => a.status === "approved").length;
+  const kycPending = rows.filter((a) => isKycPendingStatus(a.status)).length;
+  const underReview = rows.filter((a) => a.status === "in_process").length;
 
   const columns = useMemo<CrmColumn<CustomerLead>[]>(
     () => [
@@ -254,8 +266,8 @@ export default function CustomerApplicationsTable({
       <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
         {[
           { label: "Applications", value: total },
-          { label: "Under review", value: pending },
-          { label: "Approved", value: approved },
+          { label: "KYC pending", value: kycPending },
+          { label: "Under review", value: underReview },
         ].map((stat) => (
           <div
             key={stat.label}
@@ -298,7 +310,8 @@ export default function CustomerApplicationsTable({
                 className="h-9 max-w-[11rem] shrink-0 rounded-lg border border-slate-200 bg-white px-2.5 text-sm text-slate-800 outline-none focus:border-[#4236FB] focus:ring-2 focus:ring-[#4236FB]/20"
               >
                 <option value="all">All statuses</option>
-                <option value="pending">Under review</option>
+                <option value="pending">KYC pending</option>
+                <option value="in_process">Under review</option>
                 <option value="approved">Approved</option>
                 <option value="rejected">Not approved</option>
               </select>

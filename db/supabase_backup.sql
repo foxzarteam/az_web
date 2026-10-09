@@ -347,7 +347,7 @@ CREATE TABLE public.leads (
     CONSTRAINT leads_employment_type_check CHECK (((employment_type IS NULL) OR ((employment_type)::text = ANY ((ARRAY['salaried'::character varying, 'self_employed'::character varying])::text[])))),
     CONSTRAINT leads_loan_amt_check CHECK (((loan_amt IS NULL) OR ((loan_amt)::text = ANY ((ARRAY['25000_100000'::character varying, '100000_200000'::character varying, '200000_300000'::character varying, '300000_400000'::character varying, '400000_500000'::character varying, '500000_600000'::character varying, '600000_700000'::character varying, '700000_800000'::character varying, '800000_900000'::character varying, '900000_1000000'::character varying])::text[])))),
     CONSTRAINT leads_net_monthly_income_check CHECK (((net_monthly_income IS NULL) OR (net_monthly_income >= (0)::numeric))),
-    CONSTRAINT leads_status_check CHECK (((status)::text = ANY ((ARRAY['pending'::character varying, 'in_process'::character varying, 'approved'::character varying, 'rejected'::character varying, 'action_required'::character varying])::text[])))
+    CONSTRAINT leads_status_check CHECK (((status)::text = ANY ((ARRAY['pending'::character varying, 'in_process'::character varying, 'approved'::character varying, 'rejected'::character varying])::text[])))
 );
 
 COMMENT ON COLUMN public.leads.pan IS 'Masked PAN for display only (e.g. ABCDE****F). Never store plaintext.';

@@ -199,7 +199,7 @@ export default function ServicePage({
       if (!res.success) {
         if (isExistingApplicationError(res)) {
           setExistingAppMessage(
-            res.message || "Your application is already Under Review.",
+            res.message || "Your application is already KYC pending.",
           );
         } else {
           setFormError(res.message || "Could not submit application.");

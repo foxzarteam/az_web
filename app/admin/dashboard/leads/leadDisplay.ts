@@ -13,11 +13,10 @@ export const CATEGORIES = [
 ] as const;
 
 export const STATUSES = [
-  { value: "pending", label: "Pending" },
-  { value: "in_process", label: "In process" },
+  { value: "pending", label: "KYC pending" },
+  { value: "in_process", label: "Under Review" },
   { value: "approved", label: "Approved" },
   { value: "rejected", label: "Rejected" },
-  { value: "action_required", label: "Action required" },
 ] as const;
 
 export const VIEW_FIELDS = [
@@ -148,16 +147,14 @@ export function statusCapsuleClass(status: unknown): string {
   if (s === "in_process") {
     return `${base} bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300`;
   }
-  if (s === "action_required") {
-    return `${base} bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300`;
-  }
   // pending + unknown
   return `${base} bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300`;
 }
 
 export function statusLabel(status: unknown): string {
-  const s = String(status ?? "").trim();
+  const s = String(status ?? "").trim().toLowerCase();
   if (!s) return "—";
+  if (s === "action_required") return "KYC pending";
   const found = STATUSES.find((x) => x.value === s)?.label;
   return found ?? s.replace(/_/g, " ");
 }

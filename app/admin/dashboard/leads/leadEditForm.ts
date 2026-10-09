@@ -37,12 +37,13 @@ export function clampLoanAmount(value: unknown): number {
 
 export function leadToEditForm(lead: AdminLeadRow): EditForm {
   const fromRange = amountFromRange(lead.loan_amt);
+  const statusRaw = String(lead.status ?? "pending").trim().toLowerCase() || "pending";
   return {
     fullName: String(lead.full_name ?? ""),
     mobileNumber: String(lead.mobile_number ?? ""),
     pan: String(lead.pan ?? ""),
     category: String(lead.category ?? "personal_loan"),
-    status: String(lead.status ?? "pending"),
+    status: statusRaw === "action_required" ? "pending" : statusRaw,
     requiredAmount: clampLoanAmount(
       lead.required_amount ?? (fromRange > 0 ? fromRange : DEFAULT_LOAN_AMOUNT),
     ),
