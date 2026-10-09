@@ -35,8 +35,9 @@ export default function PartnerBenefits() {
   const benefits = [
     {
       kind: "earn" as const,
-      title: "Earn Up to ₹1 Lakh+ Monthly",
-      description: "Help people get financial products and earn high commissions.",
+      title: "Earn commission on every successful lead",
+      description:
+        "Share personal loan and insurance products and earn partner commission. Payouts depend on product, partner terms, and approved cases — not guaranteed monthly income.",
     },
     {
       kind: "anywhere" as const,

@@ -78,10 +78,6 @@ export function middleware(request: NextRequest) {
       "Cache-Control",
       "public, max-age=0, s-maxage=300, stale-while-revalidate=600",
     );
-    res.headers.set(
-      "X-Robots-Tag",
-      "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
-    );
   }
 
   return res;

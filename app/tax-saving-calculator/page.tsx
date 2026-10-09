@@ -11,7 +11,7 @@ import TaxSavingCalculatorView from "./components/TaxSavingCalculatorView";
 import { TAX_CALC_PATH } from "./lib/cities";
 
 const PATH = TAX_CALC_PATH;
-const PAGE_TITLE = "Free Tax Saving Calculator | Online Compare New vs Old Regime";
+const PAGE_TITLE = "Free Tax Saving Calculator | New vs Old Regime | Apni Zaroorat";
 const PAGE_DESC =
   "Free tax saving calculator for India — compare New vs Old tax regime for FY 2025-26. Estimate tax with 80C, 80D, home loan & standard deduction. Instant online result.";
 

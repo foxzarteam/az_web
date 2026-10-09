@@ -41,11 +41,23 @@ export async function generateMetadata({
   const { slug } = await params;
   const key = slug.trim().toLowerCase();
   if (!isPublicProductSlug(key) || DEDICATED_SLUGS.has(key)) {
-    return {};
+    return buildPageMetadata({
+      title: "Product",
+      description: "This product page is not available.",
+      path: `/products/${key}`,
+      noIndex: true,
+    });
   }
   const { cards } = await getActiveCatalog();
   const card = cardForSlug(key, cards);
-  if (!card) return {};
+  if (!card) {
+    return buildPageMetadata({
+      title: "Product",
+      description: "This product page is not available.",
+      path: `/products/${key}`,
+      noIndex: true,
+    });
+  }
   return buildPageMetadata({
     title: `${card.title} | Apni Zaroorat`,
     description: card.description || `Apply for ${card.title} online with Apni Zaroorat.`,

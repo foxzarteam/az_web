@@ -63,7 +63,7 @@ export default function InsurancePage() {
               Insurance
             </h1>
             <p className="text-sm sm:text-base md:text-lg text-white/90 leading-relaxed">
-              Get the right insurance cover at the lowest premium.
+              Get the right insurance cover with competitive premiums from partner insurers.
             </p>
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function InsurancePage() {
 
       <ServicePage
         title="Insurance"
-        subtitle="Get the right insurance cover at the lowest premium."
+        subtitle="Get the right insurance cover with competitive premiums from partner insurers."
         imageSrc="/images/service/insurance.webp"
         badge="Protect what matters most"
         hideHeader

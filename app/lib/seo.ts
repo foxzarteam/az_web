@@ -10,7 +10,7 @@ export { INDEXABLE_ROUTES, SITE_TREE, SITELINK_PAGES } from "@/app/lib/seo-site-
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-10-05";
+export const SEO_CONTENT_VERSION = "2026-10-09";
 
 /** Official social profiles — wired to Organization sameAs + footer + AEO/GEO docs. */
 export const SOCIAL_PROFILES = [
@@ -277,7 +277,7 @@ export function websiteJsonLd() {
     ],
     description: SITE_DEFAULT_DESCRIPTION,
     publisher: { "@id": `${PUBLIC_SITE_URL}/#organization` },
-    inLanguage: ["en-IN", "hi-IN"],
+    inLanguage: "en-IN",
     copyrightHolder: { "@id": `${PUBLIC_SITE_URL}/#organization` },
     about: { "@id": `${PUBLIC_SITE_URL}/#organization` },
     mainEntity: { "@id": `${PUBLIC_SITE_URL}/#organization` },

@@ -17,7 +17,7 @@ export default function ThreeSteps() {
   const steps = [
     { title: "Install Apni Zaroorat app and register" },
     { title: "Share financial product links and add customer" },
-    { title: "Start earning money more than ₹1 Lakh every month" },
+    { title: "Earn commission when your referred applications are approved" },
   ];
 
   return (

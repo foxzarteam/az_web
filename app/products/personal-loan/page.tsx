@@ -65,7 +65,7 @@ export default function PersonalLoanPage() {
               Personal Loan
             </h1>
             <p className="text-sm sm:text-base md:text-lg text-white/90 leading-relaxed">
-              Get a quick personal loan at the lowest interest rate.
+              Get a quick personal loan with competitive rates from partner lenders.
             </p>
           </div>
         </div>
@@ -73,7 +73,7 @@ export default function PersonalLoanPage() {
 
       <ServicePage
         title="Personal Loan"
-        subtitle="Get a quick personal loan at the lowest interest rate."
+        subtitle="Get a quick personal loan with competitive rates from partner lenders."
         imageSrc="/images/service/personal.webp"
         badge="Instant personal loan assistance"
         hideHeader

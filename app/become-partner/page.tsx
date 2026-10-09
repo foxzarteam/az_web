@@ -12,7 +12,7 @@ import {
   pageSeoGlue,
 } from "@/app/lib/seo";
 
-const PAGE_TITLE = "Become a Partner | Loan & Insurance Partner Program";
+const PAGE_TITLE = "Become a Partner | Loan & Insurance Partner Program | Apni Zaroorat";
 const PAGE_DESC =
   "Join the Apni Zaroorat partner program. Distribute personal loans and insurance, earn commission, and grow your business with digital tools and India-wide support.";
 
@@ -55,7 +55,7 @@ export default function BecomePartnerPage() {
       <IndiaMapClient>
         <PartnerAudience />
       </IndiaMapClient>
-      {false && <ThreeSteps />}
+      <ThreeSteps />
       <PartnerBenefits />
       <FaqSection items={DSA_FAQ_ITEMS} />
     </>

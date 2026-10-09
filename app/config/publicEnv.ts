@@ -148,3 +148,23 @@ export const PUBLIC_INDIA_MAP_SVG_URL =
 export const PUBLIC_INDIA_MAP_FALLBACK_SVG_URL =
   normalizeEnvValue(process.env.NEXT_PUBLIC_INDIA_MAP_FALLBACK_SVG_URL ?? "").trim() ||
   DEFAULT_INDIA_MAP_FALLBACK_SVG_URL;
+
+function marketingId(raw: string, pattern: RegExp): string {
+  const v = normalizeEnvValue(raw).trim();
+  return pattern.test(v) ? v : "";
+}
+
+/** Optional Google Tag Manager container, e.g. GTM-XXXXXXX */
+export const PUBLIC_GTM_ID = marketingId(process.env.NEXT_PUBLIC_GTM_ID ?? "", /^GTM-[A-Z0-9]+$/i);
+
+/** Optional Google Ads account, e.g. AW-123456789 */
+export const PUBLIC_GOOGLE_ADS_ID = marketingId(
+  process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ?? "",
+  /^AW-[0-9]+$/,
+);
+
+/** Optional Ads conversion label used with PUBLIC_GOOGLE_ADS_ID */
+export const PUBLIC_ADS_CONVERSION_LABEL = marketingId(
+  process.env.NEXT_PUBLIC_ADS_CONVERSION_LABEL ?? "",
+  /^[A-Za-z0-9_-]+$/,
+);

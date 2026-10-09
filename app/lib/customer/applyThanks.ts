@@ -1,3 +1,8 @@
+import {
+  PUBLIC_ADS_CONVERSION_LABEL,
+  PUBLIC_GOOGLE_ADS_ID,
+} from "@/app/config/publicEnv";
+
 const KEY = "az_apply_thanks";
 
 export type ApplyThanksPayload = {
@@ -15,6 +20,22 @@ export function stashApplyThanks(payload: ApplyThanksPayload): void {
   const product = payload.product.trim();
   if (!product) return;
   sessionStorage.setItem(KEY, JSON.stringify({ name, product }));
+  trackApplyConversion(product);
+}
+
+function trackApplyConversion(product: string): void {
+  if (typeof window === "undefined") return;
+  const w = window as Window & {
+    dataLayer?: Record<string, unknown>[];
+    gtag?: (...args: unknown[]) => void;
+  };
+  w.dataLayer = w.dataLayer || [];
+  w.dataLayer.push({ event: "apply_success", product });
+  const ads = PUBLIC_GOOGLE_ADS_ID;
+  const label = PUBLIC_ADS_CONVERSION_LABEL;
+  if (ads && label && typeof w.gtag === "function") {
+    w.gtag("event", "conversion", { send_to: `${ads}/${label}` });
+  }
 }
 
 export function takeApplyThanks(): ApplyThanksPayload | null {

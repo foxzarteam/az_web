@@ -37,12 +37,32 @@ export const FAQ_ITEMS: FaqItem[] = [
   },
 ];
 
-/** Hub `/products` FAQ — keep in sync with AffiliateLanding. */
+/** Hub `/products` FAQ — unique copy (not the homepage set). */
 export const PRODUCTS_HUB_FAQ_ITEMS: FaqItem[] = [
-  FAQ_ITEMS[0],
-  FAQ_ITEMS[1],
-  FAQ_ITEMS[2],
-  FAQ_ITEMS[4],
+  {
+    id: "hub-which-product",
+    question: "Should I apply for a personal loan or insurance from this page?",
+    answer:
+      "Use this page to pick the product you need. Choose Personal Loan if you want funds for a personal expense. Choose Insurance if you want life, health, or motor cover. Each option opens a short digital form.",
+  },
+  {
+    id: "hub-how-apply",
+    question: "How do I apply online on Apni Zaroorat?",
+    answer:
+      "Select a product card, complete the form with basic details, and verify your mobile with OTP. You can then track application status from your customer dashboard.",
+  },
+  {
+    id: "hub-tools",
+    question: "Can I check EMI or eligibility before applying?",
+    answer:
+      "Yes. The products hub links to a free EMI calculator and an indicative eligibility check. Those tools do not affect your credit score.",
+  },
+  {
+    id: "hub-why-az",
+    question: "Why apply through Apni Zaroorat?",
+    answer:
+      "Apni Zaroorat is an A to Z finance platform for personal loans and insurance — one digital journey, partner lenders and insurers, and guided support after you submit.",
+  },
 ];
 
 export const ELIGIBILITY_FAQ_ITEMS: FaqItem[] = [

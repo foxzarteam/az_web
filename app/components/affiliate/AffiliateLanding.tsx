@@ -113,7 +113,6 @@ export default function AffiliateLanding() {
         id="products"
         className="theme-gradient-bg relative overflow-hidden px-4 pb-12 pt-24 sm:px-6"
       >
-        <h1 className="sr-only">Apply for a loan or insurance</h1>
         <div className="pointer-events-none absolute -right-16 top-10 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
         <div className="pointer-events-none absolute -left-10 bottom-0 h-40 w-40 rounded-full bg-[#FF7E29]/30 blur-3xl" />
         <div className="container relative z-[1] mx-auto w-full max-w-full sm:px-2 lg:max-w-screen-xl lg:px-8">
@@ -122,9 +121,9 @@ export default function AffiliateLanding() {
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               Free online apply
             </span>
-            <p className="mt-3 text-xl font-bold text-white xs:text-2xl sm:text-3xl">
-              Choose what you need
-            </p>
+            <h1 className="mt-3 text-xl font-bold text-white xs:text-2xl sm:text-3xl">
+              Choose a personal loan or insurance
+            </h1>
           </div>
           <ProductsHubCards />
         </div>
