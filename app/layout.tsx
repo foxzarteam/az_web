@@ -132,7 +132,7 @@ export default async function RootLayout({
           </noscript>
         ) : null}
         <GoogleMarketingTags />
-        <ThemeProvider>
+        <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem={false}
