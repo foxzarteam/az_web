@@ -87,32 +87,43 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
         } catch {
           /* keep current list */
         }
+        const open = openIdRef.current;
+        if (!open) return;
+        try {
+          const chatRes = await fetch(`/api/admin/whatsapp/enquiries/${encodeURIComponent(open)}`);
+          const chatData = (await chatRes.json().catch(() => ({}))) as { data?: WhatsappEnquiryDetail };
+          if (openIdRef.current === open && chatRes.ok && chatData.data) setDetail(chatData.data);
+        } catch {
+          /* keep current chat */
+        }
       })();
-    }, 15_000);
+    }, 8_000);
     return () => window.clearInterval(timer);
   }, []);
 
-  async function loadChat(id: string) {
+  async function loadChat(id: string, silent = false) {
     chatAbort.current?.abort();
     const ac = new AbortController();
     chatAbort.current = ac;
-    setLoading(true);
-    setError(null);
+    if (!silent) {
+      setLoading(true);
+      setError(null);
+    }
     try {
       const res = await fetch(`/api/admin/whatsapp/enquiries/${encodeURIComponent(id)}`, { signal: ac.signal });
       const data = (await res.json().catch(() => ({}))) as { error?: string; data?: WhatsappEnquiryDetail };
       if (openIdRef.current !== id) return;
       if (!res.ok || !data.data) {
-        setError(toPublicClientError(data.error, "Could not load this chat."));
+        if (!silent) setError(toPublicClientError(data.error, "Could not load this chat."));
         return;
       }
       setDetail(data.data);
     } catch (error) {
       if ((error as { name?: string }).name === "AbortError") return;
       if (openIdRef.current !== id) return;
-      setError("Network error. Try again.");
+      if (!silent) setError("Network error. Try again.");
     } finally {
-      if (openIdRef.current === id) setLoading(false);
+      if (openIdRef.current === id && !silent) setLoading(false);
     }
   }
 
