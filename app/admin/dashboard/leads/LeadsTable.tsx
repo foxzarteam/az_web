@@ -517,7 +517,8 @@ export default function LeadsTable({
         <AdminModal title="Delete lead" onClose={closeModals}>
           <div className="p-6 sm:p-8">
             <p className="text-sm text-midnight_text dark:text-gray-200">
-              Delete lead for <strong>{cellText(deleteLead, "full_name")}</strong> ({cellText(deleteLead, "mobile_number")})? This cannot be undone.
+              Delete lead for <strong>{cellText(deleteLead, "full_name")}</strong> ({cellText(deleteLead, "mobile_number")})?
+              OTP sessions and related CRM data for this number will also be removed. WhatsApp chat is kept unless you delete it from the WhatsApp inbox. This cannot be undone.
             </p>
             {error && <p className={`mt-3 ${ADMIN_ERROR}`}>{error}</p>}
             <div className="mt-8 flex justify-end gap-3">
