@@ -34,7 +34,7 @@ import {
   type LeadFieldErrors,
 } from "@/app/lib/leads/leadForm";
 import { sanitizeMobileInput } from "@/app/lib/validation";
-import { sendFirebasePhoneOtp, warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
+import { primeOtpRecaptcha, sendFirebasePhoneOtp, warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
 import { stashApplyThanks } from "@/app/lib/customer/applyThanks";
 
 type ServicePageProps = {
@@ -160,6 +160,7 @@ export default function ServicePage({
 
     setFormError("");
     setIsSubmittingForm(true);
+    primeOtpRecaptcha();
 
     try {
       const category = mapServiceToCategory(service);

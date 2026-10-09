@@ -147,6 +147,7 @@ function delay(ms: number): Promise<void> {
 }
 
 async function createRecaptchaVerifier(containerId: string): Promise<RecaptchaVerifier> {
+  if (recaptchaVerifier && !recaptchaNeedsSettle) return recaptchaVerifier;
   resetRecaptcha(containerId);
   replaceRecaptchaContainer(containerId);
 
@@ -275,6 +276,13 @@ export async function requestOtpSendSlot(
   }
 }
 
+/** Start invisible reCAPTCHA while the lead is saving so OTP SMS is not blocked on it. */
+export function primeOtpRecaptcha(containerId = RECAPTCHA_CONTAINER_ID): void {
+  if (!isFirebaseWebConfigured()) return;
+  ensureRecaptchaHost(containerId);
+  void createRecaptchaVerifier(containerId).catch(() => undefined);
+}
+
 export async function sendFirebasePhoneOtp(
   mobileDigits: string,
   containerId = RECAPTCHA_CONTAINER_ID,
@@ -292,16 +300,15 @@ export async function sendFirebasePhoneOtp(
     /* ignore */
   }
 
-  resetRecaptcha(containerId);
-
-  const slot = await requestOtpSendSlot(mobileDigits);
+  const [slot, verifier] = await Promise.all([
+    requestOtpSendSlot(mobileDigits),
+    createRecaptchaVerifier(containerId),
+  ]);
   if (!slot.allowed) {
     const err = new Error(slot.message || MSG_OTP_DAILY_LIMIT) as Error & { code?: string };
     err.code = slot.dailyLimit ? "otp/daily-limit" : "otp/send-blocked";
     throw err;
   }
-
-  const verifier = await createRecaptchaVerifier(containerId);
 
   try {
     const confirmation = await signInWithPhoneNumber(
