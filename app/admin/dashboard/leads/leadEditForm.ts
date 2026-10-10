@@ -1,5 +1,5 @@
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
-import { PERSONAL_LOAN_EMI_LIMITS, PERSONAL_LOAN_TENURE } from "@/app/config/constants";
+import { PERSONAL_LOAN_TENURE } from "@/app/config/constants";
 import { DEFAULT_LOAN_AMOUNT } from "./leadDisplay";
 import {
   type CommissionChoice,
@@ -28,11 +28,8 @@ export type EditForm = {
 
 export function clampLoanAmount(value: unknown): number {
   const n = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(n)) return DEFAULT_LOAN_AMOUNT;
-  return Math.min(
-    PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT,
-    Math.max(PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT, Math.round(n)),
-  );
+  if (!Number.isFinite(n) || n <= 0) return DEFAULT_LOAN_AMOUNT;
+  return Math.round(n);
 }
 
 export function leadToEditForm(lead: AdminLeadRow): EditForm {

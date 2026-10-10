@@ -1,6 +1,6 @@
 -- Apni Zaroorat — live public schema (keep this file in sync with Supabase).
 -- Tables: auth, banners, chat, contact, lead_mobile_pan_slots, leads,
---   otp_sessions, pan_access_audit, partner, payment_accounts, services, users, wallet
+--   otp_sessions, pan_access_audit, partner, payment_accounts, products, users, wallet
 -- Dropped (unused): lead_status_audit, financial_products, user_sessions
 -- Wallet: insurance ₹1000; personal loan 2% of required_amount, else loan_amt midpoint.
 --
@@ -399,7 +399,7 @@ CREATE TABLE public.partner (
     CONSTRAINT partner_payout_type_check CHECK ((payout_type = ANY (ARRAY['PERCENTAGE'::text, 'FLAT'::text])))
 );
 
-COMMENT ON COLUMN public.partner.service_id IS 'Comma-separated services.sort_order, e.g. 2,5';
+COMMENT ON COLUMN public.partner.service_id IS 'Comma-separated products.sort_order, e.g. 2,5';
 
 COMMENT ON COLUMN public.partner.payout_type IS 'PERCENTAGE or FLAT';
 
@@ -417,7 +417,7 @@ CREATE TABLE public.payment_accounts (
     CONSTRAINT payment_accounts_payment_type_check CHECK (((payment_type)::text = ANY ((ARRAY['upi'::character varying, 'bank'::character varying])::text[])))
 );
 
-CREATE TABLE public.services (
+CREATE TABLE public.products (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     slug text NOT NULL,
     title text NOT NULL,
@@ -425,8 +425,19 @@ CREATE TABLE public.services (
     image_url text NOT NULL,
     sort_order integer DEFAULT 0 NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
+    limit_start integer,
+    limit_end integer,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT products_limit_range_chk CHECK (
+      (limit_start IS NULL AND limit_end IS NULL)
+      OR (
+        limit_start IS NOT NULL
+        AND limit_end IS NOT NULL
+        AND limit_start >= 0
+        AND limit_end >= limit_start
+      )
+    )
 );
 
 CREATE TABLE public.insurance_types (
@@ -519,12 +530,12 @@ INSERT INTO public.pan_access_audit (id, lead_id, action, admin_id, admin_email,
   ('8617c019-6170-4df4-b414-cb9dd745e26e', '754b3522-cc36-4786-a14d-5a8c4d7d6707', 'create', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'public_apply', '{"pan_masked": "GGUPP****G"}', '2026-09-15 08:37:36.032+00'),
   ('aedeb2eb-c1e3-444f-a017-ab81f4f139c4', 'de0a8a19-b73f-4b16-a38b-d77dcc297f4c', 'create', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'public_apply', '{"pan_masked": "GGUPP****G"}', '2026-09-15 08:41:17.446+00');
 
-INSERT INTO public.services (id, slug, title, description, image_url, sort_order, is_active, created_at, updated_at) VALUES
-  ('3d887ea2-f276-4d3c-b93d-42d714a5701e', 'credit-card', 'Credit Card', 'Choose cards from all top banks', '/images/service/credit.png', '4', FALSE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
-  ('c16701c4-ba72-4cdc-9643-b824dfe0da24', 'home-loan', 'Home Loan', 'Instant approval at lowest interest rates', '/images/service/home.png', '1', FALSE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
-  ('6b5dbdbf-acc5-432f-a149-8eda67a935f0', 'personal-loan', 'Personal Loan', 'Earn Up to 4%', '/images/service/personal.webp', '2', TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
-  ('b299202a-d3f0-4220-8220-80f6b996ac18', 'insurance', 'Insurance', 'Earn Up to 2%', '/images/service/insurance.webp', '5', TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
-  ('c2871d5c-f36c-4e55-9069-0597aea107f5', 'business-loan', 'Business Loan', 'Fund your business with flexible tenure', '/images/service/business.png', '3', FALSE, '2026-04-05 18:05:20.388169+00', '2026-05-21 19:26:07.114+00');
+INSERT INTO public.products (id, slug, title, description, image_url, sort_order, is_active, limit_start, limit_end, created_at, updated_at) VALUES
+  ('3d887ea2-f276-4d3c-b93d-42d714a5701e', 'credit-card', 'Credit Card', 'Choose cards from all top banks', '/images/service/credit.png', '4', FALSE, NULL, NULL, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('c16701c4-ba72-4cdc-9643-b824dfe0da24', 'home-loan', 'Home Loan', 'Instant approval at lowest interest rates', '/images/service/home.png', '1', FALSE, NULL, NULL, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('6b5dbdbf-acc5-432f-a149-8eda67a935f0', 'personal-loan', 'Personal Loan', 'Earn Up to 4%', '/images/service/personal.webp', '2', TRUE, 25000, 5000000, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('b299202a-d3f0-4220-8220-80f6b996ac18', 'insurance', 'Insurance', 'Earn Up to 2%', '/images/service/insurance.webp', '5', TRUE, NULL, NULL, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
+  ('c2871d5c-f36c-4e55-9069-0597aea107f5', 'business-loan', 'Business Loan', 'Fund your business with flexible tenure', '/images/service/business.png', '3', FALSE, NULL, NULL, '2026-04-05 18:05:20.388169+00', '2026-05-21 19:26:07.114+00');
 
 INSERT INTO public.insurance_types (slug, label, image, sort_order, is_active, created_at, updated_at) VALUES
   ('health_insurance', 'Health Insurance', 'health.svg', 1, TRUE, '2026-04-05 18:05:20.388169+00', '2026-04-05 18:05:20.388169+00'),
@@ -594,11 +605,11 @@ ALTER TABLE ONLY public.payment_accounts
 ALTER TABLE ONLY public.payment_accounts
     ADD CONSTRAINT payment_accounts_user_id_payment_type_key UNIQUE (user_id, payment_type);
 
-ALTER TABLE ONLY public.services
-    ADD CONSTRAINT services_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT products_pkey PRIMARY KEY (id);
 
-ALTER TABLE ONLY public.services
-    ADD CONSTRAINT services_slug_key UNIQUE (slug);
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT products_slug_key UNIQUE (slug);
 
 ALTER TABLE ONLY public.insurance_types
     ADD CONSTRAINT insurance_types_pkey PRIMARY KEY (slug);
@@ -679,7 +690,7 @@ CREATE INDEX IF NOT EXISTS partner_created_at_idx ON public.partner USING btree 
 
 CREATE INDEX IF NOT EXISTS partner_name_idx ON public.partner USING btree (name);
 
-CREATE INDEX IF NOT EXISTS services_active_sort_idx ON public.services USING btree (is_active, sort_order);
+CREATE INDEX IF NOT EXISTS products_active_sort_idx ON public.products USING btree (is_active, sort_order);
 
 CREATE INDEX IF NOT EXISTS insurance_types_active_sort_idx ON public.insurance_types USING btree (is_active, sort_order);
 

@@ -12,6 +12,12 @@ function isRowActive(row: ApiServiceRow): boolean {
   return row.isActive !== false && row.is_active !== false;
 }
 
+function rupeeField(value: unknown): number | null {
+  if (typeof value === "number" && Number.isInteger(value) && value >= 0) return value;
+  if (typeof value === "string" && /^\d+$/.test(value)) return Number(value);
+  return null;
+}
+
 function rowToCard(row: ApiServiceRow): ServiceSliderCard | null {
   const slug = typeof row.slug === "string" ? row.slug.trim() : "";
   if (!slug || !isPublicProductSlug(slug)) return null;
@@ -28,6 +34,8 @@ function rowToCard(row: ApiServiceRow): ServiceSliderCard | null {
     description: typeof row.description === "string" ? row.description : "",
     image,
     href: `/products/${slug}`,
+    limitStart: rupeeField(row.limitStart ?? row.limit_start),
+    limitEnd: rupeeField(row.limitEnd ?? row.limit_end),
   };
 }
 

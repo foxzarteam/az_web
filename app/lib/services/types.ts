@@ -4,6 +4,8 @@ export type ServiceSliderCard = {
   description: string;
   image: string;
   href: string;
+  limitStart?: number | null;
+  limitEnd?: number | null;
 };
 
 export type ServicesFetchStatus = "ok" | "error";
@@ -32,4 +34,8 @@ export type ApiServiceRow = {
   is_active?: boolean;
   sortOrder?: number;
   sort_order?: number;
+  limitStart?: number | null;
+  limitEnd?: number | null;
+  limit_start?: number | null;
+  limit_end?: number | null;
 };

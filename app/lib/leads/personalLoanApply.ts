@@ -20,6 +20,7 @@ export type PersonalLoanFormValues = {
 /** Client validation for personal loan apply forms (hero + product page). */
 export function validatePersonalLoanApplyForm(
   values: PersonalLoanFormValues,
+  bounds?: { min: number; max: number },
 ): LeadFieldErrors {
   const errors: LeadFieldErrors = validateLeadPanNameMobile({
     pan: values.pan,
@@ -30,11 +31,10 @@ export function validatePersonalLoanApplyForm(
   const pinErr = validateLeadPincode(values.pincode);
   if (pinErr) errors.pincode = pinErr;
 
-  if (
-    values.loanAmount < PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT ||
-    values.loanAmount > PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT
-  ) {
-    errors.loanAmt = `Loan amount must be between ₹${PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT.toLocaleString("en-IN")} and ₹${PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT.toLocaleString("en-IN")}`;
+  const minAmount = bounds?.min ?? PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT;
+  const maxAmount = bounds?.max ?? PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT;
+  if (values.loanAmount < minAmount || values.loanAmount > maxAmount) {
+    errors.loanAmt = `Loan amount must be between ₹${minAmount.toLocaleString("en-IN")} and ₹${maxAmount.toLocaleString("en-IN")}`;
   }
 
   if (

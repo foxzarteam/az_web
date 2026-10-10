@@ -22,6 +22,8 @@ const VIEW_FIELDS = [
   "description",
   "sort_order",
   "is_active",
+  "limit_start",
+  "limit_end",
   "created_at",
   "updated_at",
 ] as const;
@@ -32,11 +34,21 @@ const FIELD_LABELS: Record<string, string> = {
   description: "Description",
   sort_order: "Sort order",
   is_active: "Active",
+  limit_start: "Limit start",
+  limit_end: "Limit end",
   created_at: "Created",
   updated_at: "Updated",
 };
 
+function rupeeText(value: unknown): string {
+  if (value == null || value === "") return "—";
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "—";
+  return `₹${n.toLocaleString("en-IN")}`;
+}
+
 function formatValue(key: string, value: unknown): string {
+  if (key === "limit_start" || key === "limit_end") return rupeeText(value);
   if (value == null || value === "") return "—";
   if (typeof value === "boolean") return value ? "Yes" : "No";
   const s = String(value);
@@ -69,6 +81,8 @@ type EditForm = {
   description: string;
   sortOrder: string;
   isActive: boolean;
+  limitStart: string;
+  limitEnd: string;
 };
 
 function serviceToEditForm(row: AdminServiceRow): EditForm {
@@ -78,7 +92,18 @@ function serviceToEditForm(row: AdminServiceRow): EditForm {
     description: String(row.description ?? ""),
     sortOrder: row.sort_order != null ? String(row.sort_order) : "0",
     isActive: row.is_active !== false,
+    limitStart: row.limit_start != null && row.limit_start !== "" ? String(row.limit_start) : "",
+    limitEnd: row.limit_end != null && row.limit_end !== "" ? String(row.limit_end) : "",
   };
+}
+
+function parseLimitField(raw: string): number | null | "invalid" {
+  const text = raw.trim();
+  if (!text) return null;
+  if (!/^\d+$/.test(text)) return "invalid";
+  const n = Number(text);
+  if (!Number.isInteger(n) || n > 100_00_00_000) return "invalid";
+  return n;
 }
 
 export default function ServicesTable({
@@ -134,12 +159,27 @@ export default function ServicesTable({
     setSaving(true);
     setError(null);
 
+    const limitStart = parseLimitField(editForm.limitStart);
+    const limitEnd = parseLimitField(editForm.limitEnd);
+    if (limitStart === "invalid" || limitEnd === "invalid") {
+      setError("Limit start and end must be whole rupee amounts.");
+      setSaving(false);
+      return;
+    }
+    if ((limitStart == null) !== (limitEnd == null) || (limitStart != null && limitEnd != null && limitEnd < limitStart)) {
+      setError("Set both limit start and limit end, and keep end at or above start.");
+      setSaving(false);
+      return;
+    }
+
     const payload = {
       title: editForm.title.trim(),
       slug: editForm.slug.trim(),
       description: editForm.description.trim(),
       sortOrder: Number(editForm.sortOrder) || 0,
       isActive: editForm.isActive,
+      limitStart,
+      limitEnd,
     };
 
     try {
@@ -243,6 +283,17 @@ export default function ServicesTable({
         ),
       },
       {
+        id: "limit",
+        header: "Limit",
+        sortable: true,
+        sortValue: (row) => Number(row.limit_start ?? 0),
+        searchValue: (row) => `${rupeeText(row.limit_start)} ${rupeeText(row.limit_end)}`,
+        cell: (row) =>
+          row.limit_start == null || row.limit_end == null
+            ? "—"
+            : `${rupeeText(row.limit_start)} – ${rupeeText(row.limit_end)}`,
+      },
+      {
         id: "created_at",
         header: "Created date",
         sortable: true,
@@ -335,6 +386,26 @@ export default function ServicesTable({
               <label className="block sm:col-span-2">
                 <span className={ADMIN_LABEL}>Description</span>
                 <textarea className={inputClass} rows={4} value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} required />
+              </label>
+              <label className="block">
+                <span className={ADMIN_LABEL}>Limit start (₹)</span>
+                <input
+                  inputMode="numeric"
+                  className={inputClass}
+                  value={editForm.limitStart}
+                  placeholder="25000"
+                  onChange={(e) => setEditForm({ ...editForm, limitStart: e.target.value.replace(/\D/g, "") })}
+                />
+              </label>
+              <label className="block">
+                <span className={ADMIN_LABEL}>Limit end (₹)</span>
+                <input
+                  inputMode="numeric"
+                  className={inputClass}
+                  value={editForm.limitEnd}
+                  placeholder="5000000"
+                  onChange={(e) => setEditForm({ ...editForm, limitEnd: e.target.value.replace(/\D/g, "") })}
+                />
               </label>
               <label className="flex items-center gap-2 sm:col-span-2">
                 <input

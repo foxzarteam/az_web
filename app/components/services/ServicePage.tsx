@@ -23,6 +23,8 @@ import {
   personalLoanApplyPayload,
   validatePersonalLoanApplyForm,
 } from "@/app/lib/leads/personalLoanApply";
+import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
+import { productHrefToSlug } from "@/app/lib/services/allowedProducts";
 import { useInsuranceTypeOptions } from "@/app/lib/services/useInsuranceTypeOptions";
 import InsuranceTypeSelect from "@/app/components/leads/InsuranceTypeSelect";
 import {
@@ -108,6 +110,14 @@ export default function ServicePage({
   const service = pageServiceSlug;
   const selectedCategory = mapServiceToCategory(service);
   const showLoanAmount = selectedCategory === "personal_loan";
+  const cards = useServiceCards();
+  const loanBounds = useMemo(() => {
+    const card = cards.find((item) => productHrefToSlug(item.href) === "personal-loan");
+    const min = card?.limitStart;
+    const max = card?.limitEnd;
+    if (min == null || max == null || max < min) return undefined;
+    return { min, max };
+  }, [cards]);
   const showInsuranceType = selectedCategory === "insurance";
   const insuranceTypeOptions = useInsuranceTypeOptions();
 
@@ -116,6 +126,14 @@ export default function ServicePage({
     setNetMonthlyIncome("");
     setLoanAmount(DEFAULT_LOAN_AMOUNT);
   }, [pageServiceSlug]);
+
+  useEffect(() => {
+    if (!loanBounds) return;
+    setLoanAmount((current) => {
+      if (current >= loanBounds.min && current <= loanBounds.max) return current;
+      return Math.min(loanBounds.max, Math.max(loanBounds.min, current || DEFAULT_LOAN_AMOUNT));
+    });
+  }, [loanBounds]);
 
   const handleSubmit = async (form: HTMLFormElement) => {
     if (isSubmittingForm) return;
@@ -147,7 +165,7 @@ export default function ServicePage({
           loanAmount,
           loanTenureMonths: loanTenure,
           netMonthlyIncome,
-        }),
+        }, loanBounds),
       );
     }
     if (showInsuranceType && !insType.trim()) errors.insType = "Please select insurance type";
@@ -418,6 +436,7 @@ export default function ServicePage({
                         id="service-loan-amount"
                         value={loanAmount}
                         onChange={setLoanAmount}
+                        max={loanBounds?.max}
                         required
                       />
                       <EmploymentIncomeFields
