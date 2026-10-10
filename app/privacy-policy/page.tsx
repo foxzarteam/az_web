@@ -57,7 +57,7 @@ export default function PrivacyPolicyPage() {
         <div className="container mx-auto max-w-5xl">
           <div className="rounded-2xl border border-border bg-white p-6 shadow-sm dark:border-dark_border dark:bg-darklight sm:p-10 lg:p-12">
             <p className="mb-6 inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary sm:mb-8 sm:px-4 sm:text-sm">
-              Last update: August 2026
+              Last update: October 2026
             </p>
             <div className="space-y-10 text-base leading-relaxed text-midnight_text dark:text-gray-200 sm:space-y-12 sm:text-[17px]">
               <Section title="1. Introduction">
@@ -111,6 +111,14 @@ export default function PrivacyPolicyPage() {
                     usage logs. This is collected automatically to enhance platform security,
                     prevent fraud, and comply with Google Play Store data safety guidelines.
                   </li>
+                  <li>
+                    <span className="font-semibold text-midnight_text dark:text-white">
+                      Campaign measurement:
+                    </span>{" "}
+                    We may use Google Ads and Meta Pixel (or Google Tag Manager) only to measure
+                    our own advertising campaigns. We do not display third-party advertisements on
+                    this website.
+                  </li>
                 </ul>
                 <p>
                   <span className="font-semibold text-midnight_text dark:text-white">Note:</span>{" "}
@@ -139,6 +147,10 @@ export default function PrivacyPolicyPage() {
                   <li>
                     To prevent fraudulent activities, unauthorized access, and ensure compliance
                     with Anti-Money Laundering (AML) laws.
+                  </li>
+                  <li>
+                    To measure our own Google Ads and Meta campaigns (for example a successful
+                    application), so we can improve how we reach people who need loans or insurance.
                   </li>
                 </ul>
               </Section>

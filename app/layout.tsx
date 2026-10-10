@@ -21,7 +21,6 @@ import LoanHelperChatLazy from "./components/loan-helper/LoanHelperChatLazy";
 import WhatsAppFloat from "./components/whatsapp/WhatsAppFloat";
 import PartnerRefSession from "./components/affiliate/PartnerRefSession";
 import GoogleMarketingTags from "./components/seo/GoogleMarketingTags";
-import { PUBLIC_GTM_ID } from "./config/publicEnv";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -120,17 +119,12 @@ export default async function RootLayout({
   return (
     <html lang="en-IN" suppressHydrationWarning className="min-h-[100dvh]">
       <body className={`${dmSans.className} min-h-[100dvh] min-w-0`} suppressHydrationWarning>
-        {PUBLIC_GTM_ID ? (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${PUBLIC_GTM_ID}`}
-              height="0"
-              width="0"
-              className="hidden"
-              title="Google Tag Manager"
-            />
-          </noscript>
-        ) : null}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-[100] focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-midnight_text"
+        >
+          Skip to main content
+        </a>
         <GoogleMarketingTags />
         <ThemeProvider
           attribute="class"
@@ -138,7 +132,6 @@ export default async function RootLayout({
           enableSystem={false}
           enableColorScheme={false}
           disableTransitionOnChange
-          nonce=""
         >
           <AosInit>
             <Suspense fallback={null}>

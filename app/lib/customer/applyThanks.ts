@@ -1,7 +1,14 @@
 import {
   PUBLIC_ADS_CONVERSION_LABEL,
   PUBLIC_GOOGLE_ADS_ID,
+  PUBLIC_GTM_ID,
+  PUBLIC_META_PIXEL_ID,
 } from "@/app/config/publicEnv";
+import {
+  claimApplyConversion,
+  shouldFireAdsGtag,
+  shouldFireMetaLead,
+} from "@/app/lib/campaignTracking";
 
 const KEY = "az_apply_thanks";
 
@@ -25,16 +32,32 @@ export function stashApplyThanks(payload: ApplyThanksPayload): void {
 
 function trackApplyConversion(product: string): void {
   if (typeof window === "undefined") return;
+  if (!claimApplyConversion(product, window.sessionStorage)) return;
   const w = window as Window & {
     dataLayer?: Record<string, unknown>[];
     gtag?: (...args: unknown[]) => void;
+    fbq?: (...args: unknown[]) => void;
   };
   w.dataLayer = w.dataLayer || [];
   w.dataLayer.push({ event: "apply_success", product });
-  const ads = PUBLIC_GOOGLE_ADS_ID;
-  const label = PUBLIC_ADS_CONVERSION_LABEL;
-  if (ads && label && typeof w.gtag === "function") {
-    w.gtag("event", "conversion", { send_to: `${ads}/${label}` });
+  if (
+    shouldFireAdsGtag({
+      gtmId: PUBLIC_GTM_ID,
+      adsId: PUBLIC_GOOGLE_ADS_ID,
+      label: PUBLIC_ADS_CONVERSION_LABEL,
+      gtagReady: typeof w.gtag === "function",
+    })
+  ) {
+    w.gtag?.("event", "conversion", { send_to: `${PUBLIC_GOOGLE_ADS_ID}/${PUBLIC_ADS_CONVERSION_LABEL}` });
+  }
+  if (
+    shouldFireMetaLead({
+      gtmId: PUBLIC_GTM_ID,
+      pixelId: PUBLIC_META_PIXEL_ID,
+      fbqReady: typeof w.fbq === "function",
+    })
+  ) {
+    w.fbq?.("track", "Lead");
   }
 }
 

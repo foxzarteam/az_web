@@ -122,14 +122,14 @@ function IconOnline() {
 
 export const FEATURE_CARDS: FeatureCard[] = [
   {
-    title: "Lowest Interest",
-    description: "Get lower interest rates that make your EMI easy to pay.",
+    title: "Competitive rates",
+    description: "Compare partner offers and choose an EMI that fits your budget. Rates vary by lender and profile.",
     icon: <IconPercent />,
     iconWrapClass: "bg-[#FFF1E7] text-[#F97316]",
   },
   {
     title: "Quick Approval",
-    description: "Get approval in minutes and get funds in 24 hours*.",
+    description: "Digital applications with partner lenders. Approval and disbursal timelines vary by lender.",
     icon: <IconRocket />,
     iconWrapClass: "bg-[#E7F8F1] text-[#10B981]",
   },

@@ -51,7 +51,8 @@ const LoanHelperChat = dynamic(
 
 /**
  * Global chat must not download on first paint.
- * Lightweight FAB only; full widget loads after click, first interaction, or idle.
+ * FAB only until the visitor opens it — scroll/idle load was pulling the widget
+ * during Lighthouse and inflating TBT.
  */
 export default function LoanHelperChatLazy() {
   const pathname = usePathname();
@@ -64,38 +65,11 @@ export default function LoanHelperChatLazy() {
   }, []);
 
   useEffect(() => {
-    if (ready || hidePublicChrome(pathname)) return;
-
-    const onInteract = () => loadChat(false);
-    const events: Array<keyof WindowEventMap> = [
-      "pointerdown",
-      "keydown",
-      "scroll",
-      "touchstart",
-    ];
-    for (const event of events) {
-      window.addEventListener(event, onInteract, { once: true, passive: true });
+    if (hidePublicChrome(pathname)) {
+      setReady(false);
+      setOpenOnLoad(false);
     }
-
-    let idleId = 0;
-    let timeoutId = 0;
-    const ric = window.requestIdleCallback;
-    if (typeof ric === "function") {
-      idleId = ric(() => loadChat(false), { timeout: 5000 });
-    } else {
-      timeoutId = window.setTimeout(() => loadChat(false), 5000);
-    }
-
-    return () => {
-      for (const event of events) {
-        window.removeEventListener(event, onInteract);
-      }
-      if (idleId && typeof window.cancelIdleCallback === "function") {
-        window.cancelIdleCallback(idleId);
-      }
-      if (timeoutId) window.clearTimeout(timeoutId);
-    };
-  }, [loadChat, pathname, ready]);
+  }, [pathname]);
 
   if (hidePublicChrome(pathname)) return null;
   if (!ready) {

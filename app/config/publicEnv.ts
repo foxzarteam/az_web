@@ -168,3 +168,6 @@ export const PUBLIC_ADS_CONVERSION_LABEL = marketingId(
   process.env.NEXT_PUBLIC_ADS_CONVERSION_LABEL ?? "",
   /^[A-Za-z0-9_-]+$/,
 );
+
+/** Optional Meta Pixel ID for our own ads (digits only). Skip if GTM already fires the pixel. */
+export const PUBLIC_META_PIXEL_ID = marketingId(process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "", /^\d{8,20}$/);
