@@ -43,12 +43,9 @@ export default function AboutPage() {
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               Your trusted financial partner
             </span>
-            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 sm:mb-4">
+            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-bold text-white">
               About Us
             </h1>
-            <p className="text-white/90 text-base sm:text-lg max-w-2xl mx-auto">
-              Trusted partner for personal loans and insurance across India.
-            </p>
           </div>
         </div>
       </div>

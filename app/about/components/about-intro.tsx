@@ -41,19 +41,6 @@ const FEATURES = [
       </svg>
     ),
   },
-  {
-    title: "Transparent",
-    description: "No hidden charges, no surprises",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden>
-        <circle cx="9" cy="8.5" r="3" fill="currentColor" opacity="0.2" />
-        <circle cx="9" cy="8.5" r="3" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M3.5 19c.6-3 2.9-4.5 5.5-4.5s4.9 1.5 5.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="16.5" cy="9.5" r="2.4" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M15.5 14.7c2.4.2 4.4 1.6 5 4.3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
-  },
 ];
 
 export default function AboutIntro() {
@@ -71,17 +58,17 @@ export default function AboutIntro() {
             <h2 className="mt-2 max-w-full font-bold !leading-[1.25] text-midnight_text dark:text-white !text-[clamp(1.125rem,4.8vw+0.25rem,2.75rem)]">
               <span className="block whitespace-nowrap">We Are Here to Simplify</span>
               <span className="mt-1 block whitespace-nowrap sm:mt-1.5">
-                Your <span className="theme-gradient-text">Loan Journey</span>
+                Your <span className="theme-gradient-text">Financial Journey</span>
               </span>
             </h2>
 
             <p className="mt-4 max-w-xl text-sm leading-relaxed text-gray sm:mt-5 sm:text-base">
-              Apni Zaroorat connects you with trusted partners for the right{" "}
+              Apni Zaroorat connects you with trusted partners for any right{" "}
               <Link
-                href="/products/personal-loan/"
+                href="/products/loans/"
                 className="font-semibold text-primary hover:underline"
               >
-                personal loan
+                loan
               </Link>{" "}
               — easy, transparent and secure. We also help you apply for{" "}
               <Link
@@ -93,7 +80,7 @@ export default function AboutIntro() {
               cover for life, health and motor, all in one simple online process.
             </p>
 
-            <div className="mt-6 grid grid-cols-3 gap-2 sm:mt-8 sm:gap-3">
+            <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-8 sm:gap-3">
               {FEATURES.map((feature) => (
                 <div
                   key={feature.title}
@@ -120,7 +107,7 @@ export default function AboutIntro() {
           >
             <Image
               src="/images/hero/about.webp"
-              alt="Apni Zaroorat - simplifying your loan journey"
+              alt="Apni Zaroorat - simplifying your financial journey"
               width={696}
               height={848}
               className="block h-auto w-full max-w-[320px] object-contain sm:min-w-0 sm:flex-1 sm:max-w-none"

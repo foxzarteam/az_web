@@ -20,63 +20,13 @@ DROP FUNCTION IF EXISTS public.set_updated_at();
 CREATE OR REPLACE FUNCTION public.claim_mobile_pan_slot(p_mobile text, p_pan_hash text) RETURNS jsonb
     LANGUAGE plpgsql
     AS $$
-DECLARE
-  v_mobile text := btrim(COALESCE(p_mobile, ''));
-  v_hash text := btrim(COALESCE(p_pan_hash, ''));
-  v_existing smallint;
-  v_used integer;
-  v_slot smallint;
 BEGIN
-  IF v_mobile = '' OR v_hash = '' THEN
-    RETURN jsonb_build_object('ok', true, 'skipped', true);
-  END IF;
-
-  -- Serialize claims for this mobile so two new PANs cannot both take slot 4.
-  PERFORM pg_advisory_xact_lock(hashtext('lead_mobile_pan:' || v_mobile));
-
-  SELECT slot INTO v_existing
-  FROM public.lead_mobile_pan_slots
-  WHERE mobile_number = v_mobile
-    AND pan_hash = v_hash;
-
-  IF FOUND THEN
-    RETURN jsonb_build_object('ok', true, 'reused', true, 'slot', v_existing);
-  END IF;
-
-  SELECT COUNT(*)::integer INTO v_used
-  FROM public.lead_mobile_pan_slots
-  WHERE mobile_number = v_mobile;
-
-  IF v_used >= 4 THEN
-    RAISE EXCEPTION 'MOBILE_PAN_LIMIT_REACHED'
-      USING ERRCODE = 'P0001';
-  END IF;
-
-  SELECT s.slot
-  INTO v_slot
-  FROM generate_series(1, 4) AS s(slot)
-  WHERE NOT EXISTS (
-    SELECT 1
-    FROM public.lead_mobile_pan_slots x
-    WHERE x.mobile_number = v_mobile
-      AND x.slot = s.slot
-  )
-  ORDER BY s.slot
-  LIMIT 1;
-
-  IF v_slot IS NULL THEN
-    RAISE EXCEPTION 'MOBILE_PAN_LIMIT_REACHED'
-      USING ERRCODE = 'P0001';
-  END IF;
-
-  INSERT INTO public.lead_mobile_pan_slots (mobile_number, pan_hash, slot)
-  VALUES (v_mobile, v_hash, v_slot);
-
-  RETURN jsonb_build_object('ok', true, 'reused', false, 'slot', v_slot);
+  -- Apply limits are enforced in the API by mobile + product, not by PAN count.
+  RETURN jsonb_build_object('ok', true, 'skipped', true);
 END;
 $$;
 
-COMMENT ON FUNCTION public.claim_mobile_pan_slot(p_mobile text, p_pan_hash text) IS 'Idempotent: links pan_hash to mobile in the next free slot 1-4, or reuses an existing row.';
+COMMENT ON FUNCTION public.claim_mobile_pan_slot(p_mobile text, p_pan_hash text) IS 'No-op. One mobile may apply once per product; that rule lives in the API, not in PAN slots.';
 
 CREATE OR REPLACE FUNCTION public.create_wallet_on_user_insert() RETURNS trigger
     LANGUAGE plpgsql SECURITY DEFINER
@@ -679,8 +629,6 @@ CREATE INDEX IF NOT EXISTS idx_users_mobile_number ON public.users USING btree (
 CREATE INDEX IF NOT EXISTS idx_wallet_user_id ON public.wallet USING btree (user_id);
 
 CREATE INDEX IF NOT EXISTS lead_mobile_pan_slots_mobile_idx ON public.lead_mobile_pan_slots USING btree (mobile_number);
-
-CREATE UNIQUE INDEX IF NOT EXISTS leads_pan_hash_product_open_uidx ON public.leads USING btree (pan_hash, category, COALESCE(ins_type, ''::character varying)) WHERE ((is_active IS TRUE) AND (pan_hash IS NOT NULL) AND (pan_hash <> ''::text) AND (lower((COALESCE(status, 'pending'::character varying))::text) <> 'approved'::text));
 
 CREATE INDEX IF NOT EXISTS pan_access_audit_admin_email_idx ON public.pan_access_audit USING btree (admin_email, created_at DESC);
 

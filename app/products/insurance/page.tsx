@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import ServicePage from "@/app/components/services/ServicePage";
 import HowItWorks from "@/app/components/products/insurance/HowItWorks";
 import InsuranceCategories from "@/app/components/products/insurance/InsuranceCategories";
+import { InsuranceSelectionProvider } from "@/app/components/products/insurance/insuranceSelection";
 import FaqSection from "@/app/components/home/faq";
 import { INSURANCE_FAQ_ITEMS } from "@/app/components/home/faq/faq-data";
 import JsonLd from "@/app/components/seo/JsonLd";
@@ -12,9 +13,9 @@ import {
   pageSeoGlue,
 } from "@/app/lib/seo";
 
-const PAGE_TITLE = "Insurance Online in India | Apni Zaroorat";
+const PAGE_TITLE = "Secure Insurance Plans & Coverage Options | Apni Zaroorat";
 const PAGE_DESC =
-  "Compare and apply for life, health and motor insurance online with Apni Zaroorat. Find suitable cover and complete a guided digital application.";
+  "Find life, health and motor insurance options with Apni Zaroorat. Review available coverage options and get started with a guided online application.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: PAGE_TITLE,
@@ -52,32 +53,18 @@ export default function InsurancePage() {
   return (
     <>
       <JsonLd data={structuredData} />
-      <section className="pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 text-white px-4 sm:px-6 theme-gradient-bg">
-        <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md max-w-full">
-          <div className="max-w-3xl mx-auto text-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 text-[10px] sm:text-xs font-semibold px-3 sm:px-4 py-1 mb-3 sm:mb-4 border border-white/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              Protect what matters most
-            </span>
-            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-3 text-white">
-              Insurance
-            </h1>
-            <p className="text-sm sm:text-base md:text-lg text-white/90 leading-relaxed">
-              Get the right insurance cover with competitive premiums from partner insurers.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <ServicePage
-        title="Insurance"
-        subtitle="Get the right insurance cover with competitive premiums from partner insurers."
-        imageSrc="/images/service/insurance.webp"
-        badge="Protect what matters most"
-        hideHeader
-      />
-
-      <InsuranceCategories />
+      <h1 className="sr-only">Insurance</h1>
+      <InsuranceSelectionProvider>
+        <ServicePage
+          title="Insurance"
+          subtitle="Get the right insurance cover with competitive premiums from partner insurers."
+          imageSrc="/images/service/insurance.webp"
+          badge="Protect what matters most"
+          hideHeader
+          navBorder
+        />
+        <InsuranceCategories />
+      </InsuranceSelectionProvider>
       <HowItWorks />
       <FaqSection items={INSURANCE_FAQ_ITEMS} />
     </>

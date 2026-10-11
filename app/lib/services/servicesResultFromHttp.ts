@@ -1,12 +1,13 @@
 import {
   fallbackInsuranceTypes,
   parseInsuranceTypesPayload,
+  parseLoanProducts,
   parseServicesApiPayload,
 } from "@/app/lib/services/parseApiResponse";
 import type { FetchActiveServicesResult } from "@/app/lib/services/types";
 
 export function catalogFetchError(): FetchActiveServicesResult {
-  return { cards: [], insuranceTypes: fallbackInsuranceTypes(), status: "error" };
+  return { cards: [], insuranceTypes: fallbackInsuranceTypes(), loanProducts: [], status: "error" };
 }
 
 /**
@@ -36,6 +37,7 @@ export function servicesResultFromHttp(
   return {
     cards: parseServicesApiPayload(parsed),
     insuranceTypes: parseInsuranceTypesPayload(parsed),
+    loanProducts: parseLoanProducts(parsed),
     status: "ok",
   };
 }

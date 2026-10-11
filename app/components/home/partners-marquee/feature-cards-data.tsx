@@ -4,8 +4,6 @@ export type FeatureCard = {
   title: string;
   description: string;
   icon: ReactNode;
-  /** Literal Tailwind classes so the JIT scanner picks them up */
-  iconWrapClass: string;
 };
 
 const iconClass = "h-7 w-7 sm:h-8 sm:w-8";
@@ -83,28 +81,6 @@ function IconShieldLock() {
   );
 }
 
-function IconShieldHeart() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>
-      <path
-        d="M12 3 5 6v6c0 4.2 2.9 7.9 7 9 4.1-1.1 7-4.8 7-9V6l-7-3Z"
-        fill="currentColor"
-        opacity="0.15"
-      />
-      <path
-        d="M12 3 5 6v6c0 4.2 2.9 7.9 7 9 4.1-1.1 7-4.8 7-9V6l-7-3Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M12 13.5c-1.5-1.2-3-2.4-3-3.8a1.8 1.8 0 0 1 3-1.2 1.8 1.8 0 0 1 3 1.2c0 1.4-1.5 2.6-3 3.8Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
 function IconOnline() {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>
@@ -122,39 +98,28 @@ function IconOnline() {
 
 export const FEATURE_CARDS: FeatureCard[] = [
   {
-    title: "Competitive rates",
-    description: "Compare partner offers and choose an EMI that fits your budget. Rates vary by lender and profile.",
-    icon: <IconPercent />,
-    iconWrapClass: "bg-[#FFF1E7] text-[#F97316]",
-  },
-  {
-    title: "Quick Approval",
-    description: "Digital applications with partner lenders. Approval and disbursal timelines vary by lender.",
+    title: "Quick Apply",
+    description: "Fill a short form in a few minutes\nand send your request online.",
     icon: <IconRocket />,
-    iconWrapClass: "bg-[#E7F8F1] text-[#10B981]",
   },
   {
-    title: "Minimal Documentation",
-    description: "Paperless process with minimal documentation.",
+    title: "Few Documents",
+    description: "Share only a few basic details\nfor your loan or insurance request.",
     icon: <IconDocsCheck />,
-    iconWrapClass: "bg-[#EEF0FF] text-[#4236FB]",
   },
   {
     title: "Safe & Secure",
-    description: "Your personal information stays safe and private with us.",
+    description: "Your details stay private with us\nand are used only for your request.",
     icon: <IconShieldLock />,
-    iconWrapClass: "bg-[#E8F6FE] text-[#0EA5E9]",
   },
   {
-    title: "No Hidden Charges",
-    description: "100% Transparent process with no hidden charges.",
-    icon: <IconShieldHeart />,
-    iconWrapClass: "bg-[#FEF5E7] text-[#F59E0B]",
+    title: "No Hidden Fees",
+    description: "The application form is free to fill.\nWe do not charge you to apply.",
+    icon: <IconPercent />,
   },
   {
-    title: "100% Online",
-    description: "Apply anytime, anywhere with zero paperwork.",
+    title: "Fully Online",
+    description: "Start on your phone or laptop and\nsend your request when you are ready.",
     icon: <IconOnline />,
-    iconWrapClass: "bg-[#F3EEFF] text-[#8B5CF6]",
   },
 ];

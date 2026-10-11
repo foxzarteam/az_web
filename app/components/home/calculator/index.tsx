@@ -63,7 +63,7 @@ export default function Calculator() {
   return (
     <section
       id="emi-calculator"
-      className="w-full min-w-0 bg-white py-10 dark:bg-semidark sm:py-12 md:py-14"
+      className="w-full min-w-0 bg-white py-16 dark:bg-semidark sm:py-20 md:py-24"
       aria-labelledby="emi-calculator-heading"
     >
       <div
@@ -72,22 +72,22 @@ export default function Calculator() {
       >
         <div className="grid w-full min-w-0 grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-2 lg:gap-10">
         <div
-          className="flex min-w-0 w-full flex-col items-start justify-center gap-4 text-left lg:py-2"
+          className="flex min-w-0 w-full flex-col items-start justify-start gap-4 text-left"
           data-aos="fade-right"
         >
-          <div className="w-full min-w-0">
+          <div className="mb-5 w-full min-w-0 sm:mb-7">
             <h2
               id="emi-calculator-heading"
-              className="mb-3 text-lg font-bold text-midnight_text dark:text-white sm:mb-4 sm:text-xl md:text-2xl lg:text-3xl"
+              className="mb-1 text-lg font-bold text-midnight_text dark:text-white sm:text-xl md:text-2xl lg:text-3xl"
             >
-              Personal Loan EMI Calculator
+              Personal Loan <span className="theme-gradient-text">EMI Calculator</span>
             </h2>
-            <p className="text-sm leading-relaxed text-gray sm:text-base md:text-lg">
-              Know your monthly EMI before you apply. Adjust amount, rate and tenure to see interest and total repayment.
+            <p className="text-sm leading-snug text-gray sm:text-base md:text-lg">
+              Know your monthly EMI and total repayment before you apply.
             </p>
           </div>
 
-          <div className="order-2 grid w-full grid-cols-2 gap-2.5 sm:gap-3 md:order-none">
+          <div className="mb-4 grid w-full grid-cols-2 gap-x-2.5 gap-y-5 sm:mb-5 sm:gap-x-3 sm:gap-y-6">
             {[
               { label: "Monthly EMI", value: formatRupee(emi) },
               { label: "Principal amount", value: formatRupee(principal) },
@@ -96,19 +96,21 @@ export default function Calculator() {
             ].map((card) => (
               <div
                 key={card.label}
-                className="theme-gradient-bg min-w-0 rounded-2xl px-3.5 py-2 text-white shadow-[0_8px_20px_rgba(66,54,251,0.22)] sm:px-4 sm:py-2.5"
+                className="theme-gradient-bg min-w-0 rounded-2xl p-px shadow-[0_6px_16px_rgba(66,54,251,0.12)]"
               >
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-white/80 sm:text-[11px]">
-                  {card.label}
-                </p>
-                <p className="mt-0.5 truncate text-base font-bold tabular-nums text-white sm:text-lg">
-                  {card.value}
-                </p>
+                <div className="rounded-[15px] bg-[#EEF0FF] px-3.5 py-2 text-midnight_text sm:px-4 sm:py-2.5">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#4236FB] sm:text-[11px]">
+                    {card.label}
+                  </p>
+                  <p className="mt-0.5 truncate text-base font-bold tabular-nums text-midnight_text sm:text-lg">
+                    {card.value}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="order-1 flex w-full flex-col items-center md:order-none">
+          <div className="flex w-full flex-col items-center">
             <div className="relative h-48 w-48 xs:h-56 xs:w-56 sm:h-64 sm:w-64 md:h-72 md:w-72">
               <svg viewBox="0 0 200 200" className="h-full w-full -rotate-90">
                 <defs>
@@ -156,7 +158,7 @@ export default function Calculator() {
         </div>
 
         <div
-          className="flex min-w-0 w-full flex-col items-start justify-center lg:py-2"
+          className="flex min-w-0 w-full flex-col items-start justify-start"
           data-aos="fade-left"
         >
           <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-border bg-white shadow-lg dark:border-dark_border dark:bg-darklight">
@@ -329,7 +331,7 @@ export default function Calculator() {
                 type="button"
                 onClick={() => {
                   captureAffiliateCodeFromLocation();
-                  router.push("/products/personal-loan/");
+                  router.push("/products/loans/");
                 }}
                 className="btn-gradient btn-shine relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-6 py-3 text-sm font-bold text-white shadow-[0_8px_24px_rgba(66,54,251,0.3)] transition duration-300 sm:py-3.5 sm:text-base"
               >

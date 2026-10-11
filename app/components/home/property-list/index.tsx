@@ -61,17 +61,17 @@ export default function Listing() {
         </h2>
 
         <div className="flex flex-col gap-14 lg:gap-20">
-          {/* Personal loan: video left, copy right */}
+          {/* Loan: video left, copy right */}
           <div className="flex flex-col items-stretch gap-8 lg:flex-row lg:items-center lg:gap-12 xl:gap-16">
             <div className="w-full lg:w-1/2">
-              <ServiceVideo src="/vdo/loan.mp4" label="Personal loan promotional video" />
+              <ServiceVideo src="/vdo/loan.mp4" label="Loan promotional video" />
             </div>
             <div className="flex w-full flex-col justify-center gap-4 text-left lg:w-1/2">
               <h2
                 className="text-xl font-bold normal-case tracking-normal xs:text-2xl sm:text-3xl sm:uppercase sm:tracking-[0.06em] md:text-4xl"
                 style={{ color: COLORS.PRIMARY }}
               >
-                Personal loan
+                Loan
               </h2>
               <p className="text-base leading-relaxed text-slate-600 dark:text-slate-400 sm:text-lg">
                 Paperless process at low rate. Quick approval and funds disbursed with minimal
@@ -79,7 +79,7 @@ export default function Listing() {
               </p>
               <div className="flex justify-start">
                 <Link
-                  href="/products/personal-loan"
+                  href="/products/loans"
                   className={applyBtnClass}
                 >
                   <PlayIcon />

@@ -49,7 +49,7 @@ export default function NotFound() {
             Go to Home
           </Link>
           <Link
-            href="/products/personal-loan/"
+            href="/products/loans/"
             className="inline-flex min-h-12 min-w-[160px] items-center justify-center rounded-xl border border-slate-200 bg-white px-6 text-sm font-bold text-slate-800 shadow-sm transition hover:border-[#4236FB]/40 hover:text-[#4236FB] dark:border-dark_border dark:bg-darklight dark:text-white"
           >
             Personal Loan

@@ -114,8 +114,8 @@ export default function FaqSection({ items = FAQ_ITEMS, className = "" }: FaqSec
               <img
                 src="/images/hero/faq.webp"
                 alt="Frequently asked questions illustration"
-                width={320}
-                height={320}
+                width={900}
+                height={1125}
                 className="h-auto w-full object-contain"
               />
             </div>

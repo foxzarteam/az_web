@@ -12,7 +12,7 @@ type CtaBannerProps = {
 export default function CtaBanner({
   title = "Ready to Take the Next Step?",
   description = "Apply for a personal loan and get closer to your dreams.",
-  primaryHref = "/products/personal-loan",
+  primaryHref = "/products/loans",
   primaryLabel = "Apply for Personal Loan",
   secondaryHref = "/emi-calculator/",
   secondaryLabel = "Calculate EMI",

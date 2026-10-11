@@ -21,7 +21,27 @@ export const SITE_TREE: SiteTreeNode[] = [
         name: "Personal Loan",
         path: "/products/personal-loan",
         description:
-          "Apply for personal loan online up to ₹50 lakh — quick digital process with Apni Zaroorat.",
+          "Apply for a personal loan online up to ₹50 lakh — quick digital process with Apni Zaroorat.",
+      },
+      {
+        name: "Home Loan",
+        path: "/products/home-loan",
+        description: "Apply for a home loan online with Apni Zaroorat and partner lenders.",
+      },
+      {
+        name: "Car Loan",
+        path: "/products/car-loan",
+        description: "Apply for a car loan online with Apni Zaroorat and partner lenders.",
+      },
+      {
+        name: "Business Loan",
+        path: "/products/business-loan",
+        description: "Apply for a business loan online with Apni Zaroorat and partner lenders.",
+      },
+      {
+        name: "Loan",
+        path: "/products/loans",
+        description: "Apply for a loan online up to ₹50 lakh — quick digital process with Apni Zaroorat.",
       },
       {
         name: "Insurance",
@@ -101,7 +121,11 @@ function flattenSiteTree(nodes: SiteTreeNode[]): SiteTreeNode[] {
 export const INDEXABLE_ROUTES = [
   { path: "/", changeFrequency: "daily" as const, priority: 1 },
   { path: "/products", changeFrequency: "daily" as const, priority: 0.99 },
-  { path: "/products/personal-loan", changeFrequency: "daily" as const, priority: 0.98 },
+  { path: "/products/loans", changeFrequency: "daily" as const, priority: 0.98 },
+  { path: "/products/personal-loan", changeFrequency: "daily" as const, priority: 0.97 },
+  { path: "/products/home-loan", changeFrequency: "daily" as const, priority: 0.96 },
+  { path: "/products/car-loan", changeFrequency: "daily" as const, priority: 0.96 },
+  { path: "/products/business-loan", changeFrequency: "daily" as const, priority: 0.96 },
   { path: "/products/insurance", changeFrequency: "daily" as const, priority: 0.97 },
   { path: "/check-eligibility", changeFrequency: "daily" as const, priority: 0.96 },
   { path: "/emi-calculator", changeFrequency: "daily" as const, priority: 0.96 },

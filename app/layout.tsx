@@ -137,7 +137,11 @@ export default async function RootLayout({
             <Suspense fallback={null}>
               <PartnerRefSession />
             </Suspense>
-            <ServiceCardsProvider cards={catalog.cards} insuranceTypes={catalog.insuranceTypes}>
+            <ServiceCardsProvider
+              cards={catalog.cards}
+              insuranceTypes={catalog.insuranceTypes}
+              loanProducts={catalog.loanProducts}
+            >
               <Header />
               <div
                 id="main-content"

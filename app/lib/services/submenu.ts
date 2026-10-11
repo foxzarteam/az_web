@@ -1,18 +1,40 @@
 import type { ServiceSliderCard } from "@/app/lib/services/types";
+import { isIndividualLoanSlug } from "@/app/lib/services/allowedProducts";
 import type { SubmenuItem } from "@/app/types/layout/menu";
 
-/** Shown in nav/footer when the services API is unreachable. */
-export const FALLBACK_PRODUCT_SUBMENU: SubmenuItem[] = [
+/** Same loan page, separate URLs so each loan can be indexed. */
+const LOAN_ALIAS_MENU: SubmenuItem[] = [
   { label: "Personal Loan", href: "/products/personal-loan/", slug: "personal-loan" },
-  { label: "Insurance", href: "/products/insurance/", slug: "insurance" },
+  { label: "Home Loan", href: "/products/home-loan/", slug: "home-loan" },
+  { label: "Car Loan", href: "/products/car-loan/", slug: "car-loan" },
+  { label: "Business Loan", href: "/products/business-loan/", slug: "business-loan" },
 ];
 
-export function serviceCardsToSubmenu(cards: ServiceSliderCard[]): SubmenuItem[] {
-  const mapped = cards.map((c) => {
+/** Shown in nav/footer when the services API is unreachable. */
+const LOAN_MENU_ITEM: SubmenuItem = { label: "Loan", href: "/products/loans/", slug: "loans" };
+const INSURANCE_MENU_ITEM: SubmenuItem = { label: "Insurance", href: "/products/insurance/", slug: "insurance" };
+
+export const FALLBACK_PRODUCT_SUBMENU: SubmenuItem[] = [
+  ...LOAN_ALIAS_MENU,
+  INSURANCE_MENU_ITEM,
+];
+
+export function serviceCardsToSubmenu(cards: ServiceSliderCard[], includeLoanHub = false): SubmenuItem[] {
+  const mapped = cards.flatMap((c) => {
     const slug =
       c.href.replace(/^\/products\//, "").replace(/\/$/, "") || undefined;
+    if (slug && (isIndividualLoanSlug(slug) || slug === "loans" || slug === "insurance")) return [];
     const href = c.href.endsWith("/") || c.href.includes("#") ? c.href : `${c.href}/`;
-    return { label: c.title, href, slug };
+    return [{ label: c.title, href, slug }];
   });
-  return mapped.length > 0 ? mapped : FALLBACK_PRODUCT_SUBMENU;
+  const insuranceFromApi = cards.find((c) => c.href.replace(/\/+$/, "").endsWith("/insurance"));
+  const insurance = insuranceFromApi
+    ? {
+        label: insuranceFromApi.title || INSURANCE_MENU_ITEM.label,
+        href: "/products/insurance/",
+        slug: "insurance",
+      }
+    : INSURANCE_MENU_ITEM;
+  const loans = includeLoanHub ? [...LOAN_ALIAS_MENU, LOAN_MENU_ITEM] : LOAN_ALIAS_MENU;
+  return [...loans, insurance, ...mapped];
 }

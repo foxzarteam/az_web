@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { CONTACT, PUBLIC_SITE_URL, SOCIAL_LINKS } from "@/app/config/constants";
 import { PUBLIC_GOOGLE_MAPS_DIRECTIONS_URL } from "@/app/config/publicEnv";
-import { SITE_TREE, SITELINK_PAGES } from "@/app/lib/seo-site-tree";
+import { SITELINK_PAGES } from "@/app/lib/seo-site-tree";
 
 export type { SiteTreeNode } from "@/app/lib/seo-site-tree";
 export { INDEXABLE_ROUTES, SITE_TREE, SITELINK_PAGES } from "@/app/lib/seo-site-tree";
@@ -10,7 +10,7 @@ export { INDEXABLE_ROUTES, SITE_TREE, SITELINK_PAGES } from "@/app/lib/seo-site-
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-10-10";
+export const SEO_CONTENT_VERSION = "2026-10-11";
 
 /** Official social profiles — wired to Organization sameAs + footer + AEO/GEO docs. */
 export const SOCIAL_PROFILES = [
@@ -327,7 +327,7 @@ export function serviceCatalogJsonLd() {
           name: "Personal Loan",
           description:
             "Personal loans from Rs 25,000 to Rs 50 lakh with online application.",
-          url: absoluteSeoUrl("/products/personal-loan"),
+          url: absoluteSeoUrl("/products/loans"),
           provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
         },
       },
@@ -406,11 +406,11 @@ export function financialServiceJsonLd(input: {
 export function personalLoanProductJsonLd() {
   return {
     "@type": "LoanOrCredit",
-    "@id": `${absoluteSeoUrl("/products/personal-loan")}#loan`,
+    "@id": `${absoluteSeoUrl("/products/loans")}#loan`,
     name: "Personal Loan",
     description:
       "Unsecured personal loan online from Rs 25,000 to Rs 50 lakh via Apni Zaroorat partner lenders.",
-    url: absoluteSeoUrl("/products/personal-loan"),
+    url: absoluteSeoUrl("/products/loans"),
     provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
     areaServed: { "@type": "Country", name: "India" },
     currency: "INR",

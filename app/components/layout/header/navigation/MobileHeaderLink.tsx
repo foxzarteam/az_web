@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { HeaderItem } from "@/app/types/layout/menu";
-import { serviceSubmenuGradient } from "./serviceSubmenuUi";
 import ServiceSubmenuIcon from "./ServiceSubmenuIcon";
 
 export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; onClose: () => void }) {
@@ -52,7 +51,6 @@ export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; 
           {submenuOpen && item.submenu && (
             <div className="bg-white dark:bg-darkmode py-2 px-3 w-full space-y-1">
               {item.submenu.map((subItem) => {
-                const gradient = serviceSubmenuGradient(subItem);
                 const active = normalizePath(subItem.href) === current;
                 return (
                   <Link
@@ -63,11 +61,7 @@ export default function MobileHeaderLink({ item, onClose }: { item: HeaderItem; 
                       active ? "btn-gradient text-white" : "text-midnight_text dark:text-gray hover:bg-light dark:hover:bg-semidark"
                     }`}
                   >
-                    <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} ${
-                        active ? "ring-2 ring-white/30" : ""
-                      }`}
-                    >
+                    <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white">
                       <ServiceSubmenuIcon item={subItem} />
                     </div>
                     <span className="font-semibold">{subItem.label}</span>

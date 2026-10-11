@@ -217,7 +217,7 @@ function PurposeCard({ purpose }: { purpose: LoanPurpose }) {
         </div>
       </div>
       <p className="text-[10px] font-semibold uppercase tracking-wide text-gray sm:text-[11px]">
-        Personal Loan for
+        Loan for
       </p>
       <h3 className="mt-0.5 !text-sm font-bold leading-snug !text-midnight_text dark:!text-white sm:!text-base">
         {purpose.title}
@@ -255,7 +255,7 @@ export default function LoanPurposes() {
             id="loan-purposes-heading"
             className="mt-2 text-xl font-bold text-midnight_text dark:text-white sm:text-2xl md:text-3xl lg:text-[2rem]"
           >
-            Where Can a Personal Loan <span className="theme-gradient-text">Help You?</span>
+            Where Can a Loan <span className="theme-gradient-text">Help You?</span>
           </h2>
         </div>
 

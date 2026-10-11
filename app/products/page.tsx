@@ -9,9 +9,9 @@ import {
   pageSeoGlue,
 } from "@/app/lib/seo";
 
-const PAGE_TITLE = "Personal Loan & Insurance Online | Apply | Apni Zaroorat";
+const PAGE_TITLE = "Loans & Insurance Products | Apni Zaroorat";
 const PAGE_DESC =
-  "Choose a personal loan or insurance and apply online with Apni Zaroorat. Digital application, minimal documentation, eligibility check, and EMI calculator in one place.";
+  "Discover personal loans, home loans, car loans, business loans and insurance in one place. Compare available options and check eligibility online with Apni Zaroorat.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: PAGE_TITLE,
@@ -37,7 +37,7 @@ const structuredData = pageSeoGlue({
       name: "Personal Loan",
       description:
         "Quick personal loans from Rs 25,000 to Rs 50 lakh with digital application and competitive rates.",
-      path: "/products/personal-loan",
+      path: "/products/loans",
       serviceType: "Personal loan",
     }),
     financialServiceJsonLd({

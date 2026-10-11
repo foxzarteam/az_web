@@ -31,7 +31,7 @@ export default function ProductsApplyProvider({ children }: { children: ReactNod
 
   const openPersonalLoan = useCallback(() => {
     captureAffiliateCodeFromLocation();
-    router.push("/products/personal-loan/");
+    router.push("/products/loans/");
   }, [router]);
 
   const openInsurance = useCallback(() => {

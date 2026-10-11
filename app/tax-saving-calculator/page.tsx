@@ -104,10 +104,7 @@ export default function TaxSavingCalculatorPage() {
   return (
     <>
       <JsonLd data={structuredData} />
-      <TaxSavingCalculatorView
-        title="Free Tax Saving Calculator"
-        subtitle="Compare New vs Old regime by using free tax saving calculator"
-      />
+      <TaxSavingCalculatorView title="Free Tax Saving Calculator" />
     </>
   );
 }

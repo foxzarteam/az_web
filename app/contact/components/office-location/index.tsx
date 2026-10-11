@@ -34,7 +34,7 @@ export default function Location() {
             </p>
             <div className="flex flex-col items-start gap-1.5">
               <Link
-                href="/products/personal-loan/"
+                href="/products/loans/"
                 className="text-sm sm:text-base text-white font-medium hover:underline underline-offset-4"
               >
                 Personal Loan

@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { HeaderItem } from "@/app/types/layout/menu";
-import { serviceSubmenuGradient } from "./serviceSubmenuUi";
 import ServiceSubmenuIcon from "./ServiceSubmenuIcon";
 
 export default function HeaderLink({ item }: { item: HeaderItem }) {
@@ -70,7 +69,6 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
         <div className="absolute top-10 left-1/2 -translate-x-1/2 mt-1 bg-white dark:bg-darkmode shadow-xl dark:shadow-darkmd rounded-2xl z-50 border border-gray-100/80 dark:border-white/10 w-[min(90vw,300px)] sm:w-[min(320px,90vw)] max-w-[360px] px-3 sm:px-4 py-3">
           <div className="flex flex-col gap-1.5 sm:gap-2">
             {item.submenu?.map((subItem) => {
-              const gradient = serviceSubmenuGradient(subItem);
               return (
                 <Link
                   key={subItem.slug ?? subItem.href}
@@ -81,11 +79,7 @@ export default function HeaderLink({ item }: { item: HeaderItem }) {
                       : "hover:bg-light dark:hover:bg-semidark text-midnight_text dark:text-white"
                   }`}
                 >
-                  <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} shadow-sm ${
-                      normalizePath(subItem.href) === current ? "ring-2 ring-white/30" : ""
-                    }`}
-                  >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white">
                     <ServiceSubmenuIcon item={subItem} />
                   </div>
                   <span className="text-sm sm:text-base font-bold leading-snug whitespace-nowrap">

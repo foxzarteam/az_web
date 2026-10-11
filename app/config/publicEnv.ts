@@ -31,6 +31,8 @@ export const CANONICAL_SITE_ORIGIN = "https://apnizaroorat.com";
  * Production fallback if NEXT_PUBLIC_API_URL is unset at build time.
  */
 const DEFAULT_PUBLIC_API_BASE = "https://server-nu-bay-20.vercel.app";
+/** Catalog only, when the local API is not running. */
+export const PUBLIC_API_FALLBACK_ORIGIN = DEFAULT_PUBLIC_API_BASE;
 const LOCAL_NEST_API_BASE = "http://localhost:3001";
 const LOCAL_NEXT_SITE_ORIGIN = "http://localhost:3000";
 

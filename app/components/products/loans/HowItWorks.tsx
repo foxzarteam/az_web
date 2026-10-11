@@ -5,6 +5,22 @@ const iconClass = "h-6 w-6 sm:h-7 sm:w-7";
 const STEPS: HowItWorksStep[] = [
   {
     num: 1,
+    title: "Choose Loan Type",
+    description: "Select the loan type that matches your need.",
+    iconWrapClass: "bg-[#FFF1E7] text-[#F97316]",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>
+        <path d="M12 3 5 6v6c0 4.2 2.9 7.9 7 9 4.1-1.1 7-4.8 7-9V6l-7-3Z" fill="currentColor" opacity="0.12" />
+        <path d="M12 3 5 6v6c0 4.2 2.9 7.9 7 9 4.1-1.1 7-4.8 7-9V6l-7-3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+        <path
+          d="M12 13.8c-1.6-1.3-3.2-2.5-3.2-4a1.9 1.9 0 0 1 3.2-1.3 1.9 1.9 0 0 1 3.2 1.3c0 1.5-1.6 2.7-3.2 4Z"
+          fill="currentColor"
+        />
+      </svg>
+    ),
+  },
+  {
+    num: 2,
     title: "Fill Basic Details",
     description: "Provide your basic information in simple steps.",
     iconWrapClass: "bg-[#EEF0FF] text-[#4236FB]",
@@ -17,10 +33,10 @@ const STEPS: HowItWorksStep[] = [
     ),
   },
   {
-    num: 2,
+    num: 3,
     title: "Verify & Submit",
-    description: "Verify your documents and submit your application.",
-    iconWrapClass: "bg-[#FFF1E7] text-[#F97316]",
+    description: "Verify your details and submit your application.",
+    iconWrapClass: "bg-[#E7F8F1] text-[#10B981]",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>
         <rect x="5.5" y="3.5" width="13" height="17" rx="2" fill="currentColor" opacity="0.12" />
@@ -30,24 +46,9 @@ const STEPS: HowItWorksStep[] = [
     ),
   },
   {
-    num: 3,
-    title: "Check Eligibility",
-    description: "Check if you are eligible for a personal loan.",
-    iconWrapClass: "bg-[#E7F8F1] text-[#10B981]",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>
-        <circle cx="10" cy="9" r="3" fill="currentColor" opacity="0.2" />
-        <circle cx="10" cy="9" r="3" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M4.5 19c.6-2.8 2.8-4.3 5.5-4.3 1 0 2 .2 2.8.7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="16.5" cy="15.5" r="3.2" stroke="currentColor" strokeWidth="1.5" />
-        <path d="m19 18 2.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
     num: 4,
     title: "Get Your Loan",
-    description: "Once approved, amount is disbursed to your account.",
+    description: "Our partners will help you get the loan disbursed.",
     iconWrapClass: "bg-[#F3EEFF] text-[#8B5CF6]",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>

@@ -13,7 +13,6 @@ const JOBS = [
   { file: "images/hero/hero.png", maxWidth: 1400, quality: 82, format: "webp" },
   { file: "images/hero/about.png", maxWidth: 900, quality: 82, format: "webp" },
   { file: "images/hero/about_foot.png", maxWidth: 480, quality: 80, format: "webp" },
-  { file: "images/hero/faq.png", maxWidth: 640, quality: 80, format: "webp" },
   { file: "images/service/personal.png", maxWidth: 1200, quality: 82, format: "webp" },
   { file: "images/service/insurance.png", maxWidth: 1200, quality: 82, format: "webp" },
   { file: "images/service/home.png", maxWidth: 1200, quality: 82, format: "webp" },

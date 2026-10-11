@@ -272,7 +272,7 @@ export default function EligibilityCalculator() {
 
   const handleCheck = () => {
     captureAffiliateCodeFromLocation();
-    router.push("/products/personal-loan/");
+    router.push("/products/loans/");
   };
 
   return (

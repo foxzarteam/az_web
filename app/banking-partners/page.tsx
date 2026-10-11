@@ -4,9 +4,9 @@ import CtaBanner from "@/app/about/components/cta-banner";
 import JsonLd from "@/app/components/seo/JsonLd";
 import { buildPageMetadata, pageSeoGlue } from "@/app/lib/seo";
 
-const PAGE_TITLE = "Banking Partners | Apni Zaroorat";
+const PAGE_TITLE = "Banking & Lending Partners | Apni Zaroorat";
 const PAGE_DESC =
-  "See the banks and lenders partnered with Apni Zaroorat. Choose a partner to apply for a personal loan online.";
+  "View Apni Zaroorat's banking and lending partners and learn about the loan products available through our partner network.";
 
 function PartnerIcon({ kind }: { kind: "bank" | "company" }) {
   if (kind === "bank") {
@@ -156,12 +156,9 @@ export default function BankingPartnersPage() {
       <div className="theme-gradient-bg px-4 pb-6 pt-24 sm:px-6 sm:pb-8 sm:pt-28 md:pt-32">
         <div className="container mx-auto md:max-w-screen-md lg:max-w-screen-xl">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="mb-3 text-2xl font-bold text-white xs:text-3xl sm:mb-4 sm:text-4xl md:text-5xl">
+            <h1 className="text-2xl font-bold text-white xs:text-3xl sm:text-4xl md:text-5xl">
               Our Banking Partners
             </h1>
-            <p className="mx-auto max-w-2xl text-base text-white/90 sm:text-lg">
-              Tap any partner to apply for a personal loan.
-            </p>
           </div>
         </div>
       </div>
@@ -174,7 +171,7 @@ export default function BankingPartnersPage() {
                 {group.names.map((name) => (
                   <li key={name}>
                     <Link
-                      href="/products/personal-loan"
+                      href="/products/loans"
                       className="flex min-h-[4.75rem] items-center justify-center gap-2.5 rounded-2xl border border-[#cfc6ff] bg-white px-3.5 py-3.5 text-left text-sm font-semibold leading-snug text-slate-800 shadow-[0_8px_22px_rgba(66,54,251,0.08)] transition duration-200 hover:-translate-y-0.5 hover:border-[#FF7E29] hover:shadow-[0_12px_28px_rgba(255,126,41,0.16)] dark:border-[#4236FB]/50 dark:bg-darklight dark:text-white"
                     >
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#4236FB] to-[#FF7E29] text-white">
@@ -192,7 +189,7 @@ export default function BankingPartnersPage() {
       <CtaBanner
         title="Ready to apply?"
         description="Start a personal loan or insurance application — simple, digital, and secure."
-        primaryHref="/products/personal-loan/"
+        primaryHref="/products/loans/"
         primaryLabel="Personal loan"
         secondaryHref="/products/insurance/"
         secondaryLabel="Insurance"

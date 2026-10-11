@@ -62,11 +62,15 @@ export async function fetchActiveServiceCards(): Promise<FetchActiveServicesResu
 export function primeServicesClientCache(
   cards: ServiceSliderCard[],
   insuranceTypes?: InsuranceTypeOption[],
+  loanProducts?: FetchActiveServicesResult["loanProducts"],
 ) {
-  if (cards.length === 0 && !(insuranceTypes && insuranceTypes.length > 0)) return;
+  if (cards.length === 0 && !(insuranceTypes && insuranceTypes.length > 0) && !(loanProducts && loanProducts.length > 0)) {
+    return;
+  }
   cacheSet({
     cards,
     insuranceTypes: insuranceTypes ?? [],
+    loanProducts: loanProducts ?? [],
     status: "ok",
   });
 }

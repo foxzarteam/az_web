@@ -3,14 +3,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo } from "react";
 import { CONTACT, SOCIAL_LINKS } from "@/app/config/constants";
-import { useRemoteServiceCards } from "@/app/lib/services/useRemoteServiceCards";
-import { serviceCardsToSubmenu } from "@/app/lib/services/submenu";
 import { hidePublicChrome } from "@/app/lib/layout/hidePublicChrome";
 
 const linkClass =
   "flex min-h-[36px] items-center py-1 text-sm text-white/90 hover:text-white sm:text-base";
+
+const PRODUCT_LINKS = [
+  { href: "/products/loans/", label: "Loan" },
+  { href: "/products/insurance/", label: "Insurance" },
+  { href: "/customer/login/", label: "Check Application Status" },
+] as const;
 
 const TOOL_LINKS = [
   { href: "/emi-calculator/", label: "EMI Calculator" },
@@ -27,8 +30,6 @@ const LEGAL_LINKS = [
 
 export default function Footer() {
   const pathname = usePathname();
-  const { cards } = useRemoteServiceCards();
-  const serviceLinks = useMemo(() => serviceCardsToSubmenu(cards), [cards]);
 
   if (hidePublicChrome(pathname)) {
     return null;
@@ -185,18 +186,13 @@ export default function Footer() {
               </Link>
             </h4>
             <ul className="space-y-0.5">
-              {serviceLinks.map((s) => (
-                <li key={s.slug ?? s.href}>
-                  <Link href={s.href} className={linkClass}>
-                    {s.label}
+              {PRODUCT_LINKS.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className={linkClass}>
+                    {item.label}
                   </Link>
                 </li>
               ))}
-              <li>
-                <Link href="/customer/login/" className={linkClass}>
-                  Check Application Status
-                </Link>
-              </li>
             </ul>
           </div>
 

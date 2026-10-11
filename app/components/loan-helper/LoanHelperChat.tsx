@@ -225,7 +225,7 @@ export default function LoanHelperChat({
   const openApplyForm = () => {
     setIsOpen(false);
     captureAffiliateCodeFromLocation();
-    router.push("/products/personal-loan/");
+    router.push("/products/loans/");
   };
 
   if (hidePublicChrome(pathname)) {

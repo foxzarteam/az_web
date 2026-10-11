@@ -45,12 +45,9 @@ export default function CheckEligibilityPage() {
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               Free · No credit score impact
             </span>
-            <h1 className="mb-3 text-2xl font-bold text-white xs:text-3xl sm:mb-4 sm:text-4xl md:text-5xl">
+            <h1 className="text-2xl font-bold text-white xs:text-3xl sm:text-4xl md:text-5xl">
               Check Eligibility
             </h1>
-            <p className="mx-auto max-w-2xl text-base text-white/90 sm:text-lg">
-              Know your loan chance in under a minute.
-            </p>
           </div>
         </div>
       </section>
@@ -62,7 +59,7 @@ export default function CheckEligibilityPage() {
       <CtaBanner
         title="Your Personal Loan Is One Step Away"
         description="Share a few details and we’ll help you move forward — a quick, simple, and secure process."
-        primaryHref="/products/personal-loan/"
+        primaryHref="/products/loans/"
         primaryLabel="Apply Now"
         secondaryHref="/emi-calculator/"
         secondaryLabel="Calculate EMI"

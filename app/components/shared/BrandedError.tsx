@@ -77,7 +77,7 @@ export default function BrandedError({
           <span className="text-slate-300 dark:text-gray-600" aria-hidden>
             ·
           </span>
-          <Link href="/products/personal-loan/" className="hover:text-[#4236FB] hover:underline">
+          <Link href="/products/loans/" className="hover:text-[#4236FB] hover:underline">
             Personal Loan
           </Link>
         </div>

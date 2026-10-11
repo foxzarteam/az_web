@@ -15,6 +15,11 @@ export function isPublicProductSlug(slug: string): boolean {
   return PRODUCT_SLUG_PATTERN.test(s) && !REDIRECTED_PRODUCT_SLUGS.has(s);
 }
 
+/** personal-loan, car-loan, and the other loan products. Each URL renders the shared loan page. */
+export function isIndividualLoanSlug(slug: string): boolean {
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*-loan$/.test(slug.trim().toLowerCase());
+}
+
 export function productHrefToSlug(href: string): string {
   return href.replace(/^\/products\//, "").replace(/\/+$/, "").split("/")[0] ?? "";
 }

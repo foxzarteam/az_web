@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { usePathname } from "next/navigation";
 import { hidePublicChrome } from "@/app/lib/layout/hidePublicChrome";
 
@@ -64,14 +64,11 @@ export default function LoanHelperChatLazy() {
     setReady(true);
   }, []);
 
-  useEffect(() => {
-    if (hidePublicChrome(pathname)) {
-      setReady(false);
-      setOpenOnLoad(false);
-    }
-  }, [pathname]);
-
-  if (hidePublicChrome(pathname)) return null;
+  if (hidePublicChrome(pathname)) {
+    if (ready) setReady(false);
+    if (openOnLoad) setOpenOnLoad(false);
+    return null;
+  }
   if (!ready) {
     return <ChatFabPlaceholder onOpen={() => loadChat(true)} />;
   }

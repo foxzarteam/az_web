@@ -19,15 +19,9 @@ export const FAQ_ITEMS: FaqItem[] = [
   },
   {
     id: "who-can-apply",
-    question: "Who can apply for a personal loan or insurance?",
+    question: "Who can apply for a loan or insurance?",
     answer:
       "Any salaried or self-employed individual who meets our partner lenders' or insurers' eligibility criteria can apply through Apni Zaroorat. Requirements may vary by product, income, age, and credit profile.",
-  },
-  {
-    id: "loan-amount-cover",
-    question: "How much personal loan or insurance cover can I get?",
-    answer:
-      "Personal loan offers typically range from ₹25,000 up to ₹50 Lakhs*, depending on your income and credit profile. Insurance cover and premiums depend on the plan type (life, health, or motor), your age, and the coverage you choose.",
   },
   {
     id: "why-choose-apni-zaroorat",
@@ -112,31 +106,31 @@ export const PERSONAL_LOAN_FAQ_ITEMS: FaqItem[] = [
     id: "what-is-personal-loan",
     question: "What is a Personal Loan?",
     answer:
-      "A Personal Loan is money you can borrow to manage your personal expenses, such as medical emergencies, weddings, education, home renovation, travel, or any other financial need. You don't need to provide any property or security to apply.",
+      "A Personal Loan is money you can borrow for personal expenses such as medical needs, weddings, education, travel, or home renovation. It is usually unsecured, so you do not have to pledge property or gold. You apply online, and the amount must stay within the range shown for Personal Loan.",
   },
   {
-    id: "security-collateral",
-    question: "Do I need to provide any security or collateral?",
+    id: "what-is-home-loan",
+    question: "What is a Home Loan?",
     answer:
-      "No. A Personal Loan is an unsecured loan, so you do not need to provide any property, gold, or other security. You only need to meet the lender's eligibility requirements.",
+      "A Home Loan helps you buy, build, or renovate a house. The amount is higher than a typical personal loan and is linked to the property and your income. Choose Home Loan on this page and enter an amount inside the range shown for that product.",
   },
   {
-    id: "interest-rate",
-    question: "How is the interest rate decided?",
+    id: "what-is-car-loan",
+    question: "What is a Car Loan?",
     answer:
-      "Your interest rate depends on factors like your credit score, monthly income, employment type, loan amount, and repayment period. A better credit profile may help you get a lower interest rate.",
+      "A Car Loan is used to buy a new or used car. You repay it in monthly instalments over a fixed tenure. Select Car Loan, then enter an amount within the Car Loan range shown in the form.",
   },
   {
-    id: "approval-timeline",
-    question: "How long does it take to get a Personal Loan approved?",
+    id: "what-is-business-loan",
+    question: "What is a Business Loan?",
     answer:
-      "Approval time depends on the lender and your documents. In many cases, eligible applicants can receive approval within 24 to 72 hours after submitting the required information.",
+      "A Business Loan provides funds for working capital, stock, equipment, or growing a business. Salaried and self-employed applicants can apply if they meet the lender’s criteria. The amount must fall inside the Business Loan range on this page.",
   },
   {
-    id: "why-choose-personal-loan",
-    question: "Why should I choose a Personal Loan?",
+    id: "why-choose-apni-zaroorat",
+    question: "Why choose Apni Zaroorat?",
     answer:
-      "A Personal Loan gives you quick access to funds without requiring any collateral. It can be used for almost any personal need, such as medical expenses, weddings, travel, education, debt consolidation, or home improvement. With a simple online application process, it is a convenient way to manage unexpected or planned expenses.",
+      "Apni Zaroorat works with a network of 100+ banks and NBFCs. If one lender does not fit, we help you find another that can approve your Personal, Home, Car, or Business loan — at a lower EMI and interest rate.",
   },
 ];
 

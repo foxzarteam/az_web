@@ -57,47 +57,17 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/products/credit-card",
-        destination: "/products/personal-loan/",
+        destination: "/products/loans/",
         permanent: true,
       },
       {
         source: "/products/credit-card/",
-        destination: "/products/personal-loan/",
+        destination: "/products/loans/",
         permanent: true,
       },
       {
         source: "/products/credit-card/:path*",
-        destination: "/products/personal-loan/",
-        permanent: true,
-      },
-      {
-        source: "/products/home-loan",
-        destination: "/products/personal-loan/",
-        permanent: true,
-      },
-      {
-        source: "/products/home-loan/",
-        destination: "/products/personal-loan/",
-        permanent: true,
-      },
-      {
-        source: "/products/home-loan/:path*",
-        destination: "/products/personal-loan/",
-        permanent: true,
-      },
-      {
-        source: "/products/business-loan",
-        destination: "/products/personal-loan/",
-        permanent: true,
-      },
-      {
-        source: "/products/business-loan/",
-        destination: "/products/personal-loan/",
-        permanent: true,
-      },
-      {
-        source: "/products/business-loan/:path*",
-        destination: "/products/personal-loan/",
+        destination: "/products/loans/",
         permanent: true,
       },
       {

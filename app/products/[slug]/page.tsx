@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import ServicePage from "@/app/components/services/ServicePage";
 import JsonLd from "@/app/components/seo/JsonLd";
 import { getActiveCatalog } from "@/app/data/getActiveServices";
 import {
+  isIndividualLoanSlug,
   isPublicProductSlug,
   productHrefToSlug,
 } from "@/app/lib/services/allowedProducts";
@@ -15,7 +16,7 @@ import {
 
 export const revalidate = 60;
 
-const DEDICATED_SLUGS = new Set(["personal-loan", "insurance"]);
+const DEDICATED_SLUGS = new Set(["personal-loan", "insurance", "loans"]);
 
 function cardForSlug(
   slug: string,
@@ -29,7 +30,7 @@ export async function generateStaticParams() {
   if (status !== "ok") return [];
   return cards
     .map((c) => productHrefToSlug(c.href))
-    .filter((slug) => slug && isPublicProductSlug(slug) && !DEDICATED_SLUGS.has(slug))
+    .filter((slug) => slug && isPublicProductSlug(slug) && !DEDICATED_SLUGS.has(slug) && !isIndividualLoanSlug(slug))
     .map((slug) => ({ slug }));
 }
 
@@ -40,6 +41,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const key = slug.trim().toLowerCase();
+  if (isIndividualLoanSlug(key)) redirect("/products/loans/");
   if (!isPublicProductSlug(key) || DEDICATED_SLUGS.has(key)) {
     return buildPageMetadata({
       title: "Product",
@@ -75,6 +77,7 @@ export default async function DynamicProductPage({
 }) {
   const { slug } = await params;
   const key = slug.trim().toLowerCase();
+  if (isIndividualLoanSlug(key)) redirect("/products/loans/");
   if (!isPublicProductSlug(key) || DEDICATED_SLUGS.has(key)) notFound();
 
   const { cards, status } = await getActiveCatalog();

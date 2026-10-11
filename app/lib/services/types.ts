@@ -17,9 +17,18 @@ export type InsuranceTypeOption = {
   image?: string;
 };
 
+/** Active loan row used as a tab on /products/loans. */
+export type LoanProductTab = {
+  slug: string;
+  title: string;
+  limitStart: number | null;
+  limitEnd: number | null;
+};
+
 export type FetchActiveServicesResult = {
   cards: ServiceSliderCard[];
   insuranceTypes: InsuranceTypeOption[];
+  loanProducts: LoanProductTab[];
   status: ServicesFetchStatus;
 };
 

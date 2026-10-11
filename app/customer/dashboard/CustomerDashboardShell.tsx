@@ -11,7 +11,7 @@ import ApplyThanksPopup from "./ApplyThanksPopup";
 
 const CUSTOMER_NAV = [
   { href: "/", label: "Home" },
-  { href: "/products/personal-loan/", label: "Personal Loan" },
+  { href: "/products/loans/", label: "Loan" },
   { href: "/products/insurance/", label: "Insurance" },
 ] as const;
 

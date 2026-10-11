@@ -16,12 +16,13 @@ export function isExistingApplicationError(res: {
 }): boolean {
   if (res.success) return false;
   const code = (res.code ?? "").toUpperCase();
-  if (code.includes("MOBILE_PAN") || code.includes("ALREADY")) return true;
+  if (code.includes("MOBILE_PAN") || code.includes("PHONE_PRODUCT") || code.includes("ALREADY")) return true;
   const msg = (res.message ?? "").toLowerCase();
   return (
     msg.includes("already") ||
-    msg.includes("open application") ||
-    msg.includes("4 unique pan")
+    msg.includes("cannot apply again") ||
+    msg.includes("application status") ||
+    msg.includes("open application")
   );
 }
 

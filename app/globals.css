@@ -426,7 +426,7 @@ html:not([data-aos-ready]) [data-aos] {
 
 /* Home — Why Choose Us carousel (CSS-sized slides = no load flash) */
 .partners-carousel-viewport {
-  --partners-gap: 20px;
+  --partners-gap: 12px;
   --partners-slide: 100%;
 }
 
@@ -584,73 +584,38 @@ html:not([data-aos-ready]) [data-aos] {
   }
 }
 
-/* Hero + trust strip — strip sits flush under hero content */
-.hero-section--with-strip {
-  padding-bottom: 1.25rem !important;
-}
-
-@media (min-width: 640px) {
-  .hero-section--with-strip {
-    padding-bottom: 1.5rem !important;
-  }
-}
-
-@media (min-width: 1024px) {
-  .hero-section--with-strip {
-    padding-bottom: 2rem !important;
-  }
-}
-.product-gif-frame {
-  box-sizing: border-box;
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  width: 70%;
-  max-width: 14rem;
-  aspect-ratio: 1 / 1;
-  height: auto;
-  min-width: 0;
-  min-height: 0;
-  max-height: none;
-  overflow: hidden;
-  border-radius: 9999px;
-  padding: 2px;
-}
-
-.product-gif-frame__inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Headline stays 2 lines on every screen: title, then One Place + rotating need */
+.hero-copy {
+  container-type: inline-size;
   width: 100%;
-  height: 100%;
-  overflow: hidden;
-  border-radius: 9999px;
-  background: #fff;
 }
 
-.product-gif-frame img {
-  width: 90%;
-  height: 90%;
-  max-width: 90%;
-  max-height: 90%;
-  object-fit: contain;
+.hero-headline {
+  font-size: clamp(1.1rem, 6.8cqi, 2.65rem) !important;
+  line-height: 1.12 !important;
+  max-width: 100%;
 }
 
-@media (min-width: 768px) {
-  .product-gif-frame {
-    flex: 0 0 10rem;
-    width: 10rem;
-    height: 10rem;
-    min-width: 10rem;
-    min-height: 10rem;
-    max-width: 10rem;
-    max-height: 10rem;
-    aspect-ratio: auto;
-    padding: 2px;
+@keyframes hero-need-in {
+  from {
+    opacity: 0;
+    transform: translateY(70%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
+.hero-need-in {
+  animation: hero-need-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-need-in {
+    animation: none;
+  }
+}
 .hero-section__bg {
   position: absolute;
   inset: 0;

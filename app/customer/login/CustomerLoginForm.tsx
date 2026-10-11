@@ -177,7 +177,7 @@ export default function CustomerLoginForm() {
             {notFound ? (
               <>
                 No application found for this number.{" "}
-                <Link href="/products/personal-loan" className="font-semibold underline">
+                <Link href="/products/loans" className="font-semibold underline">
                   Apply now
                 </Link>
               </>

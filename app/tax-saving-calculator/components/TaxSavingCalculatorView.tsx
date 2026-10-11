@@ -8,13 +8,11 @@ import TaxSeoContent from "./TaxSeoContent";
 type Props = {
   eyebrow?: string;
   title: string;
-  subtitle: string;
 };
 
 export default function TaxSavingCalculatorView({
   eyebrow = "Free · FY 2025-26 · New vs Old",
   title,
-  subtitle,
 }: Props) {
   return (
     <>
@@ -33,10 +31,9 @@ export default function TaxSavingCalculatorView({
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               {eyebrow}
             </span>
-            <h1 className="mb-4 text-3xl font-bold tracking-tight text-white xs:text-4xl sm:text-5xl md:text-[3.25rem] md:leading-[1.1]">
+            <h1 className="text-3xl font-bold tracking-tight text-white xs:text-4xl sm:text-5xl md:text-[3.25rem] md:leading-[1.1]">
               {title}
             </h1>
-            <p className="mx-auto max-w-2xl text-base text-white/90 sm:text-lg">{subtitle}</p>
           </div>
         </div>
       </section>
@@ -52,7 +49,7 @@ export default function TaxSavingCalculatorView({
       <CtaBanner
         title="Need a Personal Loan After Tax Planning?"
         description="Plan your taxes, then explore personal loan and insurance options with a simple digital application."
-        primaryHref="/products/personal-loan/"
+        primaryHref="/products/loans/"
         primaryLabel="Apply for Personal Loan"
         secondaryHref="/emi-calculator/"
         secondaryLabel="EMI Calculator"

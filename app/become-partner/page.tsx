@@ -38,18 +38,11 @@ export default function BecomePartnerPage() {
       <div className="partner-hero-shine pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 theme-gradient-bg px-4 sm:px-6">
         <div className="relative z-[1] container mx-auto lg:max-w-screen-xl md:max-w-screen-md">
           <h1
-            className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-bold text-white text-center mb-3 sm:mb-4"
+            className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-bold text-white text-center"
             data-aos="fade-up"
           >
             Become a Partner
           </h1>
-          <p
-            className="text-white/90 text-center text-base sm:text-lg max-w-2xl mx-auto"
-            data-aos="fade-up"
-            data-aos-delay="100"
-          >
-            Earn money by Selling Financial Products
-          </p>
         </div>
       </div>
       <IndiaMapClient>

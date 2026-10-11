@@ -288,7 +288,7 @@ export default function CustomerApplicationsTable({
             Submit a Personal Loan application to track it here.
           </p>
           <Link
-            href="/products/personal-loan"
+            href="/products/loans"
             className="btn-gradient mt-5 inline-flex rounded-xl px-5 py-2.5 text-sm font-semibold text-white"
           >
             Apply now

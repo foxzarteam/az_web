@@ -2,10 +2,9 @@ import Link from "next/link";
 import FaqSection from "@/app/components/home/faq";
 import { PRODUCTS_HUB_FAQ_ITEMS } from "@/app/components/home/faq/faq-data";
 import ProductsApplyProvider from "@/app/components/affiliate/ProductsApplyProvider";
-import ProductsHubCards from "@/app/components/affiliate/ProductsHubCards";
+import LoanCategories from "@/app/components/products/loans/LoanCategories";
+import BankPartners from "@/app/components/home/bank-partners";
 import ProductsHubReadyCta from "@/app/components/affiliate/ProductsHubReadyCta";
-import HowItWorksSection, { type HowItWorksStep } from "@/app/components/products/HowItWorksSection";
-
 const toolIconClass = "h-8 w-8 sm:h-9 sm:w-9";
 
 const TOOLS = [
@@ -45,97 +44,24 @@ const TOOLS = [
   },
 ] as const;
 
-const iconClass = "h-6 w-6 sm:h-7 sm:w-7";
-
-const STEPS: HowItWorksStep[] = [
-  {
-    num: 1,
-    title: "Pick a product",
-    description: "Choose personal loan or insurance from the cards above.",
-    iconWrapClass: "bg-[#EEF0FF] text-[#4236FB]",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden="true">
-        <rect x="4" y="5" width="7" height="14" rx="1.5" fill="currentColor" opacity="0.12" />
-        <rect x="13" y="5" width="7" height="14" rx="1.5" fill="currentColor" opacity="0.12" />
-        <rect x="4" y="5" width="7" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
-        <rect x="13" y="5" width="7" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
-      </svg>
-    ),
-  },
-  {
-    num: 2,
-    title: "Fill the form",
-    description: "Share basic details in the apply popup on this page and submit online.",
-    iconWrapClass: "bg-[#FFF1E7] text-[#F97316]",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden="true">
-        <rect x="5.5" y="3.5" width="13" height="17" rx="2" fill="currentColor" opacity="0.12" />
-        <rect x="5.5" y="3.5" width="13" height="17" rx="2" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M9 8.5h6M9 12h4.5M9 15.5h5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    num: 3,
-    title: "We verify details",
-    description: "We verify your details and find the best option for you.",
-    iconWrapClass: "bg-[#E7F8F1] text-[#10B981]",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden="true">
-        <circle cx="10" cy="9" r="3" fill="currentColor" opacity="0.2" />
-        <circle cx="10" cy="9" r="3" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M4.5 19c.6-2.8 2.8-4.3 5.5-4.3 1 0 2 .2 2.8.7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="16.5" cy="15.5" r="3.2" stroke="currentColor" strokeWidth="1.5" />
-        <path d="m19 18 2.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    num: 4,
-    title: "You get the offer",
-    description: "Once approved, the loan or insurance cover comes through to you.",
-    iconWrapClass: "bg-[#F3EEFF] text-[#8B5CF6]",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden="true">
-        <path d="M4 9.5 12 4l8 5.5V20H4V9.5Z" fill="currentColor" opacity="0.12" />
-        <path d="M4 9.5 12 4l8 5.5V20H4V9.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-        <path d="M9.5 12h5M12 12v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-];
-
 export default function AffiliateLanding() {
   return (
     <ProductsApplyProvider>
     <div className="bg-white dark:bg-semidark">
-      <div
-        id="products"
-        className="theme-gradient-bg relative overflow-hidden px-4 pb-12 pt-24 sm:px-6"
-      >
-        <div className="pointer-events-none absolute -right-16 top-10 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
-        <div className="pointer-events-none absolute -left-10 bottom-0 h-40 w-40 rounded-full bg-[#FF7E29]/30 blur-3xl" />
-        <div className="container relative z-[1] mx-auto w-full max-w-full sm:px-2 lg:max-w-screen-xl lg:px-8">
-          <div className="mb-6 text-center sm:mb-8">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-[11px] font-semibold tracking-wide text-white sm:px-5 sm:text-xs">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              Free online apply
-            </span>
-            <h1 className="mt-3 text-xl font-bold text-white xs:text-2xl sm:text-3xl">
-              Choose a personal loan or insurance
-            </h1>
-          </div>
-          <ProductsHubCards />
-        </div>
+      <h1 className="sr-only">Products</h1>
+      <div className="bg-white pt-16 dark:bg-darkmode md:pt-20">
+        <div className="theme-gradient-bg h-1" aria-hidden />
+        <LoanCategories
+          className="!pb-8 !pt-8 sm:!pt-10 lg:!pb-10"
+          showInsurance
+          showApply
+          softBg
+        />
       </div>
 
-      <HowItWorksSection
-        headingPrefix="Apply in"
-        headingHighlight="4 simple steps"
-        steps={STEPS}
-      />
+      <BankPartners />
 
-      <section className="!bg-white !py-12 dark:!bg-semidark sm:!py-16">
+      <section className="!bg-[#F5F7FB] !py-12 dark:!bg-darkmode sm:!py-16">
         <div className="container mx-auto max-w-full px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">
           <div className="mb-6 text-center sm:mb-8">
             <h2 className="!text-xl font-bold !text-midnight_text dark:!text-white xs:!text-2xl sm:!text-3xl">
@@ -149,7 +75,7 @@ export default function AffiliateLanding() {
             {TOOLS.map((tool) => (
               <article
                 key={tool.name}
-                className="relative flex min-h-[220px] min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-[#F5F7FB] p-5 shadow-[0_8px_28px_rgba(16,45,71,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(66,54,251,0.12)] dark:border-dark_border dark:bg-darklight sm:min-h-[240px] sm:p-6"
+                className="relative flex min-h-[220px] min-w-0 flex-col overflow-hidden rounded-2xl border border-[#E8ECF2] bg-white p-5 shadow-[0_8px_28px_rgba(16,45,71,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(66,54,251,0.12)] dark:border-dark_border dark:bg-darklight sm:min-h-[240px] sm:p-6"
               >
                 <div className={`pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl ${tool.blobClass}`} />
                 <div className={`pointer-events-none absolute -bottom-10 left-8 h-20 w-20 rounded-full blur-2xl ${tool.blobClass}`} />

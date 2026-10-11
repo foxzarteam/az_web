@@ -13,7 +13,8 @@ export default function ApplyThanksPopup() {
   const [payload, setPayload] = useState<ApplyThanksPayload | null>(null);
 
   useEffect(() => {
-    setPayload(takeApplyThanks());
+    const timer = window.setTimeout(() => setPayload(takeApplyThanks()), 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {

@@ -35,9 +35,8 @@ export default function PartnerBenefits() {
   const benefits = [
     {
       kind: "earn" as const,
-      title: "Earn commission on every successful lead",
-      description:
-        "Share personal loan and insurance products and earn partner commission. Payouts depend on product, partner terms, and approved cases — not guaranteed monthly income.",
+      title: "Earn on every lead",
+      description: "Share loan and insurance products. Commission is paid only on approved cases.",
     },
     {
       kind: "anywhere" as const,

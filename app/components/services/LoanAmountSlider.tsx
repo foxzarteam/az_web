@@ -12,6 +12,9 @@ type LoanAmountSliderProps = {
   step?: number;
   /** Public apply form only. Admin keeps its own field errors. */
   required?: boolean;
+  /** Shown while the field is empty. Public loan form passes the product range. */
+  placeholder?: string;
+  error?: string;
 };
 
 function digitsOnly(raw: string): string {
@@ -22,8 +25,11 @@ export default function LoanAmountSlider({
   id = "loan-amount",
   value,
   onChange,
+  min,
   max = PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT,
   required = false,
+  placeholder,
+  error,
 }: LoanAmountSliderProps) {
   const [digits, setDigits] = useState(() => (Number.isFinite(value) && value > 0 ? String(Math.round(value)) : ""));
   const [prevValue, setPrevValue] = useState(value);
@@ -42,7 +48,7 @@ export default function LoanAmountSlider({
       >
         Enter Loan Amount <span className="text-red-500">*</span>
       </label>
-      <div className="flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80">
+      <div className={`flex min-h-10 items-center overflow-hidden rounded-xl border bg-white focus-within:ring-2 dark:bg-darkmode/80 ${error ? "border-red-500 focus-within:ring-red-500/40" : "border-gray-300 focus-within:ring-primary/70 dark:border-dark_border"}`}>
         <span className="flex shrink-0 items-center pl-3" aria-hidden>
           <span className="theme-gradient-bg flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold leading-none text-white shadow-[0_2px_8px_rgba(66,54,251,0.35)]">
             ₹
@@ -53,8 +59,14 @@ export default function LoanAmountSlider({
           id={id}
           type="text"
           inputMode="numeric"
+          autoComplete="off"
           value={digits}
-          placeholder="Enter loan amount"
+          placeholder={
+            placeholder ??
+            (min != null
+              ? `₹${min.toLocaleString("en-IN")} – ₹${max.toLocaleString("en-IN")}`
+              : "Enter loan amount")
+          }
           onChange={(e) => {
             const next = digitsOnly(e.target.value).slice(0, String(max).length);
             setDigits(next);
@@ -67,9 +79,15 @@ export default function LoanAmountSlider({
           }}
           className="min-h-10 min-w-0 flex-1 bg-transparent px-3 py-2 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none dark:text-white"
           aria-label="Enter loan amount"
+          aria-invalid={error ? true : undefined}
           required={required}
         />
       </div>
+      {error ? (
+        <p className="mt-1.5 text-sm text-red-600" role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

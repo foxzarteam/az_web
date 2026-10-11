@@ -41,18 +41,14 @@ function CarouselArrow({
 
 function FeatureCard({ card }: { card: (typeof FEATURE_CARDS)[number] }) {
   return (
-    <article className="flex h-full min-h-[200px] flex-col rounded-2xl bg-white p-4 shadow-[0_4px_24px_rgba(16,45,71,0.07)] dark:bg-darklight sm:min-h-[220px] sm:p-6">
-      <div className="theme-gradient-bg mb-4 w-fit rounded-full p-[2px]">
-        <div
-          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full sm:h-[60px] sm:w-[60px] ${card.iconWrapClass}`}
-        >
-          {card.icon}
-        </div>
+    <article className="flex h-full flex-col rounded-2xl bg-white p-4 shadow-[0_4px_24px_rgba(16,45,71,0.07)] dark:bg-darklight sm:p-5">
+      <div className="theme-gradient-bg mb-3 flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-white shadow-[0_8px_18px_rgba(66,54,251,0.28)] sm:h-[60px] sm:w-[60px]">
+        {card.icon}
       </div>
-      <h3 className="mb-2 text-base font-bold leading-snug text-midnight_text dark:text-white sm:text-lg">
+      <h3 className="text-base font-bold leading-tight text-midnight_text dark:text-white">
         {card.title}
       </h3>
-      <p className="flex-1 text-sm leading-relaxed text-gray dark:text-gray-400">{card.description}</p>
+      <p className="mt-1 whitespace-pre-line text-left text-sm leading-snug text-gray dark:text-gray-400">{card.description}</p>
     </article>
   );
 }

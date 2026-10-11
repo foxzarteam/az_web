@@ -54,7 +54,7 @@ export default function RefundPolicyPage() {
       </div>
 
       <section className="dark:bg-darkmode py-12 sm:py-16 lg:py-20 px-4 sm:px-6">
-        <div className="container mx-auto max-w-5xl">
+        <div className="container mx-auto w-full min-w-0 max-w-full md:max-w-screen-md lg:max-w-screen-xl">
           <div className="rounded-2xl border border-border bg-white p-6 shadow-sm dark:border-dark_border dark:bg-darklight sm:p-10 lg:p-12">
             <p className="mb-6 inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary sm:mb-8 sm:px-4 sm:text-sm">
               Last update: August 2026

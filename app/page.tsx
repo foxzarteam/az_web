@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import JsonLd from "@/app/components/seo/JsonLd";
-import {
-  buildPageMetadata,
-  faqPageJsonLd,
-  pageSeoGlue,
-  SITE_NAME,
-  SITE_TAGLINE,
-  SITE_DEFAULT_DESCRIPTION,
-} from "@/app/lib/seo";
+import { buildPageMetadata, faqPageJsonLd, pageSeoGlue } from "@/app/lib/seo";
 import Hero from "./components/home/hero";
+import LoanCategories from "./components/products/loans/LoanCategories";
 import HomeDisclaimerBanner from "./components/home/HomeDisclaimerBanner";
 import LoanPurposes from "./components/home/loan-purposes";
 import EligibilityCalculator from "./components/home/eligibility-calculator";
@@ -21,18 +15,22 @@ import { FAQ_ITEMS } from "./components/home/faq/faq-data";
 
 const Calculator = dynamic(() => import("./components/home/calculator"));
 
+const PAGE_TITLE = "Apply for Loans & Insurance Online in India | Apni Zaroorat";
+const PAGE_DESC =
+  "Find personal, home, car and business loan options, along with insurance solutions, on Apni Zaroorat. Check eligibility and find suitable financial products for your needs.";
+
 export const metadata: Metadata = {
   ...buildPageMetadata({
-    title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-    description: SITE_DEFAULT_DESCRIPTION,
+    title: PAGE_TITLE,
+    description: PAGE_DESC,
     path: "/",
     absoluteTitle: true,
   }),
 };
 
 const structuredData = pageSeoGlue({
-  name: `${SITE_NAME} | ${SITE_TAGLINE}`,
-  description: SITE_DEFAULT_DESCRIPTION,
+  name: PAGE_TITLE,
+  description: PAGE_DESC,
   path: "/",
   includeServiceCatalog: true,
   includeLocalBusiness: true,
@@ -44,6 +42,13 @@ export default function Home() {
     <main>
       <JsonLd data={structuredData} />
       <Hero />
+      <LoanCategories
+        className="!py-4 sm:!py-5"
+        showInsurance
+        showApply
+        softBg
+        hideHeading
+      />
       <Calculator />
       <LoanPurposes />
       <EligibilityCalculator />
