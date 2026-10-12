@@ -66,6 +66,14 @@ function slugFromPathname(pathname: string): string {
 const inputClass =
   "w-full min-h-10 px-3.5 py-2 rounded-xl border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode/80 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70";
 
+function loanTypeGif(slug: string): string {
+  const key = slug.toLowerCase();
+  if (key.includes("home")) return "/images/loans/home-loan.gif";
+  if (key.includes("car") || key.includes("vehicle")) return "/images/loans/car-loan.gif";
+  if (key.includes("business")) return "/images/loans/business-loan.gif";
+  return "/images/loans/personal-loan.gif";
+}
+
 const mobileShellClass =
   "flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80";
 
@@ -415,6 +423,24 @@ export default function ServicePage({
                           );
                         }}
                         className="pointer-events-none absolute inset-x-0 bottom-0 h-10 opacity-0"
+                      />
+                    </div>
+                  )}
+
+                  {loanTabs && (
+                    <div>
+                      <label htmlFor="service-loan-type" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                        Select your loan type <span className="text-red-500">*</span>
+                      </label>
+                      <InsuranceTypeSelect
+                        id="service-loan-type"
+                        value={loanSlug}
+                        onChange={setLoanSlug}
+                        options={loanProducts.map((item) => ({
+                          value: item.slug,
+                          label: item.title,
+                          image: loanTypeGif(item.slug),
+                        }))}
                       />
                     </div>
                   )}

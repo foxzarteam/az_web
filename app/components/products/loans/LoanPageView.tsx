@@ -137,8 +137,12 @@ export default function LoanPageView({ pageKey }: { pageKey: LoanPageKey }) {
           badge="Instant personal loan assistance"
           hideHeader
           loanTabs
-          aboveForm={<LoanCategories embedded hideHeading className="!py-0" />}
         />
+        <section className="bg-white pt-12 pb-10 dark:bg-darkmode sm:pb-12">
+          <div className="container mx-auto max-w-full px-4 sm:px-6 md:max-w-screen-md lg:max-w-screen-xl lg:px-8">
+            <LoanCategories embedded hideHeading className="!py-0" />
+          </div>
+        </section>
       </LoanSelectionProvider>
       <LoanPurposes />
       <BankPartners />

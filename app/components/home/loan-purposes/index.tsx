@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 
 type LoanPurpose = {
   title: string;
-  description: string;
   image: string;
 };
 
@@ -14,46 +13,14 @@ const PAGE_SIZE = 2;
 const SLIDE_MS = 900;
 
 const LOAN_PURPOSES: LoanPurpose[] = [
-  {
-    title: "Medical Emergency",
-    description: "Get instant funds for medical emergencies.",
-    image: "/images/need/1.webp",
-  },
-  {
-    title: "Marriage",
-    description: "Make your special day more special.",
-    image: "/images/need/2.webp",
-  },
-  {
-    title: "Home Renovation",
-    description: "Make your home dreams a reality.",
-    image: "/images/need/3.webp",
-  },
-  {
-    title: "Higher Education",
-    description: "Invest in your or your child's future.",
-    image: "/images/need/4.webp",
-  },
-  {
-    title: "Travel",
-    description: "Explore the world with ease.",
-    image: "/images/need/5.webp",
-  },
-  {
-    title: "Debt Consolidation",
-    description: "Combine all your dues into one easy EMI.",
-    image: "/images/need/6.webp",
-  },
-  {
-    title: "Buying a Vehicle",
-    description: "Bring home your dream car or bike.",
-    image: "/images/need/7.webp",
-  },
-  {
-    title: "Shopping & Gadgets",
-    description: "Buy the latest gadgets and appliances.",
-    image: "/images/need/8.webp",
-  },
+  { title: "Medical Emergency", image: "/images/need/1.webp" },
+  { title: "Marriage", image: "/images/need/2.webp" },
+  { title: "Home Renovation", image: "/images/need/3.webp" },
+  { title: "Higher Education", image: "/images/need/4.webp" },
+  { title: "Travel", image: "/images/need/5.webp" },
+  { title: "Debt Consolidation", image: "/images/need/6.webp" },
+  { title: "Buying a Vehicle", image: "/images/need/7.webp" },
+  { title: "Shopping & Gadgets", image: "/images/need/8.webp" },
 ];
 
 const PAGES = Array.from({ length: Math.ceil(LOAN_PURPOSES.length / PAGE_SIZE) }, (_, i) =>
@@ -68,7 +35,7 @@ function PurposeCard({ purpose }: { purpose: LoanPurpose }) {
       <div className="relative aspect-[16/9] w-full bg-[#EEF0FF]">
         <Image
           src={purpose.image}
-          alt=""
+          alt={purpose.title}
           fill
           sizes="(max-width: 1024px) 100vw, 320px"
           className="object-cover object-center"
@@ -81,9 +48,6 @@ function PurposeCard({ purpose }: { purpose: LoanPurpose }) {
         <h3 className="mt-0.5 !text-sm font-bold leading-snug !text-midnight_text dark:!text-white sm:!text-base">
           {purpose.title}
         </h3>
-        <p className="mt-1.5 flex-1 text-[11px] leading-snug text-gray dark:text-gray-400 sm:text-xs">
-          {purpose.description}
-        </p>
       </div>
     </article>
   );
@@ -99,7 +63,7 @@ export default function LoanPurposes() {
     if (paused || PAGES.length <= 1) return;
     const id = window.setInterval(() => {
       setAnimate(true);
-      setPage((current) => current + 1);
+      setPage((current) => (current >= PAGES.length ? current : current + 1));
     }, AUTO_MS);
     return () => window.clearInterval(id);
   }, [paused]);

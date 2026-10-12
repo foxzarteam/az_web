@@ -39,9 +39,7 @@ export default function LoanCategories({
   const cards = showInsurance ? [...LOAN_CARDS, INSURANCE_CARD] : LOAN_CARDS;
   const gridClass = showInsurance
     ? "sm:grid-cols-3 xl:grid-cols-5"
-    : embedded
-      ? "sm:grid-cols-4"
-      : "lg:grid-cols-4";
+    : "lg:grid-cols-4";
 
   const heading = hideHeading ? null : (
     <div className={embedded ? "mb-4 text-center sm:mb-5" : "mb-8 text-center sm:mb-10"}>
@@ -80,17 +78,15 @@ export default function LoanCategories({
                 aria-pressed={selected}
                 onClick={() => {
                   selection.setSlug(item.slug);
-                  if (!embedded) {
-                    document.getElementById("apply-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }
+                  document.getElementById("apply-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
-                className={`flex w-full flex-col items-center rounded-2xl p-[2px] text-center transition duration-300 ${embedded ? "" : "h-full"} ${
+                className={`flex h-full w-full flex-col items-center rounded-2xl p-[2px] text-center transition duration-300 ${
                   selected
                     ? "-translate-y-1 bg-[linear-gradient(90deg,#4236FB_0%,#4236FB_42%,#FF7E29_100%)] shadow-[0_16px_34px_rgba(66,54,251,0.22)]"
                     : "bg-transparent hover:-translate-y-0.5"
                 }`}
               >
-                <span className={`relative flex w-full flex-col items-center rounded-[14px] ${embedded ? "aspect-[2/1] justify-center overflow-hidden px-2 py-1.5 sm:px-3" : "h-full px-3 py-4 sm:px-4 sm:py-5"} ${cardBg}`}>
+                <span className={`relative flex h-full w-full flex-col items-center rounded-[14px] px-3 py-3 sm:px-4 sm:py-4 ${cardBg}`}>
                   {selected ? (
                     <span className="absolute right-2 top-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[linear-gradient(90deg,#4236FB,#FF7E29)] text-white shadow-[0_4px_10px_rgba(66,54,251,0.35)]">
                       <svg viewBox="0 0 16 16" className="h-3 w-3" aria-hidden>
@@ -105,9 +101,9 @@ export default function LoanCategories({
                     width={240}
                     height={240}
                     decoding="async"
-                    className={embedded ? "h-11 w-11 object-contain sm:h-12 sm:w-12" : "h-24 w-24 object-contain sm:h-28 sm:w-28"}
+                    className="h-20 w-20 object-contain sm:h-24 sm:w-24"
                   />
-                  <p className={`font-semibold leading-tight text-midnight_text ${embedded ? "mt-1 text-xs sm:text-sm" : "mt-3 text-xs leading-snug sm:text-sm"}`}>{item.label}</p>
+                  <p className="mt-2 text-xs font-semibold leading-snug text-midnight_text sm:text-sm">{item.label}</p>
                 </span>
               </button>
             ) : (
