@@ -81,7 +81,7 @@ function PurposeCard({ purpose }: { purpose: LoanPurpose }) {
         <h3 className="mt-0.5 !text-sm font-bold leading-snug !text-midnight_text dark:!text-white sm:!text-base">
           {purpose.title}
         </h3>
-        <p className="mt-1.5 flex-1 text-xs leading-relaxed text-gray dark:text-gray-400 sm:text-[13px]">
+        <p className="mt-1.5 flex-1 text-[11px] leading-snug text-gray dark:text-gray-400 sm:text-xs">
           {purpose.description}
         </p>
       </div>
