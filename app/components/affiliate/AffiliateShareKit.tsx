@@ -6,7 +6,7 @@ import { PUBLIC_SITE_URL } from "@/app/config/constants";
 import { affiliateQrSrc, affiliateShareUrl } from "@/app/lib/affiliate/refCookie";
 
 const SHARE_TEXT = `Hi! 👋
-Do you need a Personal Loan or Insurance?
+Do you need a Loan or Insurance?
 Easily apply with Apni Zaroorat using this link 👇`;
 
 /** Optimized creative (≈120KB JPEG) — /public/images/share.jpg */
