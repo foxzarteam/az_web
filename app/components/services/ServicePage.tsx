@@ -328,7 +328,7 @@ export default function ServicePage({
               </>
             )}
 
-            {aboveForm ? <div className="mb-4 w-full min-w-0 sm:mb-5">{aboveForm}</div> : null}
+            {aboveForm ? <div className="mb-4 w-full min-w-0 sm:mb-5 lg:hidden">{aboveForm}</div> : null}
 
             <div id="apply-form" className="theme-gradient-bg scroll-mt-24 p-[1px] rounded-2xl sm:rounded-3xl shadow-xl w-full min-w-0 flex flex-col">
               <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-4 sm:py-6 lg:py-7 px-4 sm:px-6 md:px-7 flex flex-1 flex-col min-h-0 min-w-0">
