@@ -90,7 +90,7 @@ export default function LoanCategories({
                     : "bg-transparent hover:-translate-y-0.5"
                 }`}
               >
-                <span className={`relative flex w-full flex-col items-center rounded-[14px] ${embedded ? "aspect-[3/2] min-h-fit justify-center px-2 py-2 sm:px-3" : "h-full px-3 py-4 sm:px-4 sm:py-5"} ${cardBg}`}>
+                <span className={`relative flex w-full flex-col items-center rounded-[14px] ${embedded ? "aspect-[2/1] justify-center overflow-hidden px-2 py-1.5 sm:px-3" : "h-full px-3 py-4 sm:px-4 sm:py-5"} ${cardBg}`}>
                   {selected ? (
                     <span className="absolute right-2 top-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[linear-gradient(90deg,#4236FB,#FF7E29)] text-white shadow-[0_4px_10px_rgba(66,54,251,0.35)]">
                       <svg viewBox="0 0 16 16" className="h-3 w-3" aria-hidden>
@@ -105,9 +105,9 @@ export default function LoanCategories({
                     width={240}
                     height={240}
                     decoding="async"
-                    className={embedded ? "h-12 w-12 object-contain sm:h-14 sm:w-14" : "h-24 w-24 object-contain sm:h-28 sm:w-28"}
+                    className={embedded ? "h-11 w-11 object-contain sm:h-12 sm:w-12" : "h-24 w-24 object-contain sm:h-28 sm:w-28"}
                   />
-                  <p className={`font-semibold leading-snug text-midnight_text ${embedded ? "mt-1.5 text-[11px] sm:text-xs" : "mt-3 text-xs sm:text-sm"}`}>{item.label}</p>
+                  <p className={`font-semibold leading-tight text-midnight_text ${embedded ? "mt-1 text-xs sm:text-sm" : "mt-3 text-xs leading-snug sm:text-sm"}`}>{item.label}</p>
                 </span>
               </button>
             ) : (
