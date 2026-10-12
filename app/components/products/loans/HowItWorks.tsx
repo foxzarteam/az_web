@@ -48,7 +48,7 @@ const STEPS: HowItWorksStep[] = [
   {
     num: 4,
     title: "Get Your Loan",
-    description: "Our partners will help you get the loan disbursed.",
+    description: "Once approved, amount is disbursed to your account.",
     iconWrapClass: "bg-[#F3EEFF] text-[#8B5CF6]",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>

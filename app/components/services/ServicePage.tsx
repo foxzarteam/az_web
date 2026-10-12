@@ -27,7 +27,6 @@ import { useLoanProducts, useServiceCards } from "@/app/components/providers/Ser
 import { fetchActiveServiceCards } from "@/app/lib/services/fetchActiveServiceCards";
 import type { LoanProductTab } from "@/app/lib/services/types";
 import { mergeLoanPageTabs } from "@/app/lib/services/loanPageTabs";
-import LoanProductTabs from "@/app/components/services/LoanProductTabs";
 import { useLoanSelection } from "@/app/components/products/loans/loanSelection";
 import { useInsuranceSelection } from "@/app/components/products/insurance/insuranceSelection";
 import { productHrefToSlug } from "@/app/lib/services/allowedProducts";
@@ -65,6 +64,14 @@ function slugFromPathname(pathname: string): string {
 
 const inputClass =
   "w-full min-h-10 px-3.5 py-2 rounded-xl border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode/80 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70";
+
+function loanTypeGif(slug: string): string {
+  const key = slug.toLowerCase();
+  if (key.includes("home")) return "/images/loans/home-loan.gif";
+  if (key.includes("car") || key.includes("vehicle")) return "/images/loans/car-loan.gif";
+  if (key.includes("business")) return "/images/loans/business-loan.gif";
+  return "/images/loans/personal-loan.gif";
+}
 
 const mobileShellClass =
   "flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80";
@@ -105,7 +112,7 @@ export default function ServicePage({
   const [mobile, setMobile] = useState("");
   const [pincode, setPincode] = useState("");
   const [loanAmount, setLoanAmount] = useState(0);
-  const [loanTenure, setLoanTenure] = useState<number>(PERSONAL_LOAN_TENURE.DEFAULT_MONTHS);
+  const [loanTenure, setLoanTenure] = useState<number>(loanTabs ? 24 : PERSONAL_LOAN_TENURE.DEFAULT_MONTHS);
   const insuranceSelection = useInsuranceSelection();
   const [localInsType, setLocalInsType] = useState("");
   const insType = insuranceSelection?.value ?? localInsType;
@@ -303,7 +310,7 @@ export default function ServicePage({
       className={`scroll-mt-24 pb-0 ${loanTabs || navBorder ? "bg-white pt-16 md:pt-20 dark:bg-darkmode" : "bg-gradient-to-b from-light to-white pt-8 dark:from-darkmode dark:to-semidark"}`}
     >
       {(navBorder || loanTabs) && <div className="theme-gradient-bg h-1" aria-hidden />}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md max-w-full">
+      <div className={`container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md max-w-full ${loanTabs || navBorder ? "pt-5 sm:pt-0" : ""}`}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-stretch">
           <div className="min-w-0 flex flex-col w-full order-1 lg:order-1 lg:col-span-7 lg:justify-center" data-aos="fade-right">
             {!hideHeader && (
@@ -323,17 +330,8 @@ export default function ServicePage({
               </>
             )}
 
-            {loanTabs && (
-              <div className="mt-5 md:mt-0">
-                <LoanProductTabs
-                  products={loanProducts}
-                  selectedSlug={loanSlug}
-                  onSelect={setLoanSlug}
-                />
-              </div>
-            )}
-            <div className="theme-gradient-bg p-[1px] shadow-xl w-full min-w-0 flex flex-col">
-              <div className="bg-white dark:bg-darklight py-4 sm:py-6 lg:py-7 px-4 sm:px-6 md:px-7 flex flex-1 flex-col min-h-0 min-w-0">
+            <div className="theme-gradient-bg p-[1px] rounded-2xl sm:rounded-3xl shadow-xl w-full min-w-0 flex flex-col">
+              <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-4 sm:py-6 lg:py-7 px-4 sm:px-6 md:px-7 flex flex-1 flex-col min-h-0 min-w-0">
                 <div className="mb-3">
                   <h2 className="text-lg sm:text-xl font-semibold text-midnight_text dark:text-white">
                     Apply for {selectedLoanTitle}
@@ -418,6 +416,62 @@ export default function ServicePage({
                         }}
                         className="pointer-events-none absolute inset-x-0 bottom-0 h-10 opacity-0"
                       />
+                    </div>
+                  )}
+
+                  {loanTabs && (
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                      <div>
+                        <label htmlFor="service-loan-type" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                          Select your loan type <span className="text-red-500">*</span>
+                        </label>
+                        <InsuranceTypeSelect
+                          id="service-loan-type"
+                          value={loanSlug}
+                          onChange={setLoanSlug}
+                          options={loanProducts.map((item) => ({
+                            value: item.slug,
+                            label: item.title,
+                            image: loanTypeGif(item.slug),
+                          }))}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="service-loan-tenure" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                          Enter your loan tenure <span className="text-red-500">*</span>
+                        </label>
+                        <div
+                          className={`flex min-h-10 overflow-hidden rounded-xl border bg-white focus-within:ring-2 dark:bg-darkmode/80 ${
+                            loanTenure < PERSONAL_LOAN_TENURE.MIN_MONTHS || loanTenure > PERSONAL_LOAN_TENURE.MAX_MONTHS
+                              ? "border-red-500 focus-within:ring-red-500/40"
+                              : "border-gray-300 focus-within:ring-primary/70 dark:border-dark_border"
+                          }`}
+                        >
+                          <input
+                            id="service-loan-tenure"
+                            type="text"
+                            inputMode="numeric"
+                            autoComplete="off"
+                            value={loanTenure > 0 ? String(loanTenure) : ""}
+                            onChange={(e) => {
+                              const next = e.target.value.replace(/\D/g, "").slice(0, 3);
+                              setLoanTenure(next ? Number(next) : 0);
+                            }}
+                            placeholder="24"
+                            className="min-h-10 min-w-0 flex-1 bg-transparent px-3.5 py-2 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none dark:text-white"
+                            aria-invalid={loanTenure < PERSONAL_LOAN_TENURE.MIN_MONTHS || loanTenure > PERSONAL_LOAN_TENURE.MAX_MONTHS}
+                            required
+                          />
+                          <span className="theme-gradient-bg pointer-events-none flex shrink-0 items-center px-3.5 text-sm font-semibold text-white">
+                            month
+                          </span>
+                        </div>
+                        {loanTenure < PERSONAL_LOAN_TENURE.MIN_MONTHS || loanTenure > PERSONAL_LOAN_TENURE.MAX_MONTHS ? (
+                          <p className="mt-1.5 text-sm text-red-600" role="alert">
+                            Loan tenure must be between {PERSONAL_LOAN_TENURE.MIN_MONTHS} and {PERSONAL_LOAN_TENURE.MAX_MONTHS} months
+                          </p>
+                        ) : null}
+                      </div>
                     </div>
                   )}
 
@@ -547,7 +601,7 @@ export default function ServicePage({
                     </div>
                   )}
 
-                  {showLoanAmount && (
+                  {showLoanAmount && !loanTabs && (
                     <LoanTenureSlider
                       value={loanTenure}
                       onChange={setLoanTenure}

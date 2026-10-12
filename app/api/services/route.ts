@@ -6,6 +6,7 @@ export async function GET(request: Request) {
   const local = await proxyPublicToNest(request, "/api/services", {
     fallbackError: "Could not load products.",
     max: 40,
+    timeoutMs: 1500,
   });
   if (local.status < 500) return local;
 

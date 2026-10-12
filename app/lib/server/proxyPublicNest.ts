@@ -31,6 +31,7 @@ export async function proxyPublicToNest(
     rateKey?: string;
     max?: number;
     windowMs?: number;
+    timeoutMs?: number;
   },
 ): Promise<NextResponse> {
   const fallback = opts?.fallbackError ?? "Something went wrong. Please try again.";
@@ -91,6 +92,7 @@ export async function proxyPublicToNest(
       headers,
       ...(body != null && body !== "" ? { body } : {}),
       cache: "no-store",
+      ...(opts?.timeoutMs ? { signal: AbortSignal.timeout(opts.timeoutMs) } : {}),
     });
     const raw = await res.text();
     let data: NestJson = {};

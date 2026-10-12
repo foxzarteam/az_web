@@ -12,7 +12,7 @@ type EmploymentIncomeFieldsProps = {
   incomeError?: ReactNode;
   /** Admin labels use `<span>` wrappers instead of floating margin labels */
   labelAsSpan?: boolean;
-  /** Gradient ₹ badge, same as the public loan amount field. */
+  /** Small gradient ₹ inside the field, same as the public loan amount input. */
   incomeWithRupee?: boolean;
 };
 
@@ -49,8 +49,8 @@ export default function EmploymentIncomeFields({
       className={
         incomeWithRupee
           ? labelAsSpan
-            ? "min-h-10 min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none dark:text-white"
-            : "min-h-10 min-w-0 flex-1 bg-transparent px-3 py-2 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none dark:text-white"
+            ? "min-h-10 min-w-0 flex-1 bg-transparent py-2 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none dark:text-white"
+            : "min-h-10 min-w-0 flex-1 bg-transparent py-2 pl-9 pr-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none dark:text-white"
           : inputClassName
       }
       required
@@ -61,16 +61,13 @@ export default function EmploymentIncomeFields({
     <div
       className={
         labelAsSpan
-          ? "flex min-h-[46px] items-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm focus-within:border-[#4236FB] focus-within:ring-2 focus-within:ring-[#4236FB]/20 dark:border-dark_border dark:bg-darkmode"
-          : "flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80"
+          ? "relative flex min-h-[46px] items-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm focus-within:border-[#4236FB] focus-within:ring-2 focus-within:ring-[#4236FB]/20 dark:border-dark_border dark:bg-darkmode"
+          : "relative flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80"
       }
     >
-      <span className="flex shrink-0 items-center pl-3" aria-hidden>
-        <span className="theme-gradient-bg flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold leading-none text-white shadow-[0_2px_8px_rgba(66,54,251,0.35)]">
-          ₹
-        </span>
+      <span className="theme-gradient-text pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-bold leading-none" aria-hidden>
+        ₹
       </span>
-      <span className="ml-2.5 h-6 w-px shrink-0 bg-gray-300 dark:bg-dark_border" aria-hidden />
       {incomeInput}
     </div>
   ) : (

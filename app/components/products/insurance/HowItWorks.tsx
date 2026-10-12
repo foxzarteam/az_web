@@ -48,7 +48,7 @@ const STEPS: HowItWorksStep[] = [
   {
     num: 4,
     title: "Get Your Policy",
-    description: "Our partners will help you get the best policy issued.",
+    description: "We’ll help you get the best insurance policy issued to suit your needs.",
     iconWrapClass: "bg-[#F3EEFF] text-[#8B5CF6]",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>

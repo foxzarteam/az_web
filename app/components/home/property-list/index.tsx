@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { COLORS } from "@/app/config/constants";
+import ServiceVideo from "./ServiceVideo";
 
 const applyBtnClass =
   "btn-gradient relative inline-flex w-auto shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-full px-4 py-2.5 text-xs font-bold uppercase tracking-[0.1em] text-white transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:px-5 sm:py-3 sm:text-sm md:text-base";
@@ -14,35 +15,6 @@ function PlayIcon() {
     >
       <path d="M4.037 4.688a.53.53 0 0 1 .78-.581l14.7 8.5a.53.53 0 0 1 0 .918l-14.7 8.5a.53.53 0 0 1-.78-.581V4.688z" />
     </svg>
-  );
-}
-
-function ServiceVideo({ src, label }: { src: string; label: string }) {
-  return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-slate-200/90 bg-light shadow-[0_10px_30px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-900/40">
-      <div className="relative aspect-video w-full overflow-hidden">
-        <video
-          className="pointer-events-none absolute left-1/2 top-1/2 block min-w-full select-none object-cover object-center"
-          style={{
-            height: "calc(100% + 10px)",
-            width: "100%",
-            transform: "translate(-50%, -50%) scale(1.07)",
-            transformOrigin: "center center",
-          }}
-          autoPlay
-          muted
-          loop
-          playsInline
-          disablePictureInPicture
-          controlsList="nodownload noplaybackrate noremoteplayback"
-          preload="none"
-          aria-label={label}
-          tabIndex={-1}
-        >
-          <source src={src} type="video/mp4" />
-        </video>
-      </div>
-    </div>
   );
 }
 

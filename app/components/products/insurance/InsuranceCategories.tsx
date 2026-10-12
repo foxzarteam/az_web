@@ -40,7 +40,10 @@ export default function InsuranceCategories() {
                 <button
                   type="button"
                   aria-pressed={selected}
-                  onClick={() => selection?.setValue(item.value)}
+                  onClick={() => {
+                    selection?.setValue(item.value);
+                    document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
                   className={`flex h-full w-full flex-col items-center rounded-2xl p-[2px] text-center transition duration-300 ${
                     selected
                       ? "-translate-y-1 bg-[linear-gradient(90deg,#4236FB_0%,#4236FB_42%,#FF7E29_100%)] shadow-[0_16px_34px_rgba(66,54,251,0.22)]"

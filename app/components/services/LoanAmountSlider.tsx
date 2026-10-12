@@ -48,13 +48,10 @@ export default function LoanAmountSlider({
       >
         Enter Loan Amount <span className="text-red-500">*</span>
       </label>
-      <div className={`flex min-h-10 items-center overflow-hidden rounded-xl border bg-white focus-within:ring-2 dark:bg-darkmode/80 ${error ? "border-red-500 focus-within:ring-red-500/40" : "border-gray-300 focus-within:ring-primary/70 dark:border-dark_border"}`}>
-        <span className="flex shrink-0 items-center pl-3" aria-hidden>
-          <span className="theme-gradient-bg flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold leading-none text-white shadow-[0_2px_8px_rgba(66,54,251,0.35)]">
-            ₹
-          </span>
+      <div className={`relative flex min-h-10 items-center overflow-hidden rounded-xl border bg-white focus-within:ring-2 dark:bg-darkmode/80 ${error ? "border-red-500 focus-within:ring-red-500/40" : "border-gray-300 focus-within:ring-primary/70 dark:border-dark_border"}`}>
+        <span className="theme-gradient-text pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-bold leading-none" aria-hidden>
+          ₹
         </span>
-        <span className="ml-2.5 h-6 w-px shrink-0 bg-gray-300 dark:bg-dark_border" aria-hidden />
         <input
           id={id}
           type="text"
@@ -77,7 +74,7 @@ export default function LoanAmountSlider({
             const parsed = Number(next);
             if (Number.isFinite(parsed)) onChange(parsed);
           }}
-          className="min-h-10 min-w-0 flex-1 bg-transparent px-3 py-2 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none dark:text-white"
+          className="min-h-10 min-w-0 flex-1 bg-transparent py-2 pl-9 pr-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none dark:text-white"
           aria-label="Enter loan amount"
           aria-invalid={error ? true : undefined}
           required={required}
