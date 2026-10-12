@@ -5,7 +5,6 @@ import { buildPageMetadata, faqPageJsonLd, pageSeoGlue } from "@/app/lib/seo";
 import Hero from "./components/home/hero";
 import LoanCategories from "./components/products/loans/LoanCategories";
 import HomeDisclaimerBanner from "./components/home/HomeDisclaimerBanner";
-import LoanPurposes from "./components/home/loan-purposes";
 import EligibilityCalculator from "./components/home/eligibility-calculator";
 import BankPartners from "./components/home/bank-partners";
 import Listing from "./components/home/property-list";
@@ -50,7 +49,6 @@ export default function Home() {
         hideHeading
       />
       <Calculator />
-      <LoanPurposes />
       <EligibilityCalculator />
       <BankPartners />
       <div className="h-8 bg-[#F7F8FC] sm:h-12 dark:bg-semidark" aria-hidden />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import type { ConfirmationResult } from "firebase/auth";
@@ -54,6 +54,8 @@ type ServicePageProps = {
   loanTabs?: boolean;
   /** No page hero: clear the fixed navbar and draw a theme line under it. */
   navBorder?: boolean;
+  /** Rendered under the nav line and above the apply form. */
+  aboveForm?: ReactNode;
 };
 
 function slugFromPathname(pathname: string): string {
@@ -63,14 +65,6 @@ function slugFromPathname(pathname: string): string {
 
 const inputClass =
   "w-full min-h-10 px-3.5 py-2 rounded-xl border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode/80 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70";
-
-function loanTypeGif(slug: string): string {
-  const key = slug.toLowerCase();
-  if (key.includes("home")) return "/images/loans/home-loan.gif";
-  if (key.includes("car") || key.includes("vehicle")) return "/images/loans/car-loan.gif";
-  if (key.includes("business")) return "/images/loans/business-loan.gif";
-  return "/images/loans/personal-loan.gif";
-}
 
 const mobileShellClass =
   "flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80";
@@ -87,6 +81,7 @@ export default function ServicePage({
   serviceSlug: serviceSlugProp,
   loanTabs = false,
   navBorder = false,
+  aboveForm,
 }: ServicePageProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -325,11 +320,21 @@ export default function ServicePage({
               </>
             )}
 
-            <div className="theme-gradient-bg p-[1px] rounded-2xl sm:rounded-3xl shadow-xl w-full min-w-0 flex flex-col">
+            {aboveForm ? <div className="mb-4 w-full min-w-0 sm:mb-5">{aboveForm}</div> : null}
+
+            <div id="apply-form" className="theme-gradient-bg scroll-mt-24 p-[1px] rounded-2xl sm:rounded-3xl shadow-xl w-full min-w-0 flex flex-col">
               <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-4 sm:py-6 lg:py-7 px-4 sm:px-6 md:px-7 flex flex-1 flex-col min-h-0 min-w-0">
                 <div className="mb-3">
-                  <h2 className="text-lg sm:text-xl font-semibold text-midnight_text dark:text-white">
-                    Apply for {selectedLoanTitle}
+                  <h2 className={`${loanTabs ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"} font-semibold text-midnight_text dark:text-white`}>
+                    {loanTabs ? (
+                      <>
+                        Check{" "}
+                        <span className="theme-gradient-text font-extrabold">{selectedLoanTitle}</span>
+                        {" "}Eligibility
+                      </>
+                    ) : (
+                      `Apply for ${selectedLoanTitle}`
+                    )}
                   </h2>
                 </div>
 
@@ -410,24 +415,6 @@ export default function ServicePage({
                           );
                         }}
                         className="pointer-events-none absolute inset-x-0 bottom-0 h-10 opacity-0"
-                      />
-                    </div>
-                  )}
-
-                  {loanTabs && (
-                    <div>
-                      <label htmlFor="service-loan-type" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                        Select your loan type <span className="text-red-500">*</span>
-                      </label>
-                      <InsuranceTypeSelect
-                        id="service-loan-type"
-                        value={loanSlug}
-                        onChange={setLoanSlug}
-                        options={loanProducts.map((item) => ({
-                          value: item.slug,
-                          label: item.title,
-                          image: loanTypeGif(item.slug),
-                        }))}
                       />
                     </div>
                   )}
@@ -570,12 +557,16 @@ export default function ServicePage({
                     <button
                       type="submit"
                       disabled={isSubmittingForm}
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl btn-gradient text-white text-sm sm:text-base font-semibold py-2.5 sm:py-3 px-4 transition-opacity shadow-md min-h-[44px] disabled:opacity-70 disabled:cursor-not-allowed"
+                      className={`inline-flex w-full items-center justify-center gap-2 btn-gradient px-4 text-sm font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70 sm:text-base ${loanTabs ? "min-h-12 rounded-full py-3" : "min-h-[44px] rounded-xl py-2.5 sm:rounded-2xl sm:py-3"}`}
                     >
-                      {isSubmittingForm ? "Submitting…" : "Apply Now"}
+                      {isSubmittingForm ? "Submitting…" : loanTabs ? "Check Eligibility" : "Apply Now"}
+                      {!isSubmittingForm && loanTabs ? (
+                        <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden>
+                          <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      ) : null}
                     </button>
-                    <LeadCreditDisclaimer className="mt-2" />
-                    <CheckApplicationStatusLink className="mt-3" />
+                    <LeadCreditDisclaimer className="mt-2 text-xs" />
                   </div>
                 </form>
               </div>

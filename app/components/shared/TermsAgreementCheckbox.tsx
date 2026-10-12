@@ -20,9 +20,9 @@ type Props = {
 const VALIDITY_MESSAGE = "Please agree to the terms and conditions to continue.";
 const LEAD_VALIDITY_MESSAGE = "Please tick the checkbox to continue.";
 
-export function LeadCreditDisclaimer({ className = "" }: { className?: string }) {
+export function LeadCreditDisclaimer({ className = "text-[11px]" }: { className?: string }) {
   return (
-    <p className={`text-center text-[11px] leading-snug text-gray-500 dark:text-gray-400 ${className}`}>
+    <p className={`text-center leading-snug text-gray-500 dark:text-gray-400 ${className}`}>
       By proceeding, you consent to fetching your credit report for eligibility checks via our
       RBI-regulated partners.
     </p>

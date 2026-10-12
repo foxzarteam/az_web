@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ServicePage from "@/app/components/services/ServicePage";
 import HowItWorks from "@/app/components/products/loans/HowItWorks";
+import LoanPurposes from "@/app/components/home/loan-purposes";
 import LoanCategories from "@/app/components/products/loans/LoanCategories";
 import { LoanSelectionProvider } from "@/app/components/products/loans/loanSelection";
 import FaqSection from "@/app/components/home/faq";
@@ -136,9 +137,10 @@ export default function LoanPageView({ pageKey }: { pageKey: LoanPageKey }) {
           badge="Instant personal loan assistance"
           hideHeader
           loanTabs
+          aboveForm={<LoanCategories embedded hideHeading className="!py-0" />}
         />
-        <LoanCategories softBg />
       </LoanSelectionProvider>
+      <LoanPurposes />
       <BankPartners />
       <HowItWorks />
       <FaqSection items={PERSONAL_LOAN_FAQ_ITEMS} />
