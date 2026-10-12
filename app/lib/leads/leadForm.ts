@@ -80,7 +80,6 @@ export type LeadFieldErrors = Partial<{
   fullName: string;
   service: string;
   loanAmt: string;
-  loanTenure: string;
   insType: string;
   netMonthlyIncome: string;
   pincode: string;

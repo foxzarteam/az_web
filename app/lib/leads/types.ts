@@ -8,8 +8,6 @@ export interface CreateLeadRequest {
   email?: string;
   pincode?: string;
   requiredAmount?: number;
-  /** Loan tenure in months (12–240, i.e. 1–20 years). */
-  loanTenureMonths?: number;
   loanAmt?: string;
   insType?: string;
   netMonthlyIncome?: number;

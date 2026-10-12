@@ -1,5 +1,4 @@
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
-import { PERSONAL_LOAN_TENURE } from "@/app/config/constants";
 import { DEFAULT_LOAN_AMOUNT } from "./leadDisplay";
 import {
   type CommissionChoice,
@@ -15,7 +14,6 @@ export type EditForm = {
   category: string;
   status: string;
   requiredAmount: number;
-  loanTenureMonths: number;
   insType: string;
   netMonthlyIncome: string;
   pincode: string;
@@ -44,7 +42,6 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
     requiredAmount: clampLoanAmount(
       lead.required_amount ?? (fromRange > 0 ? fromRange : DEFAULT_LOAN_AMOUNT),
     ),
-    loanTenureMonths: clampTenure(lead.loan_tenure_months),
     insType: String(lead.ins_type ?? "life_insurance"),
     netMonthlyIncome:
       lead.net_monthly_income != null && lead.net_monthly_income !== ""
@@ -58,15 +55,6 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
       lead.consent_accepted === 1 ||
       lead.consent_accepted === "true",
   };
-}
-
-function clampTenure(value: unknown): number {
-  const n = typeof value === "number" ? value : Number(value);
-  if (!Number.isInteger(n)) return PERSONAL_LOAN_TENURE.DEFAULT_MONTHS;
-  return Math.min(
-    PERSONAL_LOAN_TENURE.MAX_MONTHS,
-    Math.max(PERSONAL_LOAN_TENURE.MIN_MONTHS, n),
-  );
 }
 
 function amountFromRange(loanAmt: unknown): number {
@@ -84,7 +72,6 @@ export function emptyCreateForm(): EditForm {
     category: "personal_loan",
     status: "pending",
     requiredAmount: DEFAULT_LOAN_AMOUNT,
-    loanTenureMonths: PERSONAL_LOAN_TENURE.DEFAULT_MONTHS,
     insType: "life_insurance",
     netMonthlyIncome: "",
     pincode: "",
@@ -175,7 +162,6 @@ export function buildLeadPayload(
   };
   if (form.category === "personal_loan") {
     payload.requiredAmount = form.requiredAmount;
-    payload.loanTenureMonths = form.loanTenureMonths;
     payload.insType = null;
     payload.loanAmt = null;
     const income = Number(form.netMonthlyIncome);
@@ -183,7 +169,6 @@ export function buildLeadPayload(
   } else if (form.category === "insurance") {
     payload.insType = form.insType;
     payload.requiredAmount = null;
-    payload.loanTenureMonths = null;
     payload.loanAmt = null;
     payload.netMonthlyIncome = null;
   }

@@ -285,7 +285,6 @@ CREATE TABLE public.leads (
     pan_hash text,
     employment_type character varying(30),
     net_monthly_income numeric(12,0),
-    loan_tenure_months integer,
     commission_type character varying(20),
     commission_value numeric(12,2),
     ip_location character varying(255),

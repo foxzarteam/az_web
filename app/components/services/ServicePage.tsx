@@ -13,9 +13,8 @@ import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationStatusLink";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
-import LoanTenureSlider from "@/app/components/services/LoanTenureSlider";
 import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
-import { MOBILE_VALIDATION, PERSONAL_LOAN_TENURE } from "@/app/config/constants";
+import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { customerLogin } from "@/app/lib/customer/authApi";
 import { applyLead, isExistingApplicationError, leadIdFromResponse, mapServiceToCategory, type CreateLeadResponse } from "@/app/lib/leads/leadApi";
 import {
@@ -112,7 +111,6 @@ export default function ServicePage({
   const [mobile, setMobile] = useState("");
   const [pincode, setPincode] = useState("");
   const [loanAmount, setLoanAmount] = useState(0);
-  const [loanTenure, setLoanTenure] = useState<number>(loanTabs ? 24 : PERSONAL_LOAN_TENURE.DEFAULT_MONTHS);
   const insuranceSelection = useInsuranceSelection();
   const [localInsType, setLocalInsType] = useState("");
   const insType = insuranceSelection?.value ?? localInsType;
@@ -232,7 +230,6 @@ export default function ServicePage({
           fullName,
           pincode,
           loanAmount,
-          loanTenureMonths: loanTenure,
           netMonthlyIncome,
         }, loanBounds),
       );
@@ -262,7 +259,6 @@ export default function ServicePage({
               fullName,
               pincode,
               loanAmount,
-              loanTenureMonths: loanTenure,
               netMonthlyIncome,
             })
           : null;
@@ -275,7 +271,6 @@ export default function ServicePage({
         ...(pl
           ? {
               requiredAmount: pl.requiredAmount,
-              loanTenureMonths: pl.loanTenureMonths,
               netMonthlyIncome: pl.netMonthlyIncome,
             }
           : {}),
@@ -420,58 +415,20 @@ export default function ServicePage({
                   )}
 
                   {loanTabs && (
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                      <div>
-                        <label htmlFor="service-loan-type" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                          Select your loan type <span className="text-red-500">*</span>
-                        </label>
-                        <InsuranceTypeSelect
-                          id="service-loan-type"
-                          value={loanSlug}
-                          onChange={setLoanSlug}
-                          options={loanProducts.map((item) => ({
-                            value: item.slug,
-                            label: item.title,
-                            image: loanTypeGif(item.slug),
-                          }))}
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="service-loan-tenure" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                          Enter your loan tenure <span className="text-red-500">*</span>
-                        </label>
-                        <div
-                          className={`flex min-h-10 overflow-hidden rounded-xl border bg-white focus-within:ring-2 dark:bg-darkmode/80 ${
-                            loanTenure < PERSONAL_LOAN_TENURE.MIN_MONTHS || loanTenure > PERSONAL_LOAN_TENURE.MAX_MONTHS
-                              ? "border-red-500 focus-within:ring-red-500/40"
-                              : "border-gray-300 focus-within:ring-primary/70 dark:border-dark_border"
-                          }`}
-                        >
-                          <input
-                            id="service-loan-tenure"
-                            type="text"
-                            inputMode="numeric"
-                            autoComplete="off"
-                            value={loanTenure > 0 ? String(loanTenure) : ""}
-                            onChange={(e) => {
-                              const next = e.target.value.replace(/\D/g, "").slice(0, 3);
-                              setLoanTenure(next ? Number(next) : 0);
-                            }}
-                            placeholder="24"
-                            className="min-h-10 min-w-0 flex-1 bg-transparent px-3.5 py-2 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none dark:text-white"
-                            aria-invalid={loanTenure < PERSONAL_LOAN_TENURE.MIN_MONTHS || loanTenure > PERSONAL_LOAN_TENURE.MAX_MONTHS}
-                            required
-                          />
-                          <span className="theme-gradient-bg pointer-events-none flex shrink-0 items-center px-3.5 text-sm font-semibold text-white">
-                            month
-                          </span>
-                        </div>
-                        {loanTenure < PERSONAL_LOAN_TENURE.MIN_MONTHS || loanTenure > PERSONAL_LOAN_TENURE.MAX_MONTHS ? (
-                          <p className="mt-1.5 text-sm text-red-600" role="alert">
-                            Loan tenure must be between {PERSONAL_LOAN_TENURE.MIN_MONTHS} and {PERSONAL_LOAN_TENURE.MAX_MONTHS} months
-                          </p>
-                        ) : null}
-                      </div>
+                    <div>
+                      <label htmlFor="service-loan-type" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                        Select your loan type <span className="text-red-500">*</span>
+                      </label>
+                      <InsuranceTypeSelect
+                        id="service-loan-type"
+                        value={loanSlug}
+                        onChange={setLoanSlug}
+                        options={loanProducts.map((item) => ({
+                          value: item.slug,
+                          label: item.title,
+                          image: loanTypeGif(item.slug),
+                        }))}
+                      />
                     </div>
                   )}
 
@@ -599,14 +556,6 @@ export default function ServicePage({
                         incomeWithRupee
                       />
                     </div>
-                  )}
-
-                  {showLoanAmount && !loanTabs && (
-                    <LoanTenureSlider
-                      value={loanTenure}
-                      onChange={setLoanTenure}
-                      label="Select Loan Tenure"
-                    />
                   )}
 
                   <TermsAgreementCheckbox

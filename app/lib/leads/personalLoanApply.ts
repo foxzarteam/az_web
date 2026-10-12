@@ -5,7 +5,7 @@ import {
   validatePersonalLoanEmployment,
   type LeadFieldErrors,
 } from "@/app/lib/leads/leadForm";
-import { PERSONAL_LOAN_EMI_LIMITS, PERSONAL_LOAN_TENURE } from "@/app/config/constants";
+import { PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
 
 export type PersonalLoanFormValues = {
   pan: string;
@@ -13,7 +13,6 @@ export type PersonalLoanFormValues = {
   fullName: string;
   pincode: string;
   loanAmount: number;
-  loanTenureMonths: number;
   netMonthlyIncome: string;
 };
 
@@ -37,14 +36,6 @@ export function validatePersonalLoanApplyForm(
     errors.loanAmt = `Loan amount must be between ₹${minAmount.toLocaleString("en-IN")} and ₹${maxAmount.toLocaleString("en-IN")}`;
   }
 
-  if (
-    !Number.isInteger(values.loanTenureMonths) ||
-    values.loanTenureMonths < PERSONAL_LOAN_TENURE.MIN_MONTHS ||
-    values.loanTenureMonths > PERSONAL_LOAN_TENURE.MAX_MONTHS
-  ) {
-    errors.loanTenure = `Loan tenure must be between ${PERSONAL_LOAN_TENURE.MIN_MONTHS} and ${PERSONAL_LOAN_TENURE.MAX_MONTHS} months`;
-  }
-
   Object.assign(errors, validatePersonalLoanEmployment(values.netMonthlyIncome));
 
   return errors;
@@ -61,7 +52,6 @@ export function personalLoanApplyPayload(
     pincode: values.pincode.replace(/\D/g, ""),
     category: "personal_loan",
     requiredAmount: values.loanAmount,
-    loanTenureMonths: values.loanTenureMonths,
     netMonthlyIncome: incomeNum,
     consentAccepted: true,
   };
