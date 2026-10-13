@@ -190,6 +190,8 @@ export function downloadXlsx(bytes: Uint8Array, filename: string) {
   URL.revokeObjectURL(url);
 }
 
+export { buildZip as buildStoredZip };
+
 export function datedExportName(prefix: string): string {
   const day = new Date();
   const stamp = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, "0")}-${String(day.getDate()).padStart(2, "0")}`;

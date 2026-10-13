@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { WhatsappEnquiryDetail, WhatsappEnquiryRow } from "@/app/lib/admin/fetchWhatsapp";
 import { toPublicClientError } from "@/app/lib/publicClientError";
+import { downloadCustomerDocuments } from "./customerDocuments";
 import StartWhatsappChat from "./StartWhatsappChat";
 import WhatsappThread from "./WhatsappThread";
 
@@ -56,6 +57,8 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
   const [sendError, setSendError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [exportingDocs, setExportingDocs] = useState(false);
+  const [docsError, setDocsError] = useState<string | null>(null);
   const [startOpen, setStartOpen] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
   const emojiRef = useRef<HTMLDivElement>(null);
@@ -143,6 +146,7 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
     setSendError(null);
     setConfirmDelete(false);
     setEmojiOpen(false);
+    setDocsError(null);
     await loadChat(row.id);
   }
 
@@ -184,6 +188,37 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
       setSendError("Network error. Try again.");
     } finally {
       setSending(false);
+    }
+  }
+
+  async function exportDocuments() {
+    if (!detail || exportingDocs) return;
+    const enquiryId = detail.id;
+    const customerName = detail.profileName || "Customer";
+    setExportingDocs(true);
+    setDocsError(null);
+    try {
+      const result = await downloadCustomerDocuments({
+        enquiryId,
+        customerName,
+        messages: detail.messages,
+      });
+      if (openIdRef.current !== enquiryId) return;
+      if (!result.ok) {
+        setDocsError(result.error);
+        return;
+      }
+      if (result.missing > 0) {
+        setDocsError(
+          result.missing === 1
+            ? "1 file could not be downloaded."
+            : `${result.missing} files could not be downloaded.`,
+        );
+      }
+    } catch {
+      if (openIdRef.current === enquiryId) setDocsError("Could not download this customer's files.");
+    } finally {
+      setExportingDocs(false);
     }
   }
 
@@ -302,6 +337,7 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
                   setOpenId(null);
                   setDetail(null);
                   setConfirmDelete(false);
+                  setDocsError(null);
                 }}
                 aria-label="Back to chats"
               >
@@ -314,25 +350,38 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
                 </p>
                 <p className="truncate text-xs text-[#667781]">{formatPhone(detail?.phone || selected?.phone || "")}</p>
               </div>
-              {confirmDelete ? (
-                <span className="flex items-center gap-2 text-xs">
-                  <button type="button" className="text-[#667781]" onClick={() => setConfirmDelete(false)} disabled={deleting}>
-                    Cancel
-                  </button>
-                  <button type="button" className="font-semibold text-[#b42318]" onClick={() => void deleteChat()} disabled={deleting}>
-                    {deleting ? "Deleting…" : "Delete"}
-                  </button>
-                </span>
-              ) : (
+              <div className="flex shrink-0 items-center gap-3">
                 <button
                   type="button"
-                  className="text-xs font-medium text-[#667781] hover:text-[#b42318]"
-                  onClick={() => setConfirmDelete(true)}
+                  className="text-xs font-medium text-[#128C7E] hover:underline disabled:opacity-60"
+                  onClick={() => void exportDocuments()}
+                  disabled={exportingDocs || !detail}
                 >
-                  Delete
+                  {exportingDocs ? "Exporting…" : "Export document"}
                 </button>
-              )}
+                {confirmDelete ? (
+                  <span className="flex items-center gap-2 text-xs">
+                    <button type="button" className="text-[#667781]" onClick={() => setConfirmDelete(false)} disabled={deleting}>
+                      Cancel
+                    </button>
+                    <button type="button" className="font-semibold text-[#b42318]" onClick={() => void deleteChat()} disabled={deleting}>
+                      {deleting ? "Deleting…" : "Delete"}
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-[#667781] hover:text-[#b42318]"
+                    onClick={() => setConfirmDelete(true)}
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
             </header>
+            {docsError ? (
+              <p className="border-b border-[#e9edef] bg-[#fff4f2] px-4 py-1.5 text-xs text-[#b42318]">{docsError}</p>
+            ) : null}
 
             <div className="min-h-0 flex-1 overflow-y-auto" style={{ backgroundColor: "#efeae2" }}>
               {loading ? <p className="px-4 py-10 text-center text-sm text-[#667781]">Loading chat…</p> : null}
