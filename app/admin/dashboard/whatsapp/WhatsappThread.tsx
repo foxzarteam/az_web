@@ -20,6 +20,23 @@ function mediaSrc(enquiryId: string, messageId: string): string {
   return `/api/admin/whatsapp/enquiries/${encodeURIComponent(enquiryId)}/media/${encodeURIComponent(messageId)}`;
 }
 
+const MISSING_FILE_NOTICE = "This file did not come through. Ask the customer to send it again as a photo or PDF.";
+
+function isFalseMissingNotice(message: WhatsappChatMessage, messages: WhatsappChatMessage[]): boolean {
+  const text = message.text.trim();
+  const notice =
+    message.role === "user" &&
+    !message.hasMedia &&
+    (text === MISSING_FILE_NOTICE || /^\[(unsupported|unknown|empty) message\]$/i.test(text));
+  if (!notice) return false;
+  const at = Date.parse(message.at);
+  return messages.some((other) => {
+    if (other.id === message.id || other.role !== "user" || !other.hasMedia) return false;
+    const otherAt = Date.parse(other.at);
+    return Number.isFinite(at) && Number.isFinite(otherAt) && Math.abs(otherAt - at) <= 2 * 60 * 1000;
+  });
+}
+
 function visibleText(message: WhatsappChatMessage): string {
   const text = message.text.trim();
   if (!text) return "";
@@ -129,7 +146,7 @@ export default function WhatsappThread({ enquiryId, messages }: { enquiryId: str
 
   return (
     <div className="space-y-2 px-3 py-4 sm:px-5">
-      {messages.map((message) => {
+      {messages.filter((message) => !isFalseMissingNotice(message, messages)).map((message) => {
         const mine = message.role === "assistant";
         const text = visibleText(message);
         return (
