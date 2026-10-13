@@ -14,6 +14,7 @@ export type PersonalLoanFormValues = {
   pincode: string;
   loanAmount: number;
   netMonthlyIncome: string;
+  employmentType: string;
 };
 
 /** Client validation for personal loan apply forms (hero + product page). */
@@ -36,7 +37,10 @@ export function validatePersonalLoanApplyForm(
     errors.loanAmt = `Loan amount must be between ₹${minAmount.toLocaleString("en-IN")} and ₹${maxAmount.toLocaleString("en-IN")}`;
   }
 
-  Object.assign(errors, validatePersonalLoanEmployment(values.netMonthlyIncome));
+  Object.assign(
+    errors,
+    validatePersonalLoanEmployment(values.netMonthlyIncome, values.employmentType),
+  );
 
   return errors;
 }
@@ -53,6 +57,7 @@ export function personalLoanApplyPayload(
     category: "personal_loan",
     requiredAmount: values.loanAmount,
     netMonthlyIncome: incomeNum,
+    employmentType: values.employmentType,
     consentAccepted: true,
   };
 }

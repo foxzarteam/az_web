@@ -1,30 +1,83 @@
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
 import { CrmActionButton, type CrmColumn } from "@/app/components/shared/crm/DataTable";
 import {
+  STATUSES,
   amountOrInsuranceText,
   categoryLabel,
   cellText,
-  isConsentAccepted,
-  isOtpVerified,
+  statusCapsuleClass,
+  statusLabel,
 } from "./leadDisplay";
 
-const yesClass =
-  "inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300";
-const noClass =
-  "inline-flex rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600 dark:bg-red-950/40 dark:text-red-300";
+function leadStatus(row: AdminLeadRow): string {
+  return String(row.status ?? "pending").trim().toLowerCase() || "pending";
+}
 
-function YesNo({ on }: { on: boolean }) {
-  return <span className={on ? yesClass : noClass}>{on ? "Yes" : "No"}</span>;
+function StatusCell({
+  row,
+  readOnly,
+  canApprove,
+  saving,
+  onChange,
+}: {
+  row: AdminLeadRow;
+  readOnly: boolean;
+  canApprove: boolean;
+  saving: boolean;
+  onChange: (row: AdminLeadRow, status: string) => void;
+}) {
+  const status = leadStatus(row);
+  const locked = readOnly || saving || (!canApprove && status === "approved");
+  const options = STATUSES.filter((item) => item.value !== "approved" || canApprove || status === "approved");
+  if (locked) {
+    return <span className={statusCapsuleClass(status)}>{statusLabel(status)}</span>;
+  }
+  return (
+    <span className="relative inline-flex items-center">
+      <select
+        aria-label={`Status for ${cellText(row, "full_name")}`}
+        value={options.some((item) => item.value === status) ? status : "pending"}
+        disabled={saving}
+        onClick={(event) => event.stopPropagation()}
+        onChange={(event) => {
+          const next = event.target.value;
+          if (next && next !== status) onChange(row, next);
+        }}
+        className={`${statusCapsuleClass(status)} cursor-pointer appearance-none border-0 py-1 pr-6 pl-2.5 outline-none focus:ring-2 focus:ring-[#4236FB]/30`}
+      >
+        {options.map((item) => (
+          <option key={item.value} value={item.value}>
+            {item.label}
+          </option>
+        ))}
+      </select>
+      <svg
+        aria-hidden
+        className="pointer-events-none absolute right-1.5 text-current opacity-70"
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+      >
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    </span>
+  );
 }
 
 export function buildLeadColumns(opts: {
   readOnly: boolean;
   canDelete: boolean;
+  canApprove: boolean;
+  statusSavingId: string | null;
   onView: (row: AdminLeadRow) => void;
   onEdit: (row: AdminLeadRow) => void;
   onDelete: (row: AdminLeadRow) => void;
+  onStatus: (row: AdminLeadRow, status: string) => void;
 }): CrmColumn<AdminLeadRow>[] {
-  const { readOnly, canDelete, onView, onEdit, onDelete } = opts;
+  const { readOnly, canDelete, canApprove, statusSavingId, onView, onEdit, onDelete, onStatus } = opts;
   return [
     {
       id: "full_name",
@@ -73,22 +126,21 @@ export function buildLeadColumns(opts: {
       cell: (row) => amountOrInsuranceText(row),
     },
     {
-      id: "otp_verified",
-      header: "Verified",
+      id: "status",
+      header: "Status",
       sortable: true,
-      sortValue: (row) => (isOtpVerified(row) ? 1 : 0),
-      searchValue: (row) => (isOtpVerified(row) ? "yes verified" : "no unverified"),
-      className: "min-w-[6rem] whitespace-nowrap",
-      cell: (row) => <YesNo on={isOtpVerified(row)} />,
-    },
-    {
-      id: "consent_accepted",
-      header: "Consent",
-      sortable: true,
-      sortValue: (row) => (isConsentAccepted(row) ? 1 : 0),
-      searchValue: (row) => (isConsentAccepted(row) ? "yes consent" : "no consent"),
-      className: "min-w-[6rem] whitespace-nowrap",
-      cell: (row) => <YesNo on={isConsentAccepted(row)} />,
+      sortValue: (row) => statusLabel(row.status),
+      searchValue: (row) => statusLabel(row.status),
+      className: "min-w-[9.5rem] whitespace-nowrap",
+      cell: (row) => (
+        <StatusCell
+          row={row}
+          readOnly={readOnly}
+          canApprove={canApprove}
+          saving={statusSavingId === String(row.id ?? "")}
+          onChange={onStatus}
+        />
+      ),
     },
     {
       id: "actions",

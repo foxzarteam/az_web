@@ -86,7 +86,12 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
         try {
           const res = await fetch("/api/admin/whatsapp/enquiries");
           const data = (await res.json().catch(() => ({}))) as { data?: WhatsappEnquiryRow[] };
-          if (res.ok && Array.isArray(data.data)) setRows(data.data);
+          if (res.ok && Array.isArray(data.data)) {
+            const open = openIdRef.current;
+            setRows(
+              data.data.map((row) => (row.id === open ? { ...row, unreadCount: 0 } : row)),
+            );
+          }
         } catch {
           /* keep current list */
         }
@@ -139,6 +144,7 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
   async function openChat(row: WhatsappEnquiryRow) {
     if (openId === row.id && detail) return;
     setOpenId(row.id);
+    setRows((prev) => prev.map((item) => (item.id === row.id ? { ...item, unreadCount: 0 } : item)));
     setDetail(null);
     setError(null);
     setDraft("");
@@ -256,6 +262,7 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
       lastMessage: preview,
       lastChatAt: detail.lastChatAt,
       createdAt: detail.createdAt,
+      unreadCount: 0,
     };
     setRows((prev) => [next, ...prev.filter((row) => row.id !== detail.id)]);
     setOpenId(detail.id);
@@ -310,10 +317,25 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
                   <ProfileIcon name={row.profileName} />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center justify-between gap-2">
-                      <span className="truncate text-sm font-medium text-[#111b21]">{row.profileName || "WhatsApp user"}</span>
+                      <span
+                        className={`truncate text-sm text-[#111b21] ${(row.unreadCount ?? 0) > 0 ? "font-semibold" : "font-medium"}`}
+                      >
+                        {row.profileName || "WhatsApp user"}
+                      </span>
                       <span className="shrink-0 text-[11px] text-[#667781]">{formatListTime(row.lastChatAt)}</span>
                     </span>
-                    <span className="mt-0.5 block truncate text-xs text-[#667781]">{row.lastMessage || formatPhone(row.phone)}</span>
+                    <span className="mt-0.5 flex items-center justify-between gap-2">
+                      <span className="min-w-0 truncate text-xs text-[#667781]">
+                        {/^\[(unsupported|unknown|empty) message\]$/i.test(row.lastMessage.trim())
+                          ? "File did not come through"
+                          : row.lastMessage || formatPhone(row.phone)}
+                      </span>
+                      {(row.unreadCount ?? 0) > 0 ? (
+                        <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#25D366] px-1.5 text-[11px] font-semibold leading-none text-white">
+                          {(row.unreadCount ?? 0) > 99 ? "99+" : row.unreadCount}
+                        </span>
+                      ) : null}
+                    </span>
                   </span>
                 </button>
               );

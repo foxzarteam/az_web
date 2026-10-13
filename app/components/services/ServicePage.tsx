@@ -13,7 +13,9 @@ import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationStatusLink";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
-import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
+import EmploymentIncomeFields, {
+  EmploymentTypeField,
+} from "@/app/components/leads/EmploymentIncomeFields";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { customerLogin } from "@/app/lib/customer/authApi";
 import { applyLead, isExistingApplicationError, leadIdFromResponse, mapServiceToCategory, type CreateLeadResponse } from "@/app/lib/leads/leadApi";
@@ -119,6 +121,7 @@ export default function ServicePage({
   const insType = insuranceSelection?.value ?? localInsType;
   const setInsType = insuranceSelection?.setValue ?? setLocalInsType;
   const [netMonthlyIncome, setNetMonthlyIncome] = useState("");
+  const [employmentType, setEmploymentType] = useState("");
   const [pan, setPan] = useState("");
   const [formError, setFormError] = useState("");
   const loanSelection = useLoanSelection();
@@ -139,12 +142,6 @@ export default function ServicePage({
     () => (loanTabs ? mergeLoanPageTabs(apiLoans) : []),
     [apiLoans, loanTabs],
   );
-
-  useEffect(() => {
-    if (!formError) return;
-    const t = window.setTimeout(() => setFormError(""), 3000);
-    return () => window.clearTimeout(t);
-  }, [formError]);
 
   const service = loanTabs ? loanSlug : pageServiceSlug;
   const selectedCategory = mapServiceToCategory(service);
@@ -234,6 +231,7 @@ export default function ServicePage({
           pincode,
           loanAmount,
           netMonthlyIncome,
+          employmentType,
         }, loanBounds),
       );
       if (loanAmountError) delete errors.loanAmt;
@@ -263,6 +261,7 @@ export default function ServicePage({
               pincode,
               loanAmount,
               netMonthlyIncome,
+              employmentType,
             })
           : null;
       const payload = {
@@ -275,6 +274,7 @@ export default function ServicePage({
           ? {
               requiredAmount: pl.requiredAmount,
               netMonthlyIncome: pl.netMonthlyIncome,
+              employmentType: pl.employmentType,
             }
           : {}),
         ...(category === "insurance" ? { insType } : {}),
@@ -428,20 +428,38 @@ export default function ServicePage({
                   )}
 
                   {loanTabs && (
-                    <div>
-                      <label htmlFor="service-loan-type" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                        Select your loan type <span className="text-red-500">*</span>
-                      </label>
-                      <InsuranceTypeSelect
-                        id="service-loan-type"
-                        value={loanSlug}
-                        onChange={setLoanSlug}
-                        options={loanProducts.map((item) => ({
-                          value: item.slug,
-                          label: item.title,
-                          image: loanTypeGif(item.slug),
-                        }))}
-                      />
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                      <div>
+                        <label htmlFor="service-loan-type" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                          Select your loan type <span className="text-red-500">*</span>
+                        </label>
+                        <InsuranceTypeSelect
+                          id="service-loan-type"
+                          value={loanSlug}
+                          onChange={setLoanSlug}
+                          options={loanProducts.map((item) => ({
+                            value: item.slug,
+                            label: item.title,
+                            image: loanTypeGif(item.slug),
+                          }))}
+                        />
+                      </div>
+                      {showLoanAmount ? (
+                        <LoanAmountSlider
+                          id="service-loan-amount"
+                          value={loanAmount}
+                          onChange={setLoanAmount}
+                          min={loanBounds?.min}
+                          max={loanBounds?.max}
+                          placeholder={
+                            loanBounds
+                              ? `₹${loanBounds.min.toLocaleString("en-IN")} – ₹${loanBounds.max.toLocaleString("en-IN")}`
+                              : ""
+                          }
+                          error={loanAmountError}
+                          required
+                        />
+                      ) : null}
                     </div>
                   )}
 
@@ -544,21 +562,30 @@ export default function ServicePage({
                     </div>
                   </div>
 
+                  {showLoanAmount && !loanTabs ? (
+                    <LoanAmountSlider
+                      id="service-loan-amount"
+                      value={loanAmount}
+                      onChange={setLoanAmount}
+                      min={loanBounds?.min}
+                      max={loanBounds?.max}
+                      placeholder={
+                        loanBounds
+                          ? `₹${loanBounds.min.toLocaleString("en-IN")} – ₹${loanBounds.max.toLocaleString("en-IN")}`
+                          : ""
+                      }
+                      error={loanAmountError}
+                      required
+                    />
+                  ) : null}
+
                   {showLoanAmount && (
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                      <LoanAmountSlider
-                        id="service-loan-amount"
-                        value={loanAmount}
-                        onChange={setLoanAmount}
-                        min={loanBounds?.min}
-                        max={loanBounds?.max}
-                        placeholder={
-                          loanBounds
-                            ? `₹${loanBounds.min.toLocaleString("en-IN")} – ₹${loanBounds.max.toLocaleString("en-IN")}`
-                            : ""
-                        }
-                        error={loanAmountError}
-                        required
+                      <EmploymentTypeField
+                        id="service-employment"
+                        value={employmentType}
+                        onChange={setEmploymentType}
+                        className={inputClass}
                       />
                       <EmploymentIncomeFields
                         idPrefix="service"

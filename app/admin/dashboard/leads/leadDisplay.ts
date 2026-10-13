@@ -1,6 +1,7 @@
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
 import { formatIpLocationDisplay } from "@/app/lib/admin/formatIpLocation";
 import {
+  employmentTypeLabel,
   insuranceTypeLabel,
   loanAmountLabel,
 } from "@/app/lib/leads/leadForm";
@@ -14,6 +15,7 @@ export const CATEGORIES = [
 
 export const STATUSES = [
   { value: "pending", label: "KYC pending" },
+  { value: "kyc_progress", label: "KYC progress" },
   { value: "in_process", label: "Under Review" },
   { value: "approved", label: "Approved" },
   { value: "rejected", label: "Rejected" },
@@ -29,6 +31,7 @@ export const VIEW_FIELDS = [
   "otp_verified",
   "consent_accepted",
   "required_amount",
+  "employment_type",
   "net_monthly_income",
   "pincode",
   "ip",
@@ -46,6 +49,7 @@ export const FIELD_LABELS: Record<string, string> = {
   email: "Email",
   pincode: "Current Residence Pincode",
   required_amount: "Loan amount",
+  employment_type: "Employment type",
   net_monthly_income: "Net monthly income",
   ip: "Location",
   ip_location: "Location",
@@ -97,6 +101,7 @@ export function formatValue(key: string, value: unknown, row?: AdminLeadRow): st
     if (value == null || value === "") return "—";
     return formatCurrencyInr(value);
   }
+  if (key === "employment_type") return employmentTypeLabel(value, row?.category);
   if (value == null || value === "") return "—";
   if (key === "category") return categoryLabel(value);
   if (key === "loan_amt") return loanAmountLabel(String(value));
@@ -139,6 +144,9 @@ export function statusCapsuleClass(status: unknown): string {
   }
   if (s === "in_process") {
     return `${base} bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300`;
+  }
+  if (s === "kyc_progress") {
+    return `${base} bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300`;
   }
   // pending + unknown
   return `${base} bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300`;

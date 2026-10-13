@@ -74,6 +74,26 @@ export function sanitizeLeadPincodeInput(raw: string): string {
   return raw.replace(/\D/g, "").slice(0, 6);
 }
 
+function isLoanCategory(category: unknown): boolean {
+  return String(category ?? "").trim().toLowerCase().endsWith("_loan");
+}
+
+/** Old loan rows have a null employment column. Show and edit them as Salaried. */
+export function employmentTypeLabel(value: unknown, category?: unknown): string {
+  if (value === "self_employed") return "Self employee / business";
+  if (value === "salaried" || (isLoanCategory(category) && !String(value ?? "").trim())) {
+    return "Salaried";
+  }
+  return "—";
+}
+
+/** Form value for a stored lead. Blank only when this is not a loan. */
+export function employmentTypeForForm(value: unknown, category?: unknown): string {
+  if (value === "self_employed") return "self_employed";
+  if (value === "salaried" || isLoanCategory(category)) return "salaried";
+  return "";
+}
+
 export type LeadFieldErrors = Partial<{
   pan: string;
   mobile: string;
@@ -82,6 +102,7 @@ export type LeadFieldErrors = Partial<{
   loanAmt: string;
   insType: string;
   netMonthlyIncome: string;
+  employmentType: string;
   pincode: string;
 }>;
 
@@ -95,11 +116,12 @@ export function validateLeadPincode(pincode: string): string | undefined {
   return undefined;
 }
 
-/** Personal-loan net monthly income. */
+/** Personal-loan employment type and net monthly income. */
 export function validatePersonalLoanEmployment(
   netMonthlyIncome: string,
-): Pick<LeadFieldErrors, "netMonthlyIncome"> {
-  const errors: Pick<LeadFieldErrors, "netMonthlyIncome"> = {};
+  employmentType = "",
+): Pick<LeadFieldErrors, "netMonthlyIncome" | "employmentType"> {
+  const errors: Pick<LeadFieldErrors, "netMonthlyIncome" | "employmentType"> = {};
   const incomeNum = Number(String(netMonthlyIncome).replace(/,/g, "").trim());
   if (
     !String(netMonthlyIncome).trim() ||
@@ -107,6 +129,9 @@ export function validatePersonalLoanEmployment(
     incomeNum <= 0
   ) {
     errors.netMonthlyIncome = "Enter a valid net monthly income";
+  }
+  if (employmentType !== "salaried" && employmentType !== "self_employed") {
+    errors.employmentType = "Select salaried or self employee / business";
   }
 
   return errors;

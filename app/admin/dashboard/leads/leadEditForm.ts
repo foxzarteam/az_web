@@ -5,7 +5,7 @@ import {
   commissionFromStoredLead,
   commissionValueError,
 } from "./leadCommission";
-import { validateLeadPincode } from "@/app/lib/leads/leadForm";
+import { employmentTypeForForm, validateLeadPincode } from "@/app/lib/leads/leadForm";
 
 export type EditForm = {
   fullName: string;
@@ -16,6 +16,7 @@ export type EditForm = {
   requiredAmount: number;
   insType: string;
   netMonthlyIncome: string;
+  employmentType: string;
   pincode: string;
   consentAccepted: boolean;
   commissionType: CommissionChoice;
@@ -47,6 +48,7 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
       lead.net_monthly_income != null && lead.net_monthly_income !== ""
         ? String(lead.net_monthly_income)
         : "",
+    employmentType: employmentTypeForForm(lead.employment_type, lead.category),
     pincode: String(lead.pincode ?? "").replace(/\D/g, "").slice(0, 6),
     ...commissionFromStoredLead(lead),
     partnerLead: Boolean(String(lead.agent_id ?? "").trim()),
@@ -74,6 +76,7 @@ export function emptyCreateForm(): EditForm {
     requiredAmount: DEFAULT_LOAN_AMOUNT,
     insType: "life_insurance",
     netMonthlyIncome: "",
+    employmentType: "",
     pincode: "",
     consentAccepted: false,
     commissionType: "",
@@ -87,6 +90,7 @@ export type FieldErrors = {
   mobileNumber?: string;
   pan?: string;
   netMonthlyIncome?: string;
+  employmentType?: string;
   pincode?: string;
   insType?: string;
   commissionValue?: string;
@@ -136,6 +140,9 @@ export function validateLeadForm(
     if (!form.netMonthlyIncome.trim() || !Number.isFinite(income) || income <= 0) {
       errors.netMonthlyIncome = "Enter a valid net monthly income";
     }
+    if (form.employmentType !== "salaried" && form.employmentType !== "self_employed") {
+      errors.employmentType = "Select salaried or self employee / business";
+    }
   }
   if (form.category === "insurance" && !form.insType.trim()) {
     errors.insType = "Select insurance type";
@@ -166,11 +173,13 @@ export function buildLeadPayload(
     payload.loanAmt = null;
     const income = Number(form.netMonthlyIncome);
     payload.netMonthlyIncome = Number.isFinite(income) && income > 0 ? income : null;
+    payload.employmentType = form.employmentType;
   } else if (form.category === "insurance") {
     payload.insType = form.insType;
     payload.requiredAmount = null;
     payload.loanAmt = null;
     payload.netMonthlyIncome = null;
+    payload.employmentType = null;
   }
   const pan = form.pan.trim().toUpperCase();
   if (!(opts?.omitMaskedPan && isMaskedPanValue(pan))) {

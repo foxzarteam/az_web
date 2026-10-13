@@ -6,7 +6,7 @@ import {
   downloadXlsx,
   type SheetCell,
 } from "@/app/lib/admin/xlsxSheet";
-import { insuranceTypeLabel } from "@/app/lib/leads/leadForm";
+import { employmentTypeLabel, insuranceTypeLabel } from "@/app/lib/leads/leadForm";
 import { categoryLabel, statusLabel } from "./leadDisplay";
 
 const HEADERS = [
@@ -58,11 +58,9 @@ function dateText(value: unknown): string {
   return d.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
 }
 
-function employmentLabel(value: unknown): string {
-  const v = text(value);
-  if (v === "salaried") return "Salaried";
-  if (v === "self_employed") return "Self employed";
-  return v.replace(/_/g, " ");
+function employmentLabel(value: unknown, category: unknown): string {
+  const label = employmentTypeLabel(value, category);
+  return label === "—" ? "" : label;
 }
 
 function commissionTypeLabel(value: unknown): string {
@@ -96,7 +94,7 @@ function leadRow(row: AdminLeadRow): SheetCell[] {
     { kind: "s", value: text(row.ins_type) ? insuranceTypeLabel(String(row.ins_type)) : "" },
     amount == null ? { kind: "s", value: "" } : { kind: "n", value: amount },
     income == null ? { kind: "s", value: "" } : { kind: "n", value: income },
-    { kind: "s", value: employmentLabel(row.employment_type) },
+    { kind: "s", value: employmentLabel(row.employment_type, row.category) },
     { kind: "s", value: text(row.pincode) },
     { kind: "s", value: text(row.status) ? statusLabel(row.status) : "" },
     { kind: "s", value: yesNo(row.otp_verified) },

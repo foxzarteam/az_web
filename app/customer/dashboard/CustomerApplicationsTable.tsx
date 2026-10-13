@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CustomerLead } from "@/app/lib/customer/leadsByMobile";
-import { insuranceTypeLabel } from "@/app/lib/leads/leadForm";
+import { employmentTypeLabel, insuranceTypeLabel } from "@/app/lib/leads/leadForm";
 import CrmDataTable, {
   CrmActionButton,
   type CrmColumn,
 } from "@/app/components/shared/crm/DataTable";
 import AppModal from "@/app/components/shared/crm/AppModal";
 
-type StatusFilter = "all" | "pending" | "in_process" | "approved" | "rejected";
+type StatusFilter = "all" | "pending" | "kyc_progress" | "in_process" | "approved" | "rejected";
 
 function formatInr(amount: number | null): string {
   if (amount == null || !Number.isFinite(amount)) return "—";
@@ -60,6 +60,9 @@ function statusMeta(status: string): {
   if (s === "in_process") {
     return { label: "Under Review", badge: "bg-blue-100 text-blue-800", step: 3 };
   }
+  if (s === "kyc_progress") {
+    return { label: "KYC progress", badge: "bg-violet-100 text-violet-800", step: 2 };
+  }
   return { label: "KYC pending", badge: "bg-amber-100 text-amber-900", step: 2 };
 }
 
@@ -67,7 +70,7 @@ function Timeline({ lead }: { lead: CustomerLead }) {
   const meta = statusMeta(lead.status);
   const steps = [
     { key: "submitted", label: "Submitted", done: true },
-    { key: "kyc", label: "KYC pending", done: meta.step >= 2 },
+    { key: "kyc", label: lead.status === "kyc_progress" ? "KYC progress" : "KYC pending", done: meta.step >= 2 },
     { key: "review", label: "Under Review", done: meta.step >= 3 },
     {
       key: "decision",
@@ -311,6 +314,7 @@ export default function CustomerApplicationsTable({
               >
                 <option value="all">All statuses</option>
                 <option value="pending">KYC pending</option>
+                <option value="kyc_progress">KYC progress</option>
                 <option value="in_process">Under review</option>
                 <option value="approved">Approved</option>
                 <option value="rejected">Not approved</option>
@@ -356,8 +360,14 @@ export default function CustomerApplicationsTable({
                       : formatInr(viewLead.required_amount)}
                   </span>
                 </div>
-                {viewLead.category === "personal_loan" ? (
+                {String(viewLead.category ?? "").endsWith("_loan") ? (
                   <>
+                    <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
+                      <span className="text-gray-500">Employment type</span>
+                      <span className="text-right font-medium">
+                        {employmentTypeLabel(viewLead.employment_type, viewLead.category)}
+                      </span>
+                    </div>
                     <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
                       <span className="text-gray-500">Net monthly income</span>
                       <span className="text-right font-medium">

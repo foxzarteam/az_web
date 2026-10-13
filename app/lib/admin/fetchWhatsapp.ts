@@ -20,6 +20,7 @@ export type WhatsappEnquiryRow = {
   lastMessage: string;
   lastChatAt: string | null;
   createdAt: string;
+  unreadCount?: number;
 };
 
 export type WhatsappChatMessage = {

@@ -3,7 +3,9 @@
 import { useMemo } from "react";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
-import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
+import EmploymentIncomeFields, {
+  EmploymentTypeField,
+} from "@/app/components/leads/EmploymentIncomeFields";
 import InsuranceTypeSelect from "@/app/components/leads/InsuranceTypeSelect";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
@@ -233,6 +235,18 @@ export default function LeadFormFields({
                 }}
               />
             </div>
+            <EmploymentTypeField
+              id="admin-lead-employment"
+              value={form.employmentType}
+              onChange={(value) => {
+                setForm({ ...form, employmentType: value });
+                clearFieldError("employmentType");
+              }}
+              className={publicInput}
+              labelClassName={fieldLabel}
+              labelAsSpan
+              error={<FieldErrorText message={fieldErrors.employmentType} />}
+            />
             <EmploymentIncomeFields
               idPrefix="admin-lead"
               netMonthlyIncome={form.netMonthlyIncome}

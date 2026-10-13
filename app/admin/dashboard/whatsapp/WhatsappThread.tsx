@@ -23,9 +23,24 @@ function mediaSrc(enquiryId: string, messageId: string): string {
 function visibleText(message: WhatsappChatMessage): string {
   const text = message.text.trim();
   if (!text) return "";
+  if (/^\[(unsupported|unknown|empty) message\]$/i.test(text)) {
+    return message.hasMedia ? "" : "This file did not come through. Ask the customer to send it again as a photo or PDF.";
+  }
   if (message.filename && text === message.filename) return "";
   if (message.hasMedia && /^(photo|image|video|audio|document|file)$/i.test(text)) return "";
   return text;
+}
+
+function isImage(message: WhatsappChatMessage): boolean {
+  return message.waType === "image" || String(message.mime ?? "").toLowerCase().startsWith("image/");
+}
+
+function isVideo(message: WhatsappChatMessage): boolean {
+  return message.waType === "video" || String(message.mime ?? "").toLowerCase().startsWith("video/");
+}
+
+function isAudio(message: WhatsappChatMessage): boolean {
+  return message.waType === "audio" || String(message.mime ?? "").toLowerCase().startsWith("audio/");
 }
 
 function fileLabel(message: WhatsappChatMessage): string {
@@ -37,22 +52,21 @@ function fileLabel(message: WhatsappChatMessage): string {
 }
 
 function BubbleMedia({ enquiryId, message }: { enquiryId: string; message: WhatsappChatMessage }) {
-  const kind = message.waType || "";
   const src = message.hasMedia ? mediaSrc(enquiryId, message.id) : "";
-  if (src && kind === "image") {
+  if (src && isImage(message)) {
     return (
       <a href={src} target="_blank" rel="noreferrer" className="mb-1 block">
         <img src={src} alt={message.filename || "Photo"} className="max-h-72 max-w-full rounded-md object-contain" />
       </a>
     );
   }
-  if (src && kind === "video") {
+  if (src && isVideo(message)) {
     return <video src={src} controls className="mb-1 max-h-72 max-w-full rounded-md" />;
   }
-  if (src && kind === "audio") {
+  if (src && isAudio(message)) {
     return <audio src={src} controls className="mb-1 w-full max-w-xs" />;
   }
-  if (src || kind === "document" || message.filename) {
+  if (src || message.waType === "document" || message.filename) {
     return src ? (
       <a
         href={src}
@@ -73,11 +87,41 @@ function BubbleMedia({ enquiryId, message }: { enquiryId: string; message: Whats
   return null;
 }
 
+function scrollBox(node: HTMLElement | null): HTMLElement | null {
+  let el = node?.parentElement ?? null;
+  while (el) {
+    const overflow = getComputedStyle(el).overflowY;
+    if (overflow === "auto" || overflow === "scroll") return el;
+    el = el.parentElement;
+  }
+  return null;
+}
+
 export default function WhatsappThread({ enquiryId, messages }: { enquiryId: string; messages: WhatsappChatMessage[] }) {
   const endRef = useRef<HTMLDivElement>(null);
+  const stickToBottom = useRef(true);
+  const seenEnquiry = useRef(enquiryId);
+  const seenCount = useRef(0);
+
   useEffect(() => {
-    endRef.current?.scrollIntoView({ block: "end" });
-  }, [messages]);
+    const box = scrollBox(endRef.current);
+    if (!box) return;
+    const onScroll = () => {
+      stickToBottom.current = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+    };
+    box.addEventListener("scroll", onScroll, { passive: true });
+    return () => box.removeEventListener("scroll", onScroll);
+  }, [enquiryId, messages.length]);
+
+  useEffect(() => {
+    const opened = seenEnquiry.current !== enquiryId;
+    const grew = messages.length > seenCount.current;
+    seenEnquiry.current = enquiryId;
+    seenCount.current = messages.length;
+    if (!opened && (!grew || !stickToBottom.current)) return;
+    const box = scrollBox(endRef.current);
+    if (box) box.scrollTop = box.scrollHeight;
+  }, [enquiryId, messages]);
 
   if (messages.length === 0) {
     return <p className="px-4 py-8 text-center text-sm text-[#667781]">No messages in this chat yet.</p>;

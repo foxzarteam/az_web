@@ -65,6 +65,7 @@ export default function LeadsTable({
   const [revealingPan, setRevealingPan] = useState(false);
   const [viewPanFull, setViewPanFull] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [statusSavingId, setStatusSavingId] = useState<string | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -132,6 +133,38 @@ export default function LeadsTable({
     setError(null);
     setFieldErrors({});
     setViewPanFull(null);
+  }
+
+  async function changeStatus(row: AdminLeadRow, status: string) {
+    const id = String(row.id ?? "");
+    if (!id || statusSavingId) return;
+    const previous = row.status;
+    setStatusSavingId(id);
+    setError(null);
+    setLeads((prev) => prev.map((item) => (item.id === row.id ? { ...item, status } : item)));
+    setViewLead((current) => (current?.id === row.id ? { ...current, status } : current));
+    try {
+      const res = await fetch(`/api/admin/leads/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      const data = (await res.json()) as { success?: boolean; data?: AdminLeadRow; error?: string; message?: string };
+      if (!res.ok || !data.data) {
+        setLeads((prev) => prev.map((item) => (item.id === row.id ? { ...item, status: previous } : item)));
+        setViewLead((current) => (current?.id === row.id ? { ...current, status: previous } : current));
+        setError(toPublicClientError(data.error ?? data.message, "Could not update status."));
+        return;
+      }
+      setLeads((prev) => prev.map((item) => (item.id === data.data!.id ? { ...item, ...data.data! } : item)));
+      setViewLead((current) => (current?.id === data.data!.id ? { ...current, ...data.data! } : current));
+    } catch {
+      setLeads((prev) => prev.map((item) => (item.id === row.id ? { ...item, status: previous } : item)));
+      setViewLead((current) => (current?.id === row.id ? { ...current, status: previous } : current));
+      setError("Could not update status.");
+    } finally {
+      setStatusSavingId(null);
+    }
   }
 
   async function revealPan(leadId: string): Promise<string | null> {
@@ -340,6 +373,11 @@ export default function LeadsTable({
       buildLeadColumns({
         readOnly,
         canDelete,
+        canApprove,
+        statusSavingId,
+        onStatus: (row, status) => {
+          void changeStatus(row, status);
+        },
         onView: (row) => {
           setViewPanFull(null);
           setError(null);
@@ -351,7 +389,7 @@ export default function LeadsTable({
           setError(null);
         },
       }),
-    [readOnly, canDelete],
+    [readOnly, canDelete, canApprove, statusSavingId],
   );
 
   return (

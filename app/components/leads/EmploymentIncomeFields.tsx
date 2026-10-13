@@ -2,6 +2,74 @@
 
 import type { CSSProperties, ReactNode } from "react";
 
+export const EMPLOYMENT_TYPE_OPTIONS = [
+  { value: "salaried", label: "Salaried" },
+  { value: "self_employed", label: "Self employee / business" },
+] as const;
+
+type EmploymentTypeFieldProps = {
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+  className: string;
+  labelClassName?: string;
+  labelAsSpan?: boolean;
+  error?: ReactNode;
+};
+
+/** Salaried or self-employed business. */
+export function EmploymentTypeField({
+  id,
+  value,
+  onChange,
+  className,
+  labelClassName = "mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300",
+  labelAsSpan = false,
+  error,
+}: EmploymentTypeFieldProps) {
+  const label = labelAsSpan ? (
+    <span className={labelClassName}>
+      Employment type <span className="text-red-500">*</span>
+    </span>
+  ) : (
+    <label htmlFor={id} className={labelClassName}>
+      Employment type <span className="text-red-500">*</span>
+    </label>
+  );
+  const control = (
+    <select
+      id={id}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className={className}
+      required
+    >
+      <option value="">Select employment type</option>
+      {EMPLOYMENT_TYPE_OPTIONS.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  );
+  if (labelAsSpan) {
+    return (
+      <label className="block">
+        {label}
+        {control}
+        {error}
+      </label>
+    );
+  }
+  return (
+    <div>
+      {label}
+      {control}
+      {error}
+    </div>
+  );
+}
+
 type EmploymentIncomeFieldsProps = {
   idPrefix: string;
   netMonthlyIncome: string;

@@ -11,6 +11,7 @@ export interface CreateLeadRequest {
   loanAmt?: string;
   insType?: string;
   netMonthlyIncome?: number;
+  employmentType?: string;
   referralCode?: string;
   /** True only when the applicant checked the lead-form consent box. */
   consentAccepted: boolean;
