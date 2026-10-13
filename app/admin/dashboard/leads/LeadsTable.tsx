@@ -18,6 +18,7 @@ import { LeadCreditDisclaimer } from "@/app/components/shared/TermsAgreementChec
 import LeadFormFields from "./LeadFormFields";
 import AddLeadProductPicker, { type AddLeadProduct } from "./AddLeadProductPicker";
 import { buildLeadColumns } from "./leadColumns";
+import { downloadLeadsWorkbook } from "./leadsWorkbook";
 import {
   VIEW_FIELDS,
   FIELD_LABELS,
@@ -63,6 +64,8 @@ export default function LeadsTable({
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [revealingPan, setRevealingPan] = useState(false);
   const [viewPanFull, setViewPanFull] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   useEffect(() => {
     setLeads(initialLeads);
@@ -312,6 +315,24 @@ export default function LeadsTable({
     }
   }
 
+  async function exportLeads() {
+    setExporting(true);
+    setExportError(null);
+    try {
+      const res = await fetch("/api/admin/leads/export", { cache: "no-store" });
+      const data = (await res.json()) as { data?: AdminLeadRow[]; error?: string };
+      if (!res.ok || !Array.isArray(data.data)) {
+        setExportError(toPublicClientError(data.error, "Export failed"));
+        return;
+      }
+      downloadLeadsWorkbook(data.data);
+    } catch {
+      setExportError("Export failed");
+    } finally {
+      setExporting(false);
+    }
+  }
+
   const inputClass = ADMIN_INPUT;
 
   const columns = useMemo<CrmColumn<AdminLeadRow>[]>(
@@ -338,6 +359,7 @@ export default function LeadsTable({
       {successMsg && (
         <SuccessPopup message={successMsg} onClose={() => setSuccessMsg(null)} />
       )}
+      {exportError ? <p className={`mb-3 ${ADMIN_ERROR}`}>{exportError}</p> : null}
       <CrmDataTable
         rows={leads}
         columns={columns}
@@ -346,9 +368,21 @@ export default function LeadsTable({
         emptyMessage="No leads to display."
         comfortable
         toolbarRight={
-          <button type="button" onClick={openCreate} className={ADMIN_BTN_PRIMARY}>
-            Add lead
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            {!readOnly ? (
+              <button
+                type="button"
+                onClick={exportLeads}
+                disabled={exporting}
+                className={ADMIN_BTN_SECONDARY}
+              >
+                {exporting ? "Exporting…" : "Export data"}
+              </button>
+            ) : null}
+            <button type="button" onClick={openCreate} className={ADMIN_BTN_PRIMARY}>
+              Add lead
+            </button>
+          </div>
         }
       />
 

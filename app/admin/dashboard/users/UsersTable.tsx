@@ -16,6 +16,7 @@ import {
   ADMIN_INPUT,
   ADMIN_LABEL,
 } from "@/app/components/shared/crm/ui";
+import { downloadPartnersWorkbook } from "./partnersWorkbook";
 
 type AdminUserRow = Record<string, unknown>;
 
@@ -359,9 +360,18 @@ export default function UsersTable({
         searchPlaceholder="Search name, phone…"
         emptyMessage="No partners to display."
         toolbarRight={
-          <button type="button" onClick={openCreate} className={ADMIN_BTN_PRIMARY}>
-            Add partner
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => downloadPartnersWorkbook(users)}
+              className={ADMIN_BTN_SECONDARY}
+            >
+              Export data
+            </button>
+            <button type="button" onClick={openCreate} className={ADMIN_BTN_PRIMARY}>
+              Add partner
+            </button>
+          </div>
         }
       />
 
