@@ -26,6 +26,7 @@ import {
   formatValue,
   isConsentAccepted,
   isOtpVerified,
+  STATUSES,
   statusCapsuleClass,
   statusLabel,
 } from "./leadDisplay";
@@ -65,6 +66,8 @@ export default function LeadsTable({
   const [revealingPan, setRevealingPan] = useState(false);
   const [viewPanFull, setViewPanFull] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportStatus, setExportStatus] = useState<string>("all");
   const [statusSavingId, setStatusSavingId] = useState<string | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
 
@@ -358,7 +361,20 @@ export default function LeadsTable({
         setExportError(toPublicClientError(data.error, "Export failed"));
         return;
       }
-      downloadLeadsWorkbook(data.data);
+      const picked = exportStatus === "all"
+        ? data.data
+        : data.data.filter((row) => {
+            const status = String(row.status ?? "").trim().toLowerCase();
+            if (exportStatus === "pending") return status === "pending" || status === "action_required";
+            return status === exportStatus;
+          });
+      if (picked.length === 0) {
+        setExportError("No leads found for this status.");
+        return;
+      }
+      const filePrefix = exportStatus === "all" ? "leads" : `leads-${exportStatus.replace(/_/g, "-")}`;
+      downloadLeadsWorkbook(picked, filePrefix);
+      setExportOpen(false);
     } catch {
       setExportError("Export failed");
     } finally {
@@ -410,7 +426,11 @@ export default function LeadsTable({
             {!readOnly ? (
               <button
                 type="button"
-                onClick={exportLeads}
+                onClick={() => {
+                  setExportStatus("all");
+                  setExportError(null);
+                  setExportOpen(true);
+                }}
                 disabled={exporting}
                 className={ADMIN_BTN_SECONDARY}
               >
@@ -423,6 +443,72 @@ export default function LeadsTable({
           </div>
         }
       />
+
+      {exportOpen ? (
+        <AdminModal
+          title="Export leads"
+          onClose={() => {
+            if (exporting) return;
+            setExportOpen(false);
+          }}
+          footer={
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                className={ADMIN_BTN_SECONDARY}
+                disabled={exporting}
+                onClick={() => setExportOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={ADMIN_BTN_PRIMARY}
+                disabled={exporting}
+                onClick={() => void exportLeads()}
+              >
+                {exporting ? "Exporting…" : "Download"}
+              </button>
+            </div>
+          }
+        >
+          <div className="space-y-3 p-6">
+            <p className="text-sm text-slate-600">Choose which leads to download. All is selected.</p>
+            {exportError ? <p className={ADMIN_ERROR}>{exportError}</p> : null}
+            <div className="space-y-2">
+              {[{ value: "all", label: "All" }, ...STATUSES].map((option) => {
+                const selected = exportStatus === option.value;
+                return (
+                  <label
+                    key={option.value}
+                    className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 ${
+                      selected ? "border-[#4236FB] bg-[#4236FB]/5" : "border-slate-200"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="lead-export-status"
+                      className="h-4 w-4 accent-[#4236FB]"
+                      checked={selected}
+                      onChange={() => {
+                        setExportStatus(option.value);
+                        setExportError(null);
+                      }}
+                    />
+                    {option.value === "all" ? (
+                      <span className="text-sm font-medium text-slate-800">All</span>
+                    ) : (
+                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusCapsuleClass(option.value)}`}>
+                        {option.label}
+                      </span>
+                    )}
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        </AdminModal>
+      ) : null}
 
       {viewLead && (
         <AdminModal title="Lead details" wide onClose={closeModals}>

@@ -4,11 +4,11 @@ import WhatsappInbox from "./WhatsappInbox";
 
 export default async function AdminWhatsappQueriesPage() {
   await assertCrmAdminPage();
-  const rows = await fetchWhatsappEnquiries();
+  const list = await fetchWhatsappEnquiries();
 
   return (
     <main className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
-      <WhatsappInbox initialRows={rows} />
+      <WhatsappInbox initialRows={list.rows} initialTotal={list.total} />
     </main>
   );
 }

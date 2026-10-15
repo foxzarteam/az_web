@@ -64,7 +64,15 @@ export async function fetchWhatsappSettings(): Promise<WhatsappSettingsView> {
   return data ?? EMPTY_SETTINGS;
 }
 
-export async function fetchWhatsappEnquiries(): Promise<WhatsappEnquiryRow[]> {
-  const data = await adminNestGet<WhatsappEnquiryRow[]>("/api/whatsapp/admin/enquiries");
-  return Array.isArray(data) ? data : [];
+export type WhatsappEnquiryPage = {
+  rows: WhatsappEnquiryRow[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
+export async function fetchWhatsappEnquiries(): Promise<WhatsappEnquiryPage> {
+  const data = await adminNestGet<WhatsappEnquiryPage>("/api/whatsapp/admin/enquiries?page=1");
+  if (data && Array.isArray(data.rows)) return data;
+  return { rows: [], total: 0, page: 1, pageSize: 100 };
 }

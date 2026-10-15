@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { WhatsappEnquiryDetail, WhatsappEnquiryRow } from "@/app/lib/admin/fetchWhatsapp";
 import { toPublicClientError } from "@/app/lib/publicClientError";
@@ -43,9 +43,19 @@ function ProfileIcon({ name }: { name: string }) {
   );
 }
 
-export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEnquiryRow[] }) {
+const PAGE_SIZE = 100;
+
+export default function WhatsappInbox({
+  initialRows,
+  initialTotal = 0,
+}: {
+  initialRows: WhatsappEnquiryRow[];
+  initialTotal?: number;
+}) {
   const router = useRouter();
   const [rows, setRows] = useState(initialRows);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(initialTotal);
   const [search, setSearch] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
   const [detail, setDetail] = useState<WhatsappEnquiryDetail | null>(null);
@@ -63,13 +73,40 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
   const [emojiOpen, setEmojiOpen] = useState(false);
   const emojiRef = useRef<HTMLDivElement>(null);
   const openIdRef = useRef<string | null>(null);
+  const pageRef = useRef(1);
+  const searchRef = useRef("");
+  const searchBoot = useRef(true);
   const chatAbort = useRef<AbortController | null>(null);
 
   openIdRef.current = openId;
+  pageRef.current = page;
+  searchRef.current = search;
+
+  async function loadList(nextPage: number, q: string) {
+    const params = new URLSearchParams({ page: String(nextPage) });
+    if (q.trim()) params.set("q", q.trim());
+    const res = await fetch(`/api/admin/whatsapp/enquiries?${params.toString()}`);
+    const body = (await res.json().catch(() => ({}))) as {
+      data?: { rows?: WhatsappEnquiryRow[]; total?: number; page?: number };
+    };
+    const packet = body.data;
+    if (!res.ok || !packet || !Array.isArray(packet.rows)) return;
+    const open = openIdRef.current;
+    setRows(packet.rows.map((row) => (row.id === open ? { ...row, unreadCount: 0 } : row)));
+    setTotal(Number(packet.total) || 0);
+    const shown = Number(packet.page) || nextPage;
+    setPage(shown);
+    pageRef.current = shown;
+  }
 
   useEffect(() => {
-    setRows(initialRows);
-  }, [initialRows]);
+    if (pageRef.current === 1 && !searchRef.current.trim()) {
+      setRows(initialRows);
+      setTotal(initialTotal);
+      return;
+    }
+    void loadList(pageRef.current, searchRef.current);
+  }, [initialRows, initialTotal]);
 
   useEffect(() => {
     if (!emojiOpen) return;
@@ -81,17 +118,22 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
   }, [emojiOpen]);
 
   useEffect(() => {
+    if (searchBoot.current) {
+      searchBoot.current = false;
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      pageRef.current = 1;
+      void loadList(1, search);
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
     const timer = window.setInterval(() => {
       void (async () => {
         try {
-          const res = await fetch("/api/admin/whatsapp/enquiries");
-          const data = (await res.json().catch(() => ({}))) as { data?: WhatsappEnquiryRow[] };
-          if (res.ok && Array.isArray(data.data)) {
-            const open = openIdRef.current;
-            setRows(
-              data.data.map((row) => (row.id === open ? { ...row, unreadCount: 0 } : row)),
-            );
-          }
+          await loadList(pageRef.current, searchRef.current);
         } catch {
           /* keep current list */
         }
@@ -135,11 +177,15 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
     }
   }
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((row) => `${row.profileName} ${row.phone} ${row.lastMessage}`.toLowerCase().includes(q));
-  }, [rows, search]);
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const rangeStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+  const rangeEnd = Math.min(page * PAGE_SIZE, total);
+
+  function showPage(nextPage: number) {
+    const next = Math.min(pageCount, Math.max(1, nextPage));
+    pageRef.current = next;
+    void loadList(next, search);
+  }
 
   async function openChat(row: WhatsappEnquiryRow) {
     if (openId === row.id && detail) return;
@@ -300,10 +346,12 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
           </button>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
-          {filtered.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-[#667781]">No chats yet.</p>
+          {rows.length === 0 ? (
+            <p className="px-4 py-8 text-center text-sm text-[#667781]">
+              {search.trim() ? "No chats match." : "No chats yet."}
+            </p>
           ) : (
-            filtered.map((row) => {
+            rows.map((row) => {
               const active = row.id === openId;
               return (
                 <button
@@ -342,6 +390,29 @@ export default function WhatsappInbox({ initialRows }: { initialRows: WhatsappEn
             })
           )}
         </div>
+        {total > PAGE_SIZE ? (
+          <div className="flex shrink-0 items-center justify-between gap-2 border-t border-[#e9edef] bg-[#f0f2f5] px-3 py-2 text-xs text-[#54656f]">
+            <button
+              type="button"
+              disabled={page <= 1}
+              onClick={() => showPage(page - 1)}
+              className="rounded-md px-2 py-1 font-medium text-[#128C7E] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <span>
+              {rangeStart}–{rangeEnd} of {total}
+            </span>
+            <button
+              type="button"
+              disabled={page >= pageCount}
+              onClick={() => showPage(page + 1)}
+              className="rounded-md px-2 py-1 font-medium text-[#128C7E] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
+        ) : null}
       </aside>
 
       <div className={`min-h-0 min-w-0 flex-1 flex-col ${openId ? "flex" : "hidden md:flex"}`}>

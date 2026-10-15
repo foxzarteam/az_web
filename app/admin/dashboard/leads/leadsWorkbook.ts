@@ -123,6 +123,6 @@ export function buildLeadsXlsx(rows: AdminLeadRow[]): Uint8Array {
   });
 }
 
-export function downloadLeadsWorkbook(rows: AdminLeadRow[]) {
-  downloadXlsx(buildLeadsXlsx(rows), datedExportName("leads"));
+export function downloadLeadsWorkbook(rows: AdminLeadRow[], filePrefix = "leads") {
+  downloadXlsx(buildLeadsXlsx(rows), datedExportName(filePrefix));
 }
