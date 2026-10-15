@@ -6,7 +6,9 @@ import type { WhatsappChatMessage } from "@/app/lib/admin/fetchWhatsapp";
 function formatClock(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
+  const day = date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  const time = date.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
+  return `${day}, ${time}`;
 }
 
 function senderLabel(message: WhatsappChatMessage): string {
