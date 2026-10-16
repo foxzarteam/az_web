@@ -514,12 +514,6 @@ export default function LeadsTable({
         <AdminModal title="Lead details" wide onClose={closeModals}>
           <ul className="grid grid-cols-1 gap-x-8 gap-y-5 p-6 sm:grid-cols-2 sm:p-8">
             {VIEW_FIELDS.map((rawKey) => {
-              if (
-                rawKey === "net_monthly_income" &&
-                String(viewLead.category ?? "") !== "personal_loan"
-              ) {
-                return null;
-              }
               const key =
                 rawKey === "required_amount" && String(viewLead.category ?? "") === "insurance"
                   ? "ins_type"
