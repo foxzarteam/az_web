@@ -4,16 +4,16 @@ import Link from "next/link";
 import { useLoanSelection } from "@/app/components/products/loans/loanSelection";
 
 const LOAN_CARDS = [
-  { slug: "personal-loan", label: "Personal Loan", src: "/images/loans/personal-loan.gif", srcOnWhite: "/images/loans/personal-loan-white.gif", href: "/products/loans/" },
-  { slug: "home-loan", label: "Home Loan", src: "/images/loans/home-loan.gif", srcOnWhite: "/images/loans/home-loan-white.gif", href: "/products/loans/" },
-  { slug: "vehicle-loan", label: "Vehicle Loan", src: "/images/loans/car-loan.gif?v=10", srcOnWhite: "/images/loans/car-loan.gif?v=10", href: "/products/loans/" },
-  { slug: "business-loan", label: "Business Loan", src: "/images/loans/business-loan.gif", srcOnWhite: "/images/loans/business-loan-white.gif", href: "/products/loans/" },
+  { slug: "personal-loan", label: "Personal Loan", src: "/images/loans/personal-loan-white.gif", srcOnWhite: "/images/loans/personal-loan-white.gif", href: "/products/loans/" },
+  { slug: "home-loan", label: "Home Loan", src: "/images/loans/home-loan-white.gif", srcOnWhite: "/images/loans/home-loan-white.gif", href: "/products/loans/" },
+  { slug: "vehicle-loan", label: "Vehicle Loan", src: "/images/loans/car-loan-white.gif?v=12", srcOnWhite: "/images/loans/car-loan-white.gif?v=12", href: "/products/loans/" },
+  { slug: "business-loan", label: "Business Loan", src: "/images/loans/business-loan-white.gif", srcOnWhite: "/images/loans/business-loan-white.gif", href: "/products/loans/" },
 ] as const;
 
 const INSURANCE_CARD = {
   slug: "insurance",
   label: "Insurance",
-  src: "/images/loans/insurance.gif",
+  src: "/images/loans/insurance-white.gif",
   srcOnWhite: "/images/loans/insurance-white.gif",
   href: "/products/insurance/",
 } as const;
@@ -23,6 +23,7 @@ export default function LoanCategories({
   showInsurance = false,
   showApply = false,
   softBg = false,
+  whiteIcons = false,
   hideHeading = false,
   embedded = false,
 }: {
@@ -30,6 +31,8 @@ export default function LoanCategories({
   showInsurance?: boolean;
   showApply?: boolean;
   softBg?: boolean;
+  /** Use the white-background GIFs inside the cards. */
+  whiteIcons?: boolean;
   hideHeading?: boolean;
   /** Sit in the form column, same width as the apply form. */
   embedded?: boolean;
@@ -68,8 +71,9 @@ export default function LoanCategories({
     <ul className={`grid grid-cols-2 gap-3 sm:gap-4 ${gridClass}`}>
       {cards.map((item) => {
         const selected = item.slug === selectedSlug;
-        const cardBg = softBg ? "bg-white" : "bg-[#EEF0FF]";
-        const imageSrc = softBg && "srcOnWhite" in item ? item.srcOnWhite : item.src;
+        const cardBg = softBg || whiteIcons ? "bg-white" : "bg-[#EEF0FF]";
+        const cardEdge = whiteIcons ? "border border-[#E8ECF2]" : "";
+        const imageSrc = (softBg || whiteIcons) && "srcOnWhite" in item ? item.srcOnWhite : item.src;
         return (
           <li key={item.slug} className={`h-full ${item.slug === "insurance" ? "col-span-2 sm:col-span-1" : ""}`}>
             {selection ? (
@@ -86,7 +90,7 @@ export default function LoanCategories({
                     : "bg-transparent hover:-translate-y-0.5"
                 }`}
               >
-                <span className={`relative flex h-full w-full flex-col items-center rounded-[14px] px-3 py-3 sm:px-4 sm:py-4 ${cardBg}`}>
+                <span className={`relative flex h-full w-full flex-col items-center rounded-[14px] px-3 py-3 sm:px-4 sm:py-4 ${cardBg} ${cardEdge}`}>
                   {selected ? (
                     <span className="absolute right-2 top-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[linear-gradient(90deg,#4236FB,#FF7E29)] text-white shadow-[0_4px_10px_rgba(66,54,251,0.35)]">
                       <svg viewBox="0 0 16 16" className="h-3 w-3" aria-hidden>
@@ -108,7 +112,7 @@ export default function LoanCategories({
               </button>
             ) : (
               <div className="flex h-full w-full flex-col items-center rounded-2xl bg-transparent p-[2px] text-center">
-                <span className={`relative flex h-full w-full flex-col items-center rounded-[14px] px-3 py-4 sm:px-4 sm:py-5 ${cardBg}`}>
+                <span className={`relative flex h-full w-full flex-col items-center rounded-[14px] px-3 py-4 sm:px-4 sm:py-5 ${cardBg} ${cardEdge}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={imageSrc}

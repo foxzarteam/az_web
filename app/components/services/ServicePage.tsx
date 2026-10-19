@@ -74,10 +74,10 @@ const inputClass =
 
 function loanTypeGif(slug: string): string {
   const key = slug.toLowerCase();
-  if (key.includes("home")) return "/images/loans/home-loan.gif";
-  if (key.includes("car") || key.includes("vehicle")) return "/images/loans/car-loan.gif?v=10";
-  if (key.includes("business")) return "/images/loans/business-loan.gif";
-  return "/images/loans/personal-loan.gif";
+  if (key.includes("home")) return "/images/loans/home-loan-white.gif";
+  if (key.includes("car") || key.includes("vehicle")) return "/images/loans/car-loan-white.gif?v=12";
+  if (key.includes("business")) return "/images/loans/business-loan-white.gif";
+  return "/images/loans/personal-loan-white.gif";
 }
 
 const mobileShellClass =

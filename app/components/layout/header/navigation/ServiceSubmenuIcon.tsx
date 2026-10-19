@@ -3,8 +3,8 @@ import type { SubmenuItem } from "@/app/types/layout/menu";
 const MENU_GIFS: Record<string, string> = {
   "personal-loan": "/images/loans/personal-loan-white.gif",
   "home-loan": "/images/loans/home-loan-white.gif",
-  "car-loan": "/images/loans/car-loan.gif?v=10",
-  "vehicle-loan": "/images/loans/car-loan.gif?v=10",
+  "car-loan": "/images/loans/car-loan-white.gif?v=12",
+  "vehicle-loan": "/images/loans/car-loan-white.gif?v=12",
   "business-loan": "/images/loans/business-loan-white.gif",
   insurance: "/images/loans/insurance-white.gif",
 };

@@ -15,13 +15,13 @@ const OFFERS: { id: Offer; title: string; text: string; image: string }[] = [
     id: "loan",
     title: "Vehicle Loan",
     text: "Finance a new or used car or bike",
-    image: "/images/loans/car-loan.gif?v=10",
+    image: "/images/loans/car-loan-white.gif?v=12",
   },
   {
     id: "insurance",
     title: "Vehicle Insurance",
     text: "Cover your car or bike",
-    image: "/images/loans/insurance.gif",
+    image: "/images/loans/insurance-white.gif",
   },
 ];
 
@@ -42,7 +42,7 @@ function OfferPicker({ offer, onChange }: { offer: Offer; onChange: (next: Offer
                     : "bg-transparent hover:-translate-y-0.5"
                 }`}
               >
-                <span className="relative flex h-full w-full flex-col items-center rounded-[14px] bg-[#EEF0FF] px-3 py-4 sm:px-4 sm:py-5">
+                <span className="relative flex h-full w-full flex-col items-center rounded-[14px] border border-[#E8ECF2] bg-white px-3 py-4 sm:px-4 sm:py-5">
                   {selected ? (
                     <span className="absolute right-2 top-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[linear-gradient(90deg,#4236FB,#FF7E29)] text-white">
                       <svg viewBox="0 0 16 16" className="h-3 w-3" aria-hidden>
@@ -146,7 +146,7 @@ export default function VehicleLanding() {
             key="vehicle-loan"
             title="Vehicle Loan"
             subtitle="Check vehicle loan options for a new or used car or bike."
-            imageSrc="/images/loans/car-loan.gif?v=10"
+            imageSrc="/images/loans/car-loan-white.gif?v=12"
             badge="Vehicle loan"
             hideHeader
             loanTabs
@@ -158,7 +158,7 @@ export default function VehicleLanding() {
           key="vehicle-insurance"
           title="Vehicle Insurance"
           subtitle="Apply for cover for your car or bike."
-          imageSrc="/images/loans/insurance.gif"
+          imageSrc="/images/loans/insurance-white.gif"
           badge="Vehicle insurance"
           hideHeader
           navBorder
