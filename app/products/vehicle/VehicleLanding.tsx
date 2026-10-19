@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import ServicePage from "@/app/components/services/ServicePage";
 import HowItWorksSection, { type HowItWorksStep } from "@/app/components/products/HowItWorksSection";
@@ -19,13 +20,13 @@ const OFFERS: {
   {
     id: "loan",
     title: "Vehicle Loan",
-    text: "Finance a new or used car or bike, then repay in monthly instalments.",
+    text: "Finance your vehicle and repay in monthly instalments.",
     image: "/images/loans/car-loan-white.gif?v=12",
   },
   {
     id: "insurance",
     title: "Vehicle Insurance",
-    text: "Cover the car or bike you already have.",
+    text: "Get the Right Insurance Cover for Your Vehicle and Stay Safe",
     image: "/images/loans/insurance-white.gif",
   },
 ];
@@ -126,7 +127,7 @@ const STEPS: HowItWorksStep[] = [
   {
     num: 4,
     title: "Get Your Loan or Insurance",
-    description: "Once approved, the loan is disbursed or your insurance moves ahead.",
+    description: "Once approved, your loan is disbursed or insurance coverage begins.",
     iconWrapClass: "bg-[#F3EEFF] text-[#8B5CF6]",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>
@@ -138,57 +139,14 @@ const STEPS: HowItWorksStep[] = [
   },
 ];
 
-const LOAN_CHOICES: { label: string; title: string; icon: "car" | "used" | "bike" | "superbike" | "truck" | "machine" }[] = [
-  { label: "Car", title: "New Car", icon: "car" },
-  { label: "Used Car", title: "Used Car", icon: "used" },
-  { label: "Two Wheeler", title: "Two Wheeler", icon: "bike" },
-  { label: "Super Bike", title: "Super Bike", icon: "superbike" },
-  { label: "Commercial Vehicle", title: "Commercial Vehicle", icon: "truck" },
-  { label: "Construction Equipment", title: "Construction Equipment", icon: "machine" },
+const LOAN_CHOICES: { title: string; image: string }[] = [
+  { title: "New Car", image: "/images/vehicle/car.webp" },
+  { title: "Used Car", image: "/images/vehicle/used_car.webp" },
+  { title: "Two Wheeler", image: "/images/vehicle/2wheeler.webp" },
+  { title: "Super Bike", image: "/images/vehicle/superbike.webp" },
+  { title: "Commercial Vehicle", image: "/images/vehicle/commercial.webp" },
+  { title: "Construction Equipment", image: "/images/vehicle/construction.webp" },
 ];
-
-function ChoiceIcon({ name }: { name: (typeof LOAN_CHOICES)[number]["icon"] }) {
-  const common = "h-7 w-7";
-  if (name === "car" || name === "used") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" className={common} aria-hidden>
-        <path d="M4 15.5V13l1.6-4.2A2 2 0 0 1 7.5 7.5h9a2 2 0 0 1 1.9 1.3L20 13v2.5" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-        <path d="M4 15.5h16v2.2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2.2Z" stroke="currentColor" strokeWidth="1.6" />
-        <circle cx="7.2" cy="16.2" r="1.1" fill="currentColor" />
-        <circle cx="16.8" cy="16.2" r="1.1" fill="currentColor" />
-        {name === "used" ? <path d="M8 11h8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /> : null}
-      </svg>
-    );
-  }
-  if (name === "bike" || name === "superbike") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" className={common} aria-hidden>
-        <circle cx="6.2" cy="16.2" r="2.4" stroke="currentColor" strokeWidth="1.6" />
-        <circle cx="17.2" cy="16.2" r="2.4" stroke="currentColor" strokeWidth="1.6" />
-        <path d="M8.4 16.2 11 10h3.2l2.2 6.2M11 10l1.6-2.4H16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-        {name === "superbike" ? <path d="M14.2 7.6h3.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /> : null}
-      </svg>
-    );
-  }
-  if (name === "truck") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" className={common} aria-hidden>
-        <path d="M3 8.5h10v8H3zM13 11h4l3 3v2.5h-7" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-        <circle cx="7" cy="17.2" r="1.3" fill="currentColor" />
-        <circle cx="17" cy="17.2" r="1.3" fill="currentColor" />
-      </svg>
-    );
-  }
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={common} aria-hidden>
-      <path d="M4 17.5h9.5V11H8.5L4 14.2v3.3Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-      <path d="M13.5 13.5h3.2L20 9.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-      <path d="M16.2 9.2V6.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-      <circle cx="7.2" cy="17.8" r="1.3" fill="currentColor" />
-      <circle cx="14.2" cy="17.8" r="1.3" fill="currentColor" />
-    </svg>
-  );
-}
 
 export default function VehicleLanding() {
   const [offer, setOffer] = useState<Offer>("loan");
@@ -200,9 +158,7 @@ export default function VehicleLanding() {
         <div className="pointer-events-none absolute -right-10 top-16 h-40 w-40 rounded-full bg-[#FF7E29]/15 blur-3xl" aria-hidden />
         <div className="container relative mx-auto max-w-full px-4 sm:px-6 md:max-w-screen-md lg:max-w-screen-xl lg:px-8">
           <h1 className="sr-only">Vehicle Loan and Vehicle Insurance</h1>
-          <div className="mx-auto max-w-4xl">
-            <OfferPicker offer={offer} onChange={setOffer} />
-          </div>
+          <OfferPicker offer={offer} onChange={setOffer} />
         </div>
       </section>
 
@@ -234,7 +190,7 @@ export default function VehicleLanding() {
         />
       )}
 
-      <section className="bg-white !py-10 dark:bg-darkmode lg:!py-14" aria-labelledby="vehicle-choices-heading">
+      <section className="bg-[#F5F7FB] !py-10 dark:bg-darkmode lg:!py-14" aria-labelledby="vehicle-choices-heading">
         <div className="container mx-auto max-w-full px-4 sm:px-6 md:max-w-screen-md lg:max-w-screen-xl lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 id="vehicle-choices-heading" className="text-xl font-bold text-midnight_text dark:text-white sm:text-2xl md:text-3xl">
@@ -244,21 +200,25 @@ export default function VehicleLanding() {
               Get the Best Vehicle Loan &amp; Insurance Services in One Place
             </p>
           </div>
-          <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
             {LOAN_CHOICES.map((item) => (
               <li key={item.title}>
                 <a
                   href="#apply"
-                  className="flex h-full items-center gap-4 rounded-2xl border border-[#E8ECF2] bg-white p-4 shadow-[0_4px_24px_rgba(16,45,71,0.05)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_14px_36px_rgba(66,54,251,0.12)] dark:border-dark_border dark:bg-darklight sm:p-5"
+                  className="flex h-full flex-col overflow-hidden rounded-2xl bg-white text-center shadow-[0_4px_24px_rgba(16,45,71,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_10px_32px_rgba(16,45,71,0.12)] dark:bg-darklight"
                 >
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#EEF0FF] text-[#4236FB]">
-                    <ChoiceIcon name={item.icon} />
+                  <span className="relative aspect-[16/9] w-full bg-white">
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+                      quality={75}
+                      className="object-contain object-center p-3"
+                    />
                   </span>
-                  <span className="min-w-0">
-                    {item.label !== item.title ? (
-                      <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-gray dark:text-gray-400">{item.label}</span>
-                    ) : null}
-                    <span className="mt-0.5 block text-base font-bold text-midnight_text dark:text-white">{item.title}</span>
+                  <span className="flex flex-1 items-center justify-center px-3 py-4 sm:px-4 sm:py-5">
+                    <span className="text-sm font-bold leading-snug text-midnight_text dark:text-white sm:text-base">{item.title}</span>
                   </span>
                 </a>
               </li>

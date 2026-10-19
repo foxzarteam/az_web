@@ -54,10 +54,6 @@ type ServicePageProps = {
   serviceSlug?: string;
   /** /products/loans: tabs for each active loan product. Amount range follows the selected tab. */
   loanTabs?: boolean;
-  /** With loanTabs, show only this loan. Other loan pages stay unchanged. */
-  onlyLoanSlug?: string;
-  /** With insurance, show only these types. Other insurance pages stay unchanged. */
-  insTypes?: string[];
   /** Insurance type selected when the form opens. Does not hide the other types. */
   initialInsType?: string;
   /** No page hero: clear the fixed navbar and draw a theme line under it. */
@@ -66,8 +62,6 @@ type ServicePageProps = {
   aboveForm?: ReactNode;
   /** Page already has its own hero, so the form sits directly under it. */
   compactTop?: boolean;
-  /** Hide the side image when the page already shows the product art. */
-  hideMedia?: boolean;
 };
 
 function slugFromPathname(pathname: string): string {
@@ -100,13 +94,10 @@ export default function ServicePage({
   hideHeader,
   serviceSlug: serviceSlugProp,
   loanTabs = false,
-  onlyLoanSlug,
-  insTypes,
   initialInsType,
   navBorder = false,
   aboveForm,
   compactTop = false,
-  hideMedia = false,
 }: ServicePageProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -153,11 +144,7 @@ export default function ServicePage({
     if (catalogLoans.length > 0) return catalogLoans;
     return fetched;
   }, [catalogLoans, fetchedLoans]);
-  const loanProducts = useMemo(() => {
-    const tabs = loanTabs ? mergeLoanPageTabs(apiLoans) : [];
-    if (!onlyLoanSlug) return tabs;
-    return tabs.filter((tab) => tab.slug === onlyLoanSlug);
-  }, [apiLoans, loanTabs, onlyLoanSlug]);
+  const loanProducts = useMemo(() => (loanTabs ? mergeLoanPageTabs(apiLoans) : []), [apiLoans, loanTabs]);
 
   const service = loanTabs ? loanSlug : pageServiceSlug;
   const selectedCategory = mapServiceToCategory(service);
@@ -182,14 +169,8 @@ export default function ServicePage({
     return { min, max };
   }, [cards, loanProducts, loanSlug, loanTabs]);
   const showInsuranceType = selectedCategory === "insurance";
-  const allInsuranceTypes = useInsuranceTypeOptions();
-  const insuranceTypeOptions = useMemo(() => {
-    if (!insTypes?.length) return allInsuranceTypes;
-    const allow = new Set(insTypes);
-    const picked = allInsuranceTypes.filter((item) => allow.has(item.value));
-    return picked.length > 0 ? picked : allInsuranceTypes;
-  }, [allInsuranceTypes, insTypes]);
-  const defaultInsType = initialInsType ?? insTypes?.[0] ?? "health_insurance";
+  const insuranceTypeOptions = useInsuranceTypeOptions();
+  const defaultInsType = initialInsType ?? "health_insurance";
 
   useEffect(() => {
     if (!loanTabs) return;
@@ -338,8 +319,8 @@ export default function ServicePage({
     >
       {(navBorder || loanTabs) && !compactTop && <div className="theme-gradient-bg h-1" aria-hidden />}
       <div className={`container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md max-w-full ${!compactTop && (loanTabs || navBorder) ? "pt-5 sm:pt-0" : ""}`}>
-        <div className={hideMedia ? "mx-auto w-full max-w-3xl" : "grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-stretch"}>
-          <div className={`min-w-0 flex flex-col w-full order-1 lg:order-1 lg:justify-center ${hideMedia ? "" : "lg:col-span-7"}`} data-aos="fade-right">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-stretch">
+          <div className="min-w-0 flex flex-col w-full order-1 lg:order-1 lg:col-span-7 lg:justify-center" data-aos="fade-right">
             {!hideHeader && (
               <>
                 {badge && (
@@ -655,7 +636,6 @@ export default function ServicePage({
             </div>
           </div>
 
-          {hideMedia ? null : (
           <div className="flex min-w-0 order-2 lg:order-2 w-full items-center justify-center lg:col-span-5" data-aos="fade-left">
             <Image
               src={`${imageSrc}${imageSrc.includes("?") ? "&" : "?"}v=2`}
@@ -668,7 +648,6 @@ export default function ServicePage({
               unoptimized
             />
           </div>
-          )}
         </div>
       </div>
     </section>
