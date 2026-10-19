@@ -54,6 +54,10 @@ type ServicePageProps = {
   serviceSlug?: string;
   /** /products/loans: tabs for each active loan product. Amount range follows the selected tab. */
   loanTabs?: boolean;
+  /** With loanTabs, show only this loan. Other loan pages stay unchanged. */
+  onlyLoanSlug?: string;
+  /** With insurance, show only these types. Other insurance pages stay unchanged. */
+  insTypes?: string[];
   /** No page hero: clear the fixed navbar and draw a theme line under it. */
   navBorder?: boolean;
   /** Rendered under the nav line and above the apply form. */
@@ -71,7 +75,7 @@ const inputClass =
 function loanTypeGif(slug: string): string {
   const key = slug.toLowerCase();
   if (key.includes("home")) return "/images/loans/home-loan.gif";
-  if (key.includes("car") || key.includes("vehicle")) return "/images/loans/car-loan.gif";
+  if (key.includes("car") || key.includes("vehicle")) return "/images/loans/car-loan.gif?v=10";
   if (key.includes("business")) return "/images/loans/business-loan.gif";
   return "/images/loans/personal-loan.gif";
 }
@@ -90,6 +94,8 @@ export default function ServicePage({
   hideHeader,
   serviceSlug: serviceSlugProp,
   loanTabs = false,
+  onlyLoanSlug,
+  insTypes,
   navBorder = false,
   aboveForm,
 }: ServicePageProps) {
@@ -138,10 +144,11 @@ export default function ServicePage({
     if (catalogLoans.length > 0) return catalogLoans;
     return fetched;
   }, [catalogLoans, fetchedLoans]);
-  const loanProducts = useMemo(
-    () => (loanTabs ? mergeLoanPageTabs(apiLoans) : []),
-    [apiLoans, loanTabs],
-  );
+  const loanProducts = useMemo(() => {
+    const tabs = loanTabs ? mergeLoanPageTabs(apiLoans) : [];
+    if (!onlyLoanSlug) return tabs;
+    return tabs.filter((tab) => tab.slug === onlyLoanSlug);
+  }, [apiLoans, loanTabs, onlyLoanSlug]);
 
   const service = loanTabs ? loanSlug : pageServiceSlug;
   const selectedCategory = mapServiceToCategory(service);
@@ -166,7 +173,14 @@ export default function ServicePage({
     return { min, max };
   }, [cards, loanProducts, loanSlug, loanTabs]);
   const showInsuranceType = selectedCategory === "insurance";
-  const insuranceTypeOptions = useInsuranceTypeOptions();
+  const allInsuranceTypes = useInsuranceTypeOptions();
+  const insuranceTypeOptions = useMemo(() => {
+    if (!insTypes?.length) return allInsuranceTypes;
+    const allow = new Set(insTypes);
+    const picked = allInsuranceTypes.filter((item) => allow.has(item.value));
+    return picked.length > 0 ? picked : allInsuranceTypes;
+  }, [allInsuranceTypes, insTypes]);
+  const defaultInsType = insTypes?.[0] ?? "health_insurance";
 
   useEffect(() => {
     if (!loanTabs) return;
@@ -189,10 +203,10 @@ export default function ServicePage({
   }, [loanProducts, loanSlug, loanTabs, setLoanSlug]);
 
   useEffect(() => {
-    setInsType(selectedCategory === "insurance" ? "health_insurance" : "");
+    setInsType(selectedCategory === "insurance" ? defaultInsType : "");
     setNetMonthlyIncome("");
     setLoanAmount(0);
-  }, [pageServiceSlug, selectedCategory, setInsType]);
+  }, [pageServiceSlug, selectedCategory, setInsType, defaultInsType]);
 
   const loanAmountError = useMemo(() => {
     if (!showLoanAmount || !loanBounds || loanAmount <= 0) return "";
