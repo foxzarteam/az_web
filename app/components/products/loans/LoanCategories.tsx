@@ -6,7 +6,7 @@ import { useLoanSelection } from "@/app/components/products/loans/loanSelection"
 const LOAN_CARDS = [
   { slug: "personal-loan", label: "Personal Loan", src: "/images/loans/personal-loan.gif", srcOnWhite: "/images/loans/personal-loan-white.gif", href: "/products/loans/" },
   { slug: "home-loan", label: "Home Loan", src: "/images/loans/home-loan.gif", srcOnWhite: "/images/loans/home-loan-white.gif", href: "/products/loans/" },
-  { slug: "vehicle-loan", label: "Vehicle Loan", src: "/images/loans/car-loan.gif?v=3", srcOnWhite: "/images/loans/car-loan-white.gif", href: "/products/loans/" },
+  { slug: "vehicle-loan", label: "Vehicle Loan", src: "/images/loans/car-loan.gif?v=4", srcOnWhite: "/images/loans/car-loan-white.gif", href: "/products/loans/" },
   { slug: "business-loan", label: "Business Loan", src: "/images/loans/business-loan.gif", srcOnWhite: "/images/loans/business-loan-white.gif", href: "/products/loans/" },
 ] as const;
 
