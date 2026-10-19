@@ -58,10 +58,16 @@ type ServicePageProps = {
   onlyLoanSlug?: string;
   /** With insurance, show only these types. Other insurance pages stay unchanged. */
   insTypes?: string[];
+  /** Insurance type selected when the form opens. Does not hide the other types. */
+  initialInsType?: string;
   /** No page hero: clear the fixed navbar and draw a theme line under it. */
   navBorder?: boolean;
   /** Rendered under the nav line and above the apply form. */
   aboveForm?: ReactNode;
+  /** Page already has its own hero, so the form sits directly under it. */
+  compactTop?: boolean;
+  /** Hide the side image when the page already shows the product art. */
+  hideMedia?: boolean;
 };
 
 function slugFromPathname(pathname: string): string {
@@ -96,8 +102,11 @@ export default function ServicePage({
   loanTabs = false,
   onlyLoanSlug,
   insTypes,
+  initialInsType,
   navBorder = false,
   aboveForm,
+  compactTop = false,
+  hideMedia = false,
 }: ServicePageProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -180,7 +189,7 @@ export default function ServicePage({
     const picked = allInsuranceTypes.filter((item) => allow.has(item.value));
     return picked.length > 0 ? picked : allInsuranceTypes;
   }, [allInsuranceTypes, insTypes]);
-  const defaultInsType = insTypes?.[0] ?? "health_insurance";
+  const defaultInsType = initialInsType ?? insTypes?.[0] ?? "health_insurance";
 
   useEffect(() => {
     if (!loanTabs) return;
@@ -319,12 +328,18 @@ export default function ServicePage({
   return (
     <section
       id="apply"
-      className={`scroll-mt-24 pb-0 ${loanTabs || navBorder ? "bg-white pt-16 md:pt-20 dark:bg-darkmode" : "bg-gradient-to-b from-light to-white pt-8 dark:from-darkmode dark:to-semidark"}`}
+      className={`scroll-mt-24 ${
+        compactTop
+          ? "bg-white !pb-8 !pt-2 dark:bg-darkmode sm:!pb-12 sm:!pt-4"
+          : loanTabs || navBorder
+            ? "bg-white pb-0 pt-16 dark:bg-darkmode md:pt-20"
+            : "bg-gradient-to-b from-light to-white pb-0 pt-8 dark:from-darkmode dark:to-semidark"
+      }`}
     >
-      {(navBorder || loanTabs) && <div className="theme-gradient-bg h-1" aria-hidden />}
-      <div className={`container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md max-w-full ${loanTabs || navBorder ? "pt-5 sm:pt-0" : ""}`}>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-stretch">
-          <div className="min-w-0 flex flex-col w-full order-1 lg:order-1 lg:col-span-7 lg:justify-center" data-aos="fade-right">
+      {(navBorder || loanTabs) && !compactTop && <div className="theme-gradient-bg h-1" aria-hidden />}
+      <div className={`container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md max-w-full ${!compactTop && (loanTabs || navBorder) ? "pt-5 sm:pt-0" : ""}`}>
+        <div className={hideMedia ? "mx-auto w-full max-w-3xl" : "grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-stretch"}>
+          <div className={`min-w-0 flex flex-col w-full order-1 lg:order-1 lg:justify-center ${hideMedia ? "" : "lg:col-span-7"}`} data-aos="fade-right">
             {!hideHeader && (
               <>
                 {badge && (
@@ -640,6 +655,7 @@ export default function ServicePage({
             </div>
           </div>
 
+          {hideMedia ? null : (
           <div className="flex min-w-0 order-2 lg:order-2 w-full items-center justify-center lg:col-span-5" data-aos="fade-left">
             <Image
               src={`${imageSrc}${imageSrc.includes("?") ? "&" : "?"}v=2`}
@@ -652,6 +668,7 @@ export default function ServicePage({
               unoptimized
             />
           </div>
+          )}
         </div>
       </div>
     </section>

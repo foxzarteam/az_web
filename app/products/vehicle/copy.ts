@@ -1,5 +1,3 @@
-export const VEHICLE_INS_TYPES = ["vehicle_insurance", "third_party_pvt_vehicle_insurance"];
-
 export const VEHICLE_FAQ = [
   {
     id: "what-is-vehicle-loan",
