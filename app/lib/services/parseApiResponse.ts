@@ -132,10 +132,22 @@ export function parseInsuranceTypesPayload(raw: unknown): InsuranceTypeOption[] 
   for (const row of list) {
     if (!row || typeof row !== "object") continue;
     const rec = row as { value?: unknown; slug?: unknown; label?: unknown; image?: unknown };
-    const value = String(rec.value ?? rec.slug ?? "")
+    const stored = String(rec.value ?? rec.slug ?? "")
       .trim()
       .toLowerCase();
-    const label = String(rec.label ?? "").trim();
+    const value =
+      stored === "car_insurance"
+        ? "vehicle_insurance"
+        : stored === "third_party_pvt_car_insurance"
+          ? "third_party_pvt_vehicle_insurance"
+          : stored;
+    const rawLabel = String(rec.label ?? "").trim();
+    const label =
+      value === "vehicle_insurance"
+        ? "Vehicle Insurance"
+        : value === "third_party_pvt_vehicle_insurance"
+          ? "Third Party Pvt Vehicle Insurance"
+          : rawLabel;
     const image = typeof rec.image === "string" ? rec.image.trim() : "";
     if (!INS_TYPE_SLUG_PATTERN.test(value) || !label || seen.has(value)) continue;
     seen.add(value);

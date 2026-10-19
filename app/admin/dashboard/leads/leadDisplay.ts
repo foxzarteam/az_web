@@ -69,6 +69,7 @@ export const FIELD_LABELS: Record<string, string> = {
 
 export function categoryLabel(value: unknown): string {
   const v = String(value ?? "");
+  if (v === "car_loan" || v === "vehicle_loan") return "Vehicle Loan";
   const found = CATEGORIES.find((c) => c.value === v)?.label;
   if (found) return found;
   return v ? v.replace(/_/g, " ") : "—";

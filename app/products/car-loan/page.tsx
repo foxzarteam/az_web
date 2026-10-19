@@ -1,7 +1,5 @@
-import LoanPageView, { loanPageMetadata } from "@/app/components/products/loans/LoanPageView";
+import { redirect } from "next/navigation";
 
-export const metadata = loanPageMetadata("car-loan");
-
-export default function CarLoanPage() {
-  return <LoanPageView pageKey="car-loan" />;
+export default function CarLoanRedirectPage() {
+  redirect("/products/vehicle-loan");
 }

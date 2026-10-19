@@ -11,7 +11,7 @@ import {
 
 const PAGE_TITLE = "Loans & Insurance Products | Apni Zaroorat";
 const PAGE_DESC =
-  "Discover personal loans, home loans, car loans, business loans and insurance in one place. Compare available options and check eligibility online with Apni Zaroorat.";
+  "Discover personal loans, home loans, vehicle loans, business loans and insurance in one place. Compare available options and check eligibility online with Apni Zaroorat.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: PAGE_TITLE,

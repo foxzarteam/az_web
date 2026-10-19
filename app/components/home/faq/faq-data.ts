@@ -115,10 +115,10 @@ export const PERSONAL_LOAN_FAQ_ITEMS: FaqItem[] = [
       "A Home Loan helps you buy, build, or renovate a house. The amount is higher than a typical personal loan and is linked to the property and your income. Choose Home Loan on this page and enter an amount inside the range shown for that product.",
   },
   {
-    id: "what-is-car-loan",
-    question: "What is a Car Loan?",
+    id: "what-is-vehicle-loan",
+    question: "What is a Vehicle Loan?",
     answer:
-      "A Car Loan is used to buy a new or used car. You repay it in monthly instalments over a fixed tenure. Select Car Loan, then enter an amount within the Car Loan range shown in the form.",
+      "A Vehicle Loan is used to buy a new or used vehicle. You repay it in monthly instalments over a fixed tenure. Select Vehicle Loan, then enter an amount within the Vehicle Loan range shown in the form.",
   },
   {
     id: "what-is-business-loan",
@@ -130,7 +130,7 @@ export const PERSONAL_LOAN_FAQ_ITEMS: FaqItem[] = [
     id: "why-choose-apni-zaroorat",
     question: "Why choose Apni Zaroorat?",
     answer:
-      "Apni Zaroorat works with a network of 100+ banks and NBFCs. If one lender does not fit, we help you find another that can approve your Personal, Home, Car, or Business loan — at a lower EMI and interest rate.",
+      "Apni Zaroorat works with a network of 100+ banks and NBFCs. If one lender does not fit, we help you find another that can approve your Personal, Home, Vehicle, or Business loan — at a lower EMI and interest rate.",
   },
 ];
 

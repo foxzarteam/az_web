@@ -61,10 +61,22 @@ function formatValue(key: string, value: unknown): string {
   return s;
 }
 
+function shownProductValue(row: AdminServiceRow, key: string): string {
+  const slug = String(row.slug ?? "");
+  const title = String(row.title ?? "");
+  const renamed = slug === "car-loan" || slug === "vehicle-loan" || /^car loan$/i.test(title.trim());
+  if (renamed && key === "title") return "Vehicle Loan";
+  if (renamed && key === "slug") return "vehicle-loan";
+  if (renamed && key === "description") {
+    return String(row.description ?? "").replace(/car loan/gi, "vehicle loan");
+  }
+  const value = row[key as keyof AdminServiceRow];
+  return value == null ? "" : String(value);
+}
+
 function cellText(row: AdminServiceRow, key: "title"): string {
-  const v = row[key];
-  if (v == null || v === "") return "—";
-  return String(v);
+  const v = shownProductValue(row, key);
+  return v.trim() ? v : "—";
 }
 
 function activeText(row: AdminServiceRow): string {
@@ -359,7 +371,11 @@ export default function ServicesTable({
                 <span className="shrink-0 font-semibold text-midnight_text dark:text-white">
                   {FIELD_LABELS[key] ?? key}:
                 </span>
-                <span className="text-midnight_text dark:text-gray-200 break-all">{formatValue(key, viewRow[key])}</span>
+                <span className="text-midnight_text dark:text-gray-200 break-all">
+                  {key === "title" || key === "slug" || key === "description"
+                    ? shownProductValue(viewRow, key) || "—"
+                    : formatValue(key, viewRow[key])}
+                </span>
               </li>
             ))}
           </ul>

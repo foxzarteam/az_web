@@ -29,9 +29,9 @@ export const SITE_TREE: SiteTreeNode[] = [
         description: "Apply for a home loan online with Apni Zaroorat and partner lenders.",
       },
       {
-        name: "Car Loan",
-        path: "/products/car-loan",
-        description: "Apply for a car loan online with Apni Zaroorat and partner lenders.",
+        name: "Vehicle Loan",
+        path: "/products/vehicle-loan",
+        description: "Apply for a vehicle loan online with Apni Zaroorat and partner lenders.",
       },
       {
         name: "Business Loan",
@@ -124,7 +124,7 @@ export const INDEXABLE_ROUTES = [
   { path: "/products/loans", changeFrequency: "daily" as const, priority: 0.98 },
   { path: "/products/personal-loan", changeFrequency: "daily" as const, priority: 0.97 },
   { path: "/products/home-loan", changeFrequency: "daily" as const, priority: 0.96 },
-  { path: "/products/car-loan", changeFrequency: "daily" as const, priority: 0.96 },
+  { path: "/products/vehicle-loan", changeFrequency: "daily" as const, priority: 0.96 },
   { path: "/products/business-loan", changeFrequency: "daily" as const, priority: 0.96 },
   { path: "/products/insurance", changeFrequency: "daily" as const, priority: 0.97 },
   { path: "/check-eligibility", changeFrequency: "daily" as const, priority: 0.96 },

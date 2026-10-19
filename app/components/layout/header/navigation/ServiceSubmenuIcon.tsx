@@ -4,6 +4,7 @@ const MENU_GIFS: Record<string, string> = {
   "personal-loan": "/images/loans/personal-loan-white.gif",
   "home-loan": "/images/loans/home-loan-white.gif",
   "car-loan": "/images/loans/car-loan-white.gif",
+  "vehicle-loan": "/images/loans/car-loan-white.gif",
   "business-loan": "/images/loans/business-loan-white.gif",
   insurance: "/images/loans/insurance-white.gif",
 };
@@ -14,7 +15,7 @@ export function submenuGifSrc(item: SubmenuItem): string {
   const label = item.label.toLowerCase();
   if (label.includes("personal")) return MENU_GIFS["personal-loan"];
   if (label.includes("home")) return MENU_GIFS["home-loan"];
-  if (label.includes("car")) return MENU_GIFS["car-loan"];
+  if (label.includes("vehicle loan") || label.includes("car loan")) return MENU_GIFS["vehicle-loan"];
   if (label.includes("business")) return MENU_GIFS["business-loan"];
   if (label.includes("insurance")) return MENU_GIFS.insurance;
   return MENU_GIFS["personal-loan"];

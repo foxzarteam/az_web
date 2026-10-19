@@ -6,7 +6,7 @@ import type { SubmenuItem } from "@/app/types/layout/menu";
 const LOAN_ALIAS_MENU: SubmenuItem[] = [
   { label: "Personal Loan", href: "/products/personal-loan/", slug: "personal-loan" },
   { label: "Home Loan", href: "/products/home-loan/", slug: "home-loan" },
-  { label: "Car Loan", href: "/products/car-loan/", slug: "car-loan" },
+  { label: "Vehicle Loan", href: "/products/vehicle-loan/", slug: "vehicle-loan" },
   { label: "Business Loan", href: "/products/business-loan/", slug: "business-loan" },
 ];
 

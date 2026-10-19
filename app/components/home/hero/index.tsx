@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { DEFAULT_IMAGES } from "@/app/config/constants";
 import HeroFeatureIcons from "./HeroFeatureIcons";
 
-const ROTATING_NEEDS = ["Personal Loan", "Home Loan", "Car Loan", "Business Loan", "Insurance"];
+const ROTATING_NEEDS = ["Personal Loan", "Home Loan", "Vehicle Loan", "Business Loan", "Insurance"];
 
 export default function Hero() {
   const [needIndex, setNeedIndex] = useState(0);

@@ -16,7 +16,7 @@ import {
   pageSeoGlue,
 } from "@/app/lib/seo";
 
-export type LoanPageKey = "loans" | "personal-loan" | "home-loan" | "car-loan" | "business-loan";
+export type LoanPageKey = "loans" | "personal-loan" | "home-loan" | "vehicle-loan" | "business-loan";
 
 type LoanPageCopy = {
   slug: string;
@@ -33,9 +33,9 @@ const LOAN_PAGES: Record<LoanPageKey, LoanPageCopy> = {
   loans: {
     slug: "personal-loan",
     path: "/products/loans",
-    title: "Personal, Home, Car & Business Loans | Apni Zaroorat",
+    title: "Personal, Home, Vehicle & Business Loans | Apni Zaroorat",
     description:
-      "Find loan options for personal expenses, buying a home or car, and growing your business. Check eligibility and review available loan options with Apni Zaroorat.",
+      "Find loan options for personal expenses, buying a home or vehicle, and growing your business. Check eligibility and review available loan options with Apni Zaroorat.",
     crumb: "Loan",
     h1: "Loan",
     serviceName: "Loan",
@@ -65,16 +65,16 @@ const LOAN_PAGES: Record<LoanPageKey, LoanPageCopy> = {
     serviceName: "Home Loan",
     serviceDescription: "Home loans from partner banks and NBFCs with a guided digital application.",
   },
-  "car-loan": {
-    slug: "car-loan",
-    path: "/products/car-loan",
-    title: "Apply for a Car Loan Online in India | Apni Zaroorat",
+  "vehicle-loan": {
+    slug: "vehicle-loan",
+    path: "/products/vehicle-loan",
+    title: "Apply for a Vehicle Loan Online in India | Apni Zaroorat",
     description:
-      "Looking for car financing? Check eligibility, review available car loan options and start your application online with Apni Zaroorat.",
-    crumb: "Car Loan",
-    h1: "Car Loan",
-    serviceName: "Car Loan",
-    serviceDescription: "Car loans from partner lenders with a simple online application.",
+      "Looking for vehicle financing? Check eligibility, review available vehicle loan options and start your application online with Apni Zaroorat.",
+    crumb: "Vehicle Loan",
+    h1: "Vehicle Loan",
+    serviceName: "Vehicle Loan",
+    serviceDescription: "Vehicle loans from partner lenders with a simple online application.",
   },
   "business-loan": {
     slug: "business-loan",

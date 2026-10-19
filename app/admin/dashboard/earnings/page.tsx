@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { ADMIN_CARD, ADMIN_UI } from "@/app/components/shared/crm/ui";
 import EarningsTable, { type EarningLedgerRow } from "./EarningsTable";
 import { partnerCommissionRupees } from "@/app/admin/dashboard/leads/leadCommission";
+import { insuranceTypeLabel } from "@/app/lib/leads/leadForm";
 
 function formatMoney(n: number) {
   try {
@@ -42,7 +43,8 @@ function leadNote(lead: AdminLeadRow): string {
     .toLowerCase()
     .replace(/-/g, "_");
   if (cat === "insurance") {
-    const ins = String(lead.ins_type ?? "").replace(/_/g, " ");
+    const rawIns = String(lead.ins_type ?? "").trim();
+    const ins = rawIns ? insuranceTypeLabel(rawIns) : "";
     return ins ? `Insurance — ${name} (${ins})` : `Insurance — ${name}`;
   }
   const amt = Number(lead.required_amount);

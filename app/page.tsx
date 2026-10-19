@@ -16,7 +16,7 @@ const Calculator = dynamic(() => import("./components/home/calculator"));
 
 const PAGE_TITLE = "Apply for Loans & Insurance Online in India | Apni Zaroorat";
 const PAGE_DESC =
-  "Find personal, home, car and business loan options, along with insurance solutions, on Apni Zaroorat. Check eligibility and find suitable financial products for your needs.";
+  "Find personal, home, vehicle and business loan options, along with insurance solutions, on Apni Zaroorat. Check eligibility and find suitable financial products for your needs.";
 
 export const metadata: Metadata = {
   ...buildPageMetadata({

@@ -33,6 +33,7 @@ function categoryLabel(category: string): string {
     personal_loan: "Personal Loan",
     home_loan: "Home Loan",
     business_loan: "Business Loan",
+    car_loan: "Vehicle Loan",
     credit_card: "Credit Card",
     insurance: "Insurance",
     vehicle_loan: "Vehicle Loan",
