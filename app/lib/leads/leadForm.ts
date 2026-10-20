@@ -218,7 +218,7 @@ export function validateLeadPanNameMobile(params: {
   if (!m) errors.mobile = "Mobile number is required";
   else if (m.length !== 10) errors.mobile = "Enter a valid 10-digit mobile number";
   else if (!/^[6-9]/.test(m)) {
-    errors.mobile = "Mobile number must start with 6, 7, 8, or 9";
+    errors.mobile = "Enter a valid phone number";
   }
 
   const n = params.fullName.trim();

@@ -42,7 +42,6 @@ import {
   sanitizeLeadPincodeInput,
   validateLeadPanNameMobile,
   validateLeadPincode,
-  netMonthlyIncomeError,
   type LeadFieldErrors,
 } from "@/app/lib/leads/leadForm";
 import { sanitizeMobileInput } from "@/app/lib/validation";
@@ -172,6 +171,8 @@ export default function ServicePage({
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
   const [pincode, setPincode] = useState("");
+  const [mobileError, setMobileError] = useState("");
+  const [pincodeError, setPincodeError] = useState("");
   const [loanAmount, setLoanAmount] = useState(0);
   const insuranceSelection = useInsuranceSelection();
   const [localInsType, setLocalInsType] = useState("");
@@ -181,6 +182,14 @@ export default function ServicePage({
   const [incomeError, setIncomeError] = useState("");
   const [employmentType, setEmploymentType] = useState("");
   const [loanStep, setLoanStep] = useState<1 | 2>(1);
+
+  useEffect(() => {
+    if (loanStep !== 2) return;
+    const form = document.getElementById("apply-form");
+    if (!form) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    form.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  }, [loanStep]);
   const [cibilBand, setCibilBand] = useState("");
   const [hasExistingEmi, setHasExistingEmi] = useState<"" | "yes" | "no">("");
   const [totalMonthlyEmi, setTotalMonthlyEmi] = useState("");
@@ -267,6 +276,10 @@ export default function ServicePage({
     if (loanAmount >= loanBounds.min && loanAmount <= loanBounds.max) return "";
     return `Loan amount must be between ₹${loanBounds.min.toLocaleString("en-IN")} and ₹${loanBounds.max.toLocaleString("en-IN")}`;
   }, [loanAmount, loanBounds, showLoanAmount]);
+
+  useEffect(() => {
+    document.getElementById("service-loan-amount")?.setCustomValidity("");
+  }, [loanAmount]);
 
   const handleSubmit = async (form: HTMLFormElement) => {
     if (isSubmittingForm) return;
@@ -392,10 +405,24 @@ export default function ServicePage({
   };
 
   const goToFinish = (form: HTMLFormElement) => {
+    const amountInput = form.querySelector<HTMLInputElement>("#service-loan-amount");
+    if (amountInput && showLoanAmount && loanAmount > 0) {
+      const outOfRange =
+        loanBounds != null && (loanAmount < loanBounds.min || loanAmount > loanBounds.max);
+      const missingRange = loanTabs && loanProducts.length > 0 && !loanBounds;
+      amountInput.setCustomValidity(
+        missingRange
+          ? "Amount range is not available for this loan."
+          : outOfRange
+            ? `Loan amount must be between ₹${loanBounds.min.toLocaleString("en-IN")} and ₹${loanBounds.max.toLocaleString("en-IN")}`
+            : "",
+      );
+    }
     if (!reportFormValidity(form)) {
       setFormError("");
       return;
     }
+    amountInput?.setCustomValidity("");
     const errors: LeadFieldErrors = validateLeadPanNameMobile({
       pan,
       mobileDigits: mobile.replace(/\D/g, ""),
@@ -404,18 +431,16 @@ export default function ServicePage({
     if (!service.trim()) errors.service = "Product could not be detected for this page";
     const pinErr = validateLeadPincode(pincode);
     if (pinErr) errors.pincode = pinErr;
-    if (showLoanAmount && loanTabs && loanProducts.length > 0 && !loanBounds) {
-      errors.loanAmt = "Amount range is not available for this loan.";
-    } else if (showLoanAmount && (loanAmount <= 0 || loanAmountError)) {
-      errors.loanAmt =
-        loanAmountError ||
-        (loanBounds
-          ? `Loan amount must be between ₹${loanBounds.min.toLocaleString("en-IN")} and ₹${loanBounds.max.toLocaleString("en-IN")}`
-          : "Enter a loan amount");
-    }
-    const firstError = firstLeadFieldError(errors);
-    if (firstError) {
-      setFormError(firstError);
+    setMobileError(errors.mobile ?? "");
+    setPincodeError(errors.pincode ?? "");
+    const firstError = firstLeadFieldError({
+      ...errors,
+      mobile: undefined,
+      pincode: undefined,
+      loanAmt: undefined,
+    });
+    if (errors.mobile || errors.pincode || firstError) {
+      setFormError(firstError ?? "");
       return;
     }
     setFormError("");
@@ -476,7 +501,7 @@ export default function ServicePage({
               <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-4 sm:py-6 lg:py-7 px-4 sm:px-6 md:px-7 flex flex-1 flex-col min-h-0 min-w-0">
                 {showLoanAmount ? <LoanStepBar step={loanStep} /> : null}
                 <div className="mb-3 flex items-center gap-2">
-                  <h2 className={`min-w-0 flex-1 leading-snug ${loanTabs ? (loanStep === 2 ? "text-lg sm:text-2xl" : "text-xl sm:text-2xl") : "text-lg sm:text-xl"} font-semibold text-midnight_text dark:text-white`}>
+                  <h2 className={`min-w-0 flex-1 leading-snug ${loanTabs ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"} font-semibold text-midnight_text dark:text-white`}>
                     {loanTabs ? (
                       <>
                         Check{" "}
@@ -494,7 +519,7 @@ export default function ServicePage({
                         setFormError("");
                         setLoanStep(1);
                       }}
-                      className="inline-flex h-8 shrink-0 items-center justify-center rounded-full bg-black px-3 text-xs font-semibold text-white"
+                      className="hidden h-8 shrink-0 items-center justify-center rounded-full bg-black px-3 text-xs font-semibold text-white sm:inline-flex"
                     >
                       Back
                     </button>
@@ -635,7 +660,6 @@ export default function ServicePage({
                               ? `₹${loanBounds.min.toLocaleString("en-IN")} – ₹${loanBounds.max.toLocaleString("en-IN")}`
                               : ""
                           }
-                          error={loanAmountError}
                           required
                         />
                       ) : null}
@@ -694,12 +718,16 @@ export default function ServicePage({
                           maxLength={MOBILE_VALIDATION.MAX_LENGTH}
                           placeholder="10-digit mobile"
                           value={mobile}
-                          onChange={(e) => setMobile(sanitizeMobileInput(e.target.value))}
+                          onChange={(e) => {
+                            setMobile(sanitizeMobileInput(e.target.value));
+                            setMobileError("");
+                          }}
                           pattern="[0-9]*"
                           className={mobileInputClass}
                           required
                         />
                       </div>
+                      {mobileError ? <p className="mt-1 text-xs text-red-600">{mobileError}</p> : null}
                     </div>
                     <div>
                       <label
@@ -732,12 +760,16 @@ export default function ServicePage({
                           maxLength={6}
                           placeholder="e.g. 302002"
                           value={pincode}
-                          onChange={(e) => setPincode(sanitizeLeadPincodeInput(e.target.value))}
+                          onChange={(e) => {
+                            setPincode(sanitizeLeadPincodeInput(e.target.value));
+                            setPincodeError("");
+                          }}
                           pattern="[0-9]*"
                           className={`${inputClass} !pl-10`}
                           required
                         />
                       </div>
+                      {pincodeError ? <p className="mt-1 text-xs text-red-600">{pincodeError}</p> : null}
                     </div>
                   </div>
 
@@ -753,7 +785,6 @@ export default function ServicePage({
                           ? `₹${loanBounds.min.toLocaleString("en-IN")} – ₹${loanBounds.max.toLocaleString("en-IN")}`
                           : ""
                       }
-                      error={loanAmountError}
                       required
                     />
                   ) : null}
@@ -775,7 +806,7 @@ export default function ServicePage({
                         netMonthlyIncome={netMonthlyIncome}
                         onIncomeChange={(value) => {
                           setNetMonthlyIncome(value);
-                          setIncomeError(value.trim() ? (netMonthlyIncomeError(value) ?? "") : "");
+                          setIncomeError("");
                         }}
                         inputClassName={inputClass}
                         labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
@@ -838,6 +869,18 @@ export default function ServicePage({
                           </svg>
                         ) : null}
                       </button>
+                      {showLoanAmount && loanStep === 2 ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormError("");
+                            setLoanStep(1);
+                          }}
+                          className="mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-black text-sm font-semibold text-white sm:hidden"
+                        >
+                          Back
+                        </button>
+                      ) : null}
                     </div>
                     <LeadCreditDisclaimer className="mt-2 text-xs" />
                   </div>
