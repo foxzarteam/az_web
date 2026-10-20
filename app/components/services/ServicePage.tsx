@@ -17,7 +17,8 @@ import EmploymentIncomeFields, {
   EmploymentTypeField,
   LOAN_APPLY_EMPLOYMENT_OPTIONS,
 } from "@/app/components/leads/EmploymentIncomeFields";
-import CibilBandSelect from "@/app/components/leads/CibilBandSelect";
+import LoanProfileFields from "@/app/components/leads/LoanProfileFields";
+import { readOptionalCibilUpload } from "@/app/lib/leads/cibilUpload";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { customerLogin } from "@/app/lib/customer/authApi";
 import { applyLead, isExistingApplicationError, leadIdFromResponse, mapServiceToCategory, type CreateLeadResponse } from "@/app/lib/leads/leadApi";
@@ -42,7 +43,6 @@ import {
   validateLeadPanNameMobile,
   validateLeadPincode,
   netMonthlyIncomeError,
-  loanNotEligibleMessage,
   type LeadFieldErrors,
 } from "@/app/lib/leads/leadForm";
 import { sanitizeMobileInput } from "@/app/lib/validation";
@@ -90,8 +90,6 @@ const mobileShellClass =
 const mobileInputClass =
   "min-h-10 min-w-0 flex-1 bg-transparent px-3 py-2 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none";
 
-const CIBIL_FILE_TYPES = new Set(["application/pdf", "image/jpeg", "image/png", "image/webp"]);
-
 function LoanStepCapsule({ n, label, active }: { n: 1 | 2; label: string; active: boolean }) {
   return (
     <span
@@ -136,20 +134,6 @@ function LoanStepBar({ step }: { step: 1 | 2 }) {
       </div>
     </div>
   );
-}
-
-function readFileBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const raw = String(reader.result ?? "");
-      const data = raw.includes(",") ? raw.slice(raw.indexOf(",") + 1) : raw;
-      if (!data) reject(new Error("Could not read the file."));
-      else resolve(data);
-    };
-    reader.onerror = () => reject(new Error("Could not read the file."));
-    reader.readAsDataURL(file);
-  });
 }
 
 export default function ServicePage({
@@ -202,7 +186,6 @@ export default function ServicePage({
   const [totalMonthlyEmi, setTotalMonthlyEmi] = useState("");
   const [cibilReport, setCibilReport] = useState<{ name: string; mime: string; data: string } | null>(null);
   const [cibilFileError, setCibilFileError] = useState("");
-  const cibilInputRef = useRef<HTMLInputElement | null>(null);
   const [pan, setPan] = useState("");
   const [formError, setFormError] = useState("");
   const loanSelection = useLoanSelection();
@@ -334,20 +317,6 @@ export default function ServicePage({
       return;
     }
     setCibilFileError("");
-
-    if (showLoanAmount) {
-      const notEligible = loanNotEligibleMessage({
-        netMonthlyIncome,
-        cibilBand,
-        hasExistingEmi,
-        totalMonthlyEmi,
-      });
-      if (notEligible) {
-        setIneligibleMessage(notEligible);
-        return;
-      }
-    }
-
     setFormError("");
     setIsSubmittingForm(true);
     primeOtpRecaptcha();
@@ -401,7 +370,9 @@ export default function ServicePage({
       applyPromiseRef.current = applyLead(payload);
       const res = await applyPromiseRef.current;
       if (!res.success) {
-        if (isExistingApplicationError(res)) {
+        if (res.code === "LOAN_NOT_ELIGIBLE") {
+          setIneligibleMessage(res.message || "Sorry, you are not eligible for this loan.");
+        } else if (isExistingApplicationError(res)) {
           setExistingAppMessage(
             res.message || "Your application is already KYC pending.",
           );
@@ -451,32 +422,20 @@ export default function ServicePage({
     setLoanStep(2);
   };
 
-  const onCibilFile = async (file: File | undefined) => {
+  const onCibilFile = async (file: File | undefined, input: HTMLInputElement) => {
     setCibilFileError("");
     if (!file) {
       setCibilReport(null);
       return;
     }
-    const mime = file.type === "image/jpg" ? "image/jpeg" : file.type;
-    if (!CIBIL_FILE_TYPES.has(mime)) {
+    const read = await readOptionalCibilUpload(file);
+    if (!read.ok) {
       setCibilReport(null);
-      setCibilFileError("Upload a PDF or image (JPG, PNG, WEBP).");
-      if (cibilInputRef.current) cibilInputRef.current.value = "";
+      setCibilFileError(read.message);
+      input.value = "";
       return;
     }
-    if (file.size > 200 * 1024 * 1024) {
-      setCibilReport(null);
-      setCibilFileError("This file is too large.");
-      if (cibilInputRef.current) cibilInputRef.current.value = "";
-      return;
-    }
-    try {
-      const data = await readFileBase64(file);
-      setCibilReport({ name: file.name, mime, data });
-    } catch {
-      setCibilReport(null);
-      setCibilFileError("Could not read the CIBIL report.");
-    }
+    setCibilReport(read.file);
   };
 
   return (
@@ -815,78 +774,27 @@ export default function ServicePage({
                           ) : null
                         }
                       />
-                      <div>
-                        <label htmlFor="service-cibil" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                          CIBIL score <span className="text-red-500">*</span>
-                        </label>
-                        <CibilBandSelect
-                          id="service-cibil"
-                          value={cibilBand}
-                          onChange={setCibilBand}
-                          className={inputClass}
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="service-cibil-file" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                          Upload your CIBIL report if you have
-                        </label>
-                        <input
-                          ref={cibilInputRef}
-                          id="service-cibil-file"
-                          type="file"
-                          accept="application/pdf,image/jpeg,image/png,image/webp,.pdf,.jpg,.jpeg,.png,.webp"
-                          onChange={(e) => void onCibilFile(e.target.files?.[0])}
-                          className={`${inputClass} file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-1 file:text-sm file:font-semibold file:text-primary`}
-                        />
-                        {cibilReport ? (
-                          <p className="mt-1 text-xs text-gray-500">{cibilReport.name}</p>
-                        ) : null}
-                        {cibilFileError ? (
-                          <p className="mt-1 text-xs text-red-600">{cibilFileError}</p>
-                        ) : null}
-                      </div>
-                      <div>
-                        <label htmlFor="service-existing-emi" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                          Do you pay an existing loan EMI? <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          id="service-existing-emi"
-                          value={hasExistingEmi}
-                          onChange={(e) => {
-                            const next = e.target.value === "yes" || e.target.value === "no" ? e.target.value : "";
-                            setHasExistingEmi(next);
-                            if (next === "no") setTotalMonthlyEmi("0");
-                            else if (totalMonthlyEmi === "0") setTotalMonthlyEmi("");
-                          }}
-                          className={inputClass}
-                          required
-                        >
-                          <option value="">Select</option>
-                          <option value="yes">Yes</option>
-                          <option value="no">No</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label htmlFor="service-total-emi" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                          Total monthly EMI you pay <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80">
-                          <span className="theme-gradient-text pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-bold leading-none" aria-hidden>
-                            ₹
-                          </span>
-                          <input
-                            id="service-total-emi"
-                            type="text"
-                            inputMode="numeric"
-                            value={hasExistingEmi === "no" ? "0" : totalMonthlyEmi}
-                            onChange={(e) => setTotalMonthlyEmi(e.target.value.replace(/[^\d]/g, ""))}
-                            placeholder={hasExistingEmi === "yes" ? "e.g. 8000" : "0"}
-                            readOnly={hasExistingEmi !== "yes"}
-                            className="min-h-10 min-w-0 flex-1 bg-transparent py-2 pl-9 pr-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none read-only:text-gray-500 dark:text-white"
-                            required
-                          />
-                        </div>
-                      </div>
+                      <LoanProfileFields
+                        idPrefix="service"
+                        cibilBand={cibilBand}
+                        onCibilBand={setCibilBand}
+                        onCibilFile={(file, input) => void onCibilFile(file, input)}
+                        cibilFileName={cibilReport?.name}
+                        cibilFileError={
+                          cibilFileError ? <p className="mt-1 text-xs text-red-600">{cibilFileError}</p> : null
+                        }
+                        hasExistingEmi={hasExistingEmi}
+                        onExistingEmi={(next) => {
+                          setHasExistingEmi(next);
+                          if (next === "no") setTotalMonthlyEmi("0");
+                          else if (totalMonthlyEmi === "0") setTotalMonthlyEmi("");
+                        }}
+                        totalMonthlyEmi={totalMonthlyEmi}
+                        onTotalMonthlyEmi={setTotalMonthlyEmi}
+                        inputClassName={inputClass}
+                        labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                        nativeRequired
+                      />
                     </div>
                   )}
 

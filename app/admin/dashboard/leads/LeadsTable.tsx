@@ -62,6 +62,7 @@ export default function LeadsTable({
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [ineligibleMessage, setIneligibleMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [revealingPan, setRevealingPan] = useState(false);
   const [downloadingCibil, setDownloadingCibil] = useState(false);
@@ -234,16 +235,9 @@ export default function LeadsTable({
     const validationErrors = validateLeadForm(editForm, {
       requireConsent: readOnly,
       requirePincode: true,
+      requireLoanProfile: true,
     });
-    if (
-      validationErrors.fullName ||
-      validationErrors.mobileNumber ||
-      validationErrors.pan ||
-      validationErrors.netMonthlyIncome ||
-      validationErrors.pincode ||
-      validationErrors.insType ||
-      validationErrors.consent
-    ) {
+    if (Object.values(validationErrors).some(Boolean)) {
       setFieldErrors(validationErrors);
       return;
     }
@@ -266,13 +260,24 @@ export default function LeadsTable({
         error?: string;
         message?: string;
         field?: string;
+        code?: string;
       };
       if (!res.ok) {
         const message = toPublicClientError(data.error ?? data.message, "Could not add lead.");
+        if (data.code === "LOAN_NOT_ELIGIBLE") {
+          setIneligibleMessage(message);
+          return;
+        }
         if (
           data.field === "mobileNumber" ||
           data.field === "pan" ||
-          data.field === "pincode"
+          data.field === "pincode" ||
+          data.field === "netMonthlyIncome" ||
+          data.field === "employmentType" ||
+          data.field === "requiredAmount" ||
+          data.field === "cibilBand" ||
+          data.field === "hasExistingEmi" ||
+          data.field === "totalMonthlyEmi"
         ) {
           setFieldErrors({ [data.field]: message });
         } else {
@@ -299,15 +304,7 @@ export default function LeadsTable({
     if (!editLead?.id || !editForm) return;
 
     const validationErrors = validateLeadForm(editForm, { allowMaskedPan: true });
-    if (
-      validationErrors.fullName ||
-      validationErrors.mobileNumber ||
-      validationErrors.pan ||
-      validationErrors.netMonthlyIncome ||
-      validationErrors.pincode ||
-      validationErrors.insType ||
-      validationErrors.commissionValue
-    ) {
+    if (Object.values(validationErrors).some(Boolean)) {
       setFieldErrors(validationErrors);
       return;
     }
@@ -447,6 +444,23 @@ export default function LeadsTable({
       {successMsg && (
         <SuccessPopup message={successMsg} onClose={() => setSuccessMsg(null)} />
       )}
+      {ineligibleMessage ? (
+        <SuccessPopup
+          message={ineligibleMessage}
+          title="You are not eligible"
+          variant="danger"
+          onClose={() => setIneligibleMessage("")}
+          footer={
+            <button
+              type="button"
+              onClick={() => setIneligibleMessage("")}
+              className="inline-flex min-h-10 items-center justify-center rounded-full bg-midnight_text px-5 text-sm font-semibold text-white"
+            >
+              Okay
+            </button>
+          }
+        />
+      ) : null}
       {exportError ? <p className={`mb-3 ${ADMIN_ERROR}`}>{exportError}</p> : null}
       <CrmDataTable
         rows={leads}

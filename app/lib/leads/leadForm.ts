@@ -1,7 +1,11 @@
 /**
  * Shared validation + sanitizers for lead forms (hero modal, service pages).
- * Keeps API payload rules in one place.
+ * Reject rules (CIBIL, EMI) live in server/src/leads/loan-rules.ts. The API returns them.
  */
+
+/** Same floor as server loan-rules. The red income error shows while typing, before submit. */
+export const MIN_NET_MONTHLY_INCOME = 18000;
+const MSG_NET_INCOME_MIN = "Net monthly income must be at least ₹18,000";
 
 export const LOAN_AMOUNT_OPTIONS = [
   { value: "25000_100000", label: "₹25,000 - ₹1,00,000" },
@@ -140,39 +144,17 @@ export function validateLeadPincode(pincode: string): string | undefined {
   return undefined;
 }
 
-/** Loan apply: income must be at least ₹18,000. */
-export const MIN_NET_MONTHLY_INCOME = 18000;
+function formMoney(raw: string): number {
+  return Number(String(raw).replace(/,/g, "").trim());
+}
 
 export function netMonthlyIncomeError(value: string): string | undefined {
   const raw = String(value).replace(/,/g, "").trim();
-  if (!raw) return "Net monthly income must be at least ₹18,000";
-  const incomeNum = Number(raw);
-  if (!Number.isFinite(incomeNum) || incomeNum < MIN_NET_MONTHLY_INCOME) {
-    return "Net monthly income must be at least ₹18,000";
+  const incomeNum = formMoney(raw);
+  if (!raw || !Number.isFinite(incomeNum) || incomeNum < MIN_NET_MONTHLY_INCOME) {
+    return MSG_NET_INCOME_MIN;
   }
   return undefined;
-}
-
-/** CIBIL below 680, or existing EMI at least half of net income. */
-export function loanNotEligibleMessage(values: {
-  netMonthlyIncome: string;
-  cibilBand: string;
-  hasExistingEmi: string;
-  totalMonthlyEmi: string;
-}): string | null {
-  const income = Number(String(values.netMonthlyIncome).replace(/,/g, "").trim());
-  if (!Number.isFinite(income) || income <= 0) return null;
-  if (values.cibilBand === "below_680") {
-    return "Sorry, you are not eligible for this loan. A CIBIL score below 680 does not meet the current criteria.";
-  }
-  const emi =
-    values.hasExistingEmi === "yes"
-      ? Number(String(values.totalMonthlyEmi).replace(/,/g, "").trim())
-      : 0;
-  if (values.hasExistingEmi === "yes" && Number.isFinite(emi) && emi * 2 >= income) {
-    return "Sorry, you are not eligible for this loan. Your existing EMI is half or more of your net monthly income.";
-  }
-  return null;
 }
 
 export function validatePersonalLoanEmployment(

@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import EmploymentIncomeFields, {
   EmploymentTypeField,
+  LOAN_APPLY_EMPLOYMENT_OPTIONS,
 } from "@/app/components/leads/EmploymentIncomeFields";
+import LoanProfileFields from "@/app/components/leads/LoanProfileFields";
+import { readOptionalCibilUpload } from "@/app/lib/leads/cibilUpload";
 import InsuranceTypeSelect from "@/app/components/leads/InsuranceTypeSelect";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
@@ -67,7 +70,13 @@ export default function LeadFormFields({
   /** Partner add-lead must confirm the customer's details before save. */
   partnerConsent?: boolean;
 }) {
+  const [cibilFileError, setCibilFileError] = useState("");
   const panLocked = panMode === "edit" && isMaskedPanValue(form.pan);
+  const loanForm = form.category.trim().toLowerCase().endsWith("_loan");
+  const employmentOptions =
+    form.employmentType === "salaried"
+      ? [...LOAN_APPLY_EMPLOYMENT_OPTIONS, { value: "salaried", label: "Salaried" }]
+      : LOAN_APPLY_EMPLOYMENT_OPTIONS;
   const commissionLocked = !canApprove && form.status === "approved";
   const statusLocked = commissionLocked;
   const statusOptions = STATUSES.filter(
@@ -75,6 +84,9 @@ export default function LeadFormFields({
   );
   const insuranceTypeOptions = useInsuranceTypeOptions();
   const serviceCards = useServiceCards();
+  const loanCard = serviceCards.find(
+    (card) => mapServiceToCategory(productHrefToSlug(card.href)) === form.category,
+  );
   const categoryOptions = useMemo(() => {
     const seen = new Set<string>();
     const out: { value: string; label: string }[] = [];
@@ -223,21 +235,31 @@ export default function LeadFormFields({
           />
           <FieldErrorText message={fieldErrors.pincode} />
         </label>
-        {form.category === "personal_loan" ? (
+        {loanForm ? (
           <>
             <div className={commissionLocked ? "pointer-events-none opacity-60" : ""}>
               <LoanAmountSlider
                 id="admin-lead-loan-amount"
                 value={form.requiredAmount}
+                min={loanCard?.limitStart ?? undefined}
+                max={loanCard?.limitEnd ?? undefined}
+                placeholder={
+                  loanCard?.limitStart != null && loanCard?.limitEnd != null
+                    ? `₹${loanCard.limitStart.toLocaleString("en-IN")} – ₹${loanCard.limitEnd.toLocaleString("en-IN")}`
+                    : undefined
+                }
+                error={fieldErrors.requiredAmount}
                 onChange={(value) => {
                   if (commissionLocked) return;
                   setForm({ ...form, requiredAmount: value });
+                  clearFieldError("requiredAmount");
                 }}
               />
             </div>
             <EmploymentTypeField
               id="admin-lead-employment"
               value={form.employmentType}
+              options={employmentOptions}
               onChange={(value) => {
                 setForm({ ...form, employmentType: value });
                 clearFieldError("employmentType");
@@ -259,6 +281,54 @@ export default function LeadFormFields({
               incomeError={<FieldErrorText message={fieldErrors.netMonthlyIncome} />}
               incomeWithRupee
             />
+            {panMode === "create" ? (
+              <LoanProfileFields
+                idPrefix="admin-lead"
+                cibilBand={form.cibilBand}
+                onCibilBand={(value) => {
+                  setForm({ ...form, cibilBand: value });
+                  clearFieldError("cibilBand");
+                }}
+                cibilError={<FieldErrorText message={fieldErrors.cibilBand} />}
+                onCibilFile={(file, input) => {
+                  setCibilFileError("");
+                  if (!file) {
+                    setForm({ ...form, cibilReport: null });
+                    return;
+                  }
+                  void readOptionalCibilUpload(file).then((read) => {
+                    if (!read.ok) {
+                      setForm({ ...form, cibilReport: null });
+                      setCibilFileError(read.message);
+                      input.value = "";
+                      return;
+                    }
+                    setForm({ ...form, cibilReport: read.file });
+                  });
+                }}
+                cibilFileName={form.cibilReport?.name}
+                cibilFileError={<FieldErrorText message={cibilFileError} />}
+                hasExistingEmi={form.hasExistingEmi}
+                onExistingEmi={(next) => {
+                  setForm({
+                    ...form,
+                    hasExistingEmi: next,
+                    totalMonthlyEmi: next === "no" ? "0" : form.totalMonthlyEmi === "0" ? "" : form.totalMonthlyEmi,
+                  });
+                  clearFieldError("hasExistingEmi");
+                  clearFieldError("totalMonthlyEmi");
+                }}
+                emiChoiceError={<FieldErrorText message={fieldErrors.hasExistingEmi} />}
+                totalMonthlyEmi={form.totalMonthlyEmi}
+                onTotalMonthlyEmi={(value) => {
+                  setForm({ ...form, totalMonthlyEmi: value });
+                  clearFieldError("totalMonthlyEmi");
+                }}
+                emiAmountError={<FieldErrorText message={fieldErrors.totalMonthlyEmi} />}
+                inputClassName={publicInput}
+                labelClassName={fieldLabel}
+              />
+            ) : null}
           </>
         ) : null}
       </div>

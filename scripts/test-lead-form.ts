@@ -5,7 +5,6 @@ import assert from "node:assert/strict";
 import {
   LEAD_PAN_PATTERN,
   MIN_NET_MONTHLY_INCOME,
-  loanNotEligibleMessage,
   netMonthlyIncomeError,
   validateLeadPanNameMobile,
   validateLeadPincode,
@@ -40,35 +39,6 @@ assert.ok(name.fullName);
 assert.equal(MIN_NET_MONTHLY_INCOME, 18000);
 assert.equal(netMonthlyIncomeError("17999"), "Net monthly income must be at least ₹18,000");
 assert.equal(netMonthlyIncomeError("18000"), undefined);
-
-const below = loanNotEligibleMessage({
-  netMonthlyIncome: "50000",
-  cibilBand: "below_680",
-  hasExistingEmi: "no",
-  totalMonthlyEmi: "0",
-});
-assert.equal(
-  below,
-  "Sorry, you are not eligible for this loan. A CIBIL score below 680 does not meet the current criteria.",
-);
-assert.equal(
-  loanNotEligibleMessage({
-    netMonthlyIncome: "40000",
-    cibilBand: "above_680",
-    hasExistingEmi: "yes",
-    totalMonthlyEmi: "20000",
-  }),
-  "Sorry, you are not eligible for this loan. Your existing EMI is half or more of your net monthly income.",
-);
-assert.equal(
-  loanNotEligibleMessage({
-    netMonthlyIncome: "40000",
-    cibilBand: "unknown",
-    hasExistingEmi: "yes",
-    totalMonthlyEmi: "19999",
-  }),
-  null,
-);
 
 const finish = validateLoanFinishStep({
   netMonthlyIncome: "20000",

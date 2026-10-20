@@ -5,7 +5,12 @@ import {
   commissionFromStoredLead,
   commissionValueError,
 } from "./leadCommission";
-import { employmentTypeForForm, MIN_NET_MONTHLY_INCOME, validateLeadPincode } from "@/app/lib/leads/leadForm";
+import {
+  employmentTypeForForm,
+  MIN_NET_MONTHLY_INCOME,
+  validateLeadPincode,
+  validateLoanFinishStep,
+} from "@/app/lib/leads/leadForm";
 
 export type EditForm = {
   fullName: string;
@@ -17,6 +22,10 @@ export type EditForm = {
   insType: string;
   netMonthlyIncome: string;
   employmentType: string;
+  cibilBand: string;
+  hasExistingEmi: "" | "yes" | "no";
+  totalMonthlyEmi: string;
+  cibilReport: { name: string; mime: string; data: string } | null;
   pincode: string;
   consentAccepted: boolean;
   commissionType: CommissionChoice;
@@ -49,6 +58,16 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
         ? String(lead.net_monthly_income)
         : "",
     employmentType: employmentTypeForForm(lead.employment_type, lead.category),
+    cibilBand: String(lead.cibil_band ?? ""),
+    hasExistingEmi:
+      lead.has_existing_emi === true || lead.has_existing_emi === "true"
+        ? "yes"
+        : lead.has_existing_emi === false || lead.has_existing_emi === "false"
+          ? "no"
+          : "",
+    totalMonthlyEmi:
+      lead.total_monthly_emi != null && lead.total_monthly_emi !== "" ? String(lead.total_monthly_emi) : "",
+    cibilReport: null,
     pincode: String(lead.pincode ?? "").replace(/\D/g, "").slice(0, 6),
     ...commissionFromStoredLead(lead),
     partnerLead: Boolean(String(lead.agent_id ?? "").trim()),
@@ -73,10 +92,14 @@ export function emptyCreateForm(): EditForm {
     pan: "",
     category: "personal_loan",
     status: "pending",
-    requiredAmount: DEFAULT_LOAN_AMOUNT,
+    requiredAmount: 0,
     insType: "life_insurance",
     netMonthlyIncome: "",
     employmentType: "",
+    cibilBand: "",
+    hasExistingEmi: "",
+    totalMonthlyEmi: "",
+    cibilReport: null,
     pincode: "",
     consentAccepted: false,
     commissionType: "",
@@ -91,11 +114,19 @@ export type FieldErrors = {
   pan?: string;
   netMonthlyIncome?: string;
   employmentType?: string;
+  cibilBand?: string;
+  hasExistingEmi?: string;
+  totalMonthlyEmi?: string;
   pincode?: string;
+  requiredAmount?: string;
   insType?: string;
   commissionValue?: string;
   consent?: string;
 };
+
+function isLoanFormCategory(category: string): boolean {
+  return category.trim().toLowerCase().endsWith("_loan");
+}
 
 const PHONE_PATTERN = /^[6-9]\d{9}$/;
 const PAN_PATTERN = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
@@ -108,7 +139,7 @@ export function isMaskedPanValue(value: string): boolean {
 
 export function validateLeadForm(
   form: EditForm,
-  opts?: { allowMaskedPan?: boolean; requireConsent?: boolean; requirePincode?: boolean },
+  opts?: { allowMaskedPan?: boolean; requireConsent?: boolean; requirePincode?: boolean; requireLoanProfile?: boolean },
 ): FieldErrors {
   const errors: FieldErrors = {};
   const name = form.fullName.trim();
@@ -135,12 +166,26 @@ export function validateLeadForm(
       errors.pincode = "Enter a valid 6-digit Indian pincode";
     }
   }
-  if (form.category === "personal_loan") {
+  if (isLoanFormCategory(form.category)) {
+    if (!Number.isFinite(form.requiredAmount) || form.requiredAmount <= 0) {
+      errors.requiredAmount = "Enter the loan amount";
+    }
     const income = Number(form.netMonthlyIncome);
     if (!form.netMonthlyIncome.trim() || !Number.isFinite(income) || income < MIN_NET_MONTHLY_INCOME) {
       errors.netMonthlyIncome = "Net monthly income must be at least ₹18,000";
     }
-    if (
+    if (opts?.requireLoanProfile) {
+      Object.assign(
+        errors,
+        validateLoanFinishStep({
+          netMonthlyIncome: form.netMonthlyIncome,
+          employmentType: form.employmentType,
+          cibilBand: form.cibilBand,
+          hasExistingEmi: form.hasExistingEmi,
+          totalMonthlyEmi: form.totalMonthlyEmi,
+        }),
+      );
+    } else if (
       form.employmentType !== "salaried" &&
       form.employmentType !== "salaried_bank" &&
       form.employmentType !== "salaried_cash" &&
@@ -172,13 +217,23 @@ export function buildLeadPayload(
     category: form.category,
     pincode: form.pincode.trim() || null,
   };
-  if (form.category === "personal_loan") {
-    payload.requiredAmount = form.requiredAmount;
+  if (isLoanFormCategory(form.category)) {
+    payload.requiredAmount = form.requiredAmount > 0 ? form.requiredAmount : null;
     payload.insType = null;
     payload.loanAmt = null;
     const income = Number(form.netMonthlyIncome);
     payload.netMonthlyIncome = Number.isFinite(income) && income > 0 ? income : null;
     payload.employmentType = form.employmentType;
+    if (opts?.includeConsent) {
+      payload.cibilBand = form.cibilBand;
+      payload.hasExistingEmi = form.hasExistingEmi === "yes";
+      payload.totalMonthlyEmi = form.hasExistingEmi === "no" ? 0 : Number(form.totalMonthlyEmi);
+      if (form.cibilReport) {
+        payload.cibilReportName = form.cibilReport.name;
+        payload.cibilReportMime = form.cibilReport.mime;
+        payload.cibilReportData = form.cibilReport.data;
+      }
+    }
   } else if (form.category === "insurance") {
     payload.insType = form.insType;
     payload.requiredAmount = null;
