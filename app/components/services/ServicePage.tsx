@@ -475,8 +475,8 @@ export default function ServicePage({
             <div id="apply-form" className="theme-gradient-bg scroll-mt-24 p-[1px] rounded-2xl sm:rounded-3xl shadow-xl w-full min-w-0 flex flex-col">
               <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-4 sm:py-6 lg:py-7 px-4 sm:px-6 md:px-7 flex flex-1 flex-col min-h-0 min-w-0">
                 {showLoanAmount ? <LoanStepBar step={loanStep} /> : null}
-                <div className="mb-3">
-                  <h2 className={`${loanTabs ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"} font-semibold text-midnight_text dark:text-white`}>
+                <div className="mb-3 flex items-center gap-2">
+                  <h2 className={`min-w-0 flex-1 leading-snug ${loanTabs ? (loanStep === 2 ? "text-lg sm:text-2xl" : "text-xl sm:text-2xl") : "text-lg sm:text-xl"} font-semibold text-midnight_text dark:text-white`}>
                     {loanTabs ? (
                       <>
                         Check{" "}
@@ -487,6 +487,18 @@ export default function ServicePage({
                       `Apply for ${selectedLoanTitle}`
                     )}
                   </h2>
+                  {showLoanAmount && loanStep === 2 ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormError("");
+                        setLoanStep(1);
+                      }}
+                      className="inline-flex h-8 shrink-0 items-center justify-center rounded-full bg-black px-3 text-xs font-semibold text-white"
+                    >
+                      Back
+                    </button>
+                  ) : null}
                 </div>
 
                 {ineligibleMessage && (
@@ -807,19 +819,7 @@ export default function ServicePage({
                   />
 
                   <div className={showLoanAmount ? "w-full" : "mt-auto w-full pt-2 sm:pt-3"}>
-                    <div className={showLoanAmount && loanStep === 2 ? "flex w-full items-center gap-2" : "w-full"}>
-                      {showLoanAmount && loanStep === 2 ? (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFormError("");
-                            setLoanStep(1);
-                          }}
-                          className={`inline-flex shrink-0 items-center justify-center rounded-full border border-gray-300 px-4 text-sm font-semibold text-midnight_text dark:border-dark_border dark:text-white ${loanTabs ? "min-h-12" : "min-h-[44px]"}`}
-                        >
-                          Back
-                        </button>
-                      ) : null}
+                    <div className="w-full">
                       <button
                         type="submit"
                         disabled={isSubmittingForm}
