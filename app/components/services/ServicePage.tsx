@@ -520,7 +520,7 @@ export default function ServicePage({
                         setFormError("");
                         setLoanStep(1);
                       }}
-                      className="hidden h-8 shrink-0 items-center justify-center rounded-full bg-black px-3 text-xs font-semibold text-white sm:inline-flex"
+                      className="hidden h-8 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-transparent px-3 text-xs font-semibold text-midnight_text dark:border-dark_border dark:text-white sm:inline-flex"
                     >
                       Back
                     </button>
@@ -877,7 +877,7 @@ export default function ServicePage({
                             setFormError("");
                             setLoanStep(1);
                           }}
-                          className="mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-black text-sm font-semibold text-white sm:hidden"
+                          className="mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-full border border-gray-300 bg-transparent text-sm font-semibold text-midnight_text dark:border-dark_border dark:text-white sm:hidden"
                         >
                           Back
                         </button>
