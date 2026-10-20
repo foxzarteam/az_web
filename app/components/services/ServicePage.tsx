@@ -898,37 +898,39 @@ export default function ServicePage({
                     textClassName="text-xs leading-snug text-gray-600 dark:text-gray-400 sm:text-sm"
                   />
 
-                  <div className={showLoanAmount ? "flex w-full items-center gap-2" : "mt-auto w-full pt-2 sm:pt-3"}>
-                    {showLoanAmount && loanStep === 2 ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFormError("");
-                          setLoanStep(1);
-                        }}
-                        className={`inline-flex shrink-0 items-center justify-center rounded-full border border-gray-300 px-4 text-sm font-semibold text-midnight_text dark:border-dark_border dark:text-white ${loanTabs ? "min-h-12" : "min-h-[44px]"}`}
-                      >
-                        Back
-                      </button>
-                    ) : null}
-                    <button
-                      type="submit"
-                      disabled={isSubmittingForm}
-                      className={`inline-flex w-full min-w-0 flex-1 items-center justify-center gap-2 btn-gradient px-4 text-sm font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70 sm:text-base ${loanTabs ? "min-h-12 rounded-full py-3" : "min-h-[44px] rounded-xl py-2.5 sm:rounded-2xl sm:py-3"}`}
-                    >
-                      {isSubmittingForm
-                        ? "Submitting…"
-                        : showLoanAmount && loanStep === 1
-                          ? "Next"
-                          : loanTabs
-                            ? "Check Eligibility"
-                            : "Apply Now"}
-                      {!isSubmittingForm && (loanTabs || (showLoanAmount && loanStep === 1)) ? (
-                        <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden>
-                          <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
+                  <div className={showLoanAmount ? "w-full" : "mt-auto w-full pt-2 sm:pt-3"}>
+                    <div className={showLoanAmount && loanStep === 2 ? "flex w-full items-center gap-2" : "w-full"}>
+                      {showLoanAmount && loanStep === 2 ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormError("");
+                            setLoanStep(1);
+                          }}
+                          className={`inline-flex shrink-0 items-center justify-center rounded-full border border-gray-300 px-4 text-sm font-semibold text-midnight_text dark:border-dark_border dark:text-white ${loanTabs ? "min-h-12" : "min-h-[44px]"}`}
+                        >
+                          Back
+                        </button>
                       ) : null}
-                    </button>
+                      <button
+                        type="submit"
+                        disabled={isSubmittingForm}
+                        className={`inline-flex w-full min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap btn-gradient px-4 text-sm font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70 sm:text-base ${loanTabs ? "min-h-12 rounded-full py-3" : "min-h-[44px] rounded-xl py-2.5 sm:rounded-2xl sm:py-3"}`}
+                      >
+                        {isSubmittingForm
+                          ? "Submitting…"
+                          : showLoanAmount && loanStep === 1
+                            ? "Next"
+                            : loanTabs
+                              ? "Check Eligibility"
+                              : "Apply Now"}
+                        {!isSubmittingForm && (loanTabs || (showLoanAmount && loanStep === 1)) ? (
+                          <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden>
+                            <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        ) : null}
+                      </button>
+                    </div>
                     <LeadCreditDisclaimer className="mt-2 text-xs" />
                   </div>
                 </form>
