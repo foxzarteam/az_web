@@ -571,7 +571,7 @@ export default function ServicePage({
                     setPendingLeadId("");
                     setOtpSendPromise(null);
                   }}
-                  syncServerVerify={false}
+                  syncServerVerify
                   onSuccess={async (result) => {
                     const applyRes = await applyPromiseRef.current;
                     if (!applyRes?.success) {
