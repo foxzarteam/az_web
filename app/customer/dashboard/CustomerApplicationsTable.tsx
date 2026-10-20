@@ -395,10 +395,6 @@ export default function CustomerApplicationsTable({
                         {viewLead.total_monthly_emi == null ? "N/A" : formatInr(viewLead.total_monthly_emi)}
                       </span>
                     </div>
-                    <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
-                      <span className="text-gray-500">CIBIL report</span>
-                      <span className="text-right font-medium">{viewLead.cibil_report_name || "N/A"}</span>
-                    </div>
                   </>
                 ) : null}
                 <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
