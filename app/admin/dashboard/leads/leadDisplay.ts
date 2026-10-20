@@ -1,6 +1,7 @@
 import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
 import { formatIpLocationDisplay } from "@/app/lib/admin/formatIpLocation";
 import {
+  cibilBandLabel,
   employmentTypeLabel,
   insuranceTypeLabel,
   loanAmountLabel,
@@ -33,6 +34,10 @@ export const VIEW_FIELDS = [
   "required_amount",
   "employment_type",
   "net_monthly_income",
+  "cibil_band",
+  "has_existing_emi",
+  "total_monthly_emi",
+  "cibil_report_name",
   "pincode",
   "ip",
   "is_active",
@@ -51,6 +56,10 @@ export const FIELD_LABELS: Record<string, string> = {
   required_amount: "Loan amount",
   employment_type: "Employment type",
   net_monthly_income: "Net monthly income",
+  cibil_band: "CIBIL score",
+  has_existing_emi: "Existing loan EMI",
+  total_monthly_emi: "Total monthly EMI",
+  cibil_report_name: "CIBIL report",
   ip: "Location",
   ip_location: "Location",
   loan_amt: "Loan amount range (legacy)",
@@ -98,11 +107,32 @@ export function formatValue(key: string, value: unknown, row?: AdminLeadRow): st
   if (key === "otp_verified" || key === "consent_accepted") {
     return value === true || value === 1 || value === "true" ? "Yes" : "No";
   }
-  if (key === "required_amount" || key === "net_monthly_income") {
+  if (key === "required_amount") {
     if (value == null || value === "") return "—";
     return formatCurrencyInr(value);
   }
-  if (key === "employment_type") return employmentTypeLabel(value, row?.category);
+  if (key === "net_monthly_income" || key === "total_monthly_emi") {
+    if (value == null || value === "") return "N/A";
+    return formatCurrencyInr(value);
+  }
+  if (key === "employment_type") {
+    if (value == null || String(value).trim() === "") return "N/A";
+    const label = employmentTypeLabel(value, row?.category);
+    return label === "—" ? "N/A" : label;
+  }
+  if (key === "cibil_band") {
+    if (value == null || String(value).trim() === "") return "N/A";
+    const label = cibilBandLabel(value);
+    return label === "—" ? "N/A" : label;
+  }
+  if (key === "has_existing_emi") {
+    if (value === true || value === "true" || value === 1) return "Yes";
+    if (value === false || value === "false" || value === 0) return "No";
+    return "N/A";
+  }
+  if (key === "cibil_report_name") {
+    if (value == null || String(value).trim() === "") return "N/A";
+  }
   if (value == null || value === "") return "—";
   if (key === "category") return categoryLabel(value);
   if (key === "loan_amt") return loanAmountLabel(String(value));

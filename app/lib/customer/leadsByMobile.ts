@@ -13,6 +13,10 @@ export type CustomerLead = {
   ins_type: string | null;
   employment_type: string | null;
   net_monthly_income: number | null;
+  cibil_band: string | null;
+  has_existing_emi: boolean | null;
+  total_monthly_emi: number | null;
+  cibil_report_name: string | null;
   created_at: string | null;
   updated_at: string | null;
   otp_verified: boolean;
@@ -59,6 +63,20 @@ function asCustomerLead(row: unknown): CustomerLead | null {
     ins_type: String(r.ins_type ?? "").trim() || null,
     employment_type: String(r.employment_type ?? "").trim() || null,
     net_monthly_income: income != null && Number.isFinite(income) ? income : null,
+    cibil_band: String(r.cibil_band ?? "").trim() || null,
+    has_existing_emi:
+      r.has_existing_emi === true || r.has_existing_emi === false
+        ? r.has_existing_emi
+        : r.has_existing_emi === "true"
+          ? true
+          : r.has_existing_emi === "false"
+            ? false
+            : null,
+    total_monthly_emi: (() => {
+      const n = typeof r.total_monthly_emi === "number" ? r.total_monthly_emi : Number(r.total_monthly_emi);
+      return r.total_monthly_emi == null || r.total_monthly_emi === "" || !Number.isFinite(n) ? null : n;
+    })(),
+    cibil_report_name: String(r.cibil_report_name ?? "").trim() || null,
     created_at: r.created_at != null ? String(r.created_at) : null,
     updated_at: r.updated_at != null ? String(r.updated_at) : null,
     otp_verified: r.otp_verified === true,

@@ -5,7 +5,7 @@ import {
   commissionFromStoredLead,
   commissionValueError,
 } from "./leadCommission";
-import { employmentTypeForForm, validateLeadPincode } from "@/app/lib/leads/leadForm";
+import { employmentTypeForForm, MIN_NET_MONTHLY_INCOME, validateLeadPincode } from "@/app/lib/leads/leadForm";
 
 export type EditForm = {
   fullName: string;
@@ -137,10 +137,15 @@ export function validateLeadForm(
   }
   if (form.category === "personal_loan") {
     const income = Number(form.netMonthlyIncome);
-    if (!form.netMonthlyIncome.trim() || !Number.isFinite(income) || income <= 0) {
-      errors.netMonthlyIncome = "Enter a valid net monthly income";
+    if (!form.netMonthlyIncome.trim() || !Number.isFinite(income) || income < MIN_NET_MONTHLY_INCOME) {
+      errors.netMonthlyIncome = "Net monthly income must be at least ₹18,000";
     }
-    if (form.employmentType !== "salaried" && form.employmentType !== "self_employed") {
+    if (
+      form.employmentType !== "salaried" &&
+      form.employmentType !== "salaried_bank" &&
+      form.employmentType !== "salaried_cash" &&
+      form.employmentType !== "self_employed"
+    ) {
       errors.employmentType = "Select salaried or self employee / business";
     }
   }

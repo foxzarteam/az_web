@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CustomerLead } from "@/app/lib/customer/leadsByMobile";
-import { employmentTypeLabel, insuranceTypeLabel } from "@/app/lib/leads/leadForm";
+import { cibilBandLabel, employmentTypeLabel, insuranceTypeLabel } from "@/app/lib/leads/leadForm";
 import CrmDataTable, {
   CrmActionButton,
   type CrmColumn,
@@ -366,14 +366,38 @@ export default function CustomerApplicationsTable({
                     <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
                       <span className="text-gray-500">Employment type</span>
                       <span className="text-right font-medium">
-                        {employmentTypeLabel(viewLead.employment_type, viewLead.category)}
+                        {viewLead.employment_type
+                          ? employmentTypeLabel(viewLead.employment_type, viewLead.category)
+                          : "N/A"}
                       </span>
                     </div>
                     <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
                       <span className="text-gray-500">Net monthly income</span>
                       <span className="text-right font-medium">
-                        {formatInr(viewLead.net_monthly_income)}
+                        {viewLead.net_monthly_income == null ? "N/A" : formatInr(viewLead.net_monthly_income)}
                       </span>
+                    </div>
+                    <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
+                      <span className="text-gray-500">CIBIL score</span>
+                      <span className="text-right font-medium">
+                        {viewLead.cibil_band ? cibilBandLabel(viewLead.cibil_band) : "N/A"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
+                      <span className="text-gray-500">Existing loan EMI</span>
+                      <span className="text-right font-medium">
+                        {viewLead.has_existing_emi == null ? "N/A" : viewLead.has_existing_emi ? "Yes" : "No"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
+                      <span className="text-gray-500">Total monthly EMI</span>
+                      <span className="text-right font-medium">
+                        {viewLead.total_monthly_emi == null ? "N/A" : formatInr(viewLead.total_monthly_emi)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
+                      <span className="text-gray-500">CIBIL report</span>
+                      <span className="text-right font-medium">{viewLead.cibil_report_name || "N/A"}</span>
                     </div>
                   </>
                 ) : null}

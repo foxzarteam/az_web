@@ -11,6 +11,8 @@ type SuccessPopupProps = {
   onClose: () => void;
   autoCloseMs?: number;
   variant?: PopupVariant;
+  /** Replaces the default heading for this variant. */
+  title?: string;
   /** Actionable content below the message; disables auto-close so it stays clickable. */
   footer?: ReactNode;
 };
@@ -59,7 +61,7 @@ const variantConfig = {
   },
 };
 
-export default function SuccessPopup({ message, onClose, autoCloseMs = 3000, variant = "success", footer }: SuccessPopupProps) {
+export default function SuccessPopup({ message, onClose, autoCloseMs = 3000, variant = "success", title, footer }: SuccessPopupProps) {
   const config = variantConfig[variant];
   const autoCloses = !footer;
 
@@ -102,7 +104,7 @@ export default function SuccessPopup({ message, onClose, autoCloseMs = 3000, var
         {/* Text */}
         <div className="px-6 sm:px-8 pb-6 text-center">
           <h3 className="text-xl font-semibold text-midnight_text dark:text-white mb-2">
-            {config.title}
+            {title || config.title}
           </h3>
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
             {message}

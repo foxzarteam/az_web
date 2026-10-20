@@ -6,7 +6,7 @@ import {
   downloadXlsx,
   type SheetCell,
 } from "@/app/lib/admin/xlsxSheet";
-import { employmentTypeLabel, insuranceTypeLabel } from "@/app/lib/leads/leadForm";
+import { cibilBandLabel, employmentTypeLabel, insuranceTypeLabel } from "@/app/lib/leads/leadForm";
 import { categoryLabel, statusLabel } from "./leadDisplay";
 
 const HEADERS = [
@@ -19,6 +19,10 @@ const HEADERS = [
   "Loan amount",
   "Net monthly income",
   "Employment",
+  "CIBIL score",
+  "Existing loan EMI",
+  "Total monthly EMI",
+  "CIBIL report",
   "Pincode",
   "Status",
   "Verified",
@@ -95,6 +99,18 @@ function leadRow(row: AdminLeadRow): SheetCell[] {
     amount == null ? { kind: "s", value: "" } : { kind: "n", value: amount },
     income == null ? { kind: "s", value: "" } : { kind: "n", value: income },
     { kind: "s", value: employmentLabel(row.employment_type, row.category) },
+    { kind: "s", value: text(row.cibil_band) ? cibilBandLabel(row.cibil_band) : "" },
+    {
+      kind: "s",
+      value:
+        row.has_existing_emi == null || row.has_existing_emi === ""
+          ? ""
+          : yesNo(row.has_existing_emi),
+    },
+    numberOrNull(row.total_monthly_emi) == null
+      ? { kind: "s", value: "" }
+      : { kind: "n", value: numberOrNull(row.total_monthly_emi) as number },
+    { kind: "s", value: text(row.cibil_report_name) },
     { kind: "s", value: text(row.pincode) },
     { kind: "s", value: text(row.status) ? statusLabel(row.status) : "" },
     { kind: "s", value: yesNo(row.otp_verified) },
@@ -112,7 +128,7 @@ function leadRow(row: AdminLeadRow): SheetCell[] {
   ];
 }
 
-const WIDTHS = [22, 14, 16, 28, 18, 18, 16, 20, 16, 12, 16, 12, 12, 22, 18, 18, 18, 28, 18, 28, 22, 22, 38];
+const WIDTHS = [22, 14, 16, 28, 18, 18, 16, 20, 28, 16, 18, 18, 22, 12, 16, 12, 12, 22, 18, 18, 18, 28, 18, 28, 22, 22, 38];
 
 export function buildLeadsXlsx(rows: AdminLeadRow[]): Uint8Array {
   return buildSheetXlsx({

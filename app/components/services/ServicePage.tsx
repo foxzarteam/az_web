@@ -15,7 +15,9 @@ import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import EmploymentIncomeFields, {
   EmploymentTypeField,
+  LOAN_APPLY_EMPLOYMENT_OPTIONS,
 } from "@/app/components/leads/EmploymentIncomeFields";
+import CibilBandSelect from "@/app/components/leads/CibilBandSelect";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { customerLogin } from "@/app/lib/customer/authApi";
 import { applyLead, isExistingApplicationError, leadIdFromResponse, mapServiceToCategory, type CreateLeadResponse } from "@/app/lib/leads/leadApi";
@@ -39,6 +41,8 @@ import {
   sanitizeLeadPincodeInput,
   validateLeadPanNameMobile,
   validateLeadPincode,
+  netMonthlyIncomeError,
+  loanNotEligibleMessage,
   type LeadFieldErrors,
 } from "@/app/lib/leads/leadForm";
 import { sanitizeMobileInput } from "@/app/lib/validation";
@@ -86,6 +90,68 @@ const mobileShellClass =
 const mobileInputClass =
   "min-h-10 min-w-0 flex-1 bg-transparent px-3 py-2 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none";
 
+const CIBIL_FILE_TYPES = new Set(["application/pdf", "image/jpeg", "image/png", "image/webp"]);
+
+function LoanStepCapsule({ n, label, active }: { n: 1 | 2; label: string; active: boolean }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full py-1 pl-1 pr-3.5 text-xs font-semibold tracking-wide ${
+        active
+          ? "theme-gradient-bg text-white shadow-md"
+          : "border border-gray-200 bg-white text-gray-400 dark:border-white/15 dark:bg-transparent"
+      }`}
+    >
+      <span
+        className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold leading-none ${
+          active ? "bg-white text-[#4236FB]" : "bg-gray-100 text-gray-400 dark:bg-white/10"
+        }`}
+      >
+        {n}
+      </span>
+      {label}
+    </span>
+  );
+}
+
+function LoanStepBar({ step }: { step: 1 | 2 }) {
+  const atFinish = step === 2;
+  return (
+    <div className="-mx-4 -mt-4 mb-5 rounded-t-2xl bg-[#F3F4F6] px-5 py-4 sm:-mx-6 sm:-mt-6 sm:rounded-t-3xl sm:px-8 sm:py-5 md:-mx-7 lg:-mt-7 dark:bg-white/[0.04]">
+      <div className="mx-auto flex max-w-xl items-center" role="group" aria-label={atFinish ? "Finish step" : "Start step"}>
+        <LoanStepCapsule n={1} label="Start" active={!atFinish} />
+        <span className="mx-3 flex min-w-[2.5rem] flex-1 items-center" aria-hidden>
+          <span className="loan-dot-line min-w-0 flex-1" />
+          <svg viewBox="0 0 42 20" className="-ml-1 h-5 w-10 shrink-0">
+            <defs>
+              <linearGradient id="az-loan-step-arrow" x1="0" y1="10" x2="42" y2="10" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#4236FB" />
+                <stop offset="100%" stopColor="#FF7E29" />
+              </linearGradient>
+            </defs>
+            <path d="M1 10h14" stroke="url(#az-loan-step-arrow)" strokeWidth="2.2" strokeLinecap="round" />
+            <path d="M12 3.2 38 10 12 16.8 18.5 10Z" fill="url(#az-loan-step-arrow)" />
+          </svg>
+        </span>
+        <LoanStepCapsule n={2} label="Finish" active={atFinish} />
+      </div>
+    </div>
+  );
+}
+
+function readFileBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const raw = String(reader.result ?? "");
+      const data = raw.includes(",") ? raw.slice(raw.indexOf(",") + 1) : raw;
+      if (!data) reject(new Error("Could not read the file."));
+      else resolve(data);
+    };
+    reader.onerror = () => reject(new Error("Could not read the file."));
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function ServicePage({
   title,
   subtitle,
@@ -107,6 +173,7 @@ export default function ServicePage({
   );
 
   const [existingAppMessage, setExistingAppMessage] = useState("");
+  const [ineligibleMessage, setIneligibleMessage] = useState("");
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [pendingLeadId, setPendingLeadId] = useState("");
   const [otpSendPromise, setOtpSendPromise] = useState<Promise<ConfirmationResult> | null>(null);
@@ -127,7 +194,15 @@ export default function ServicePage({
   const insType = insuranceSelection?.value ?? localInsType;
   const setInsType = insuranceSelection?.setValue ?? setLocalInsType;
   const [netMonthlyIncome, setNetMonthlyIncome] = useState("");
+  const [incomeError, setIncomeError] = useState("");
   const [employmentType, setEmploymentType] = useState("");
+  const [loanStep, setLoanStep] = useState<1 | 2>(1);
+  const [cibilBand, setCibilBand] = useState("");
+  const [hasExistingEmi, setHasExistingEmi] = useState<"" | "yes" | "no">("");
+  const [totalMonthlyEmi, setTotalMonthlyEmi] = useState("");
+  const [cibilReport, setCibilReport] = useState<{ name: string; mime: string; data: string } | null>(null);
+  const [cibilFileError, setCibilFileError] = useState("");
+  const cibilInputRef = useRef<HTMLInputElement | null>(null);
   const [pan, setPan] = useState("");
   const [formError, setFormError] = useState("");
   const loanSelection = useLoanSelection();
@@ -196,6 +271,12 @@ export default function ServicePage({
     setInsType(selectedCategory === "insurance" ? defaultInsType : "");
     setNetMonthlyIncome("");
     setLoanAmount(0);
+    setLoanStep(1);
+    setCibilBand("");
+    setHasExistingEmi("");
+    setTotalMonthlyEmi("");
+    setCibilReport(null);
+    setCibilFileError("");
   }, [pageServiceSlug, selectedCategory, setInsType, defaultInsType]);
 
   const loanAmountError = useMemo(() => {
@@ -236,6 +317,10 @@ export default function ServicePage({
           loanAmount,
           netMonthlyIncome,
           employmentType,
+          cibilBand,
+          hasExistingEmi,
+          totalMonthlyEmi,
+          cibilReport,
         }, loanBounds),
       );
       if (loanAmountError) delete errors.loanAmt;
@@ -243,9 +328,24 @@ export default function ServicePage({
     if (showInsuranceType && !insType.trim()) errors.insType = "Please select insurance type";
 
     const firstError = firstLeadFieldError(errors);
+    setIncomeError(errors.netMonthlyIncome ?? "");
     if (loanAmountError || firstError) {
-      setFormError(firstError ?? "");
+      setFormError(errors.netMonthlyIncome && firstError === errors.netMonthlyIncome ? "" : (firstError ?? ""));
       return;
+    }
+    setCibilFileError("");
+
+    if (showLoanAmount) {
+      const notEligible = loanNotEligibleMessage({
+        netMonthlyIncome,
+        cibilBand,
+        hasExistingEmi,
+        totalMonthlyEmi,
+      });
+      if (notEligible) {
+        setIneligibleMessage(notEligible);
+        return;
+      }
     }
 
     setFormError("");
@@ -266,6 +366,10 @@ export default function ServicePage({
               loanAmount,
               netMonthlyIncome,
               employmentType,
+              cibilBand,
+              hasExistingEmi,
+              totalMonthlyEmi,
+              cibilReport,
             })
           : null;
       const payload = {
@@ -279,6 +383,16 @@ export default function ServicePage({
               requiredAmount: pl.requiredAmount,
               netMonthlyIncome: pl.netMonthlyIncome,
               employmentType: pl.employmentType,
+              cibilBand: pl.cibilBand,
+              hasExistingEmi: pl.hasExistingEmi,
+              totalMonthlyEmi: pl.totalMonthlyEmi,
+              ...(pl.cibilReportData
+                ? {
+                    cibilReportName: pl.cibilReportName,
+                    cibilReportMime: pl.cibilReportMime,
+                    cibilReportData: pl.cibilReportData,
+                  }
+                : {}),
             }
           : {}),
         ...(category === "insurance" ? { insType } : {}),
@@ -303,6 +417,65 @@ export default function ServicePage({
       setFormError("Network error. Please try again.");
     } finally {
       setIsSubmittingForm(false);
+    }
+  };
+
+  const goToFinish = (form: HTMLFormElement) => {
+    if (!reportFormValidity(form)) {
+      setFormError("");
+      return;
+    }
+    const errors: LeadFieldErrors = validateLeadPanNameMobile({
+      pan,
+      mobileDigits: mobile.replace(/\D/g, ""),
+      fullName,
+    });
+    if (!service.trim()) errors.service = "Product could not be detected for this page";
+    const pinErr = validateLeadPincode(pincode);
+    if (pinErr) errors.pincode = pinErr;
+    if (showLoanAmount && loanTabs && loanProducts.length > 0 && !loanBounds) {
+      errors.loanAmt = "Amount range is not available for this loan.";
+    } else if (showLoanAmount && (loanAmount <= 0 || loanAmountError)) {
+      errors.loanAmt =
+        loanAmountError ||
+        (loanBounds
+          ? `Loan amount must be between ₹${loanBounds.min.toLocaleString("en-IN")} and ₹${loanBounds.max.toLocaleString("en-IN")}`
+          : "Enter a loan amount");
+    }
+    const firstError = firstLeadFieldError(errors);
+    if (firstError) {
+      setFormError(firstError);
+      return;
+    }
+    setFormError("");
+    setLoanStep(2);
+  };
+
+  const onCibilFile = async (file: File | undefined) => {
+    setCibilFileError("");
+    if (!file) {
+      setCibilReport(null);
+      return;
+    }
+    const mime = file.type === "image/jpg" ? "image/jpeg" : file.type;
+    if (!CIBIL_FILE_TYPES.has(mime)) {
+      setCibilReport(null);
+      setCibilFileError("Upload a PDF or image (JPG, PNG, WEBP).");
+      if (cibilInputRef.current) cibilInputRef.current.value = "";
+      return;
+    }
+    if (file.size > 200 * 1024 * 1024) {
+      setCibilReport(null);
+      setCibilFileError("This file is too large.");
+      if (cibilInputRef.current) cibilInputRef.current.value = "";
+      return;
+    }
+    try {
+      const data = await readFileBase64(file);
+      setCibilReport({ name: file.name, mime, data });
+    } catch {
+      setCibilReport(null);
+      setCibilFileError("Could not read the CIBIL report.");
     }
   };
 
@@ -342,6 +515,7 @@ export default function ServicePage({
 
             <div id="apply-form" className="theme-gradient-bg scroll-mt-24 p-[1px] rounded-2xl sm:rounded-3xl shadow-xl w-full min-w-0 flex flex-col">
               <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-4 sm:py-6 lg:py-7 px-4 sm:px-6 md:px-7 flex flex-1 flex-col min-h-0 min-w-0">
+                {showLoanAmount ? <LoanStepBar step={loanStep} /> : null}
                 <div className="mb-3">
                   <h2 className={`${loanTabs ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"} font-semibold text-midnight_text dark:text-white`}>
                     {loanTabs ? (
@@ -355,6 +529,24 @@ export default function ServicePage({
                     )}
                   </h2>
                 </div>
+
+                {ineligibleMessage && (
+                  <SuccessPopup
+                    message={ineligibleMessage}
+                    title="You are not eligible"
+                    variant="danger"
+                    onClose={() => setIneligibleMessage("")}
+                    footer={
+                      <button
+                        type="button"
+                        onClick={() => setIneligibleMessage("")}
+                        className="inline-flex min-h-10 items-center justify-center rounded-full bg-midnight_text px-5 text-sm font-semibold text-white"
+                      >
+                        Okay
+                      </button>
+                    }
+                  />
+                )}
 
                 {existingAppMessage && (
                   <SuccessPopup
@@ -400,6 +592,10 @@ export default function ServicePage({
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
+                    if (showLoanAmount && loanStep === 1) {
+                      goToFinish(e.currentTarget);
+                      return;
+                    }
                     void handleSubmit(e.currentTarget);
                   }}
                   className="mt-3 flex flex-1 flex-col gap-3 min-h-0 sm:gap-4"
@@ -410,6 +606,8 @@ export default function ServicePage({
                     </div>
                   )}
 
+                  {(!showLoanAmount || loanStep === 1) && (
+                  <>
                   {showInsuranceType && (
                     <div className="relative">
                       <label htmlFor="service-ins-type" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
@@ -589,22 +787,106 @@ export default function ServicePage({
                     />
                   ) : null}
 
-                  {showLoanAmount && (
+                  </>
+                  )}
+
+                  {showLoanAmount && loanStep === 2 && (
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                       <EmploymentTypeField
                         id="service-employment"
                         value={employmentType}
                         onChange={setEmploymentType}
                         className={inputClass}
+                        options={LOAN_APPLY_EMPLOYMENT_OPTIONS}
                       />
                       <EmploymentIncomeFields
                         idPrefix="service"
                         netMonthlyIncome={netMonthlyIncome}
-                        onIncomeChange={setNetMonthlyIncome}
+                        onIncomeChange={(value) => {
+                          setNetMonthlyIncome(value);
+                          setIncomeError(value.trim() ? (netMonthlyIncomeError(value) ?? "") : "");
+                        }}
                         inputClassName={inputClass}
                         labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
                         incomeWithRupee
+                        incomeError={
+                          incomeError ? (
+                            <p className="mt-1 text-xs text-red-600">{incomeError}</p>
+                          ) : null
+                        }
                       />
+                      <div>
+                        <label htmlFor="service-cibil" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                          CIBIL score <span className="text-red-500">*</span>
+                        </label>
+                        <CibilBandSelect
+                          id="service-cibil"
+                          value={cibilBand}
+                          onChange={setCibilBand}
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="service-cibil-file" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                          Upload your CIBIL report if you have
+                        </label>
+                        <input
+                          ref={cibilInputRef}
+                          id="service-cibil-file"
+                          type="file"
+                          accept="application/pdf,image/jpeg,image/png,image/webp,.pdf,.jpg,.jpeg,.png,.webp"
+                          onChange={(e) => void onCibilFile(e.target.files?.[0])}
+                          className={`${inputClass} file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-1 file:text-sm file:font-semibold file:text-primary`}
+                        />
+                        {cibilReport ? (
+                          <p className="mt-1 text-xs text-gray-500">{cibilReport.name}</p>
+                        ) : null}
+                        {cibilFileError ? (
+                          <p className="mt-1 text-xs text-red-600">{cibilFileError}</p>
+                        ) : null}
+                      </div>
+                      <div>
+                        <label htmlFor="service-existing-emi" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                          Do you pay an existing loan EMI? <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          id="service-existing-emi"
+                          value={hasExistingEmi}
+                          onChange={(e) => {
+                            const next = e.target.value === "yes" || e.target.value === "no" ? e.target.value : "";
+                            setHasExistingEmi(next);
+                            if (next === "no") setTotalMonthlyEmi("0");
+                            else if (totalMonthlyEmi === "0") setTotalMonthlyEmi("");
+                          }}
+                          className={inputClass}
+                          required
+                        >
+                          <option value="">Select</option>
+                          <option value="yes">Yes</option>
+                          <option value="no">No</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label htmlFor="service-total-emi" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                          Total monthly EMI you pay <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80">
+                          <span className="theme-gradient-text pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-bold leading-none" aria-hidden>
+                            ₹
+                          </span>
+                          <input
+                            id="service-total-emi"
+                            type="text"
+                            inputMode="numeric"
+                            value={hasExistingEmi === "no" ? "0" : totalMonthlyEmi}
+                            onChange={(e) => setTotalMonthlyEmi(e.target.value.replace(/[^\d]/g, ""))}
+                            placeholder={hasExistingEmi === "yes" ? "e.g. 8000" : "0"}
+                            readOnly={hasExistingEmi !== "yes"}
+                            className="min-h-10 min-w-0 flex-1 bg-transparent py-2 pl-9 pr-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none read-only:text-gray-500 dark:text-white"
+                            required
+                          />
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -617,13 +899,31 @@ export default function ServicePage({
                   />
 
                   <div className={showLoanAmount ? "w-full" : "mt-auto w-full pt-2 sm:pt-3"}>
+                    {showLoanAmount && loanStep === 2 ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormError("");
+                          setLoanStep(1);
+                        }}
+                        className="mb-3 inline-flex min-h-10 items-center justify-center rounded-full border border-gray-300 px-4 text-sm font-semibold text-midnight_text dark:border-dark_border dark:text-white"
+                      >
+                        Back
+                      </button>
+                    ) : null}
                     <button
                       type="submit"
                       disabled={isSubmittingForm}
                       className={`inline-flex w-full items-center justify-center gap-2 btn-gradient px-4 text-sm font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70 sm:text-base ${loanTabs ? "min-h-12 rounded-full py-3" : "min-h-[44px] rounded-xl py-2.5 sm:rounded-2xl sm:py-3"}`}
                     >
-                      {isSubmittingForm ? "Submitting…" : loanTabs ? "Check Eligibility" : "Apply Now"}
-                      {!isSubmittingForm && loanTabs ? (
+                      {isSubmittingForm
+                        ? "Submitting…"
+                        : showLoanAmount && loanStep === 1
+                          ? "Next"
+                          : loanTabs
+                            ? "Check Eligibility"
+                            : "Apply Now"}
+                      {!isSubmittingForm && (loanTabs || (showLoanAmount && loanStep === 1)) ? (
                         <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden>
                           <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>

@@ -85,17 +85,33 @@ function isLoanCategory(category: unknown): boolean {
 
 /** Old loan rows have a null employment column. Show and edit them as Salaried. */
 export function employmentTypeLabel(value: unknown, category?: unknown): string {
-  if (value === "self_employed") return "Self employee / business";
+  if (value === "salaried_bank") return "Salaried (Bank Account Transfer)";
+  if (value === "salaried_cash") return "Salaried (Cash / Cheque)";
+  if (value === "self_employed") return "Self-Employed / Business";
   if (value === "salaried" || (isLoanCategory(category) && !String(value ?? "").trim())) {
     return "Salaried";
   }
   return "—";
 }
 
+export function cibilBandLabel(value: unknown): string {
+  if (value === "above_680") return "Above 680";
+  if (value === "below_680") return "Below 680";
+  if (value === "unknown") return "I do not know";
+  return "—";
+}
+
 /** Form value for a stored lead. Blank only when this is not a loan. */
 export function employmentTypeForForm(value: unknown, category?: unknown): string {
-  if (value === "self_employed") return "self_employed";
-  if (value === "salaried" || isLoanCategory(category)) return "salaried";
+  if (
+    value === "self_employed" ||
+    value === "salaried" ||
+    value === "salaried_bank" ||
+    value === "salaried_cash"
+  ) {
+    return value;
+  }
+  if (isLoanCategory(category)) return "salaried";
   return "";
 }
 
@@ -108,6 +124,9 @@ export type LeadFieldErrors = Partial<{
   insType: string;
   netMonthlyIncome: string;
   employmentType: string;
+  cibilBand: string;
+  hasExistingEmi: string;
+  totalMonthlyEmi: string;
   pincode: string;
 }>;
 
@@ -121,24 +140,83 @@ export function validateLeadPincode(pincode: string): string | undefined {
   return undefined;
 }
 
-/** Personal-loan employment type and net monthly income. */
+/** Loan apply: income must be at least ₹18,000. */
+export const MIN_NET_MONTHLY_INCOME = 18000;
+
+export function netMonthlyIncomeError(value: string): string | undefined {
+  const raw = String(value).replace(/,/g, "").trim();
+  if (!raw) return "Net monthly income must be at least ₹18,000";
+  const incomeNum = Number(raw);
+  if (!Number.isFinite(incomeNum) || incomeNum < MIN_NET_MONTHLY_INCOME) {
+    return "Net monthly income must be at least ₹18,000";
+  }
+  return undefined;
+}
+
+/** CIBIL below 680, or existing EMI at least half of net income. */
+export function loanNotEligibleMessage(values: {
+  netMonthlyIncome: string;
+  cibilBand: string;
+  hasExistingEmi: string;
+  totalMonthlyEmi: string;
+}): string | null {
+  const income = Number(String(values.netMonthlyIncome).replace(/,/g, "").trim());
+  if (!Number.isFinite(income) || income <= 0) return null;
+  if (values.cibilBand === "below_680") {
+    return "Sorry, you are not eligible for this loan. A CIBIL score below 680 does not meet the current criteria.";
+  }
+  const emi =
+    values.hasExistingEmi === "yes"
+      ? Number(String(values.totalMonthlyEmi).replace(/,/g, "").trim())
+      : 0;
+  if (values.hasExistingEmi === "yes" && Number.isFinite(emi) && emi * 2 >= income) {
+    return "Sorry, you are not eligible for this loan. Your existing EMI is half or more of your net monthly income.";
+  }
+  return null;
+}
+
 export function validatePersonalLoanEmployment(
   netMonthlyIncome: string,
   employmentType = "",
 ): Pick<LeadFieldErrors, "netMonthlyIncome" | "employmentType"> {
   const errors: Pick<LeadFieldErrors, "netMonthlyIncome" | "employmentType"> = {};
-  const incomeNum = Number(String(netMonthlyIncome).replace(/,/g, "").trim());
-  if (
-    !String(netMonthlyIncome).trim() ||
-    !Number.isFinite(incomeNum) ||
-    incomeNum <= 0
-  ) {
-    errors.netMonthlyIncome = "Enter a valid net monthly income";
-  }
-  if (employmentType !== "salaried" && employmentType !== "self_employed") {
-    errors.employmentType = "Select salaried or self employee / business";
+  const incomeErr = netMonthlyIncomeError(netMonthlyIncome);
+  if (incomeErr) errors.netMonthlyIncome = incomeErr;
+  if (employmentType !== "salaried_bank" && employmentType !== "salaried_cash" && employmentType !== "self_employed") {
+    errors.employmentType = "Select employment type";
   }
 
+  return errors;
+}
+
+/** Finish step of the loan form. CIBIL report is optional and checked separately. */
+export function validateLoanFinishStep(values: {
+  netMonthlyIncome: string;
+  employmentType: string;
+  cibilBand: string;
+  hasExistingEmi: string;
+  totalMonthlyEmi: string;
+}): Pick<
+  LeadFieldErrors,
+  "netMonthlyIncome" | "employmentType" | "cibilBand" | "hasExistingEmi" | "totalMonthlyEmi"
+> {
+  const errors: Pick<
+    LeadFieldErrors,
+    "netMonthlyIncome" | "employmentType" | "cibilBand" | "hasExistingEmi" | "totalMonthlyEmi"
+  > = {
+    ...validatePersonalLoanEmployment(values.netMonthlyIncome, values.employmentType),
+  };
+  if (values.cibilBand !== "above_680" && values.cibilBand !== "below_680" && values.cibilBand !== "unknown") {
+    errors.cibilBand = "Select your CIBIL score";
+  }
+  if (values.hasExistingEmi !== "yes" && values.hasExistingEmi !== "no") {
+    errors.hasExistingEmi = "Select yes or no";
+  } else if (values.hasExistingEmi === "yes") {
+    const emi = Number(String(values.totalMonthlyEmi).replace(/,/g, "").trim());
+    if (!String(values.totalMonthlyEmi).trim() || !Number.isFinite(emi) || emi < 1) {
+      errors.totalMonthlyEmi = "Enter the total monthly EMI you pay";
+    }
+  }
   return errors;
 }
 

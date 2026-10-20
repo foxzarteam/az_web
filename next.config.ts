@@ -9,6 +9,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /** Helps hosts that expect `/about/` → `about/index.html` style URLs. */
   trailingSlash: true,
+  experimental: {
+    middlewareClientMaxBodySize: "300mb",
+  },
   poweredByHeader: false,
   compress: true,
   async redirects() {

@@ -2,9 +2,15 @@
 
 import type { CSSProperties, ReactNode } from "react";
 
+export const LOAN_APPLY_EMPLOYMENT_OPTIONS = [
+  { value: "salaried_bank", label: "Salaried (Bank Account Transfer)" },
+  { value: "salaried_cash", label: "Salaried (Cash / Cheque)" },
+  { value: "self_employed", label: "Self-Employed / Business" },
+] as const;
+
 export const EMPLOYMENT_TYPE_OPTIONS = [
+  ...LOAN_APPLY_EMPLOYMENT_OPTIONS,
   { value: "salaried", label: "Salaried" },
-  { value: "self_employed", label: "Self employee / business" },
 ] as const;
 
 type EmploymentTypeFieldProps = {
@@ -15,6 +21,7 @@ type EmploymentTypeFieldProps = {
   labelClassName?: string;
   labelAsSpan?: boolean;
   error?: ReactNode;
+  options?: readonly { value: string; label: string }[];
 };
 
 /** Salaried or self-employed business. */
@@ -26,6 +33,7 @@ export function EmploymentTypeField({
   labelClassName = "mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300",
   labelAsSpan = false,
   error,
+  options = EMPLOYMENT_TYPE_OPTIONS,
 }: EmploymentTypeFieldProps) {
   const label = labelAsSpan ? (
     <span className={labelClassName}>
@@ -45,7 +53,7 @@ export function EmploymentTypeField({
       required
     >
       <option value="">Select employment type</option>
-      {EMPLOYMENT_TYPE_OPTIONS.map((option) => (
+      {options.map((option) => (
         <option key={option.value} value={option.value}>
           {option.label}
         </option>

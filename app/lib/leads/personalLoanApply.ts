@@ -2,7 +2,7 @@ import type { CreateLeadRequest } from "@/app/lib/leads/types";
 import {
   validateLeadPanNameMobile,
   validateLeadPincode,
-  validatePersonalLoanEmployment,
+  validateLoanFinishStep,
   type LeadFieldErrors,
 } from "@/app/lib/leads/leadForm";
 import { PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
@@ -15,6 +15,10 @@ export type PersonalLoanFormValues = {
   loanAmount: number;
   netMonthlyIncome: string;
   employmentType: string;
+  cibilBand: string;
+  hasExistingEmi: string;
+  totalMonthlyEmi: string;
+  cibilReport?: { name: string; mime: string; data: string } | null;
 };
 
 /** Client validation for personal loan apply forms (hero + product page). */
@@ -37,10 +41,7 @@ export function validatePersonalLoanApplyForm(
     errors.loanAmt = `Loan amount must be between ₹${minAmount.toLocaleString("en-IN")} and ₹${maxAmount.toLocaleString("en-IN")}`;
   }
 
-  Object.assign(
-    errors,
-    validatePersonalLoanEmployment(values.netMonthlyIncome, values.employmentType),
-  );
+  Object.assign(errors, validateLoanFinishStep(values));
 
   return errors;
 }
@@ -49,6 +50,8 @@ export function personalLoanApplyPayload(
   values: PersonalLoanFormValues,
 ): CreateLeadRequest {
   const incomeNum = Number(String(values.netMonthlyIncome).replace(/,/g, ""));
+  const noEmi = values.hasExistingEmi === "no";
+  const emiNum = noEmi ? 0 : Number(String(values.totalMonthlyEmi).replace(/,/g, ""));
   return {
     pan: values.pan.trim().toUpperCase(),
     mobileNumber: values.mobile.replace(/\D/g, ""),
@@ -58,6 +61,16 @@ export function personalLoanApplyPayload(
     requiredAmount: values.loanAmount,
     netMonthlyIncome: incomeNum,
     employmentType: values.employmentType,
+    cibilBand: values.cibilBand,
+    hasExistingEmi: values.hasExistingEmi === "yes",
+    totalMonthlyEmi: emiNum,
+    ...(values.cibilReport
+      ? {
+          cibilReportName: values.cibilReport.name,
+          cibilReportMime: values.cibilReport.mime,
+          cibilReportData: values.cibilReport.data,
+        }
+      : {}),
     consentAccepted: true,
   };
 }

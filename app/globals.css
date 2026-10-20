@@ -128,8 +128,23 @@ html:not([data-aos-ready]) [data-aos] {
     animation: arrow-dash-flow 0.8s linear infinite;
   }
 
+  @keyframes loan-dot-line {
+    to {
+      background-position: 14px 0;
+    }
+  }
+
+  .loan-dot-line {
+    height: 2px;
+    border-radius: 9999px;
+    background-image: repeating-linear-gradient(90deg, #4236fb 0 7px, transparent 7px 14px);
+    background-size: 14px 100%;
+    animation: loan-dot-line 0.7s linear infinite;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .arrow-flow {
+    .arrow-flow,
+    .loan-dot-line {
       animation: none;
     }
   }
