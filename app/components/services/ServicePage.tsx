@@ -278,7 +278,8 @@ export default function ServicePage({
   }, [loanAmount, loanBounds, showLoanAmount]);
 
   useEffect(() => {
-    document.getElementById("service-loan-amount")?.setCustomValidity("");
+    const amount = document.getElementById("service-loan-amount");
+    if (amount instanceof HTMLInputElement) amount.setCustomValidity("");
   }, [loanAmount]);
 
   const handleSubmit = async (form: HTMLFormElement) => {
