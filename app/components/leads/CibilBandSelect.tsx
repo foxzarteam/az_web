@@ -9,13 +9,17 @@ const OPTIONS = [
 ] as const;
 
 function ScoreMark({ mark }: { mark: "+" | "-" | null }) {
-  if (mark === "+") {
-    return <span className="font-semibold text-green-600 dark:text-green-400">+</span>;
-  }
-  if (mark === "-") {
-    return <span className="font-semibold text-red-600 dark:text-red-400">-</span>;
-  }
-  return null;
+  if (!mark) return null;
+  const plus = mark === "+";
+  return (
+    <span
+      className={`ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full align-middle text-[11px] font-bold leading-none text-white ${
+        plus ? "bg-green-600" : "bg-red-600"
+      }`}
+    >
+      {plus ? "+" : "−"}
+    </span>
+  );
 }
 
 function ScoreLabel({ text, mark }: { text: string; mark: "+" | "-" | null }) {

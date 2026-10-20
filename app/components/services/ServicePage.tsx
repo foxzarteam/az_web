@@ -118,7 +118,7 @@ function LoanStepBar({ step }: { step: 1 | 2 }) {
   return (
     <div className="-mx-4 -mt-4 mb-5 rounded-t-2xl bg-[#F3F4F6] px-5 py-4 sm:-mx-6 sm:-mt-6 sm:rounded-t-3xl sm:px-8 sm:py-5 md:-mx-7 lg:-mt-7 dark:bg-white/[0.04]">
       <div className="mx-auto flex max-w-xl items-center" role="group" aria-label={atFinish ? "Finish step" : "Start step"}>
-        <LoanStepCapsule n={1} label="Start" active={!atFinish} />
+        <LoanStepCapsule n={1} label="Start" active />
         <span className="mx-3 flex min-w-[2.5rem] flex-1 items-center" aria-hidden>
           <span className="loan-dot-line min-w-0 flex-1" />
           <svg viewBox="0 0 42 20" className="-ml-1 h-5 w-10 shrink-0">
@@ -898,7 +898,7 @@ export default function ServicePage({
                     textClassName="text-xs leading-snug text-gray-600 dark:text-gray-400 sm:text-sm"
                   />
 
-                  <div className={showLoanAmount ? "w-full" : "mt-auto w-full pt-2 sm:pt-3"}>
+                  <div className={showLoanAmount ? "flex w-full items-center gap-2" : "mt-auto w-full pt-2 sm:pt-3"}>
                     {showLoanAmount && loanStep === 2 ? (
                       <button
                         type="button"
@@ -906,7 +906,7 @@ export default function ServicePage({
                           setFormError("");
                           setLoanStep(1);
                         }}
-                        className="mb-3 inline-flex min-h-10 items-center justify-center rounded-full border border-gray-300 px-4 text-sm font-semibold text-midnight_text dark:border-dark_border dark:text-white"
+                        className={`inline-flex shrink-0 items-center justify-center rounded-full border border-gray-300 px-4 text-sm font-semibold text-midnight_text dark:border-dark_border dark:text-white ${loanTabs ? "min-h-12" : "min-h-[44px]"}`}
                       >
                         Back
                       </button>
@@ -914,7 +914,7 @@ export default function ServicePage({
                     <button
                       type="submit"
                       disabled={isSubmittingForm}
-                      className={`inline-flex w-full items-center justify-center gap-2 btn-gradient px-4 text-sm font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70 sm:text-base ${loanTabs ? "min-h-12 rounded-full py-3" : "min-h-[44px] rounded-xl py-2.5 sm:rounded-2xl sm:py-3"}`}
+                      className={`inline-flex w-full min-w-0 flex-1 items-center justify-center gap-2 btn-gradient px-4 text-sm font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70 sm:text-base ${loanTabs ? "min-h-12 rounded-full py-3" : "min-h-[44px] rounded-xl py-2.5 sm:rounded-2xl sm:py-3"}`}
                     >
                       {isSubmittingForm
                         ? "Submitting…"
