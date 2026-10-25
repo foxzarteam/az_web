@@ -118,7 +118,7 @@ export const PERSONAL_LOAN_FAQ_ITEMS: FaqItem[] = [
     id: "what-is-vehicle-loan",
     question: "What is a Vehicle Loan?",
     answer:
-      "A Vehicle Loan is used to buy a new or used vehicle. You repay it in monthly instalments over a fixed tenure. Select Vehicle Loan, then enter an amount within the Vehicle Loan range shown in the form.",
+      "A Vehicle Loan helps you finance a new car, used car, taxi, tractor, commercial vehicle, or construction equipment. You repay it in monthly instalments. Select Vehicle Loan, choose a category, and enter an amount within the range shown.",
   },
   {
     id: "what-is-business-loan",

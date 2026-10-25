@@ -1,16 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
-import CibilBandSelect from "@/app/components/leads/CibilBandSelect";
+import CibilBandSelect, { VEHICLE_CIBIL_OPTIONS } from "@/app/components/leads/CibilBandSelect";
 
 type Props = {
   idPrefix: string;
   cibilBand: string;
   onCibilBand: (value: string) => void;
   cibilError?: ReactNode;
-  onCibilFile: (file: File | undefined, input: HTMLInputElement) => void;
-  cibilFileName?: string;
-  cibilFileError?: ReactNode;
   hasExistingEmi: "" | "yes" | "no";
   onExistingEmi: (value: "" | "yes" | "no") => void;
   emiChoiceError?: ReactNode;
@@ -20,17 +17,16 @@ type Props = {
   inputClassName: string;
   labelClassName: string;
   nativeRequired?: boolean;
+  /** Vehicle loan uses the 650 CIBIL bands and does not ask for EMI. */
+  vehicle?: boolean;
 };
 
-/** CIBIL score, optional report, and existing EMI. Used by the public form and the staff add-lead form. */
+/** CIBIL score and existing EMI. Used by the staff add-lead form. */
 export default function LoanProfileFields({
   idPrefix,
   cibilBand,
   onCibilBand,
   cibilError,
-  onCibilFile,
-  cibilFileName,
-  cibilFileError,
   hasExistingEmi,
   onExistingEmi,
   emiChoiceError,
@@ -40,11 +36,12 @@ export default function LoanProfileFields({
   inputClassName,
   labelClassName,
   nativeRequired = false,
+  vehicle = false,
 }: Props) {
   const emiValue = hasExistingEmi === "no" ? "0" : totalMonthlyEmi;
   return (
     <>
-      <div>
+      <div className={vehicle ? "order-7 min-w-0" : undefined}>
         <label htmlFor={`${idPrefix}-cibil`} className={labelClassName}>
           CIBIL score <span className="text-red-500">*</span>
         </label>
@@ -53,23 +50,12 @@ export default function LoanProfileFields({
           value={cibilBand}
           onChange={onCibilBand}
           className={inputClassName}
+          options={vehicle ? VEHICLE_CIBIL_OPTIONS : undefined}
         />
         {cibilError}
       </div>
-      <div>
-        <label htmlFor={`${idPrefix}-cibil-file`} className={labelClassName}>
-          Upload your CIBIL report if you have
-        </label>
-        <input
-          id={`${idPrefix}-cibil-file`}
-          type="file"
-          accept="application/pdf,image/jpeg,image/png,image/webp,.pdf,.jpg,.jpeg,.png,.webp"
-          onChange={(e) => onCibilFile(e.target.files?.[0], e.currentTarget)}
-          className={`${inputClassName} file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-1 file:text-sm file:font-semibold file:text-primary`}
-        />
-        {cibilFileName ? <p className="mt-1 text-xs text-gray-500">{cibilFileName}</p> : null}
-        {cibilFileError}
-      </div>
+      {vehicle ? null : (
+      <>
       <div>
         <label htmlFor={`${idPrefix}-existing-emi`} className={labelClassName}>
           Do you pay an existing loan EMI? <span className="text-red-500">*</span>
@@ -115,6 +101,8 @@ export default function LoanProfileFields({
         </div>
         {emiAmountError}
       </div>
+      </>
+      )}
     </>
   );
 }

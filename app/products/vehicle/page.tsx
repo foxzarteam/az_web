@@ -6,7 +6,7 @@ import { VEHICLE_FAQ } from "./copy";
 
 const PAGE_TITLE = "Vehicle Loan & Vehicle Insurance | Apni Zaroorat";
 const PAGE_DESC =
-  "Apply for a Vehicle Loan for a new or used car or bike, or choose Vehicle Insurance. Start online with Apni Zaroorat.";
+  "Apply for a vehicle loan or vehicle insurance for a car, taxi, tractor, or commercial vehicle. Start online with Apni Zaroorat.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: PAGE_TITLE,
@@ -14,7 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/products/vehicle",
   absoluteTitle: true,
   noIndex: true,
-  image: "/images/loans/car-loan-white.gif?v=12",
+  image: "/images/og-default.jpg",
   imageAlt: "Vehicle loan and vehicle insurance with Apni Zaroorat",
 });
 

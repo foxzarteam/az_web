@@ -1,11 +1,53 @@
 /**
  * Shared validation + sanitizers for lead forms (hero modal, service pages).
- * Reject rules (CIBIL, EMI) live in server/src/leads/loan-rules.ts. The API returns them.
+ * Eligibility limits live only in server/src/leads/loan-rules.ts.
  */
+export {
+  MIN_NET_MONTHLY_INCOME,
+  MIN_VEHICLE_NET_MONTHLY_INCOME,
+  MSG_CIBIL_BELOW,
+  MSG_CIBIL_BELOW_650,
+  MSG_EMI_HALF,
+  MSG_NET_INCOME_MIN,
+  MSG_VEHICLE_NET_INCOME_MIN,
+  SELECTABLE_CIBIL_BANDS,
+  SELECTABLE_VEHICLE_CIBIL_BANDS,
+  isVehicleLoanCategory,
+  loanNotEligibleMessage,
+  selectableCibilBands,
+} from "../../../../server/src/leads/loan-rules.ts";
 
-/** Same floor as server loan-rules. The red income error shows while typing, before submit. */
-export const MIN_NET_MONTHLY_INCOME = 18000;
-const MSG_NET_INCOME_MIN = "Net monthly income must be at least ₹18,000";
+import {
+  MIN_NET_MONTHLY_INCOME,
+  MIN_VEHICLE_NET_MONTHLY_INCOME,
+  MSG_NET_INCOME_MIN,
+  MSG_VEHICLE_NET_INCOME_MIN,
+  selectableCibilBands,
+} from "../../../../server/src/leads/loan-rules.ts";
+
+export const FALLBACK_VEHICLE_CATEGORIES = [
+  { value: "new_car", label: "New Car", image: "car.webp" },
+  { value: "used_car", label: "Used Car", image: "used_car.webp" },
+  { value: "taxi", label: "Taxi", image: "taxi.webp" },
+  { value: "tractor", label: "Tractor", image: "tractor.webp" },
+  { value: "commercial_vehicle", label: "Commercial Vehicle", image: "commercial.webp" },
+  { value: "construction_equipment", label: "Construction Equipment", image: "construction.webp" },
+] as const;
+
+export function vehicleCategoryImageSrc(image?: string | null): string {
+  const name = String(image ?? "").trim();
+  if (!name) return "";
+  if (/^https?:\/\//i.test(name) || name.startsWith("/")) return name;
+  return `/images/vehicle/${name}`;
+}
+
+export function vehicleCategoryLabel(value: unknown): string {
+  const key = String(value ?? "").trim().toLowerCase();
+  const found = FALLBACK_VEHICLE_CATEGORIES.find((item) => item.value === key);
+  if (found) return found.label;
+  if (!key) return "—";
+  return key.replace(/[_-]/g, " ").replace(/\b\w/g, (ch) => ch.toUpperCase());
+}
 
 export const LOAN_AMOUNT_OPTIONS = [
   { value: "25000_100000", label: "₹25,000 - ₹1,00,000" },
@@ -101,6 +143,8 @@ export function employmentTypeLabel(value: unknown, category?: unknown): string 
 export function cibilBandLabel(value: unknown): string {
   if (value === "above_680") return "Above 680";
   if (value === "below_680") return "Below 680";
+  if (value === "above_650") return "Above 650";
+  if (value === "below_650") return "Below 650";
   if (value === "unknown") return "I do not know";
   return "—";
 }
@@ -132,6 +176,7 @@ export type LeadFieldErrors = Partial<{
   hasExistingEmi: string;
   totalMonthlyEmi: string;
   pincode: string;
+  vehicleCategory: string;
 }>;
 
 export function validateLeadPincode(pincode: string): string | undefined {
@@ -148,11 +193,13 @@ function formMoney(raw: string): number {
   return Number(String(raw).replace(/,/g, "").trim());
 }
 
-export function netMonthlyIncomeError(value: string): string | undefined {
+export function netMonthlyIncomeError(value: string, min = MIN_NET_MONTHLY_INCOME): string | undefined {
   const raw = String(value).replace(/,/g, "").trim();
   const incomeNum = formMoney(raw);
-  if (!raw || !Number.isFinite(incomeNum) || incomeNum < MIN_NET_MONTHLY_INCOME) {
-    return MSG_NET_INCOME_MIN;
+  const message =
+    min === MIN_VEHICLE_NET_MONTHLY_INCOME ? MSG_VEHICLE_NET_INCOME_MIN : MSG_NET_INCOME_MIN;
+  if (!raw || !Number.isFinite(incomeNum) || incomeNum < min) {
+    return message;
   }
   return undefined;
 }
@@ -160,24 +207,32 @@ export function netMonthlyIncomeError(value: string): string | undefined {
 export function validatePersonalLoanEmployment(
   netMonthlyIncome: string,
   employmentType = "",
+  minIncome = MIN_NET_MONTHLY_INCOME,
 ): Pick<LeadFieldErrors, "netMonthlyIncome" | "employmentType"> {
   const errors: Pick<LeadFieldErrors, "netMonthlyIncome" | "employmentType"> = {};
-  const incomeErr = netMonthlyIncomeError(netMonthlyIncome);
+  const incomeErr = netMonthlyIncomeError(netMonthlyIncome, minIncome);
   if (incomeErr) errors.netMonthlyIncome = incomeErr;
-  if (employmentType !== "salaried_bank" && employmentType !== "salaried_cash" && employmentType !== "self_employed") {
+  if (
+    employmentType &&
+    employmentType !== "salaried" &&
+    employmentType !== "salaried_bank" &&
+    employmentType !== "salaried_cash" &&
+    employmentType !== "self_employed"
+  ) {
     errors.employmentType = "Select employment type";
   }
 
   return errors;
 }
 
-/** Finish step of the loan form. CIBIL report is optional and checked separately. */
+/** Loan profile on the single apply form. Employment type is not collected here. */
 export function validateLoanFinishStep(values: {
   netMonthlyIncome: string;
-  employmentType: string;
+  employmentType?: string;
   cibilBand: string;
   hasExistingEmi: string;
   totalMonthlyEmi: string;
+  vehicle?: boolean;
 }): Pick<
   LeadFieldErrors,
   "netMonthlyIncome" | "employmentType" | "cibilBand" | "hasExistingEmi" | "totalMonthlyEmi"
@@ -186,11 +241,17 @@ export function validateLoanFinishStep(values: {
     LeadFieldErrors,
     "netMonthlyIncome" | "employmentType" | "cibilBand" | "hasExistingEmi" | "totalMonthlyEmi"
   > = {
-    ...validatePersonalLoanEmployment(values.netMonthlyIncome, values.employmentType),
+    ...validatePersonalLoanEmployment(
+      values.netMonthlyIncome,
+      values.employmentType ?? "",
+      values.vehicle ? MIN_VEHICLE_NET_MONTHLY_INCOME : MIN_NET_MONTHLY_INCOME,
+    ),
   };
-  if (values.cibilBand !== "above_680" && values.cibilBand !== "below_680" && values.cibilBand !== "unknown") {
+  const bands = selectableCibilBands(values.vehicle ? "vehicle_loan" : "personal_loan");
+  if (!(bands as readonly string[]).includes(values.cibilBand)) {
     errors.cibilBand = "Select your CIBIL score";
   }
+  if (values.vehicle) return errors;
   if (values.hasExistingEmi !== "yes" && values.hasExistingEmi !== "no") {
     errors.hasExistingEmi = "Select yes or no";
   } else if (values.hasExistingEmi === "yes") {

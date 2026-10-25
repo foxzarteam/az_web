@@ -3,6 +3,7 @@ import { formatIpLocationDisplay } from "@/app/lib/admin/formatIpLocation";
 import {
   cibilBandLabel,
   employmentTypeLabel,
+  vehicleCategoryLabel,
   insuranceTypeLabel,
   loanAmountLabel,
 } from "@/app/lib/leads/leadForm";
@@ -35,9 +36,9 @@ export const VIEW_FIELDS = [
   "employment_type",
   "net_monthly_income",
   "cibil_band",
+  "vehicle_category",
   "has_existing_emi",
   "total_monthly_emi",
-  "cibil_report_name",
   "pincode",
   "ip",
   "is_active",
@@ -57,9 +58,9 @@ export const FIELD_LABELS: Record<string, string> = {
   employment_type: "Employment type",
   net_monthly_income: "Net monthly income",
   cibil_band: "CIBIL score",
+  vehicle_category: "Vehicle category",
   has_existing_emi: "Existing loan EMI",
   total_monthly_emi: "Total monthly EMI",
-  cibil_report_name: "CIBIL report",
   ip: "Location",
   ip_location: "Location",
   loan_amt: "Loan amount range (legacy)",
@@ -125,13 +126,15 @@ export function formatValue(key: string, value: unknown, row?: AdminLeadRow): st
     const label = cibilBandLabel(value);
     return label === "—" ? "N/A" : label;
   }
+  if (key === "vehicle_category") {
+    if (value == null || String(value).trim() === "") return "N/A";
+    const label = vehicleCategoryLabel(value);
+    return label === "—" ? "N/A" : label;
+  }
   if (key === "has_existing_emi") {
     if (value === true || value === "true" || value === 1) return "Yes";
     if (value === false || value === "false" || value === 0) return "No";
     return "N/A";
-  }
-  if (key === "cibil_report_name") {
-    if (value == null || String(value).trim() === "") return "N/A";
   }
   if (value == null || value === "") return "—";
   if (key === "category") return categoryLabel(value);

@@ -94,6 +94,26 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/products/car-loan",
+        destination: "/products/vehicle-loan/",
+        permanent: true,
+      },
+      {
+        source: "/products/car-loan/",
+        destination: "/products/vehicle-loan/",
+        permanent: true,
+      },
+      {
+        source: "/vehicle",
+        destination: "/products/vehicle/",
+        permanent: true,
+      },
+      {
+        source: "/vehicle/",
+        destination: "/products/vehicle/",
+        permanent: true,
+      },
+      {
         source: "/tax-saving-calculator/:city",
         destination: "/tax-saving-calculator/",
         permanent: true,

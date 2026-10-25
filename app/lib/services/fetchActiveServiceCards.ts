@@ -63,13 +63,20 @@ export function primeServicesClientCache(
   cards: ServiceSliderCard[],
   insuranceTypes?: InsuranceTypeOption[],
   loanProducts?: FetchActiveServicesResult["loanProducts"],
+  vehicleCategories?: InsuranceTypeOption[],
 ) {
-  if (cards.length === 0 && !(insuranceTypes && insuranceTypes.length > 0) && !(loanProducts && loanProducts.length > 0)) {
+  if (
+    cards.length === 0 &&
+    !(insuranceTypes && insuranceTypes.length > 0) &&
+    !(loanProducts && loanProducts.length > 0) &&
+    !(vehicleCategories && vehicleCategories.length > 0)
+  ) {
     return;
   }
   cacheSet({
     cards,
     insuranceTypes: insuranceTypes ?? [],
+    vehicleCategories: vehicleCategories ?? [],
     loanProducts: loanProducts ?? [],
     status: "ok",
   });

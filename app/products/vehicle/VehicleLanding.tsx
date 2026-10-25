@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import VehicleNeedSection from "@/app/components/products/vehicle/VehicleNeedSection";
 import ServicePage from "@/app/components/services/ServicePage";
 import HowItWorksSection, { type HowItWorksStep } from "@/app/components/products/HowItWorksSection";
 import { LoanSelectionProvider } from "@/app/components/products/loans/loanSelection";
@@ -31,9 +31,31 @@ const OFFERS: {
   },
 ];
 
-function OfferPicker({ offer, onChange }: { offer: Offer; onChange: (next: Offer) => void }) {
+function OfferCheck({ selected }: { selected: boolean }) {
   return (
-    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <span
+      className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
+        selected ? "bg-[linear-gradient(90deg,#4236FB,#FF7E29)] text-white" : "border border-[#D5DBE6] text-transparent"
+      }`}
+    >
+      <svg viewBox="0 0 16 16" className="h-3 w-3" aria-hidden>
+        <path d="M3.5 8.2 6.4 11l6.1-6.2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </span>
+  );
+}
+
+function OfferPicker({
+  offer,
+  onChange,
+  compact = false,
+}: {
+  offer: Offer;
+  onChange: (next: Offer) => void;
+  compact?: boolean;
+}) {
+  return (
+    <ul data-offer-picker className={compact ? "grid grid-cols-2 gap-3" : "grid grid-cols-1 gap-4 lg:grid-cols-2"}>
       {OFFERS.map((item) => {
         const selected = item.id === offer;
         return (
@@ -42,35 +64,42 @@ function OfferPicker({ offer, onChange }: { offer: Offer; onChange: (next: Offer
               type="button"
               aria-pressed={selected}
               onClick={() => onChange(item.id)}
-              className={`flex h-full w-full rounded-[22px] p-[2px] text-left transition duration-300 ${
+              className={`flex h-full w-full rounded-[22px] p-[2px] transition duration-300 ${
+                compact ? "text-center" : "text-left"
+              } ${
                 selected
                   ? "bg-[linear-gradient(90deg,#4236FB_0%,#4236FB_42%,#FF7E29_100%)] shadow-[0_18px_40px_rgba(66,54,251,0.18)]"
                   : "bg-[#E8ECF2] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(16,45,71,0.08)]"
               }`}
             >
-              <span className="flex h-full w-full flex-col rounded-[20px] bg-white p-4 dark:bg-darklight sm:p-5">
-                <span className="flex items-start gap-3">
-                  <span className="flex h-[4.5rem] w-[4.5rem] shrink-0 items-center justify-center rounded-2xl bg-[#F5F7FB] dark:bg-darkmode sm:h-20 sm:w-20">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.image} alt="" width={80} height={80} className="h-14 w-14 object-contain sm:h-16 sm:w-16" />
+              {compact ? (
+                <span className="relative flex aspect-square h-full w-full flex-col items-center justify-center rounded-[20px] bg-white px-3 py-3 dark:bg-darklight">
+                  <span className="absolute right-2 top-2">
+                    <OfferCheck selected={selected} />
                   </span>
-                  <span className="min-w-0 flex-1 pt-0.5">
-                    <span className="flex items-center justify-between gap-2">
-                      <span className="text-base font-bold text-midnight_text dark:text-white sm:text-lg">{item.title}</span>
-                      <span
-                        className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
-                          selected ? "bg-[linear-gradient(90deg,#4236FB,#FF7E29)] text-white" : "border border-[#D5DBE6] text-transparent"
-                        }`}
-                      >
-                        <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" aria-hidden>
-                          <path d="M3.5 8.2 6.4 11l6.1-6.2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </span>
-                    </span>
-                    <span className="mt-1 block text-sm leading-relaxed text-gray dark:text-gray-300">{item.text}</span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={item.image} alt="" width={80} height={80} className="h-16 w-16 object-contain" />
+                  <span className="mt-2 text-xs font-semibold leading-snug text-midnight_text dark:text-white">
+                    {item.title}
                   </span>
                 </span>
-              </span>
+              ) : (
+                <span className="relative flex h-full w-full flex-col rounded-[20px] bg-white p-4 dark:bg-darklight sm:p-5">
+                  <span className="flex min-w-0 items-start gap-3">
+                    <span className="flex h-[4.5rem] w-[4.5rem] shrink-0 items-center justify-center rounded-2xl bg-[#F5F7FB] dark:bg-darkmode sm:h-20 sm:w-20">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={item.image} alt="" width={80} height={80} className="h-14 w-14 object-contain sm:h-16 sm:w-16" />
+                    </span>
+                    <span className="min-w-0 flex-1 pt-0.5">
+                      <span className="flex items-center justify-between gap-2">
+                        <span className="text-base font-bold text-midnight_text dark:text-white sm:text-lg">{item.title}</span>
+                        <OfferCheck selected={selected} />
+                      </span>
+                      <span className="mt-1 block text-sm leading-relaxed text-gray dark:text-gray-300">{item.text}</span>
+                    </span>
+                  </span>
+                </span>
+              )}
             </button>
           </li>
         );
@@ -139,47 +168,68 @@ const STEPS: HowItWorksStep[] = [
   },
 ];
 
-const LOAN_CHOICES: { title: string; image: string }[] = [
-  { title: "New Car", image: "/images/vehicle/car.webp" },
-  { title: "Used Car", image: "/images/vehicle/used_car.webp" },
-  { title: "Two Wheeler", image: "/images/vehicle/2wheeler.webp" },
-  { title: "Super Bike", image: "/images/vehicle/superbike.webp" },
-  { title: "Commercial Vehicle", image: "/images/vehicle/commercial.webp" },
-  { title: "Construction Equipment", image: "/images/vehicle/construction.webp" },
-];
+function scrollToApplyForm() {
+  document.getElementById("apply-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 export default function VehicleLanding() {
   const [offer, setOffer] = useState<Offer>("loan");
+  const scrollAfterOffer = useRef(false);
+
+  useEffect(() => {
+    if (!scrollAfterOffer.current) return;
+    scrollAfterOffer.current = false;
+    scrollToApplyForm();
+  }, [offer]);
+
+  useEffect(() => {
+    const onClick = (event: MouseEvent) => {
+      const link = (event.target as Element | null)?.closest('a[href="#offers"]');
+      if (!link) return;
+      const picker = [...document.querySelectorAll<HTMLElement>("[data-offer-picker]")].find((node) => node.getClientRects().length > 0);
+      if (!picker) return;
+      event.preventDefault();
+      picker.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
+
+  function selectOffer(next: Offer) {
+    if (next === offer) {
+      scrollToApplyForm();
+      return;
+    }
+    scrollAfterOffer.current = true;
+    setOffer(next);
+  }
+
+  const mobileOffers = <OfferPicker offer={offer} onChange={selectOffer} compact />;
 
   return (
     <>
-      <section id="offers" className="relative overflow-hidden bg-[#F5F7FB] !pb-8 !pt-20 dark:bg-darkmode sm:!pb-10 sm:!pt-24">
-        <div className="pointer-events-none absolute -left-16 top-8 h-48 w-48 rounded-full bg-[#4236FB]/10 blur-3xl" aria-hidden />
-        <div className="pointer-events-none absolute -right-10 top-16 h-40 w-40 rounded-full bg-[#FF7E29]/15 blur-3xl" aria-hidden />
-        <div className="container relative mx-auto max-w-full px-4 sm:px-6 md:max-w-screen-md lg:max-w-screen-xl lg:px-8">
-          <h1 className="sr-only">Vehicle Loan and Vehicle Insurance</h1>
-          <OfferPicker offer={offer} onChange={setOffer} />
-        </div>
-      </section>
+      <h1 className="sr-only">Vehicle Loan and Vehicle Insurance</h1>
+      <div className="h-16 bg-white dark:bg-darkmode sm:h-20" aria-hidden />
 
       {offer === "loan" ? (
         <LoanSelectionProvider initialSlug="vehicle-loan">
           <ServicePage
             key="vehicle-loan"
             title="Vehicle Loan"
-            subtitle="Check vehicle loan options for a new or used car or bike."
+            subtitle="Check vehicle loan options for a new car, used car, taxi, tractor, or commercial vehicle."
             imageSrc="/images/service/personal.webp"
             badge="Vehicle loan"
             hideHeader
             loanTabs
             compactTop
+            aboveForm={mobileOffers}
           />
         </LoanSelectionProvider>
       ) : (
         <ServicePage
           key="vehicle-insurance"
           title="Vehicle Insurance"
-          subtitle="Apply for cover for your car or bike."
+          subtitle="Apply for cover for your car, taxi, tractor, or commercial vehicle."
           imageSrc="/images/service/personal.webp"
           badge="Vehicle insurance"
           hideHeader
@@ -187,45 +237,17 @@ export default function VehicleLanding() {
           serviceSlug="insurance"
           initialInsType="vehicle_insurance"
           compactTop
+          aboveForm={mobileOffers}
         />
       )}
 
-      <section className="bg-[#F5F7FB] !py-10 dark:bg-darkmode lg:!py-14" aria-labelledby="vehicle-choices-heading">
+      <section id="offers" className="hidden bg-white !pt-0 pb-10 dark:bg-darkmode lg:block">
         <div className="container mx-auto max-w-full px-4 sm:px-6 md:max-w-screen-md lg:max-w-screen-xl lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 id="vehicle-choices-heading" className="text-xl font-bold text-midnight_text dark:text-white sm:text-2xl md:text-3xl">
-              Need a <span className="theme-gradient-text">loan or insurance?</span>
-            </h2>
-            <p className="mt-2 text-sm leading-relaxed text-gray dark:text-gray-300 sm:text-base">
-              Get the Best Vehicle Loan &amp; Insurance Services in One Place
-            </p>
-          </div>
-          <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
-            {LOAN_CHOICES.map((item) => (
-              <li key={item.title}>
-                <a
-                  href="#apply"
-                  className="flex h-full flex-col overflow-hidden rounded-2xl bg-white text-center shadow-[0_4px_24px_rgba(16,45,71,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_10px_32px_rgba(16,45,71,0.12)] dark:bg-darklight"
-                >
-                  <span className="relative aspect-[16/9] w-full bg-white">
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
-                      quality={75}
-                      className="object-contain object-center p-3"
-                    />
-                  </span>
-                  <span className="flex flex-1 items-center justify-center px-3 py-4 sm:px-4 sm:py-5">
-                    <span className="text-sm font-bold leading-snug text-midnight_text dark:text-white sm:text-base">{item.title}</span>
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
+          <OfferPicker offer={offer} onChange={selectOffer} />
         </div>
       </section>
+
+      <VehicleNeedSection />
 
       <HowItWorksSection headingPrefix="Get Your Loan or Insurance in" headingHighlight="4 Simple Steps" steps={STEPS} />
       <FaqSection items={VEHICLE_FAQ} />

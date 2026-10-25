@@ -7,7 +7,9 @@ import {
 } from "./leadCommission";
 import {
   employmentTypeForForm,
-  MIN_NET_MONTHLY_INCOME,
+  isVehicleLoanCategory,
+  loanNotEligibleMessage,
+  netMonthlyIncomeError,
   validateLeadPincode,
   validateLoanFinishStep,
 } from "@/app/lib/leads/leadForm";
@@ -23,9 +25,9 @@ export type EditForm = {
   netMonthlyIncome: string;
   employmentType: string;
   cibilBand: string;
+  vehicleCategory: string;
   hasExistingEmi: "" | "yes" | "no";
   totalMonthlyEmi: string;
-  cibilReport: { name: string; mime: string; data: string } | null;
   pincode: string;
   consentAccepted: boolean;
   commissionType: CommissionChoice;
@@ -57,8 +59,11 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
       lead.net_monthly_income != null && lead.net_monthly_income !== ""
         ? String(lead.net_monthly_income)
         : "",
-    employmentType: employmentTypeForForm(lead.employment_type, lead.category),
+    employmentType: isVehicleLoanCategory(lead.category)
+      ? ""
+      : employmentTypeForForm(lead.employment_type, lead.category),
     cibilBand: String(lead.cibil_band ?? ""),
+    vehicleCategory: String(lead.vehicle_category ?? ""),
     hasExistingEmi:
       lead.has_existing_emi === true || lead.has_existing_emi === "true"
         ? "yes"
@@ -67,7 +72,6 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
           : "",
     totalMonthlyEmi:
       lead.total_monthly_emi != null && lead.total_monthly_emi !== "" ? String(lead.total_monthly_emi) : "",
-    cibilReport: null,
     pincode: String(lead.pincode ?? "").replace(/\D/g, "").slice(0, 6),
     ...commissionFromStoredLead(lead),
     partnerLead: Boolean(String(lead.agent_id ?? "").trim()),
@@ -97,9 +101,9 @@ export function emptyCreateForm(): EditForm {
     netMonthlyIncome: "",
     employmentType: "",
     cibilBand: "",
+    vehicleCategory: "",
     hasExistingEmi: "",
     totalMonthlyEmi: "",
-    cibilReport: null,
     pincode: "",
     consentAccepted: false,
     commissionType: "",
@@ -115,6 +119,7 @@ export type FieldErrors = {
   netMonthlyIncome?: string;
   employmentType?: string;
   cibilBand?: string;
+  vehicleCategory?: string;
   hasExistingEmi?: string;
   totalMonthlyEmi?: string;
   pincode?: string;
@@ -167,25 +172,32 @@ export function validateLeadForm(
     }
   }
   if (isLoanFormCategory(form.category)) {
+    const vehicle = isVehicleLoanCategory(form.category);
     if (!Number.isFinite(form.requiredAmount) || form.requiredAmount <= 0) {
       errors.requiredAmount = "Enter the loan amount";
     }
-    const income = Number(form.netMonthlyIncome);
-    if (!form.netMonthlyIncome.trim() || !Number.isFinite(income) || income < MIN_NET_MONTHLY_INCOME) {
-      errors.netMonthlyIncome = "Net monthly income must be at least ₹18,000";
-    }
-    if (opts?.requireLoanProfile) {
+    if (vehicle || opts?.requireLoanProfile) {
       Object.assign(
         errors,
         validateLoanFinishStep({
           netMonthlyIncome: form.netMonthlyIncome,
-          employmentType: form.employmentType,
+          employmentType: vehicle ? "" : form.employmentType,
           cibilBand: form.cibilBand,
-          hasExistingEmi: form.hasExistingEmi,
-          totalMonthlyEmi: form.totalMonthlyEmi,
+          hasExistingEmi: vehicle ? "no" : form.hasExistingEmi,
+          totalMonthlyEmi: vehicle ? "0" : form.totalMonthlyEmi,
+          vehicle,
         }),
       );
-    } else if (
+      if (vehicle && !form.vehicleCategory.trim()) {
+        errors.vehicleCategory = "Select vehicle category";
+      }
+    } else {
+      const incomeErr = netMonthlyIncomeError(form.netMonthlyIncome);
+      if (incomeErr) errors.netMonthlyIncome = incomeErr;
+    }
+    if (
+      !vehicle &&
+      !opts?.requireLoanProfile &&
       form.employmentType !== "salaried" &&
       form.employmentType !== "salaried_bank" &&
       form.employmentType !== "salaried_cash" &&
@@ -207,6 +219,19 @@ export function validateLeadForm(
   return errors;
 }
 
+/** Popup text when the lead must not be saved. Personal-loan edits skip this. */
+export function leadIneligibleMessage(form: EditForm): string | null {
+  if (!isLoanFormCategory(form.category)) return null;
+  const vehicle = isVehicleLoanCategory(form.category);
+  return loanNotEligibleMessage({
+    category: form.category,
+    netMonthlyIncome: Number(form.netMonthlyIncome),
+    cibilBand: form.cibilBand,
+    hasExistingEmi: vehicle ? false : form.hasExistingEmi === "yes",
+    totalMonthlyEmi: vehicle || form.hasExistingEmi === "no" ? 0 : Number(form.totalMonthlyEmi),
+  });
+}
+
 export function buildLeadPayload(
   form: EditForm,
   opts?: { omitMaskedPan?: boolean; includeConsent?: boolean; canApprove?: boolean },
@@ -223,15 +248,18 @@ export function buildLeadPayload(
     payload.loanAmt = null;
     const income = Number(form.netMonthlyIncome);
     payload.netMonthlyIncome = Number.isFinite(income) && income > 0 ? income : null;
-    payload.employmentType = form.employmentType;
-    if (opts?.includeConsent) {
+    if (isVehicleLoanCategory(form.category)) {
+      payload.employmentType = null;
+      payload.vehicleCategory = form.vehicleCategory.trim();
       payload.cibilBand = form.cibilBand;
-      payload.hasExistingEmi = form.hasExistingEmi === "yes";
-      payload.totalMonthlyEmi = form.hasExistingEmi === "no" ? 0 : Number(form.totalMonthlyEmi);
-      if (form.cibilReport) {
-        payload.cibilReportName = form.cibilReport.name;
-        payload.cibilReportMime = form.cibilReport.mime;
-        payload.cibilReportData = form.cibilReport.data;
+      payload.hasExistingEmi = false;
+      payload.totalMonthlyEmi = 0;
+    } else {
+      payload.employmentType = form.employmentType;
+      if (opts?.includeConsent) {
+        payload.cibilBand = form.cibilBand;
+        payload.hasExistingEmi = form.hasExistingEmi === "yes";
+        payload.totalMonthlyEmi = form.hasExistingEmi === "no" ? 0 : Number(form.totalMonthlyEmi);
       }
     }
   } else if (form.category === "insurance") {

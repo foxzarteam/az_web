@@ -14,11 +14,9 @@ export interface CreateLeadRequest {
   employmentType?: string;
   referralCode?: string;
   cibilBand?: string;
+  vehicleCategory?: string;
   hasExistingEmi?: boolean;
   totalMonthlyEmi?: number;
-  cibilReportName?: string;
-  cibilReportMime?: string;
-  cibilReportData?: string;
   /** True only when the applicant checked the lead-form consent box. */
   consentAccepted: boolean;
 }

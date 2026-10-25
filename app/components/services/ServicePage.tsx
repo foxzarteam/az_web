@@ -13,12 +13,9 @@ import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationStatusLink";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
-import EmploymentIncomeFields, {
-  EmploymentTypeField,
-  LOAN_APPLY_EMPLOYMENT_OPTIONS,
-} from "@/app/components/leads/EmploymentIncomeFields";
-import LoanProfileFields from "@/app/components/leads/LoanProfileFields";
-import { readOptionalCibilUpload } from "@/app/lib/leads/cibilUpload";
+import EmploymentIncomeFields from "@/app/components/leads/EmploymentIncomeFields";
+import CibilBandSelect, { VEHICLE_CIBIL_OPTIONS } from "@/app/components/leads/CibilBandSelect";
+import VehicleCategorySelect from "@/app/components/leads/VehicleCategorySelect";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { customerLogin } from "@/app/lib/customer/authApi";
 import { applyLead, isExistingApplicationError, leadIdFromResponse, mapServiceToCategory, type CreateLeadResponse } from "@/app/lib/leads/leadApi";
@@ -35,10 +32,13 @@ import { useLoanSelection } from "@/app/components/products/loans/loanSelection"
 import { useInsuranceSelection } from "@/app/components/products/insurance/insuranceSelection";
 import { productHrefToSlug } from "@/app/lib/services/allowedProducts";
 import { useInsuranceTypeOptions } from "@/app/lib/services/useInsuranceTypeOptions";
+import { useVehicleCategoryOptions } from "@/app/lib/services/useVehicleCategoryOptions";
 import InsuranceTypeSelect from "@/app/components/leads/InsuranceTypeSelect";
 import {
   sanitizeLeadNameInput,
   sanitizeLeadPanInput,
+  isVehicleLoanCategory,
+  loanNotEligibleMessage,
   sanitizeLeadPincodeInput,
   validateLeadPanNameMobile,
   validateLeadPincode,
@@ -61,7 +61,7 @@ type ServicePageProps = {
   initialInsType?: string;
   /** No page hero: clear the fixed navbar and draw a theme line under it. */
   navBorder?: boolean;
-  /** Rendered under the nav line and above the apply form. */
+  /** Small screens only: rendered directly under the apply form. */
   aboveForm?: ReactNode;
   /** Page already has its own hero, so the form sits directly under it. */
   compactTop?: boolean;
@@ -75,65 +75,11 @@ function slugFromPathname(pathname: string): string {
 const inputClass =
   "w-full min-h-10 px-3.5 py-2 rounded-xl border border-gray-300 dark:border-dark_border bg-white dark:bg-darkmode/80 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/70";
 
-function loanTypeGif(slug: string): string {
-  const key = slug.toLowerCase();
-  if (key.includes("home")) return "/images/loans/home-loan-white.gif";
-  if (key.includes("car") || key.includes("vehicle")) return "/images/loans/car-loan-white.gif?v=12";
-  if (key.includes("business")) return "/images/loans/business-loan-white.gif";
-  return "/images/loans/personal-loan-white.gif";
-}
-
 const mobileShellClass =
   "flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white dark:border-dark_border dark:bg-darkmode/80";
 
 const mobileInputClass =
   "min-h-10 min-w-0 flex-1 bg-transparent px-3 py-2 text-base text-midnight_text dark:text-white placeholder:text-gray-400 focus:outline-none";
-
-function LoanStepCapsule({ n, label, active }: { n: 1 | 2; label: string; active: boolean }) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full py-1 pl-1 pr-3.5 text-xs font-semibold tracking-wide ${
-        active
-          ? "theme-gradient-bg text-white shadow-md"
-          : "border border-gray-200 bg-white text-gray-400 dark:border-white/15 dark:bg-transparent"
-      }`}
-    >
-      <span
-        className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold leading-none ${
-          active ? "bg-white text-[#4236FB]" : "bg-gray-100 text-gray-400 dark:bg-white/10"
-        }`}
-      >
-        {n}
-      </span>
-      {label}
-    </span>
-  );
-}
-
-function LoanStepBar({ step }: { step: 1 | 2 }) {
-  const atFinish = step === 2;
-  return (
-    <div className="-mx-4 -mt-4 mb-5 rounded-t-2xl bg-[#F3F4F6] px-5 py-4 sm:-mx-6 sm:-mt-6 sm:rounded-t-3xl sm:px-8 sm:py-5 md:-mx-7 lg:-mt-7 dark:bg-white/[0.04]">
-      <div className="mx-auto flex max-w-xl items-center" role="group" aria-label={atFinish ? "Finish step" : "Start step"}>
-        <LoanStepCapsule n={1} label="Start" active />
-        <span className="mx-3 flex min-w-[2.5rem] flex-1 items-center" aria-hidden>
-          <span className="loan-dot-line min-w-0 flex-1" />
-          <svg viewBox="0 0 42 20" className="-ml-1 h-5 w-10 shrink-0">
-            <defs>
-              <linearGradient id="az-loan-step-arrow" x1="0" y1="10" x2="42" y2="10" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#4236FB" />
-                <stop offset="100%" stopColor="#FF7E29" />
-              </linearGradient>
-            </defs>
-            <path d="M1 10h14" stroke="url(#az-loan-step-arrow)" strokeWidth="2.2" strokeLinecap="round" />
-            <path d="M12 3.2 38 10 12 16.8 18.5 10Z" fill="url(#az-loan-step-arrow)" />
-          </svg>
-        </span>
-        <LoanStepCapsule n={2} label="Finish" active={atFinish} />
-      </div>
-    </div>
-  );
-}
 
 export default function ServicePage({
   title,
@@ -180,21 +126,9 @@ export default function ServicePage({
   const setInsType = insuranceSelection?.setValue ?? setLocalInsType;
   const [netMonthlyIncome, setNetMonthlyIncome] = useState("");
   const [incomeError, setIncomeError] = useState("");
-  const [employmentType, setEmploymentType] = useState("");
-  const [loanStep, setLoanStep] = useState<1 | 2>(1);
-
-  useEffect(() => {
-    if (loanStep !== 2) return;
-    const form = document.getElementById("apply-form");
-    if (!form) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    form.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-  }, [loanStep]);
   const [cibilBand, setCibilBand] = useState("");
-  const [hasExistingEmi, setHasExistingEmi] = useState<"" | "yes" | "no">("");
-  const [totalMonthlyEmi, setTotalMonthlyEmi] = useState("");
-  const [cibilReport, setCibilReport] = useState<{ name: string; mime: string; data: string } | null>(null);
-  const [cibilFileError, setCibilFileError] = useState("");
+  const [vehicleCategory, setVehicleCategory] = useState("");
+  const [totalMonthlyEmi, setTotalMonthlyEmi] = useState("0");
   const [pan, setPan] = useState("");
   const [formError, setFormError] = useState("");
   const loanSelection = useLoanSelection();
@@ -236,7 +170,9 @@ export default function ServicePage({
     return { min, max };
   }, [cards, loanProducts, loanSlug, loanTabs]);
   const showInsuranceType = selectedCategory === "insurance";
+  const vehicleLoan = isVehicleLoanCategory(selectedCategory);
   const insuranceTypeOptions = useInsuranceTypeOptions();
+  const vehicleCategoryOptions = useVehicleCategoryOptions();
   const defaultInsType = initialInsType ?? "health_insurance";
 
   useEffect(() => {
@@ -263,12 +199,9 @@ export default function ServicePage({
     setInsType(selectedCategory === "insurance" ? defaultInsType : "");
     setNetMonthlyIncome("");
     setLoanAmount(0);
-    setLoanStep(1);
     setCibilBand("");
-    setHasExistingEmi("");
-    setTotalMonthlyEmi("");
-    setCibilReport(null);
-    setCibilFileError("");
+    setVehicleCategory("");
+    setTotalMonthlyEmi("0");
   }, [pageServiceSlug, selectedCategory, setInsType, defaultInsType]);
 
   const loanAmountError = useMemo(() => {
@@ -276,6 +209,9 @@ export default function ServicePage({
     if (loanAmount >= loanBounds.min && loanAmount <= loanBounds.max) return "";
     return `Loan amount must be between ₹${loanBounds.min.toLocaleString("en-IN")} and ₹${loanBounds.max.toLocaleString("en-IN")}`;
   }, [loanAmount, loanBounds, showLoanAmount]);
+
+  const monthlyEmiAmount = Number(String(totalMonthlyEmi).replace(/\D/g, "") || "0");
+  const hasExistingEmi: "yes" | "no" = monthlyEmiAmount > 0 ? "yes" : "no";
 
   useEffect(() => {
     const amount = document.getElementById("service-loan-amount");
@@ -313,13 +249,12 @@ export default function ServicePage({
           pincode,
           loanAmount,
           netMonthlyIncome,
-          employmentType,
           cibilBand,
-          hasExistingEmi,
-          totalMonthlyEmi,
-          cibilReport,
-        }, loanBounds),
+          hasExistingEmi: vehicleLoan ? "no" : hasExistingEmi,
+          totalMonthlyEmi: vehicleLoan ? "0" : String(monthlyEmiAmount),
+        }, loanBounds, vehicleLoan),
       );
+      if (vehicleLoan && !vehicleCategory.trim()) errors.vehicleCategory = "Select vehicle category";
       if (loanAmountError) delete errors.loanAmt;
     }
     if (showInsuranceType && !insType.trim()) errors.insType = "Please select insurance type";
@@ -330,7 +265,20 @@ export default function ServicePage({
       setFormError(errors.netMonthlyIncome && firstError === errors.netMonthlyIncome ? "" : (firstError ?? ""));
       return;
     }
-    setCibilFileError("");
+    if (showLoanAmount) {
+      const blocked = loanNotEligibleMessage({
+        category: selectedCategory,
+        netMonthlyIncome: Number(String(netMonthlyIncome).replace(/\D/g, "")),
+        cibilBand,
+        hasExistingEmi: vehicleLoan ? false : monthlyEmiAmount > 0,
+        totalMonthlyEmi: vehicleLoan ? 0 : monthlyEmiAmount,
+      });
+      if (blocked) {
+        setFormError("");
+        setIneligibleMessage(blocked);
+        return;
+      }
+    }
     setFormError("");
     setIsSubmittingForm(true);
     primeOtpRecaptcha();
@@ -348,11 +296,9 @@ export default function ServicePage({
               pincode,
               loanAmount,
               netMonthlyIncome,
-              employmentType,
               cibilBand,
               hasExistingEmi,
-              totalMonthlyEmi,
-              cibilReport,
+              totalMonthlyEmi: String(monthlyEmiAmount),
             })
           : null;
       const payload = {
@@ -365,17 +311,10 @@ export default function ServicePage({
           ? {
               requiredAmount: pl.requiredAmount,
               netMonthlyIncome: pl.netMonthlyIncome,
-              employmentType: pl.employmentType,
               cibilBand: pl.cibilBand,
-              hasExistingEmi: pl.hasExistingEmi,
-              totalMonthlyEmi: pl.totalMonthlyEmi,
-              ...(pl.cibilReportData
-                ? {
-                    cibilReportName: pl.cibilReportName,
-                    cibilReportMime: pl.cibilReportMime,
-                    cibilReportData: pl.cibilReportData,
-                  }
-                : {}),
+              ...(vehicleLoan ? { vehicleCategory } : {}),
+              hasExistingEmi: vehicleLoan ? false : pl.hasExistingEmi,
+              totalMonthlyEmi: vehicleLoan ? 0 : pl.totalMonthlyEmi,
             }
           : {}),
         ...(category === "insurance" ? { insType } : {}),
@@ -405,65 +344,6 @@ export default function ServicePage({
     }
   };
 
-  const goToFinish = (form: HTMLFormElement) => {
-    const amountInput = form.querySelector<HTMLInputElement>("#service-loan-amount");
-    if (amountInput && showLoanAmount && loanAmount > 0) {
-      const outOfRange =
-        loanBounds != null && (loanAmount < loanBounds.min || loanAmount > loanBounds.max);
-      const missingRange = loanTabs && loanProducts.length > 0 && !loanBounds;
-      amountInput.setCustomValidity(
-        missingRange
-          ? "Amount range is not available for this loan."
-          : outOfRange
-            ? `Loan amount must be between ₹${loanBounds.min.toLocaleString("en-IN")} and ₹${loanBounds.max.toLocaleString("en-IN")}`
-            : "",
-      );
-    }
-    if (!reportFormValidity(form)) {
-      setFormError("");
-      return;
-    }
-    amountInput?.setCustomValidity("");
-    const errors: LeadFieldErrors = validateLeadPanNameMobile({
-      pan,
-      mobileDigits: mobile.replace(/\D/g, ""),
-      fullName,
-    });
-    if (!service.trim()) errors.service = "Product could not be detected for this page";
-    const pinErr = validateLeadPincode(pincode);
-    if (pinErr) errors.pincode = pinErr;
-    setMobileError(errors.mobile ?? "");
-    setPincodeError(errors.pincode ?? "");
-    const firstError = firstLeadFieldError({
-      ...errors,
-      mobile: undefined,
-      pincode: undefined,
-      loanAmt: undefined,
-    });
-    if (errors.mobile || errors.pincode || firstError) {
-      setFormError(firstError ?? "");
-      return;
-    }
-    setFormError("");
-    setLoanStep(2);
-  };
-
-  const onCibilFile = async (file: File | undefined, input: HTMLInputElement) => {
-    setCibilFileError("");
-    if (!file) {
-      setCibilReport(null);
-      return;
-    }
-    const read = await readOptionalCibilUpload(file);
-    if (!read.ok) {
-      setCibilReport(null);
-      setCibilFileError(read.message);
-      input.value = "";
-      return;
-    }
-    setCibilReport(read.file);
-  };
-
   return (
     <section
       id="apply"
@@ -475,7 +355,6 @@ export default function ServicePage({
             : "bg-gradient-to-b from-light to-white pb-0 pt-8 dark:from-darkmode dark:to-semidark"
       }`}
     >
-      {(navBorder || loanTabs) && !compactTop && <div className="theme-gradient-bg h-1" aria-hidden />}
       <div className={`container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md max-w-full ${!compactTop && (loanTabs || navBorder) ? "pt-5 sm:pt-0" : ""}`}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-stretch">
           <div className="min-w-0 flex flex-col w-full order-1 lg:order-1 lg:col-span-7 lg:justify-center" data-aos="fade-right">
@@ -496,11 +375,8 @@ export default function ServicePage({
               </>
             )}
 
-            {aboveForm ? <div className="mb-4 w-full min-w-0 sm:mb-5 lg:hidden">{aboveForm}</div> : null}
-
             <div id="apply-form" className="theme-gradient-bg scroll-mt-24 p-[1px] rounded-2xl sm:rounded-3xl shadow-xl w-full min-w-0 flex flex-col">
               <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-4 sm:py-6 lg:py-7 px-4 sm:px-6 md:px-7 flex flex-1 flex-col min-h-0 min-w-0">
-                {showLoanAmount ? <LoanStepBar step={loanStep} /> : null}
                 <div className="mb-3 flex items-center gap-2">
                   <h2 className={`min-w-0 flex-1 leading-snug ${loanTabs ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"} font-semibold text-midnight_text dark:text-white`}>
                     {loanTabs ? (
@@ -513,18 +389,6 @@ export default function ServicePage({
                       `Apply for ${selectedLoanTitle}`
                     )}
                   </h2>
-                  {showLoanAmount && loanStep === 2 ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormError("");
-                        setLoanStep(1);
-                      }}
-                      className="hidden h-8 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-transparent px-3 text-xs font-semibold text-midnight_text dark:border-dark_border dark:text-white sm:inline-flex"
-                    >
-                      Back
-                    </button>
-                  ) : null}
                 </div>
 
                 {ineligibleMessage && (
@@ -589,10 +453,6 @@ export default function ServicePage({
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    if (showLoanAmount && loanStep === 1) {
-                      goToFinish(e.currentTarget);
-                      return;
-                    }
                     void handleSubmit(e.currentTarget);
                   }}
                   className="mt-3 flex flex-1 flex-col gap-3 min-h-0 sm:gap-4"
@@ -603,8 +463,6 @@ export default function ServicePage({
                     </div>
                   )}
 
-                  {(!showLoanAmount || loanStep === 1) && (
-                  <>
                   {showInsuranceType && (
                     <div className="relative">
                       <label htmlFor="service-ins-type" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
@@ -632,43 +490,22 @@ export default function ServicePage({
                     </div>
                   )}
 
-                  {loanTabs && (
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                      <div>
-                        <label htmlFor="service-loan-type" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                          Select your loan type <span className="text-red-500">*</span>
+                  <div className={vehicleLoan ? "grid grid-cols-1 items-end gap-3 sm:grid-cols-2 sm:gap-4" : "grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4"}>
+                    {vehicleLoan ? (
+                      <div className="order-1 min-w-0">
+                        <label htmlFor="service-vehicle-category" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                          Select vehicle category&nbsp;<span className="text-red-500">*</span>
                         </label>
-                        <InsuranceTypeSelect
-                          id="service-loan-type"
-                          value={loanSlug}
-                          onChange={setLoanSlug}
-                          options={loanProducts.map((item) => ({
-                            value: item.slug,
-                            label: item.title,
-                            image: loanTypeGif(item.slug),
-                          }))}
+                        <VehicleCategorySelect
+                          id="service-vehicle-category"
+                          value={vehicleCategory}
+                          onChange={setVehicleCategory}
+                          options={vehicleCategoryOptions}
+                          className={inputClass}
                         />
                       </div>
-                      {showLoanAmount ? (
-                        <LoanAmountSlider
-                          id="service-loan-amount"
-                          value={loanAmount}
-                          onChange={setLoanAmount}
-                          min={loanBounds?.min}
-                          max={loanBounds?.max}
-                          placeholder={
-                            loanBounds
-                              ? `₹${loanBounds.min.toLocaleString("en-IN")} – ₹${loanBounds.max.toLocaleString("en-IN")}`
-                              : ""
-                          }
-                          required
-                        />
-                      ) : null}
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                    <div>
+                    ) : null}
+                    <div className={vehicleLoan ? "order-2 min-w-0" : "min-w-0"}>
                       <label htmlFor="service-fullname" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
                         Full Name <span className="text-red-500">*</span>
                       </label>
@@ -682,7 +519,7 @@ export default function ServicePage({
                         required
                       />
                     </div>
-                    <div>
+                    <div className={vehicleLoan ? "order-4 min-w-0" : "min-w-0"}>
                       <label htmlFor="service-pan" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
                         PAN Card number <span className="text-red-500">*</span>
                       </label>
@@ -697,10 +534,7 @@ export default function ServicePage({
                         required
                       />
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                    <div>
+                    <div className={vehicleLoan ? "order-3 min-w-0" : "min-w-0"}>
                       <label className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
                         Mobile Number <span className="text-red-500">*</span>
                       </label>
@@ -730,7 +564,7 @@ export default function ServicePage({
                       </div>
                       {mobileError ? <p className="mt-1 text-xs text-red-600">{mobileError}</p> : null}
                     </div>
-                    <div>
+                    <div className={vehicleLoan ? "order-8 min-w-0" : "min-w-0"}>
                       <label
                         htmlFor="service-pincode"
                         className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
@@ -772,36 +606,24 @@ export default function ServicePage({
                       </div>
                       {pincodeError ? <p className="mt-1 text-xs text-red-600">{pincodeError}</p> : null}
                     </div>
-                  </div>
-
-                  {showLoanAmount && !loanTabs ? (
-                    <LoanAmountSlider
-                      id="service-loan-amount"
-                      value={loanAmount}
-                      onChange={setLoanAmount}
-                      min={loanBounds?.min}
-                      max={loanBounds?.max}
-                      placeholder={
-                        loanBounds
-                          ? `₹${loanBounds.min.toLocaleString("en-IN")} – ₹${loanBounds.max.toLocaleString("en-IN")}`
-                          : ""
-                      }
-                      required
-                    />
-                  ) : null}
-
-                  </>
-                  )}
-
-                  {showLoanAmount && loanStep === 2 && (
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                      <EmploymentTypeField
-                        id="service-employment"
-                        value={employmentType}
-                        onChange={setEmploymentType}
-                        className={inputClass}
-                        options={LOAN_APPLY_EMPLOYMENT_OPTIONS}
+                  {showLoanAmount ? (
+                    <>
+                      <div className={vehicleLoan ? "order-5 min-w-0" : "min-w-0"}>
+                      <LoanAmountSlider
+                        id="service-loan-amount"
+                        value={loanAmount}
+                        onChange={setLoanAmount}
+                        min={loanBounds?.min}
+                        max={loanBounds?.max}
+                        placeholder={
+                          loanBounds
+                            ? `₹${loanBounds.min.toLocaleString("en-IN")} – ₹${loanBounds.max.toLocaleString("en-IN")}`
+                            : ""
+                        }
+                        required
                       />
+                      </div>
+                      <div className={vehicleLoan ? "order-6 min-w-0" : "min-w-0"}>
                       <EmploymentIncomeFields
                         idPrefix="service"
                         netMonthlyIncome={netMonthlyIncome}
@@ -813,34 +635,50 @@ export default function ServicePage({
                         labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
                         incomeWithRupee
                         incomeError={
-                          incomeError ? (
-                            <p className="mt-1 text-xs text-red-600">{incomeError}</p>
-                          ) : null
+                          incomeError ? <p className="mt-1 text-xs text-red-600">{incomeError}</p> : null
                         }
                       />
-                      <LoanProfileFields
-                        idPrefix="service"
-                        cibilBand={cibilBand}
-                        onCibilBand={setCibilBand}
-                        onCibilFile={(file, input) => void onCibilFile(file, input)}
-                        cibilFileName={cibilReport?.name}
-                        cibilFileError={
-                          cibilFileError ? <p className="mt-1 text-xs text-red-600">{cibilFileError}</p> : null
-                        }
-                        hasExistingEmi={hasExistingEmi}
-                        onExistingEmi={(next) => {
-                          setHasExistingEmi(next);
-                          if (next === "no") setTotalMonthlyEmi("0");
-                          else if (totalMonthlyEmi === "0") setTotalMonthlyEmi("");
-                        }}
-                        totalMonthlyEmi={totalMonthlyEmi}
-                        onTotalMonthlyEmi={setTotalMonthlyEmi}
-                        inputClassName={inputClass}
-                        labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
-                        nativeRequired
-                      />
-                    </div>
-                  )}
+                      </div>
+                      <div className={vehicleLoan ? "order-7 min-w-0" : "min-w-0"}>
+                        <label htmlFor="service-cibil" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                          CIBIL score <span className="text-red-500">*</span>
+                        </label>
+                        <CibilBandSelect
+                          id="service-cibil"
+                          value={cibilBand}
+                          onChange={setCibilBand}
+                          options={vehicleLoan ? VEHICLE_CIBIL_OPTIONS : undefined}
+                          className={inputClass}
+                        />
+                      </div>
+                      {vehicleLoan ? null : <div className="min-w-0">
+                        <label htmlFor="service-total-emi" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                          Any Existing EMI You already Pay? <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80">
+                          <span
+                            className="theme-gradient-text pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-bold leading-none"
+                            aria-hidden
+                          >
+                            ₹
+                          </span>
+                          <input
+                            id="service-total-emi"
+                            type="text"
+                            inputMode="numeric"
+                            value={totalMonthlyEmi}
+                            onChange={(e) => {
+                              const digits = e.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+                              setTotalMonthlyEmi(digits || "0");
+                            }}
+                            className="min-h-10 min-w-0 flex-1 bg-transparent py-2 pl-9 pr-3 text-base text-midnight_text focus:outline-none dark:text-white"
+                            required
+                          />
+                        </div>
+                      </div>}
+                    </>
+                  ) : null}
+                  </div>
 
                   <TermsAgreementCheckbox
                     id="service-terms"
@@ -857,37 +695,20 @@ export default function ServicePage({
                         disabled={isSubmittingForm}
                         className={`inline-flex w-full min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap btn-gradient px-4 text-sm font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70 sm:text-base ${loanTabs ? "min-h-12 rounded-full py-3" : "min-h-[44px] rounded-xl py-2.5 sm:rounded-2xl sm:py-3"}`}
                       >
-                        {isSubmittingForm
-                          ? "Submitting…"
-                          : showLoanAmount && loanStep === 1
-                            ? "Next"
-                            : loanTabs
-                              ? "Check Eligibility"
-                              : "Apply Now"}
-                        {!isSubmittingForm && (loanTabs || (showLoanAmount && loanStep === 1)) ? (
+                        {isSubmittingForm ? "Submitting…" : loanTabs ? "Check Eligibility" : "Apply Now"}
+                        {!isSubmittingForm && loanTabs ? (
                           <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden>
                             <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         ) : null}
                       </button>
-                      {showLoanAmount && loanStep === 2 ? (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFormError("");
-                            setLoanStep(1);
-                          }}
-                          className="mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-full border border-gray-300 bg-transparent text-sm font-semibold text-midnight_text dark:border-dark_border dark:text-white sm:hidden"
-                        >
-                          Back
-                        </button>
-                      ) : null}
                     </div>
                     <LeadCreditDisclaimer className="mt-2 text-xs" />
                   </div>
                 </form>
               </div>
             </div>
+            {aboveForm ? <div className="mt-8 w-full min-w-0 sm:mt-10 lg:hidden">{aboveForm}</div> : null}
           </div>
 
           <div className="flex min-w-0 order-2 lg:order-2 w-full items-center justify-center lg:col-span-5" data-aos="fade-left">

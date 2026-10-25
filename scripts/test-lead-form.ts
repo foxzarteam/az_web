@@ -5,6 +5,11 @@ import assert from "node:assert/strict";
 import {
   LEAD_PAN_PATTERN,
   MIN_NET_MONTHLY_INCOME,
+  loanNotEligibleMessage,
+  MIN_VEHICLE_NET_MONTHLY_INCOME,
+  MSG_CIBIL_BELOW,
+  MSG_CIBIL_BELOW_650,
+  MSG_EMI_HALF,
   netMonthlyIncomeError,
   validateLeadPanNameMobile,
   validateLeadPincode,
@@ -39,6 +44,49 @@ assert.ok(name.fullName);
 assert.equal(MIN_NET_MONTHLY_INCOME, 18000);
 assert.equal(netMonthlyIncomeError("17999"), "Net monthly income must be at least ₹18,000");
 assert.equal(netMonthlyIncomeError("18000"), undefined);
+assert.equal(
+  loanNotEligibleMessage({ netMonthlyIncome: 50000, cibilBand: "below_680", hasExistingEmi: false, totalMonthlyEmi: 0 }),
+  MSG_CIBIL_BELOW,
+);
+assert.equal(
+  loanNotEligibleMessage({ netMonthlyIncome: 40000, cibilBand: "above_680", hasExistingEmi: true, totalMonthlyEmi: 20000 }),
+  MSG_EMI_HALF,
+);
+assert.equal(
+  loanNotEligibleMessage({ netMonthlyIncome: 40000, cibilBand: "unknown", hasExistingEmi: true, totalMonthlyEmi: 19999 }),
+  null,
+);
+assert.equal(MIN_VEHICLE_NET_MONTHLY_INCOME, 10000);
+assert.equal(netMonthlyIncomeError("9999", 10000), "Net monthly income must be at least ₹10,000");
+assert.equal(netMonthlyIncomeError("10000", 10000), undefined);
+assert.equal(
+  loanNotEligibleMessage({
+    category: "vehicle_loan",
+    netMonthlyIncome: 20000,
+    cibilBand: "below_650",
+    hasExistingEmi: false,
+    totalMonthlyEmi: 0,
+  }),
+  MSG_CIBIL_BELOW_650,
+);
+assert.equal(
+  loanNotEligibleMessage({
+    category: "vehicle_loan",
+    netMonthlyIncome: 20000,
+    cibilBand: "above_650",
+    hasExistingEmi: true,
+    totalMonthlyEmi: 15000,
+  }),
+  null,
+);
+const vehicleFinish = validateLoanFinishStep({
+  netMonthlyIncome: "10000",
+  cibilBand: "above_650",
+  hasExistingEmi: "",
+  totalMonthlyEmi: "",
+  vehicle: true,
+});
+assert.equal(Object.keys(vehicleFinish).length, 0);
 
 const finish = validateLoanFinishStep({
   netMonthlyIncome: "20000",
@@ -56,6 +104,6 @@ const low = validateLoanFinishStep({
   totalMonthlyEmi: "",
 });
 assert.ok(low.netMonthlyIncome);
-assert.ok(low.employmentType);
+assert.equal(low.employmentType, undefined);
 
 console.log("test-lead-form: ok");

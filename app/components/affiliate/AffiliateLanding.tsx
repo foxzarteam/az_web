@@ -50,7 +50,6 @@ export default function AffiliateLanding() {
     <div className="bg-white dark:bg-semidark">
       <h1 className="sr-only">Products</h1>
       <div className="bg-white pt-16 dark:bg-darkmode md:pt-20">
-        <div className="theme-gradient-bg h-1" aria-hidden />
         <LoanCategories
           className="!pb-8 !pt-8 sm:!pt-10 lg:!pb-10"
           showInsurance

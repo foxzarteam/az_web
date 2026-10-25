@@ -28,6 +28,7 @@ export type LoanProductTab = {
 export type FetchActiveServicesResult = {
   cards: ServiceSliderCard[];
   insuranceTypes: InsuranceTypeOption[];
+  vehicleCategories: InsuranceTypeOption[];
   loanProducts: LoanProductTab[];
   status: ServicesFetchStatus;
 };

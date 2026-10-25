@@ -59,7 +59,7 @@ export const MOBILE_VALIDATION = {
 } as const;
 
 export const DEFAULT_IMAGES = {
-  HERO: "/images/hero/hero-v3.webp",
+  HERO: "/images/hero/hero-v4.webp",
 } as const;
 
 export const SOCIAL_LINKS = {

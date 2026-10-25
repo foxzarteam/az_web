@@ -140,6 +140,7 @@ export default async function RootLayout({
             <ServiceCardsProvider
               cards={catalog.cards}
               insuranceTypes={catalog.insuranceTypes}
+              vehicleCategories={catalog.vehicleCategories}
               loanProducts={catalog.loanProducts}
             >
               <Header />

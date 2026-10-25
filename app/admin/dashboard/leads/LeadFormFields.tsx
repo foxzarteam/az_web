@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import TermsAgreementCheckbox from "@/app/components/shared/TermsAgreementCheckbox";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
 import EmploymentIncomeFields, {
@@ -8,14 +8,15 @@ import EmploymentIncomeFields, {
   LOAN_APPLY_EMPLOYMENT_OPTIONS,
 } from "@/app/components/leads/EmploymentIncomeFields";
 import LoanProfileFields from "@/app/components/leads/LoanProfileFields";
-import { readOptionalCibilUpload } from "@/app/lib/leads/cibilUpload";
+import VehicleCategorySelect from "@/app/components/leads/VehicleCategorySelect";
 import InsuranceTypeSelect from "@/app/components/leads/InsuranceTypeSelect";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
 import { productHrefToSlug } from "@/app/lib/services/allowedProducts";
 import { useInsuranceTypeOptions } from "@/app/lib/services/useInsuranceTypeOptions";
+import { useVehicleCategoryOptions } from "@/app/lib/services/useVehicleCategoryOptions";
 import { mapServiceToCategory } from "@/app/lib/leads/leadApi";
-import { insuranceTypeLabel } from "@/app/lib/leads/leadForm";
+import { insuranceTypeLabel, isVehicleLoanCategory, vehicleCategoryLabel } from "@/app/lib/leads/leadForm";
 import {
   ADMIN_BTN_SECONDARY,
   ADMIN_LABEL,
@@ -70,9 +71,10 @@ export default function LeadFormFields({
   /** Partner add-lead must confirm the customer's details before save. */
   partnerConsent?: boolean;
 }) {
-  const [cibilFileError, setCibilFileError] = useState("");
   const panLocked = panMode === "edit" && isMaskedPanValue(form.pan);
   const loanForm = form.category.trim().toLowerCase().endsWith("_loan");
+  const vehicleLoan = isVehicleLoanCategory(form.category);
+  const catalogVehicleOptions = useVehicleCategoryOptions();
   const employmentOptions =
     form.employmentType === "salaried"
       ? [...LOAN_APPLY_EMPLOYMENT_OPTIONS, { value: "salaried", label: "Salaried" }]
@@ -114,6 +116,16 @@ export default function LeadFormFields({
     }
     return list;
   }, [insuranceTypeOptions, form.insType]);
+  const vehicleOptions = useMemo(() => {
+    const list = catalogVehicleOptions.map((option) => ({ ...option }));
+    if (form.vehicleCategory && !list.some((option) => option.value === form.vehicleCategory)) {
+      list.push({
+        value: form.vehicleCategory,
+        label: vehicleCategoryLabel(form.vehicleCategory),
+      });
+    }
+    return list;
+  }, [catalogVehicleOptions, form.vehicleCategory]);
 
   const fieldLabel = "mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300";
   const publicInput =
@@ -121,7 +133,7 @@ export default function LeadFormFields({
 
   return (
     <div className="grid gap-5 sm:grid-cols-2">
-      <div className="grid grid-cols-2 gap-3 sm:col-span-2 sm:gap-4">
+      <div className={`grid grid-cols-2 gap-3 sm:col-span-2 sm:gap-4 ${vehicleLoan ? "items-end" : ""}`}>
         {form.category === "insurance" ? (
           <div className="sm:col-span-2">
             <span className={fieldLabel}>
@@ -141,7 +153,7 @@ export default function LeadFormFields({
             <FieldErrorText message={fieldErrors.insType} />
           </div>
         ) : null}
-        <label className="block">
+        <label className={vehicleLoan ? "order-2 block min-w-0" : "block"}>
           <span className={fieldLabel}>
             Full Name <span className="text-red-500">*</span>
           </span>
@@ -157,7 +169,7 @@ export default function LeadFormFields({
           />
           <FieldErrorText message={fieldErrors.fullName} />
         </label>
-        <div className="block">
+        <div className={vehicleLoan ? "order-4 block min-w-0" : "block"}>
           <span className={fieldLabel}>
             PAN Card number <span className="text-red-500">*</span>
           </span>
@@ -193,7 +205,7 @@ export default function LeadFormFields({
         ) : null}
         <FieldErrorText message={fieldErrors.pan} />
         </div>
-        <label className="block">
+        <label className={vehicleLoan ? "order-3 block min-w-0" : "block"}>
           <span className={fieldLabel}>
             Mobile Number <span className="text-red-500">*</span>
           </span>
@@ -218,7 +230,7 @@ export default function LeadFormFields({
           </div>
           <FieldErrorText message={fieldErrors.mobileNumber} />
         </label>
-        <label className="block">
+        <label className={vehicleLoan ? "order-8 block min-w-0" : "block"}>
           <span className={fieldLabel}>
             Current Residence Pincode <span className="text-red-500">*</span>
           </span>
@@ -237,7 +249,25 @@ export default function LeadFormFields({
         </label>
         {loanForm ? (
           <>
-            <div className={commissionLocked ? "pointer-events-none opacity-60" : ""}>
+            {vehicleLoan ? (
+              <div className="order-1 min-w-0">
+                <span className={fieldLabel}>
+                  Select vehicle category&nbsp;<span className="text-red-500">*</span>
+                </span>
+                <VehicleCategorySelect
+                  id="admin-lead-vehicle-category"
+                  value={form.vehicleCategory}
+                  options={vehicleOptions}
+                  onChange={(value) => {
+                    setForm({ ...form, vehicleCategory: value });
+                    clearFieldError("vehicleCategory");
+                  }}
+                  className="flex min-h-10 w-full items-center gap-2.5 rounded-xl border border-gray-300 bg-white px-3.5 py-2 text-left text-base text-midnight_text outline-none focus:ring-2 focus:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80 dark:text-white"
+                />
+                <FieldErrorText message={fieldErrors.vehicleCategory} />
+              </div>
+            ) : null}
+            <div className={`${vehicleLoan ? "order-5 min-w-0 " : ""}${commissionLocked ? "pointer-events-none opacity-60" : ""}`}>
               <LoanAmountSlider
                 id="admin-lead-loan-amount"
                 value={form.requiredAmount}
@@ -256,6 +286,7 @@ export default function LeadFormFields({
                 }}
               />
             </div>
+            {vehicleLoan ? null : (
             <EmploymentTypeField
               id="admin-lead-employment"
               value={form.employmentType}
@@ -269,6 +300,8 @@ export default function LeadFormFields({
               labelAsSpan
               error={<FieldErrorText message={fieldErrors.employmentType} />}
             />
+            )}
+            <div className={vehicleLoan ? "order-6 min-w-0" : undefined}>
             <EmploymentIncomeFields
               idPrefix="admin-lead"
               netMonthlyIncome={form.netMonthlyIncome}
@@ -281,8 +314,10 @@ export default function LeadFormFields({
               incomeError={<FieldErrorText message={fieldErrors.netMonthlyIncome} />}
               incomeWithRupee
             />
-            {panMode === "create" ? (
+            </div>
+            {panMode === "create" || vehicleLoan ? (
               <LoanProfileFields
+                vehicle={vehicleLoan}
                 idPrefix="admin-lead"
                 cibilBand={form.cibilBand}
                 onCibilBand={(value) => {
@@ -290,24 +325,6 @@ export default function LeadFormFields({
                   clearFieldError("cibilBand");
                 }}
                 cibilError={<FieldErrorText message={fieldErrors.cibilBand} />}
-                onCibilFile={(file, input) => {
-                  setCibilFileError("");
-                  if (!file) {
-                    setForm({ ...form, cibilReport: null });
-                    return;
-                  }
-                  void readOptionalCibilUpload(file).then((read) => {
-                    if (!read.ok) {
-                      setForm({ ...form, cibilReport: null });
-                      setCibilFileError(read.message);
-                      input.value = "";
-                      return;
-                    }
-                    setForm({ ...form, cibilReport: read.file });
-                  });
-                }}
-                cibilFileName={form.cibilReport?.name}
-                cibilFileError={<FieldErrorText message={cibilFileError} />}
                 hasExistingEmi={form.hasExistingEmi}
                 onExistingEmi={(next) => {
                   setForm({
@@ -341,14 +358,23 @@ export default function LeadFormFields({
             disabled={commissionLocked}
             onChange={(e) => {
               const category = e.target.value;
+              const nextVehicle = isVehicleLoanCategory(category);
+              const wasVehicle = isVehicleLoanCategory(form.category);
               const commissionType = lockedCommissionType(category);
               setForm({
                 ...form,
                 category,
+                vehicleCategory: nextVehicle ? form.vehicleCategory : "",
+                employmentType: nextVehicle ? "" : form.employmentType,
+                cibilBand: nextVehicle === wasVehicle ? form.cibilBand : "",
+                hasExistingEmi: nextVehicle ? "no" : form.hasExistingEmi,
+                totalMonthlyEmi: nextVehicle ? "0" : form.totalMonthlyEmi,
                 commissionType: form.status === "approved" ? commissionType : "",
                 commissionValue: form.commissionType === commissionType ? form.commissionValue : "",
               });
               clearFieldError("commissionValue");
+              clearFieldError("vehicleCategory");
+              clearFieldError("cibilBand");
             }}
           >
             {categoryOptions.map((c) => (

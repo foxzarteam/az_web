@@ -108,6 +108,7 @@ export default function Header() {
           </button>
         </div>
       </div>
+      <div className="theme-gradient-bg pointer-events-none absolute inset-x-0 top-full h-1" aria-hidden />
       {navbarOpen && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setNavbarOpen(false)} aria-hidden="true" />
       )}

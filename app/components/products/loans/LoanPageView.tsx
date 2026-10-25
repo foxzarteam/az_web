@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import ServicePage from "@/app/components/services/ServicePage";
 import HowItWorks from "@/app/components/products/loans/HowItWorks";
 import LoanPurposes from "@/app/components/home/loan-purposes";
+import VehicleNeedSection from "@/app/components/products/vehicle/VehicleNeedSection";
 import LoanCategories from "@/app/components/products/loans/LoanCategories";
 import { LoanSelectionProvider } from "@/app/components/products/loans/loanSelection";
 import FaqSection from "@/app/components/home/faq";
@@ -27,6 +28,7 @@ type LoanPageCopy = {
   h1: string;
   serviceName: string;
   serviceDescription: string;
+  image?: string;
 };
 
 const LOAN_PAGES: Record<LoanPageKey, LoanPageCopy> = {
@@ -70,7 +72,8 @@ const LOAN_PAGES: Record<LoanPageKey, LoanPageCopy> = {
     path: "/products/vehicle-loan",
     title: "Apply for a Vehicle Loan Online in India | Apni Zaroorat",
     description:
-      "Looking for vehicle financing? Check eligibility, review available vehicle loan options and start your application online with Apni Zaroorat.",
+      "Apply for a vehicle loan for a new or used car, taxi, tractor, commercial vehicle, or construction equipment. Check eligibility with Apni Zaroorat.",
+    image: "/images/og-default.jpg",
     crumb: "Vehicle Loan",
     h1: "Vehicle Loan",
     serviceName: "Vehicle Loan",
@@ -96,7 +99,7 @@ export function loanPageMetadata(pageKey: LoanPageKey): Metadata {
     description: page.description,
     path: page.path,
     absoluteTitle: true,
-    image: "/images/service/personal.webp",
+    image: page.image ?? "/images/service/personal.webp",
     imageAlt: `${page.h1} with Apni Zaroorat`,
   });
 }
@@ -107,7 +110,7 @@ export default function LoanPageView({ pageKey }: { pageKey: LoanPageKey }) {
     name: page.title,
     description: page.description,
     path: page.path,
-    image: "/images/service/personal.webp",
+    image: page.image ?? "/images/service/personal.webp",
     includeServiceCatalog: pageKey === "loans",
     crumbs: [
       { name: "Home", path: "/" },
@@ -146,6 +149,7 @@ export default function LoanPageView({ pageKey }: { pageKey: LoanPageKey }) {
         </section>
       </LoanSelectionProvider>
       <LoanPurposes />
+      {pageKey === "vehicle-loan" ? <VehicleNeedSection /> : null}
       <BankPartners />
       <HowItWorks />
       <FaqSection items={PERSONAL_LOAN_FAQ_ITEMS} />

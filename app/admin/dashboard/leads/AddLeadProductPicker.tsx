@@ -1,6 +1,6 @@
 "use client";
 
-export type AddLeadProduct = "personal_loan" | "insurance";
+export type AddLeadProduct = "personal_loan" | "vehicle_loan" | "insurance";
 
 const PRODUCTS: {
   key: AddLeadProduct;
@@ -13,6 +13,12 @@ const PRODUCTS: {
     title: "Personal Loan",
     detail: "Amount, employment, income, and tenure",
     className: "bg-[#4236FB] shadow-[0_12px_28px_rgba(66,54,251,0.28)]",
+  },
+  {
+    key: "vehicle_loan",
+    title: "Vehicle Loan",
+    detail: "Vehicle category, amount, income, and CIBIL",
+    className: "bg-[#0F766E] shadow-[0_12px_28px_rgba(15,118,110,0.28)]",
   },
   {
     key: "insurance",
@@ -30,9 +36,9 @@ export default function AddLeadProductPicker({
   return (
     <div className="p-6 sm:p-8">
       <p className="text-sm text-slate-600 dark:text-gray-300">
-        Choose whether this lead is for a personal loan or insurance.
+        Choose whether this lead is for a personal loan, a vehicle loan, or insurance.
       </p>
-      <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {PRODUCTS.map((product) => (
           <button
             key={product.key}
@@ -42,7 +48,13 @@ export default function AddLeadProductPicker({
           >
             <span className="flex items-center gap-3">
               <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/20">
-                {product.key === "personal_loan" ? <LoanIcon /> : <InsuranceIcon />}
+                {product.key === "personal_loan" ? (
+                  <LoanIcon />
+                ) : product.key === "vehicle_loan" ? (
+                  <VehicleIcon />
+                ) : (
+                  <InsuranceIcon />
+                )}
               </span>
               <span className="text-lg font-bold">{product.title}</span>
             </span>
@@ -60,6 +72,22 @@ function LoanIcon() {
       <rect x="3" y="6" width="18" height="13" rx="2" stroke="white" strokeWidth="1.7" />
       <path d="M3 10h18" stroke="white" strokeWidth="1.7" />
       <path d="M7 15h4" stroke="white" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function VehicleIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M4 14.5 6.2 9.2A2 2 0 0 1 8 8h8a2 2 0 0 1 1.8 1.2L20 14.5"
+        stroke="white"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+      />
+      <path d="M4 14.5h16V17a1 1 0 0 1-1 1h-1.2M4 14.5V17a1 1 0 0 0 1 1h1.2" stroke="white" strokeWidth="1.7" strokeLinecap="round" />
+      <circle cx="7.5" cy="17.5" r="1.4" stroke="white" strokeWidth="1.5" />
+      <circle cx="16.5" cy="17.5" r="1.4" stroke="white" strokeWidth="1.5" />
     </svg>
   );
 }

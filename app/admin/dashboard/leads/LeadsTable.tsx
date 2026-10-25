@@ -37,7 +37,9 @@ import {
   leadToEditForm,
   validateLeadForm,
   buildLeadPayload,
+  leadIneligibleMessage,
 } from "./leadEditForm";
+import { isVehicleLoanCategory } from "@/app/lib/leads/leadForm";
 
 export default function LeadsTable({
   initialLeads,
@@ -65,7 +67,6 @@ export default function LeadsTable({
   const [ineligibleMessage, setIneligibleMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [revealingPan, setRevealingPan] = useState(false);
-  const [downloadingCibil, setDownloadingCibil] = useState(false);
   const [viewPanFull, setViewPanFull] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
@@ -88,7 +89,6 @@ export default function LeadsTable({
     setFieldErrors({});
     setViewPanFull(null);
     setRevealingPan(false);
-    setDownloadingCibil(false);
   }, []);
 
   const clearFieldError = useCallback((key: keyof FieldErrors) => {
@@ -173,38 +173,6 @@ export default function LeadsTable({
     }
   }
 
-  async function downloadCibilReport(leadId: string) {
-    setDownloadingCibil(true);
-    setError(null);
-    try {
-      const res = await fetch(`/api/admin/leads/${encodeURIComponent(leadId)}/cibil`, {
-        method: "GET",
-      });
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(toPublicClientError(data.error, "Could not download the CIBIL report."));
-        return;
-      }
-      const blob = await res.blob();
-      const header = res.headers.get("content-disposition") ?? "";
-      const encoded = /filename\*=UTF-8''([^;]+)/i.exec(header)?.[1];
-      const quoted = /filename="([^"]+)"/i.exec(header)?.[1];
-      const filename = decodeURIComponent(encoded || quoted || "cibil-report");
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-    } catch {
-      setError("Could not download the CIBIL report.");
-    } finally {
-      setDownloadingCibil(false);
-    }
-  }
-
   async function revealPan(leadId: string): Promise<string | null> {
     setRevealingPan(true);
     setError(null);
@@ -241,6 +209,11 @@ export default function LeadsTable({
       setFieldErrors(validationErrors);
       return;
     }
+    const blocked = leadIneligibleMessage(editForm);
+    if (blocked) {
+      setIneligibleMessage(blocked);
+      return;
+    }
 
     setSaving(true);
     setError(null);
@@ -272,10 +245,12 @@ export default function LeadsTable({
           data.field === "mobileNumber" ||
           data.field === "pan" ||
           data.field === "pincode" ||
+          data.field === "fullName" ||
           data.field === "netMonthlyIncome" ||
           data.field === "employmentType" ||
           data.field === "requiredAmount" ||
           data.field === "cibilBand" ||
+          data.field === "vehicleCategory" ||
           data.field === "hasExistingEmi" ||
           data.field === "totalMonthlyEmi"
         ) {
@@ -308,6 +283,13 @@ export default function LeadsTable({
       setFieldErrors(validationErrors);
       return;
     }
+    if (isVehicleLoanCategory(editForm.category)) {
+      const blocked = leadIneligibleMessage(editForm);
+      if (blocked) {
+        setIneligibleMessage(blocked);
+        return;
+      }
+    }
 
     setSaving(true);
     setError(null);
@@ -327,10 +309,32 @@ export default function LeadsTable({
         error?: string;
         message?: string;
         code?: string;
+        field?: string;
         leadStatusSaved?: boolean;
       };
       if (!res.ok) {
-        setError(toPublicClientError(data.error ?? data.message, "Could not update lead."));
+        const message = toPublicClientError(data.error ?? data.message, "Could not update lead.");
+        if (data.code === "LOAN_NOT_ELIGIBLE") {
+          setIneligibleMessage(message);
+          return;
+        }
+        if (
+          data.field === "mobileNumber" ||
+          data.field === "pan" ||
+          data.field === "pincode" ||
+          data.field === "fullName" ||
+          data.field === "netMonthlyIncome" ||
+          data.field === "employmentType" ||
+          data.field === "requiredAmount" ||
+          data.field === "cibilBand" ||
+          data.field === "vehicleCategory" ||
+          data.field === "hasExistingEmi" ||
+          data.field === "totalMonthlyEmi"
+        ) {
+          setFieldErrors({ [data.field]: message });
+          return;
+        }
+        setError(message);
         if (data.leadStatusSaved && data.data) {
           setLeads((prev) =>
             prev.map((l) => (l.id === data.data!.id ? { ...l, ...data.data! } : l)),
@@ -609,21 +613,6 @@ export default function LeadsTable({
                       </button>
                     ) : null}
                   </span>
-                ) : key === "cibil_report_name" ? (
-                  viewLead.cibil_report_name && viewLead.id ? (
-                    <button
-                      type="button"
-                      disabled={downloadingCibil}
-                      onClick={() => {
-                        void downloadCibilReport(String(viewLead.id));
-                      }}
-                      className="inline-flex rounded-md bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
-                    >
-                      {downloadingCibil ? "Downloading…" : "Download"}
-                    </button>
-                  ) : (
-                    <span className="text-midnight_text dark:text-gray-200">N/A</span>
-                  )
                 ) : key === "lead_source" ? (
                   <span
                     className={

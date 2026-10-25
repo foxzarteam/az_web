@@ -5,7 +5,7 @@ import type {
   ServiceSliderCard,
 } from "@/app/lib/services/types";
 import { isPublicProductSlug } from "@/app/lib/services/allowedProducts";
-import { INSURANCE_TYPE_OPTIONS } from "@/app/lib/leads/leadForm";
+import { FALLBACK_VEHICLE_CATEGORIES, INSURANCE_TYPE_OPTIONS } from "@/app/lib/leads/leadForm";
 
 function payloadRows(raw: unknown): ApiServiceRow[] {
   let rows: unknown[] = [];
@@ -148,6 +148,31 @@ export function parseInsuranceTypesPayload(raw: unknown): InsuranceTypeOption[] 
         : value === "third_party_pvt_vehicle_insurance"
           ? "Third Party Pvt Vehicle Insurance"
           : rawLabel;
+    const image = typeof rec.image === "string" ? rec.image.trim() : "";
+    if (!INS_TYPE_SLUG_PATTERN.test(value) || !label || seen.has(value)) continue;
+    seen.add(value);
+    out.push({ value, label, image });
+  }
+  return out.length > 0 ? out : fallback;
+}
+
+export function fallbackVehicleCategories(): InsuranceTypeOption[] {
+  return FALLBACK_VEHICLE_CATEGORIES.map((item) => ({ value: item.value, label: item.label, image: item.image }));
+}
+
+export function parseVehicleCategoriesPayload(raw: unknown): InsuranceTypeOption[] {
+  const fallback = fallbackVehicleCategories();
+  if (!raw || typeof raw !== "object") return fallback;
+  const list = (raw as { vehicleCategories?: unknown }).vehicleCategories;
+  if (!Array.isArray(list) || list.length === 0) return fallback;
+
+  const out: InsuranceTypeOption[] = [];
+  const seen = new Set<string>();
+  for (const row of list) {
+    if (!row || typeof row !== "object") continue;
+    const rec = row as { value?: unknown; slug?: unknown; label?: unknown; image?: unknown };
+    const value = String(rec.value ?? rec.slug ?? "").trim().toLowerCase();
+    const label = String(rec.label ?? "").trim();
     const image = typeof rec.image === "string" ? rec.image.trim() : "";
     if (!INS_TYPE_SLUG_PATTERN.test(value) || !label || seen.has(value)) continue;
     seen.add(value);

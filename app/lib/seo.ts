@@ -10,7 +10,7 @@ export { INDEXABLE_ROUTES, SITE_TREE, SITELINK_PAGES } from "@/app/lib/seo-site-
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-10-11";
+export const SEO_CONTENT_VERSION = "2026-10-25";
 
 /** Official social profiles — wired to Organization sameAs + footer + AEO/GEO docs. */
 export const SOCIAL_PROFILES = [
@@ -221,6 +221,9 @@ export function organizationJsonLd() {
     },
     knowsAbout: [
       "Personal loans",
+      "Home loans",
+      "Vehicle loans",
+      "Business loans",
       "Insurance",
       "EMI calculation",
       "Loan eligibility",
@@ -328,6 +331,37 @@ export function serviceCatalogJsonLd() {
           description:
             "Personal loans from Rs 25,000 to Rs 50 lakh with online application.",
           url: absoluteSeoUrl("/products/loans"),
+          provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
+        },
+      },
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "Home Loan",
+          description: "Home loans from partner banks and NBFCs with a guided online application.",
+          url: absoluteSeoUrl("/products/home-loan"),
+          provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
+        },
+      },
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "Vehicle Loan",
+          description:
+            "Vehicle loans for a new car, used car, taxi, tractor, commercial vehicle, or construction equipment.",
+          url: absoluteSeoUrl("/products/vehicle-loan"),
+          provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
+        },
+      },
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "Business Loan",
+          description: "Business loans from partner banks and NBFCs with a digital application.",
+          url: absoluteSeoUrl("/products/business-loan"),
           provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
         },
       },

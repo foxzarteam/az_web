@@ -3,13 +3,13 @@ export const VEHICLE_FAQ = [
     id: "what-is-vehicle-loan",
     question: "What is a Vehicle Loan?",
     answer:
-      "A Vehicle Loan helps you buy a new or used car or bike. You choose an amount within the range shown on the form and repay it in monthly instalments. Apni Zaroorat shares your application with partner lenders.",
+      "A Vehicle Loan helps you finance a new car, used car, taxi, tractor, commercial vehicle, or construction equipment. You choose an amount within the range shown on the form and repay it in monthly instalments. Apni Zaroorat shares your application with partner lenders.",
   },
   {
     id: "what-is-vehicle-insurance",
     question: "What is Vehicle Insurance?",
     answer:
-      "Vehicle Insurance covers your car or bike against damage, theft, and third-party liability. On this page you can apply for Vehicle Insurance or Third Party Pvt Vehicle Insurance.",
+      "Vehicle Insurance covers your car, taxi, tractor, or commercial vehicle against damage, theft, and third-party liability. On this page you can apply for Vehicle Insurance or Third Party Pvt Vehicle Insurance.",
   },
   {
     id: "which-should-i-choose",

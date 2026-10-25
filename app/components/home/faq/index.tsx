@@ -112,10 +112,10 @@ export default function FaqSection({ items = FAQ_ITEMS, className = "" }: FaqSec
             <div className="relative w-full">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/hero/faq-v3.webp"
+                src="/images/hero/faq-v4.webp"
                 alt="Frequently asked questions illustration"
-                width={900}
-                height={1125}
+                width={1122}
+                height={1402}
                 className="h-auto w-full object-contain"
               />
             </div>
