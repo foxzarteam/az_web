@@ -124,6 +124,7 @@ export default function ServicePage({
   const [mobileError, setMobileError] = useState("");
   const [pincodeError, setPincodeError] = useState("");
   const [loanAmount, setLoanAmount] = useState(0);
+  const [loanAmountError, setLoanAmountError] = useState("");
   const insuranceSelection = useInsuranceSelection();
   const [localInsType, setLocalInsType] = useState("");
   const insType = insuranceSelection?.value ?? localInsType;
@@ -208,6 +209,7 @@ export default function ServicePage({
     setInsType(selectedCategory === "insurance" ? defaultInsType : "");
     setNetMonthlyIncome("");
     setLoanAmount(0);
+    setLoanAmountError("");
     setCibilBand("");
     setEmploymentType("");
     setEmiChoice("");
@@ -222,17 +224,6 @@ export default function ServicePage({
     });
   }, [loanTabs, setLoanSlug]);
 
-  const loanAmountError = useMemo(() => {
-    if (!showLoanAmount || !loanBounds || loanAmount <= 0) return "";
-    if (loanAmount < loanBounds.min) {
-      return `Enter at least ₹${loanBounds.min.toLocaleString("en-IN")}`;
-    }
-    if (loanAmount > loanBounds.max) {
-      return `Enter up to ₹${loanBounds.max.toLocaleString("en-IN")}`;
-    }
-    return "";
-  }, [loanAmount, loanBounds, showLoanAmount]);
-
   const monthlyEmiAmount = Number(String(totalMonthlyEmi).replace(/\D/g, "") || "0");
   const hasExistingEmi: "" | "yes" | "no" = vehicleLoan ? "no" : emiChoice;
 
@@ -243,6 +234,15 @@ export default function ServicePage({
 
   const handleSubmit = async (form: HTMLFormElement) => {
     if (isSubmittingForm) return;
+    const amountError =
+      showLoanAmount && loanBounds && loanAmount > 0
+        ? loanAmount < loanBounds.min
+          ? `Enter at least ₹${loanBounds.min.toLocaleString("en-IN")}`
+          : loanAmount > loanBounds.max
+            ? `Enter up to ₹${loanBounds.max.toLocaleString("en-IN")}`
+            : ""
+        : "";
+    setLoanAmountError(amountError);
     setPincodeError(validateLeadPincode(pincode) ?? "");
     if (!reportFormValidity(form)) {
       setFormError("");
@@ -293,9 +293,9 @@ export default function ServicePage({
     if (errors.employmentType) delete errors.employmentType;
     if (errors.hasExistingEmi) delete errors.hasExistingEmi;
     if (errors.totalMonthlyEmi) delete errors.totalMonthlyEmi;
-    if (loanAmountError) delete errors.loanAmt;
+    if (amountError) delete errors.loanAmt;
     const bannerError = firstLeadFieldError(errors);
-    if (loanAmountError || bannerError) {
+    if (amountError || bannerError) {
       setFormError(bannerError ?? "");
       return;
     }
@@ -655,7 +655,10 @@ export default function ServicePage({
                             <LoanAmountSlider
                               id="service-loan-amount"
                               value={loanAmount}
-                              onChange={setLoanAmount}
+                              onChange={(value) => {
+                                setLoanAmount(value);
+                                setLoanAmountError("");
+                              }}
                               min={loanBounds?.min}
                               max={loanBounds?.max}
                               placeholder={
@@ -719,7 +722,10 @@ export default function ServicePage({
                               <LoanAmountSlider
                                 id="service-loan-amount"
                                 value={loanAmount}
-                                onChange={setLoanAmount}
+                                onChange={(value) => {
+                                setLoanAmount(value);
+                                setLoanAmountError("");
+                              }}
                                 min={loanBounds?.min}
                                 max={loanBounds?.max}
                                 placeholder={
