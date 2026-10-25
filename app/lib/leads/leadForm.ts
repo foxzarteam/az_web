@@ -1,6 +1,6 @@
 /**
  * Shared validation + sanitizers for lead forms (hero modal, service pages).
- * Eligibility limits live only in server/src/leads/loan-rules.ts.
+ * Eligibility limits live in ./loan-rules.ts so the website deploy does not need the API repo.
  */
 export {
   MIN_NET_MONTHLY_INCOME,
@@ -15,7 +15,7 @@ export {
   isVehicleLoanCategory,
   loanNotEligibleMessage,
   selectableCibilBands,
-} from "../../../../server/src/leads/loan-rules.ts";
+} from "./loan-rules.ts";
 
 import {
   MIN_NET_MONTHLY_INCOME,
@@ -23,7 +23,7 @@ import {
   MSG_NET_INCOME_MIN,
   MSG_VEHICLE_NET_INCOME_MIN,
   selectableCibilBands,
-} from "../../../../server/src/leads/loan-rules.ts";
+} from "./loan-rules.ts";
 
 export const FALLBACK_VEHICLE_CATEGORIES = [
   { value: "new_car", label: "New Car", image: "car.webp" },

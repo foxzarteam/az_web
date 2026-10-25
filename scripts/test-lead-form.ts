@@ -2,6 +2,9 @@
  * Imports the real form rules. Run with Node's type stripper.
  */
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   LEAD_PAN_PATTERN,
   MIN_NET_MONTHLY_INCOME,
@@ -105,5 +108,25 @@ const low = validateLoanFinishStep({
 });
 assert.ok(low.netMonthlyIncome);
 assert.equal(low.employmentType, undefined);
+
+const serverRulesPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "../../server/src/leads/loan-rules.ts");
+if (existsSync(serverRulesPath)) {
+  const api = await import(pathToFileURL(serverRulesPath).href);
+  assert.equal(api.MIN_NET_MONTHLY_INCOME, MIN_NET_MONTHLY_INCOME);
+  assert.equal(api.MIN_VEHICLE_NET_MONTHLY_INCOME, MIN_VEHICLE_NET_MONTHLY_INCOME);
+  assert.equal(api.MSG_CIBIL_BELOW, MSG_CIBIL_BELOW);
+  assert.equal(api.MSG_CIBIL_BELOW_650, MSG_CIBIL_BELOW_650);
+  assert.equal(api.MSG_EMI_HALF, MSG_EMI_HALF);
+  const sample = {
+    category: "personal_loan",
+    netMonthlyIncome: 20000,
+    cibilBand: "below_680",
+    hasExistingEmi: false,
+    totalMonthlyEmi: 0,
+  };
+  assert.equal(api.loanNotEligibleMessage(sample), loanNotEligibleMessage(sample));
+  const vehicle = { ...sample, category: "vehicle_loan", cibilBand: "below_650" };
+  assert.equal(api.loanNotEligibleMessage(vehicle), loanNotEligibleMessage(vehicle));
+}
 
 console.log("test-lead-form: ok");
