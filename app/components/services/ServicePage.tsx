@@ -127,7 +127,7 @@ export default function ServicePage({
   const [netMonthlyIncome, setNetMonthlyIncome] = useState("");
   const [incomeError, setIncomeError] = useState("");
   const [cibilBand, setCibilBand] = useState("");
-  const [vehicleCategory, setVehicleCategory] = useState("");
+  const [vehicleCategory, setVehicleCategory] = useState("new_car");
   const [totalMonthlyEmi, setTotalMonthlyEmi] = useState("0");
   const [pan, setPan] = useState("");
   const [formError, setFormError] = useState("");
@@ -200,7 +200,7 @@ export default function ServicePage({
     setNetMonthlyIncome("");
     setLoanAmount(0);
     setCibilBand("");
-    setVehicleCategory("");
+    setVehicleCategory(isVehicleLoanCategory(selectedCategory) ? "new_car" : "");
     setTotalMonthlyEmi("0");
   }, [pageServiceSlug, selectedCategory, setInsType, defaultInsType]);
 
@@ -349,13 +349,13 @@ export default function ServicePage({
       id="apply"
       className={`scroll-mt-24 ${
         compactTop
-          ? "bg-white !pb-8 !pt-2 dark:bg-darkmode sm:!pb-12 sm:!pt-4"
+          ? "bg-white !pb-8 !pt-8 dark:bg-darkmode sm:!pb-12 sm:!pt-4"
           : loanTabs || navBorder
             ? "bg-white pb-0 pt-16 dark:bg-darkmode md:pt-20"
             : "bg-gradient-to-b from-light to-white pb-0 pt-8 dark:from-darkmode dark:to-semidark"
       }`}
     >
-      <div className={`container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md max-w-full ${!compactTop && (loanTabs || navBorder) ? "pt-5 sm:pt-0" : ""}`}>
+      <div className={`container mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-screen-xl md:max-w-screen-md max-w-full ${!compactTop && (loanTabs || navBorder) ? "pt-8 sm:pt-0" : ""}`}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-stretch">
           <div className="min-w-0 flex flex-col w-full order-1 lg:order-1 lg:col-span-7 lg:justify-center" data-aos="fade-right">
             {!hideHeader && (

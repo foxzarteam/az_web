@@ -148,8 +148,8 @@ export default function LoanPageView({ pageKey }: { pageKey: LoanPageKey }) {
           </div>
         </section>
       </LoanSelectionProvider>
-      <LoanPurposes />
       {pageKey === "vehicle-loan" ? <VehicleNeedSection /> : null}
+      <LoanPurposes />
       <BankPartners />
       <HowItWorks />
       <FaqSection items={PERSONAL_LOAN_FAQ_ITEMS} />
