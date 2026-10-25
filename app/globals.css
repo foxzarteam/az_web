@@ -572,7 +572,7 @@ html:not([data-aos-ready]) [data-aos] {
 /* Home hero — sits below fixed header, overrides default section padding */
 .hero-section {
   position: relative;
-  margin-top: 4rem;
+  margin-top: 5rem;
   padding-top: 1.5rem !important;
   padding-bottom: 2.5rem !important;
 }
@@ -586,7 +586,6 @@ html:not([data-aos-ready]) [data-aos] {
 
 @media (min-width: 768px) {
   .hero-section {
-    margin-top: 5rem;
     padding-top: 2rem !important;
     padding-bottom: 3.5rem !important;
   }
@@ -826,5 +825,18 @@ html:not([data-aos-ready]) [data-aos] {
   .notfound-enter-delayed,
   .notfound-enter-late {
     animation: none !important;
+  }
+}
+
+/* iPad and zoomed windows stay two fields per row, with shorter inputs so the form sits below the navbar. */
+@media (min-width: 640px) and (max-width: 1279px) {
+  .loan-apply-fields input:not([type="checkbox"]),
+  .loan-apply-fields select,
+  .loan-apply-fields button[aria-haspopup="listbox"],
+  .loan-apply-fields div.flex:has(> input:not([type="checkbox"])) {
+    height: 2.25rem !important;
+    min-height: 2.25rem !important;
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
   }
 }

@@ -6,7 +6,7 @@ export {
   MIN_NET_MONTHLY_INCOME,
   MIN_VEHICLE_NET_MONTHLY_INCOME,
   MSG_CIBIL_BELOW,
-  MSG_CIBIL_BELOW_650,
+  MSG_CIBIL_BELOW_600,
   MSG_EMI_HALF,
   MSG_NET_INCOME_MIN,
   MSG_VEHICLE_NET_INCOME_MIN,
@@ -145,6 +145,8 @@ export function cibilBandLabel(value: unknown): string {
   if (value === "below_680") return "Below 680";
   if (value === "above_650") return "Above 650";
   if (value === "below_650") return "Below 650";
+  if (value === "above_600") return "Above 600";
+  if (value === "below_600") return "Below 600";
   if (value === "unknown") return "I do not know";
   return "—";
 }
@@ -225,7 +227,7 @@ export function validatePersonalLoanEmployment(
   return errors;
 }
 
-/** Loan profile on the single apply form. Employment type is not collected here. */
+/** Loan profile on the single apply form. Vehicle loans skip EMI and still ask employment. */
 export function validateLoanFinishStep(values: {
   netMonthlyIncome: string;
   employmentType?: string;
@@ -250,6 +252,15 @@ export function validateLoanFinishStep(values: {
   const bands = selectableCibilBands(values.vehicle ? "vehicle_loan" : "personal_loan");
   if (!(bands as readonly string[]).includes(values.cibilBand)) {
     errors.cibilBand = "Select your CIBIL score";
+  }
+  const employment = values.employmentType ?? "";
+  if (
+    employment !== "salaried" &&
+    employment !== "salaried_bank" &&
+    employment !== "salaried_cash" &&
+    employment !== "self_employed"
+  ) {
+    errors.employmentType = "Select employment type";
   }
   if (values.vehicle) return errors;
   if (values.hasExistingEmi !== "yes" && values.hasExistingEmi !== "no") {

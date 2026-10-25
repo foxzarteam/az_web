@@ -15,6 +15,7 @@ export type PersonalLoanFormValues = {
   loanAmount: number;
   netMonthlyIncome: string;
   cibilBand: string;
+  employmentType?: string;
   hasExistingEmi: string;
   totalMonthlyEmi: string;
 };
@@ -36,8 +37,10 @@ export function validatePersonalLoanApplyForm(
 
   const minAmount = bounds?.min ?? PERSONAL_LOAN_EMI_LIMITS.MIN_AMOUNT;
   const maxAmount = bounds?.max ?? PERSONAL_LOAN_EMI_LIMITS.MAX_AMOUNT;
-  if (values.loanAmount < minAmount || values.loanAmount > maxAmount) {
-    errors.loanAmt = `Loan amount must be between ₹${minAmount.toLocaleString("en-IN")} and ₹${maxAmount.toLocaleString("en-IN")}`;
+  if (values.loanAmount < minAmount) {
+    errors.loanAmt = `Enter at least ₹${minAmount.toLocaleString("en-IN")}`;
+  } else if (values.loanAmount > maxAmount) {
+    errors.loanAmt = `Enter up to ₹${maxAmount.toLocaleString("en-IN")}`;
   }
 
   Object.assign(errors, validateLoanFinishStep({ ...values, vehicle }));
@@ -60,6 +63,7 @@ export function personalLoanApplyPayload(
     requiredAmount: values.loanAmount,
     netMonthlyIncome: incomeNum,
     cibilBand: values.cibilBand,
+    ...(values.employmentType ? { employmentType: values.employmentType } : {}),
     hasExistingEmi: values.hasExistingEmi === "yes",
     totalMonthlyEmi: emiNum,
     consentAccepted: true,

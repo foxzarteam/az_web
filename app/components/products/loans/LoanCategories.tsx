@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useLoanSelection } from "@/app/components/products/loans/loanSelection";
 
 const LOAN_CARDS = [
-  { slug: "personal-loan", label: "Personal Loan", src: "/images/loans/personal-loan-white.gif", srcOnWhite: "/images/loans/personal-loan-white.gif", href: "/products/loans/" },
-  { slug: "home-loan", label: "Home Loan", src: "/images/loans/home-loan-white.gif", srcOnWhite: "/images/loans/home-loan-white.gif", href: "/products/loans/" },
-  { slug: "vehicle-loan", label: "Vehicle Loan", src: "/images/loans/car-loan-white.gif?v=12", srcOnWhite: "/images/loans/car-loan-white.gif?v=12", href: "/products/loans/" },
-  { slug: "business-loan", label: "Business Loan", src: "/images/loans/business-loan-white.gif", srcOnWhite: "/images/loans/business-loan-white.gif", href: "/products/loans/" },
+  { slug: "personal-loan", label: "Personal Loan", src: "/images/loans/personal-loan-white.gif", srcOnWhite: "/images/loans/personal-loan-white.gif", href: "/products/personal-loan/" },
+  { slug: "home-loan", label: "Home Loan", src: "/images/loans/home-loan-white.gif", srcOnWhite: "/images/loans/home-loan-white.gif", href: "/products/home-loan/" },
+  { slug: "vehicle-loan", label: "Vehicle Loan", src: "/images/loans/car-loan-white.gif?v=12", srcOnWhite: "/images/loans/car-loan-white.gif?v=12", href: "/products/vehicle-loan/" },
+  { slug: "business-loan", label: "Business Loan", src: "/images/loans/business-loan-white.gif", srcOnWhite: "/images/loans/business-loan-white.gif", href: "/products/business-loan/" },
 ] as const;
 
 const INSURANCE_CARD = {

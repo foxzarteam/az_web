@@ -5,6 +5,7 @@ import VehicleNeedSection from "@/app/components/products/vehicle/VehicleNeedSec
 import ServicePage from "@/app/components/services/ServicePage";
 import HowItWorksSection, { type HowItWorksStep } from "@/app/components/products/HowItWorksSection";
 import { LoanSelectionProvider } from "@/app/components/products/loans/loanSelection";
+import { subscribeVehicleCategoryPick } from "@/app/lib/leads/vehicleCategoryPick";
 import FaqSection from "@/app/components/home/faq";
 import CtaBanner from "@/app/about/components/cta-banner";
 import { VEHICLE_FAQ } from "./copy";
@@ -175,6 +176,8 @@ function scrollToApplyForm() {
 export default function VehicleLanding() {
   const [offer, setOffer] = useState<Offer>("loan");
   const scrollAfterOffer = useRef(false);
+
+  useEffect(() => subscribeVehicleCategoryPick(() => setOffer("loan")), []);
 
   useEffect(() => {
     if (!scrollAfterOffer.current) return;

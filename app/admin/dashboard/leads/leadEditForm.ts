@@ -59,9 +59,7 @@ export function leadToEditForm(lead: AdminLeadRow): EditForm {
       lead.net_monthly_income != null && lead.net_monthly_income !== ""
         ? String(lead.net_monthly_income)
         : "",
-    employmentType: isVehicleLoanCategory(lead.category)
-      ? ""
-      : employmentTypeForForm(lead.employment_type, lead.category),
+    employmentType: employmentTypeForForm(lead.employment_type, lead.category),
     cibilBand: String(lead.cibil_band ?? ""),
     vehicleCategory: String(lead.vehicle_category ?? ""),
     hasExistingEmi:
@@ -144,7 +142,14 @@ export function isMaskedPanValue(value: string): boolean {
 
 export function validateLeadForm(
   form: EditForm,
-  opts?: { allowMaskedPan?: boolean; requireConsent?: boolean; requirePincode?: boolean; requireLoanProfile?: boolean },
+  opts?: {
+    allowMaskedPan?: boolean;
+    requireConsent?: boolean;
+    requirePincode?: boolean;
+    requireLoanProfile?: boolean;
+    amountMin?: number;
+    amountMax?: number;
+  },
 ): FieldErrors {
   const errors: FieldErrors = {};
   const name = form.fullName.trim();
@@ -175,13 +180,17 @@ export function validateLeadForm(
     const vehicle = isVehicleLoanCategory(form.category);
     if (!Number.isFinite(form.requiredAmount) || form.requiredAmount <= 0) {
       errors.requiredAmount = "Enter the loan amount";
+    } else if (opts?.amountMin != null && form.requiredAmount < opts.amountMin) {
+      errors.requiredAmount = `Enter at least ₹${opts.amountMin.toLocaleString("en-IN")}`;
+    } else if (opts?.amountMax != null && form.requiredAmount > opts.amountMax) {
+      errors.requiredAmount = `Enter up to ₹${opts.amountMax.toLocaleString("en-IN")}`;
     }
     if (vehicle || opts?.requireLoanProfile) {
       Object.assign(
         errors,
         validateLoanFinishStep({
           netMonthlyIncome: form.netMonthlyIncome,
-          employmentType: vehicle ? "" : form.employmentType,
+          employmentType: form.employmentType,
           cibilBand: form.cibilBand,
           hasExistingEmi: vehicle ? "no" : form.hasExistingEmi,
           totalMonthlyEmi: vehicle ? "0" : form.totalMonthlyEmi,
@@ -249,7 +258,7 @@ export function buildLeadPayload(
     const income = Number(form.netMonthlyIncome);
     payload.netMonthlyIncome = Number.isFinite(income) && income > 0 ? income : null;
     if (isVehicleLoanCategory(form.category)) {
-      payload.employmentType = null;
+      payload.employmentType = form.employmentType;
       payload.vehicleCategory = form.vehicleCategory.trim();
       payload.cibilBand = form.cibilBand;
       payload.hasExistingEmi = false;

@@ -17,7 +17,7 @@ type Props = {
   inputClassName: string;
   labelClassName: string;
   nativeRequired?: boolean;
-  /** Vehicle loan uses the 650 CIBIL bands and does not ask for EMI. */
+  /** Vehicle loan uses the 600 CIBIL bands and does not ask for EMI. */
   vehicle?: boolean;
 };
 
@@ -78,7 +78,7 @@ export default function LoanProfileFields({
       </div>
       <div>
         <label htmlFor={`${idPrefix}-total-emi`} className={labelClassName}>
-          Total monthly EMI you pay <span className="text-red-500">*</span>
+          Total monthly EMI you already pay ? <span className="text-red-500">*</span>
         </label>
         <div className="relative flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80">
           <span

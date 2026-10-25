@@ -7,6 +7,9 @@ import CrmDataTable, { type CrmColumn } from "@/app/components/shared/crm/DataTa
 import AdminModal from "@/app/components/shared/crm/AppModal";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import { toPublicClientError } from "@/app/lib/publicClientError";
+import { useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
+import { mapServiceToCategory } from "@/app/lib/leads/leadApi";
+import { productHrefToSlug } from "@/app/lib/services/allowedProducts";
 import {
   ADMIN_BTN_DANGER,
   ADMIN_BTN_PRIMARY,
@@ -53,6 +56,7 @@ export default function LeadsTable({
   canDelete?: boolean;
 }) {
   const router = useRouter();
+  const serviceCards = useServiceCards();
   const [leads, setLeads] = useState(initialLeads);
   const [viewLead, setViewLead] = useState<AdminLeadRow | null>(null);
   const [editLead, setEditLead] = useState<AdminLeadRow | null>(null);
@@ -94,6 +98,17 @@ export default function LeadsTable({
   const clearFieldError = useCallback((key: keyof FieldErrors) => {
     setFieldErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
   }, []);
+
+  const amountBounds = useCallback(
+    (category: string) => {
+      const card = serviceCards.find(
+        (item) => mapServiceToCategory(productHrefToSlug(item.href)) === category,
+      );
+      if (card?.limitStart == null || card.limitEnd == null || card.limitEnd < card.limitStart) return {};
+      return { amountMin: card.limitStart, amountMax: card.limitEnd };
+    },
+    [serviceCards],
+  );
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -204,6 +219,7 @@ export default function LeadsTable({
       requireConsent: readOnly,
       requirePincode: true,
       requireLoanProfile: true,
+      ...amountBounds(editForm.category),
     });
     if (Object.values(validationErrors).some(Boolean)) {
       setFieldErrors(validationErrors);
@@ -278,7 +294,10 @@ export default function LeadsTable({
     e.preventDefault();
     if (!editLead?.id || !editForm) return;
 
-    const validationErrors = validateLeadForm(editForm, { allowMaskedPan: true });
+    const validationErrors = validateLeadForm(editForm, {
+      allowMaskedPan: true,
+      ...amountBounds(editForm.category),
+    });
     if (Object.values(validationErrors).some(Boolean)) {
       setFieldErrors(validationErrors);
       return;

@@ -169,7 +169,7 @@ export default function LeadFormFields({
           />
           <FieldErrorText message={fieldErrors.fullName} />
         </label>
-        <div className={vehicleLoan ? "order-4 block min-w-0" : "block"}>
+        <div className={vehicleLoan ? "order-3 block min-w-0" : "block"}>
           <span className={fieldLabel}>
             PAN Card number <span className="text-red-500">*</span>
           </span>
@@ -205,7 +205,7 @@ export default function LeadFormFields({
         ) : null}
         <FieldErrorText message={fieldErrors.pan} />
         </div>
-        <label className={vehicleLoan ? "order-3 block min-w-0" : "block"}>
+        <label className={vehicleLoan ? "order-4 block min-w-0" : "block"}>
           <span className={fieldLabel}>
             Mobile Number <span className="text-red-500">*</span>
           </span>
@@ -230,7 +230,7 @@ export default function LeadFormFields({
           </div>
           <FieldErrorText message={fieldErrors.mobileNumber} />
         </label>
-        <label className={vehicleLoan ? "order-8 block min-w-0" : "block"}>
+        <label className={vehicleLoan ? "order-5 block min-w-0" : "block"}>
           <span className={fieldLabel}>
             Current Residence Pincode <span className="text-red-500">*</span>
           </span>
@@ -250,7 +250,7 @@ export default function LeadFormFields({
         {loanForm ? (
           <>
             {vehicleLoan ? (
-              <div className="order-1 min-w-0">
+              <div className="order-1 col-span-2 min-w-0">
                 <span className={fieldLabel}>
                   Select vehicle category&nbsp;<span className="text-red-500">*</span>
                 </span>
@@ -267,7 +267,7 @@ export default function LeadFormFields({
                 <FieldErrorText message={fieldErrors.vehicleCategory} />
               </div>
             ) : null}
-            <div className={`${vehicleLoan ? "order-5 min-w-0 " : ""}${commissionLocked ? "pointer-events-none opacity-60" : ""}`}>
+            <div className={`${vehicleLoan ? "order-6 min-w-0 " : ""}${commissionLocked ? "pointer-events-none opacity-60" : ""}`}>
               <LoanAmountSlider
                 id="admin-lead-loan-amount"
                 value={form.requiredAmount}
@@ -286,7 +286,7 @@ export default function LeadFormFields({
                 }}
               />
             </div>
-            {vehicleLoan ? null : (
+            <div className={vehicleLoan ? "order-8 min-w-0" : undefined}>
             <EmploymentTypeField
               id="admin-lead-employment"
               value={form.employmentType}
@@ -300,8 +300,8 @@ export default function LeadFormFields({
               labelAsSpan
               error={<FieldErrorText message={fieldErrors.employmentType} />}
             />
-            )}
-            <div className={vehicleLoan ? "order-6 min-w-0" : undefined}>
+            </div>
+            <div className={vehicleLoan ? "order-9 min-w-0" : undefined}>
             <EmploymentIncomeFields
               idPrefix="admin-lead"
               netMonthlyIncome={form.netMonthlyIncome}
@@ -365,7 +365,7 @@ export default function LeadFormFields({
                 ...form,
                 category,
                 vehicleCategory: nextVehicle ? form.vehicleCategory : "",
-                employmentType: nextVehicle ? "" : form.employmentType,
+                employmentType: form.employmentType,
                 cibilBand: nextVehicle === wasVehicle ? form.cibilBand : "",
                 hasExistingEmi: nextVehicle ? "no" : form.hasExistingEmi,
                 totalMonthlyEmi: nextVehicle ? "0" : form.totalMonthlyEmi,
