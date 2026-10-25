@@ -528,7 +528,7 @@ export default function ServicePage({
                     </div>
                   )}
 
-                  <div className={vehicleLoan ? "grid grid-cols-1 items-end gap-3 sm:grid-cols-2 sm:gap-4" : "grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4"}>
+                  <div className={vehicleLoan ? "grid grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4" : "grid grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4"}>
                     {vehicleLoan ? (
                       <div className="order-1 min-w-0 sm:col-span-2">
                         <label htmlFor="service-vehicle-category" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
@@ -717,7 +717,7 @@ export default function ServicePage({
                         </>
                       ) : (
                         <>
-                          <div className="grid grid-cols-1 items-end gap-3 sm:col-span-2 sm:grid-cols-2 sm:gap-4">
+                          <div className="grid grid-cols-1 items-start gap-3 sm:col-span-2 sm:grid-cols-2 sm:gap-4">
                             <div className="min-w-0">
                               <LoanAmountSlider
                                 id="service-loan-amount"
@@ -749,7 +749,7 @@ export default function ServicePage({
                               />
                             </div>
                           </div>
-                          <div className="grid grid-cols-1 items-end gap-3 sm:col-span-2 sm:grid-cols-2 sm:gap-4">
+                          <div className="grid grid-cols-1 items-start gap-3 sm:col-span-2 sm:grid-cols-2 sm:gap-4">
                             <EmploymentTypeField
                               id="service-employment"
                               value={employmentType}
