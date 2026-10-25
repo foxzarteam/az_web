@@ -1,31 +1,18 @@
 "use client";
 
-export type AddLeadProduct = "personal_loan" | "vehicle_loan" | "insurance";
+export type AddLeadProduct =
+  | "personal_loan"
+  | "home_loan"
+  | "vehicle_loan"
+  | "business_loan"
+  | "insurance";
 
-const PRODUCTS: {
-  key: AddLeadProduct;
-  title: string;
-  detail: string;
-  className: string;
-}[] = [
-  {
-    key: "personal_loan",
-    title: "Personal Loan",
-    detail: "Amount, employment, income, and tenure",
-    className: "bg-[#4236FB] shadow-[0_12px_28px_rgba(66,54,251,0.28)]",
-  },
-  {
-    key: "vehicle_loan",
-    title: "Vehicle Loan",
-    detail: "Vehicle category, amount, income, and CIBIL",
-    className: "bg-[#0F766E] shadow-[0_12px_28px_rgba(15,118,110,0.28)]",
-  },
-  {
-    key: "insurance",
-    title: "Insurance",
-    detail: "Health, motor, life, and other covers",
-    className: "theme-gradient-bg shadow-[0_12px_28px_rgba(255,126,41,0.22)]",
-  },
+const PRODUCTS: { key: AddLeadProduct; label: string; image: string }[] = [
+  { key: "personal_loan", label: "Personal Loan", image: "/images/loans/personal-loan-white.gif" },
+  { key: "home_loan", label: "Home Loan", image: "/images/loans/home-loan-white.gif" },
+  { key: "vehicle_loan", label: "Vehicle Loan", image: "/images/loans/car-loan-white.gif?v=12" },
+  { key: "business_loan", label: "Business Loan", image: "/images/loans/business-loan-white.gif" },
+  { key: "insurance", label: "Insurance", image: "/images/loans/insurance-white.gif" },
 ];
 
 export default function AddLeadProductPicker({
@@ -36,72 +23,35 @@ export default function AddLeadProductPicker({
   return (
     <div className="p-6 sm:p-8">
       <p className="text-sm text-slate-600 dark:text-gray-300">
-        Choose whether this lead is for a personal loan, a vehicle loan, or insurance.
+        Choose a product. The form for that product opens next.
       </p>
-      <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
         {PRODUCTS.map((product) => (
-          <button
-            key={product.key}
-            type="button"
-            onClick={() => onSelect(product.key)}
-            className={`flex min-h-36 flex-col items-start rounded-2xl p-5 text-left text-white transition hover:brightness-110 ${product.className}`}
-          >
-            <span className="flex items-center gap-3">
-              <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/20">
-                {product.key === "personal_loan" ? (
-                  <LoanIcon />
-                ) : product.key === "vehicle_loan" ? (
-                  <VehicleIcon />
-                ) : (
-                  <InsuranceIcon />
-                )}
+          <li key={product.key}>
+            <button
+              type="button"
+              onClick={() => onSelect(product.key)}
+              className="flex h-full w-full flex-col items-center rounded-2xl border border-[#E8ECF2] bg-white px-3 py-4 text-center transition hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(16,45,71,0.08)] dark:border-dark_border dark:bg-darkmode"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={product.image}
+                alt=""
+                width={160}
+                height={160}
+                className="h-20 w-20 object-contain sm:h-24 sm:w-24"
+              />
+              <span className="mt-3 text-sm font-semibold text-midnight_text dark:text-white">{product.label}</span>
+              <span className="btn-gradient mt-4 inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold text-white sm:min-h-10 sm:text-sm">
+                Apply Now
+                <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" aria-hidden>
+                  <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </span>
-              <span className="text-lg font-bold">{product.title}</span>
-            </span>
-            <span className="mt-3 block text-sm text-white/85">{product.detail}</span>
-          </button>
+            </button>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
-  );
-}
-
-function LoanIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect x="3" y="6" width="18" height="13" rx="2" stroke="white" strokeWidth="1.7" />
-      <path d="M3 10h18" stroke="white" strokeWidth="1.7" />
-      <path d="M7 15h4" stroke="white" strokeWidth="1.7" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function VehicleIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M4 14.5 6.2 9.2A2 2 0 0 1 8 8h8a2 2 0 0 1 1.8 1.2L20 14.5"
-        stroke="white"
-        strokeWidth="1.7"
-        strokeLinejoin="round"
-      />
-      <path d="M4 14.5h16V17a1 1 0 0 1-1 1h-1.2M4 14.5V17a1 1 0 0 0 1 1h1.2" stroke="white" strokeWidth="1.7" strokeLinecap="round" />
-      <circle cx="7.5" cy="17.5" r="1.4" stroke="white" strokeWidth="1.5" />
-      <circle cx="16.5" cy="17.5" r="1.4" stroke="white" strokeWidth="1.5" />
-    </svg>
-  );
-}
-
-function InsuranceIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M12 3.5 19 6.2v5.3c0 4.2-2.8 7.2-7 8.9-4.2-1.7-7-4.7-7-8.9V6.2L12 3.5Z"
-        stroke="white"
-        strokeWidth="1.7"
-        strokeLinejoin="round"
-      />
-      <path d="M9 12.2 11 14.2 15.2 10" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
   );
 }

@@ -12,6 +12,9 @@ export const DEFAULT_LOAN_AMOUNT = 5_00_000;
 
 export const CATEGORIES = [
   { value: "personal_loan", label: "Personal Loan" },
+  { value: "home_loan", label: "Home Loan" },
+  { value: "vehicle_loan", label: "Vehicle Loan" },
+  { value: "business_loan", label: "Business Loan" },
   { value: "insurance", label: "Insurance" },
 ] as const;
 

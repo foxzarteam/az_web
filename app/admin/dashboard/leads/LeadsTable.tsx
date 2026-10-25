@@ -25,6 +25,7 @@ import { downloadLeadsWorkbook } from "./leadsWorkbook";
 import {
   VIEW_FIELDS,
   FIELD_LABELS,
+  categoryLabel,
   cellText,
   formatValue,
   isConsentAccepted,
@@ -660,14 +661,14 @@ export default function LeadsTable({
       )}
 
       {createOpen && createStep === "pick" && (
-        <AdminModal title="Add lead" onClose={closeModals}>
+        <AdminModal title="Add lead" wide onClose={closeModals}>
           <AddLeadProductPicker onSelect={chooseCreateProduct} />
         </AdminModal>
       )}
 
       {createOpen && createStep === "form" && editForm && (
         <AdminModal
-          title={editForm.category === "insurance" ? "Add insurance lead" : "Add personal loan lead"}
+          title={`Add ${categoryLabel(editForm.category)} lead`}
           fit
           onClose={closeModals}
         >
