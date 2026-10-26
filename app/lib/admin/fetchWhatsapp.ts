@@ -29,6 +29,7 @@ export type WhatsappChatMessage = {
   text: string;
   at: string;
   sendError?: string;
+  sent?: boolean;
   delivery?: "sent" | "delivered" | "read" | "failed";
   replyBy?: string;
   kind?: string;
