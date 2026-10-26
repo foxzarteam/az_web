@@ -11,6 +11,26 @@ function formatClock(iso: string): string {
   return `${day}, ${time}`;
 }
 
+function DeliveryNote({ message }: { message: WhatsappChatMessage }) {
+  if (message.sendError || message.delivery === "failed") {
+    return (
+      <p className="mt-1 text-[11px] leading-snug text-[#b42318]">
+        Not delivered: {message.sendError || "WhatsApp could not deliver this message."}
+      </p>
+    );
+  }
+  if (message.delivery === "read") {
+    return <p className="mt-1 text-right text-[11px] font-medium text-[#027a69]">Read</p>;
+  }
+  if (message.delivery === "delivered") {
+    return <p className="mt-1 text-right text-[11px] font-medium text-[#027a69]">Delivered</p>;
+  }
+  if (message.delivery === "sent") {
+    return <p className="mt-1 text-right text-[11px] text-[#667781]">Sent</p>;
+  }
+  return null;
+}
+
 function senderLabel(message: WhatsappChatMessage): string {
   if (message.role !== "assistant") return "Customer";
   if (message.replyBy === "admin") return "You";
@@ -172,9 +192,7 @@ export default function WhatsappThread({ enquiryId, messages }: { enquiryId: str
                   ))}
                 </div>
               ) : null}
-              {message.sendError ? (
-                <p className="mt-1 text-[11px] leading-snug text-[#b42318]">Not delivered: {message.sendError}</p>
-              ) : null}
+              {mine ? <DeliveryNote message={message} /> : null}
               <p className={`mt-1 text-[10px] ${mine ? "text-right text-[#667781]" : "text-[#667781]"}`}>
                 {senderLabel(message)} · {formatClock(message.at)}
               </p>

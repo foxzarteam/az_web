@@ -219,6 +219,7 @@ export default function WhatsappInbox({
       const data = (await res.json().catch(() => ({}))) as { error?: string; data?: WhatsappEnquiryDetail };
       if (!res.ok || !data.data) {
         setSendError(toPublicClientError(data.error, "Could not send this message."));
+        void loadChat(openId);
         return;
       }
       setDetail(data.data);
