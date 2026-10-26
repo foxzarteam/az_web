@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { WhatsappEnquiryDetail, WhatsappEnquiryRow } from "@/app/lib/admin/fetchWhatsapp";
 import { toPublicClientError } from "@/app/lib/publicClientError";
 import { downloadCustomerDocuments } from "./customerDocuments";
+import { ADMIN_TEMPLATES } from "./adminTemplates";
 import StartWhatsappChat from "./StartWhatsappChat";
 import WhatsappThread from "./WhatsappThread";
 
@@ -45,15 +46,6 @@ function ProfileIcon({ name }: { name: string }) {
 
 const PAGE_SIZE = 100;
 
-const ADMIN_TEMPLATES = [
-  { id: "application_kyc", label: "Application KYC", dot: "#027a69" },
-  { id: "vehicle_refinance_kyc", label: "Vehicle KYC (RC Wala)", dot: "#2563eb" },
-  { id: "vehicle_purchase_kyc", label: "Vehicle Purchase KYC (Quotation Wala)", dot: "#ea580c" },
-  { id: "personal_loan_kyc", label: "Personal Loan KYC", dot: "#128C7E" },
-  { id: "document_pending_reminder", label: "Document Pending Reminder", dot: "#d97706" },
-  { id: "call_not_answered_followup", label: "Call Not Answered", dot: "#7c3aed" },
-] as const;
-
 export default function WhatsappInbox({
   initialRows,
   initialTotal = 0,
@@ -81,6 +73,9 @@ export default function WhatsappInbox({
   const [startOpen, setStartOpen] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [templateOpen, setTemplateOpen] = useState(false);
+  const [templateAsk, setTemplateAsk] = useState<{ id: string; label: string } | null>(null);
+  const [templateName, setTemplateName] = useState("");
+  const templateNameRef = useRef<HTMLInputElement>(null);
   const emojiRef = useRef<HTMLDivElement>(null);
   const templateRef = useRef<HTMLDivElement>(null);
   const openIdRef = useRef<string | null>(null);
@@ -226,6 +221,8 @@ export default function WhatsappInbox({
     setConfirmDelete(false);
     setEmojiOpen(false);
     setTemplateOpen(false);
+    setTemplateAsk(null);
+    setTemplateName("");
     setDocsError(null);
     await loadChat(row.id);
   }
@@ -272,16 +269,31 @@ export default function WhatsappInbox({
     }
   }
 
-  async function sendTemplate(templateId: string) {
+  function askTemplate(item: { id: string; label: string }) {
     if (!openId || sending) return;
     setTemplateOpen(false);
+    setSendError(null);
+    setTemplateName("");
+    setTemplateAsk(item);
+    window.setTimeout(() => templateNameRef.current?.focus(), 0);
+  }
+
+  async function sendTemplate() {
+    if (!openId || !templateAsk || sending) return;
+    const customerName = templateName.trim();
+    if (!customerName) {
+      setSendError("Enter the customer name.");
+      return;
+    }
+    const templateId = templateAsk.id;
+    setTemplateAsk(null);
     setSending(true);
     setSendError(null);
     try {
       const res = await fetch(`/api/admin/whatsapp/enquiries/${encodeURIComponent(openId)}/template`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ template: templateId }),
+        body: JSON.stringify({ template: templateId, name: customerName }),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string; data?: WhatsappEnquiryDetail };
       if (!res.ok || !data.data) {
@@ -610,7 +622,7 @@ export default function WhatsappInbox({
                           type="button"
                           disabled={sending}
                           className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[#111b21] hover:bg-[#f0f2f5] disabled:opacity-50"
-                          onClick={() => void sendTemplate(item.id)}
+                          onClick={() => askTemplate(item)}
                         >
                           <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.dot }} />
                           <span className="min-w-0">{item.label}</span>
@@ -660,6 +672,53 @@ export default function WhatsappInbox({
         )}
       </div>
       <StartWhatsappChat open={startOpen} onClose={() => setStartOpen(false)} onStarted={onStarted} />
+      {templateAsk ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onMouseDown={() => !sending && setTemplateAsk(null)}>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="wa-template-name-title"
+            className="w-full max-w-sm rounded-xl bg-white p-4 shadow-xl"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <h2 id="wa-template-name-title" className="text-base font-semibold text-[#111b21]">
+              {templateAsk.label}
+            </h2>
+            <p className="mt-1 text-xs text-[#667781]">Type the customer name. It is filled into the template.</p>
+            <label className="mt-3 block text-xs font-medium text-[#54656f]" htmlFor="wa-template-name">
+              Name
+            </label>
+            <input
+              id="wa-template-name"
+              ref={templateNameRef}
+              value={templateName}
+              onChange={(event) => setTemplateName(event.target.value)}
+              maxLength={120}
+              placeholder="Customer name"
+              className="mt-1 w-full rounded-lg border border-[#e9edef] px-3 py-2 text-sm text-[#111b21] outline-none focus:border-[#128C7E]"
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  void sendTemplate();
+                }
+              }}
+            />
+            <div className="mt-4 flex justify-end gap-2">
+              <button type="button" className="rounded-lg px-3 py-2 text-sm text-[#54656f]" disabled={sending} onClick={() => setTemplateAsk(null)}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={sending || !templateName.trim()}
+                onClick={() => void sendTemplate()}
+                className="rounded-lg bg-[#128C7E] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {sending ? "Sending…" : "Send"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

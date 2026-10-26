@@ -3,17 +3,9 @@ import { nestApiBase } from "@/app/lib/server/nestBase";
 import { adminInternalHeaders } from "@/app/lib/admin/adminInternalKey";
 import { requireCrmAdminSession } from "@/app/lib/admin/requireAdminRole";
 import { toPublicClientError } from "@/app/lib/publicClientError";
+import { isAdminTemplateId } from "@/app/admin/dashboard/whatsapp/adminTemplates";
 
 type Params = { params: Promise<{ id: string }> };
-
-const TEMPLATE_IDS = new Set([
-  "application_kyc",
-  "vehicle_refinance_kyc",
-  "vehicle_purchase_kyc",
-  "personal_loan_kyc",
-  "document_pending_reminder",
-  "call_not_answered_followup",
-]);
 
 export async function POST(request: Request, { params }: Params) {
   const session = await requireCrmAdminSession();
@@ -26,10 +18,14 @@ export async function POST(request: Request, { params }: Params) {
     return NextResponse.json({ error: "Chat not found." }, { status: 404 });
   }
 
-  const body = (await request.json().catch(() => null)) as { template?: unknown } | null;
+  const body = (await request.json().catch(() => null)) as { template?: unknown; name?: unknown } | null;
   const template = String(body?.template ?? "").trim();
-  if (!TEMPLATE_IDS.has(template)) {
+  const name = String(body?.name ?? "").trim();
+  if (!isAdminTemplateId(template)) {
     return NextResponse.json({ error: "Choose a template from the list." }, { status: 400 });
+  }
+  if (!name) {
+    return NextResponse.json({ error: "Enter the customer name." }, { status: 400 });
   }
 
   const base = nestApiBase();
@@ -45,7 +41,7 @@ export async function POST(request: Request, { params }: Params) {
         email: session.email,
         role: session.role,
       }),
-      body: JSON.stringify({ template }),
+      body: JSON.stringify({ template, name: name.slice(0, 120) }),
       cache: "no-store",
     });
     const data = (await res.json().catch(() => ({}))) as {
