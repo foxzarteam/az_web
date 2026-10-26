@@ -45,6 +45,15 @@ function ProfileIcon({ name }: { name: string }) {
 
 const PAGE_SIZE = 100;
 
+const ADMIN_TEMPLATES = [
+  { id: "application_kyc", label: "Application KYC", dot: "#027a69" },
+  { id: "vehicle_refinance_kyc", label: "Vehicle KYC (RC Wala)", dot: "#2563eb" },
+  { id: "vehicle_purchase_kyc", label: "Vehicle Purchase KYC (Quotation Wala)", dot: "#ea580c" },
+  { id: "personal_loan_kyc", label: "Personal Loan KYC", dot: "#128C7E" },
+  { id: "document_pending_reminder", label: "Document Pending Reminder", dot: "#d97706" },
+  { id: "call_not_answered_followup", label: "Call Not Answered", dot: "#7c3aed" },
+] as const;
+
 export default function WhatsappInbox({
   initialRows,
   initialTotal = 0,
@@ -71,7 +80,9 @@ export default function WhatsappInbox({
   const [docsError, setDocsError] = useState<string | null>(null);
   const [startOpen, setStartOpen] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [templateOpen, setTemplateOpen] = useState(false);
   const emojiRef = useRef<HTMLDivElement>(null);
+  const templateRef = useRef<HTMLDivElement>(null);
   const openIdRef = useRef<string | null>(null);
   const pageRef = useRef(1);
   const searchRef = useRef("");
@@ -109,13 +120,15 @@ export default function WhatsappInbox({
   }, [initialRows, initialTotal]);
 
   useEffect(() => {
-    if (!emojiOpen) return;
+    if (!emojiOpen && !templateOpen) return;
     function onPointer(event: MouseEvent) {
-      if (!emojiRef.current?.contains(event.target as Node)) setEmojiOpen(false);
+      const target = event.target as Node;
+      if (emojiOpen && !emojiRef.current?.contains(target)) setEmojiOpen(false);
+      if (templateOpen && !templateRef.current?.contains(target)) setTemplateOpen(false);
     }
     document.addEventListener("mousedown", onPointer);
     return () => document.removeEventListener("mousedown", onPointer);
-  }, [emojiOpen]);
+  }, [emojiOpen, templateOpen]);
 
   useEffect(() => {
     if (searchBoot.current) {
@@ -212,6 +225,7 @@ export default function WhatsappInbox({
     setSendError(null);
     setConfirmDelete(false);
     setEmojiOpen(false);
+    setTemplateOpen(false);
     setDocsError(null);
     await loadChat(row.id);
   }
@@ -247,6 +261,45 @@ export default function WhatsappInbox({
             const last = data.data?.messages.at(-1);
             const preview = last?.text?.trim() || (last?.waType === "image" ? "Photo" : last?.filename) || row.lastMessage;
             return { ...row, lastMessage: preview, lastChatAt: new Date().toISOString() };
+          })
+          .sort((a, b) => (b.lastChatAt ?? "").localeCompare(a.lastChatAt ?? "")),
+      );
+      router.refresh();
+    } catch {
+      setSendError("Network error. Try again.");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  async function sendTemplate(templateId: string) {
+    if (!openId || sending) return;
+    setTemplateOpen(false);
+    setSending(true);
+    setSendError(null);
+    try {
+      const res = await fetch(`/api/admin/whatsapp/enquiries/${encodeURIComponent(openId)}/template`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ template: templateId }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string; data?: WhatsappEnquiryDetail };
+      if (!res.ok || !data.data) {
+        setSendError(toPublicClientError(data.error, "Could not send this template."));
+        void loadChat(openId);
+        return;
+      }
+      setDetail(data.data);
+      setRows((prev) =>
+        prev
+          .map((row) => {
+            if (row.id !== openId) return row;
+            const last = data.data?.messages.at(-1);
+            return {
+              ...row,
+              lastMessage: last?.text?.trim() || row.lastMessage,
+              lastChatAt: new Date().toISOString(),
+            };
           })
           .sort((a, b) => (b.lastChatAt ?? "").localeCompare(a.lastChatAt ?? "")),
       );
@@ -540,9 +593,44 @@ export default function WhatsappInbox({
                     type="button"
                     className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-lg shadow-sm hover:bg-[#e9edef]"
                     aria-label="Emoji"
-                    onClick={() => setEmojiOpen((open) => !open)}
+                    onClick={() => {
+                      setTemplateOpen(false);
+                      setEmojiOpen((open) => !open);
+                    }}
                   >
                     😊
+                  </button>
+                </div>
+                <div ref={templateRef} className="relative shrink-0">
+                  {templateOpen ? (
+                    <div className="absolute bottom-full left-0 z-20 mb-2 w-72 overflow-hidden rounded-xl border border-[#e9edef] bg-white py-1 shadow-lg">
+                      {ADMIN_TEMPLATES.map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          disabled={sending}
+                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[#111b21] hover:bg-[#f0f2f5] disabled:opacity-50"
+                          onClick={() => void sendTemplate(item.id)}
+                        >
+                          <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.dot }} />
+                          <span className="min-w-0">{item.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                  <button
+                    type="button"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#25D366] via-[#7c3aed] to-[#53bdeb] text-white shadow-md hover:brightness-105"
+                    aria-label="Send a template"
+                    aria-expanded={templateOpen}
+                    onClick={() => {
+                      setEmojiOpen(false);
+                      setTemplateOpen((open) => !open);
+                    }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
                   </button>
                 </div>
                 <textarea
