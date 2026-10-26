@@ -143,7 +143,7 @@ export default function StartWhatsappChat({ open, onClose, onStarted }: Props) {
           value={name}
           onChange={(event) => setName(event.target.value)}
           maxLength={120}
-          placeholder="Name for the template"
+          placeholder="Customer name"
           className="mt-1 w-full rounded-lg border border-[#e9edef] px-3 py-2 text-sm text-[#111b21] outline-none focus:border-[#128C7E]"
         />
         <label className="mt-3 block text-xs font-medium text-[#54656f]" htmlFor="start-wa-text">
