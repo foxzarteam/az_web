@@ -20,7 +20,7 @@ function DeliveryNote({ message }: { message: WhatsappChatMessage }) {
     );
   }
   if (message.delivery === "read") {
-    return <p className="mt-1 text-right text-[11px] font-medium text-[#027a69]">Read</p>;
+    return <p className="mt-1 text-right text-[11px] font-medium text-[#53bdeb]">Seen</p>;
   }
   if (message.delivery === "delivered") {
     return <p className="mt-1 text-right text-[11px] font-medium text-[#027a69]">Delivered</p>;

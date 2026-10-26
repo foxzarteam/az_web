@@ -148,7 +148,21 @@ export default function WhatsappInbox({
         }
       })();
     }, 8_000);
-    return () => window.clearInterval(timer);
+    const chatTimer = window.setInterval(() => {
+      const open = openIdRef.current;
+      if (!open) return;
+      void fetch(`/api/admin/whatsapp/enquiries/${encodeURIComponent(open)}`)
+        .then((chatRes) => chatRes.json().then((chatData) => ({ chatRes, chatData })))
+        .then(({ chatRes, chatData }) => {
+          const data = chatData as { data?: WhatsappEnquiryDetail };
+          if (openIdRef.current === open && chatRes.ok && data.data) setDetail(data.data);
+        })
+        .catch(() => undefined);
+    }, 2_000);
+    return () => {
+      window.clearInterval(timer);
+      window.clearInterval(chatTimer);
+    };
   }, []);
 
   async function loadChat(id: string, silent = false) {
