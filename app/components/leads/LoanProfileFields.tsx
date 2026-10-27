@@ -17,7 +17,7 @@ type Props = {
   inputClassName: string;
   labelClassName: string;
   nativeRequired?: boolean;
-  /** Vehicle loan uses the 600 CIBIL bands and does not ask for EMI. */
+  /** Vehicle loan uses the 650 CIBIL bands and does not ask for EMI. */
   vehicle?: boolean;
 };
 

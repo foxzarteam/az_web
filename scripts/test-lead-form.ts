@@ -11,7 +11,7 @@ import {
   loanNotEligibleMessage,
   MIN_VEHICLE_NET_MONTHLY_INCOME,
   MSG_CIBIL_BELOW,
-  MSG_CIBIL_BELOW_600,
+  MSG_CIBIL_BELOW_650,
   MSG_EMI_HALF,
   netMonthlyIncomeError,
   validateLeadPanNameMobile,
@@ -66,11 +66,11 @@ assert.equal(
   loanNotEligibleMessage({
     category: "vehicle_loan",
     netMonthlyIncome: 20000,
-    cibilBand: "below_600",
+    cibilBand: "below_650",
     hasExistingEmi: false,
     totalMonthlyEmi: 0,
   }),
-  MSG_CIBIL_BELOW_600,
+  MSG_CIBIL_BELOW_650,
 );
 assert.equal(
   loanNotEligibleMessage({
@@ -85,7 +85,7 @@ assert.equal(
 const vehicleFinish = validateLoanFinishStep({
   netMonthlyIncome: "10000",
   employmentType: "salaried_bank",
-  cibilBand: "above_600",
+  cibilBand: "above_650",
   hasExistingEmi: "",
   totalMonthlyEmi: "",
   vehicle: true,
@@ -93,7 +93,7 @@ const vehicleFinish = validateLoanFinishStep({
 assert.equal(Object.keys(vehicleFinish).length, 0);
 const vehicleMissingJob = validateLoanFinishStep({
   netMonthlyIncome: "10000",
-  cibilBand: "above_600",
+  cibilBand: "above_650",
   hasExistingEmi: "",
   totalMonthlyEmi: "",
   vehicle: true,
@@ -124,7 +124,7 @@ if (existsSync(serverRulesPath)) {
   assert.equal(api.MIN_NET_MONTHLY_INCOME, MIN_NET_MONTHLY_INCOME);
   assert.equal(api.MIN_VEHICLE_NET_MONTHLY_INCOME, MIN_VEHICLE_NET_MONTHLY_INCOME);
   assert.equal(api.MSG_CIBIL_BELOW, MSG_CIBIL_BELOW);
-  assert.equal(api.MSG_CIBIL_BELOW_600, MSG_CIBIL_BELOW_600);
+  assert.equal(api.MSG_CIBIL_BELOW_650, MSG_CIBIL_BELOW_650);
   assert.equal(api.MSG_EMI_HALF, MSG_EMI_HALF);
   const sample = {
     category: "personal_loan",
@@ -134,7 +134,7 @@ if (existsSync(serverRulesPath)) {
     totalMonthlyEmi: 0,
   };
   assert.equal(api.loanNotEligibleMessage(sample), loanNotEligibleMessage(sample));
-  const vehicle = { ...sample, category: "vehicle_loan", cibilBand: "below_600" };
+  const vehicle = { ...sample, category: "vehicle_loan", cibilBand: "below_650" };
   assert.equal(api.loanNotEligibleMessage(vehicle), loanNotEligibleMessage(vehicle));
 }
 
