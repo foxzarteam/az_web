@@ -4,6 +4,7 @@ export const ADMIN_TEMPLATES = [
   { id: "personal_loan_kyc", label: "Personal Loan (PL KYC)", dot: "#128C7E" },
   { id: "document_pending_reminder", label: "Reminder: Documents Pending", dot: "#d97706" },
   { id: "call_not_answered_followup", label: "Reminder: Call Not Answered", dot: "#7c3aed" },
+  { id: "reject_template", label: "Reject Application", dot: "#dc2626" },
 ] as const;
 
 export function isAdminTemplateId(value: string): boolean {
