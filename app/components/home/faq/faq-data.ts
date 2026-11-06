@@ -43,7 +43,7 @@ export const PRODUCTS_HUB_FAQ_ITEMS: FaqItem[] = [
     id: "hub-how-apply",
     question: "How do I apply online on Apni Zaroorat?",
     answer:
-      "Select a product card, complete the form with basic details, and verify your mobile with OTP. You can then track application status from your customer dashboard.",
+      "Select a product card, complete the form with basic details, and submit. You can then track application status from your customer dashboard.",
   },
   {
     id: "hub-tools",

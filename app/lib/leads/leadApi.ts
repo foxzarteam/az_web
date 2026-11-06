@@ -46,7 +46,7 @@ function withReferralCode<T extends object>(data: T): T {
 }
 
 /**
- * Save full lead on form submit (no OTP required). Verified stays No until OTP.
+ * Save full lead on form submit. No OTP — mobile rules and eligibility still apply.
  * Backend enforces max 4 unique PANs per mobile, then same PAN + product rules.
  */
 export async function applyLead(

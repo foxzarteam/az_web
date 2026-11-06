@@ -14,14 +14,14 @@ export async function checkCustomerMobile(mobileNumber: string): Promise<{
   return { exists: Boolean(data.exists) };
 }
 
-export async function customerLogin(mobileNumber: string, idToken: string): Promise<{
+export async function customerLogin(mobileNumber: string, _idToken?: string): Promise<{
   ok: boolean;
   message?: string;
 }> {
   const res = await fetch("/api/customer/auth/login", {
     method: "POST",
     headers: { Accept: "application/json", "Content-Type": "application/json" },
-    body: JSON.stringify({ mobileNumber, idToken }),
+    body: JSON.stringify({ mobileNumber }),
   });
   const data = (await res.json()) as { ok?: boolean; error?: string };
   if (!res.ok || !data.ok) {

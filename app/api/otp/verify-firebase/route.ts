@@ -1,8 +1,12 @@
-import { proxyPublicToNest } from "@/app/lib/server/proxyPublicNest";
+import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
-  return proxyPublicToNest(request, "/api/otp/verify-firebase", {
-    fallbackError: "Verification failed. Please try again.",
-    max: 10,
-  });
+/** Firebase OTP SMS is off — never proxy a verify request. */
+export async function POST() {
+  return NextResponse.json(
+    {
+      success: false,
+      message: "OTP is disabled. Submit the form without OTP.",
+    },
+    { status: 200 },
+  );
 }

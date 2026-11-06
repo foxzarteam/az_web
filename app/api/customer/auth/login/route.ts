@@ -23,16 +23,8 @@ export async function POST(request: Request) {
       typeof body === "object" && body !== null && "mobileNumber" in body
         ? normalizeMobile((body as { mobileNumber: unknown }).mobileNumber)
         : "";
-    const idToken =
-      typeof body === "object" && body !== null && "idToken" in body
-        ? String((body as { idToken: unknown }).idToken ?? "").trim()
-        : "";
-
     if (mobile.length !== 10) {
       return NextResponse.json({ error: "Enter a valid 10-digit mobile number." }, { status: 400 });
-    }
-    if (!idToken) {
-      return NextResponse.json({ error: "Verification token missing." }, { status: 400 });
     }
 
     const ip = clientIpFromRequest(request);
@@ -40,7 +32,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Too many attempts. Try again later." }, { status: 429 });
     }
 
-    const result = await customerLoginOnApi(mobile, idToken);
+    const result = await customerLoginOnApi(mobile);
     if (!result.ok) {
       const msg = result.message || "Login failed.";
       const status = msg.toLowerCase().includes("no application")

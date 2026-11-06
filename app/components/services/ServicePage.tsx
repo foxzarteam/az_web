@@ -1,15 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import type { ConfirmationResult } from "firebase/auth";
 import SuccessPopup from "@/app/components/shared/SuccessPopup";
 import TermsAgreementCheckbox, {
   LeadCreditDisclaimer,
 } from "@/app/components/shared/TermsAgreementCheckbox";
 import { reportFormValidity } from "@/app/lib/formValidation";
-import LeadApplyModal from "@/app/components/leads/LeadApplyModal";
 import CheckApplicationStatusLink from "@/app/components/leads/CheckApplicationStatusLink";
 import IndiaFlag from "@/app/components/home/hero/IndiaFlag";
 import LoanAmountSlider from "@/app/components/services/LoanAmountSlider";
@@ -21,7 +19,7 @@ import CibilBandSelect, { VEHICLE_CIBIL_OPTIONS } from "@/app/components/leads/C
 import VehicleCategorySelect from "@/app/components/leads/VehicleCategorySelect";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { customerLogin } from "@/app/lib/customer/authApi";
-import { applyLead, isExistingApplicationError, leadIdFromResponse, mapServiceToCategory, type CreateLeadResponse } from "@/app/lib/leads/leadApi";
+import { applyLead, isExistingApplicationError, mapServiceToCategory } from "@/app/lib/leads/leadApi";
 import {
   firstLeadFieldError,
   personalLoanApplyPayload,
@@ -49,7 +47,6 @@ import {
 } from "@/app/lib/leads/leadForm";
 import { getVehicleCategoryPick, setVehicleCategoryPick, subscribeVehicleCategoryPick } from "@/app/lib/leads/vehicleCategoryPick";
 import { sanitizeMobileInput } from "@/app/lib/validation";
-import { primeOtpRecaptcha, sendFirebasePhoneOtp, warmFirebaseAuth } from "@/app/lib/firebase/phoneAuth";
 import { stashApplyThanks } from "@/app/lib/customer/applyThanks";
 
 type ServicePageProps = {
@@ -107,16 +104,8 @@ export default function ServicePage({
 
   const [existingAppMessage, setExistingAppMessage] = useState("");
   const [ineligibleMessage, setIneligibleMessage] = useState("");
-  const [showApplyModal, setShowApplyModal] = useState(false);
-  const [pendingLeadId, setPendingLeadId] = useState("");
-  const [otpSendPromise, setOtpSendPromise] = useState<Promise<ConfirmationResult> | null>(null);
-  const applyPromiseRef = useRef<Promise<CreateLeadResponse> | null>(null);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-
-  useEffect(() => {
-    warmFirebaseAuth();
-  }, []);
 
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -315,7 +304,6 @@ export default function ServicePage({
     }
     setFormError("");
     setIsSubmittingForm(true);
-    primeOtpRecaptcha();
 
     try {
       const category = mapServiceToCategory(service);
@@ -358,8 +346,7 @@ export default function ServicePage({
         ...(category === "insurance" ? { insType } : {}),
         consentAccepted: termsAccepted,
       };
-      applyPromiseRef.current = applyLead(payload);
-      const res = await applyPromiseRef.current;
+      const res = await applyLead(payload);
       if (!res.success) {
         if (res.code === "LOAN_NOT_ELIGIBLE") {
           setIneligibleMessage(res.message || "Sorry, you are not eligible for this loan.");
@@ -372,9 +359,16 @@ export default function ServicePage({
         }
         return;
       }
-      setOtpSendPromise(sendFirebasePhoneOtp(digits));
-      setPendingLeadId(leadIdFromResponse(res.data) || "saved");
-      setShowApplyModal(true);
+      const login = await customerLogin(digits);
+      if (!login.ok) {
+        setFormError(login.message || "Application saved. Open Check Status to continue.");
+        return;
+      }
+      stashApplyThanks({
+        name: fullName.trim(),
+        product: selectedLoanTitle.trim() || "application",
+      });
+      router.replace("/customer/dashboard");
     } catch {
       setFormError("Network error. Please try again.");
     } finally {
@@ -455,38 +449,6 @@ export default function ServicePage({
                     footer={<CheckApplicationStatusLink />}
                   />
                 )}
-
-                <LeadApplyModal
-                  open={showApplyModal && Boolean(pendingLeadId)}
-                  mobile={mobile.replace(/\D/g, "")}
-                  otpSendPromise={otpSendPromise}
-                  onClose={() => {
-                    setShowApplyModal(false);
-                    setPendingLeadId("");
-                    setOtpSendPromise(null);
-                  }}
-                  onEditMobile={() => {
-                    setShowApplyModal(false);
-                    setPendingLeadId("");
-                    setOtpSendPromise(null);
-                  }}
-                  syncServerVerify
-                  onSuccess={async (result) => {
-                    const applyRes = await applyPromiseRef.current;
-                    if (!applyRes?.success) {
-                      throw new Error(applyRes?.message || "Could not submit application.");
-                    }
-                    const login = await customerLogin(result.mobile, result.idToken);
-                    if (!login.ok) {
-                      throw new Error(login.message || "Login failed");
-                    }
-                    stashApplyThanks({
-                      name: fullName.trim(),
-                      product: selectedLoanTitle.trim() || "application",
-                    });
-                    router.replace("/customer/dashboard");
-                  }}
-                />
 
                 <form
                   onSubmit={(e) => {

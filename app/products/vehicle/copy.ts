@@ -21,6 +21,6 @@ export const VEHICLE_FAQ = [
     id: "how-to-apply",
     question: "How do I apply?",
     answer:
-      "Pick Vehicle Loan or Vehicle Insurance, enter your name, mobile number, PAN and pincode, and submit. You will verify the mobile number with an OTP. A team member then guides you on the next step.",
+      "Pick Vehicle Loan or Vehicle Insurance, enter your name, mobile number, PAN and pincode, and submit. A team member then guides you on the next step.",
   },
 ];

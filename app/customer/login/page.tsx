@@ -9,7 +9,7 @@ import CustomerLoginForm from "./CustomerLoginForm";
 export const metadata: Metadata = buildPageMetadata({
   title: "Check Personal Loan Application Status | Apni Zaroorat",
   description:
-    "Log in with your mobile number and OTP to check personal loan or insurance application status on Apni Zaroorat. Secure customer access only.",
+    "Log in with your mobile number to check personal loan or insurance application status on Apni Zaroorat. Secure customer access only.",
   path: "/customer/login",
   absoluteTitle: true,
   noIndex: true,

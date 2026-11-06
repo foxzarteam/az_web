@@ -132,10 +132,7 @@ export async function fetchLeadsByMobile(mobile: string): Promise<CustomerLead[]
 }
 
 /** Nest: POST /api/customer/login */
-export async function customerLoginOnApi(
-  mobile: string,
-  idToken: string,
-): Promise<{
+export async function customerLoginOnApi(mobile: string): Promise<{
   ok: boolean;
   message?: string;
   customer?: { mobile: string; name: string };
@@ -154,7 +151,7 @@ export async function customerLoginOnApi(
     const res = await fetch(`${base}/api/customer/login`, {
       method: "POST",
       headers: { Accept: "application/json", "Content-Type": "application/json" },
-      body: JSON.stringify({ mobileNumber: target, idToken }),
+      body: JSON.stringify({ mobileNumber: target }),
       cache: "no-store",
     });
     const body = (await res.json()) as {

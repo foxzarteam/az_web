@@ -142,7 +142,7 @@ export default function PrivacyPolicyPage() {
                     explicit consent.
                   </li>
                   <li>
-                    To communicate application status, deliver OTPs, and provide customer support.
+                    To communicate application status and provide customer support.
                   </li>
                   <li>
                     To prevent fraudulent activities, unauthorized access, and ensure compliance
