@@ -292,6 +292,7 @@ export default function ServicePage({
       const blocked = loanNotEligibleMessage({
         category: selectedCategory,
         netMonthlyIncome: Number(String(netMonthlyIncome).replace(/\D/g, "")),
+        employmentType,
         cibilBand,
         hasExistingEmi: vehicleLoan ? false : hasExistingEmi === "yes",
         totalMonthlyEmi: vehicleLoan || hasExistingEmi !== "yes" ? 0 : monthlyEmiAmount,

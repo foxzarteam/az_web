@@ -13,6 +13,7 @@ import {
   MSG_CIBIL_BELOW,
   MSG_CIBIL_BELOW_650,
   MSG_EMI_HALF,
+  MSG_SALARY_CASH,
   netMonthlyIncomeError,
   validateLeadPanNameMobile,
   validateLeadPincode,
@@ -57,6 +58,26 @@ assert.equal(
 );
 assert.equal(
   loanNotEligibleMessage({ netMonthlyIncome: 40000, cibilBand: "unknown", hasExistingEmi: true, totalMonthlyEmi: 19999 }),
+  null,
+);
+assert.equal(
+  loanNotEligibleMessage({
+    netMonthlyIncome: 50000,
+    employmentType: "salaried_cash",
+    cibilBand: "above_680",
+    hasExistingEmi: false,
+    totalMonthlyEmi: 0,
+  }),
+  MSG_SALARY_CASH,
+);
+assert.equal(
+  loanNotEligibleMessage({
+    netMonthlyIncome: 50000,
+    employmentType: "salaried_bank",
+    cibilBand: "above_680",
+    hasExistingEmi: false,
+    totalMonthlyEmi: 0,
+  }),
   null,
 );
 assert.equal(MIN_VEHICLE_NET_MONTHLY_INCOME, 10000);
@@ -126,6 +147,7 @@ if (existsSync(serverRulesPath)) {
   assert.equal(api.MSG_CIBIL_BELOW, MSG_CIBIL_BELOW);
   assert.equal(api.MSG_CIBIL_BELOW_650, MSG_CIBIL_BELOW_650);
   assert.equal(api.MSG_EMI_HALF, MSG_EMI_HALF);
+  assert.equal(api.MSG_SALARY_CASH, MSG_SALARY_CASH);
   const sample = {
     category: "personal_loan",
     netMonthlyIncome: 20000,

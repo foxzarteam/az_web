@@ -235,6 +235,7 @@ export function leadIneligibleMessage(form: EditForm): string | null {
   return loanNotEligibleMessage({
     category: form.category,
     netMonthlyIncome: Number(form.netMonthlyIncome),
+    employmentType: form.employmentType,
     cibilBand: form.cibilBand,
     hasExistingEmi: vehicle ? false : form.hasExistingEmi === "yes",
     totalMonthlyEmi: vehicle || form.hasExistingEmi === "no" ? 0 : Number(form.totalMonthlyEmi),
