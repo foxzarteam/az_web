@@ -10,7 +10,7 @@ export { INDEXABLE_ROUTES, SITE_TREE, SITELINK_PAGES } from "@/app/lib/seo-site-
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-10-25";
+export const SEO_CONTENT_VERSION = "2026-11-12";
 
 /** Official social profiles — wired to Organization sameAs + footer + AEO/GEO docs. */
 export const SOCIAL_PROFILES = [
@@ -52,12 +52,13 @@ type BuildPageMetadataInput = {
   type?: "website" | "article";
   noIndex?: boolean;
   absoluteTitle?: boolean;
+  /** Optional; Google ignores meta keywords for ranking — still useful for Bing/legacy tools. */
+  keywords?: string | string[];
 };
 
 /**
  * Shared page metadata: canonical, hreflang, Open Graph, Twitter, robots.
  * Always pass `path` so canonical is this page — never inherit homepage "/".
- * Meta keywords are omitted — Google does not use them for ranking.
  */
 export function buildPageMetadata({
   title,
@@ -68,6 +69,7 @@ export function buildPageMetadata({
   type = "website",
   noIndex,
   absoluteTitle = false,
+  keywords,
 }: BuildPageMetadataInput): Metadata {
   const canonical = seoPath(path);
   const url = absoluteSeoUrl(path);
@@ -77,6 +79,7 @@ export function buildPageMetadata({
   return {
     title: absoluteTitle ? { absolute: title } : title,
     description,
+    ...(keywords ? { keywords } : {}),
     applicationName: SITE_NAME,
     category: "finance",
     referrer: "origin-when-cross-origin",

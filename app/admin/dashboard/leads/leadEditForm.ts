@@ -45,15 +45,17 @@ export function clampLoanAmount(value: unknown): number {
 export function leadToEditForm(lead: AdminLeadRow): EditForm {
   const fromRange = amountFromRange(lead.loan_amt);
   const statusRaw = String(lead.status ?? "pending").trim().toLowerCase() || "pending";
+  const category = String(lead.category ?? "personal_loan");
+  const loanCategory = category.trim().toLowerCase().replace(/-/g, "_").endsWith("_loan");
   return {
     fullName: String(lead.full_name ?? ""),
     mobileNumber: String(lead.mobile_number ?? ""),
     pan: String(lead.pan ?? ""),
-    category: String(lead.category ?? "personal_loan"),
+    category,
     status: statusRaw === "action_required" ? "pending" : statusRaw,
-    requiredAmount: clampLoanAmount(
-      lead.required_amount ?? (fromRange > 0 ? fromRange : DEFAULT_LOAN_AMOUNT),
-    ),
+    requiredAmount: loanCategory
+      ? clampLoanAmount(lead.required_amount ?? (fromRange > 0 ? fromRange : DEFAULT_LOAN_AMOUNT))
+      : 0,
     insType: String(lead.ins_type ?? "life_insurance"),
     netMonthlyIncome:
       lead.net_monthly_income != null && lead.net_monthly_income !== ""
@@ -278,6 +280,17 @@ export function buildLeadPayload(
     payload.loanAmt = null;
     payload.netMonthlyIncome = null;
     payload.employmentType = null;
+  } else {
+    /** credit_card and other non-loan products: same basic fields as the public form. */
+    payload.insType = null;
+    payload.requiredAmount = null;
+    payload.loanAmt = null;
+    payload.netMonthlyIncome = null;
+    payload.employmentType = null;
+    payload.cibilBand = null;
+    payload.hasExistingEmi = null;
+    payload.totalMonthlyEmi = null;
+    payload.vehicleCategory = null;
   }
   const pan = form.pan.trim().toUpperCase();
   if (!(opts?.omitMaskedPan && isMaskedPanValue(pan))) {
@@ -289,7 +302,8 @@ export function buildLeadPayload(
   } else if (opts?.canApprove) {
     payload.status = form.status;
     if (form.partnerLead && form.status === "approved") {
-      payload.commissionType = form.category === "insurance" ? "fixed" : "percentage";
+      payload.commissionType =
+        form.category === "insurance" || form.category === "credit_card" ? "fixed" : "percentage";
       const commission = Number(String(form.commissionValue).replace(/,/g, "").trim());
       payload.commissionValue = Number.isFinite(commission) ? commission : null;
     } else {

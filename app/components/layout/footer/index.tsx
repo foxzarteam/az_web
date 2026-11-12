@@ -13,13 +13,14 @@ const PRODUCT_LINKS = [
   { href: "/products/loans/", label: "Loan" },
   { href: "/products/vehicle/", label: "Vehicle" },
   { href: "/products/insurance/", label: "Insurance" },
-  { href: "/customer/login/", label: "Check Application Status" },
+  { href: "/products/credit-card/", label: "Credit Card" },
 ] as const;
 
 const TOOL_LINKS = [
   { href: "/emi-calculator/", label: "EMI Calculator" },
   { href: "/check-eligibility/", label: "Check Eligibility" },
   { href: "/tax-saving-calculator/", label: "Tax Saving Calculator" },
+  { href: "/customer/login/", label: "Check Application Status" },
 ] as const;
 
 const LEGAL_LINKS = [

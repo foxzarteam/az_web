@@ -59,21 +59,6 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        source: "/products/credit-card",
-        destination: "/products/loans/",
-        permanent: true,
-      },
-      {
-        source: "/products/credit-card/",
-        destination: "/products/loans/",
-        permanent: true,
-      },
-      {
-        source: "/products/credit-card/:path*",
-        destination: "/products/loans/",
-        permanent: true,
-      },
-      {
         source: "/personal-loan",
         destination: "/products/personal-loan/",
         permanent: true,

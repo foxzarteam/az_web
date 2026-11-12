@@ -36,6 +36,16 @@ type Props = {
   className?: string;
 };
 
+function stepsGridClass(count: number): string {
+  if (count === 3) {
+    return "grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-3 lg:gap-10";
+  }
+  if (count === 4) {
+    return "grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4 lg:gap-10";
+  }
+  return "grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4 lg:gap-10";
+}
+
 export default function HowItWorksSection({ headingPrefix, headingHighlight, steps, className }: Props) {
   return (
     <section className={`bg-[#F5F7FB] !py-10 dark:bg-darkmode lg:!py-14 ${className ?? ""}`} aria-labelledby="how-it-works-heading">
@@ -52,11 +62,11 @@ export default function HowItWorksSection({ headingPrefix, headingHighlight, ste
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4 lg:gap-10" data-aos="fade-up">
+        <div className={stepsGridClass(steps.length)} data-aos="fade-up">
           {steps.map((step, index) => (
             <article
               key={step.num}
-              className="relative flex h-full flex-col items-center rounded-2xl border border-[#E8ECF2] bg-white p-5 text-center shadow-[0_4px_24px_rgba(16,45,71,0.06)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_14px_40px_rgba(16,45,71,0.14)] dark:border-dark_border dark:bg-darklight sm:p-6"
+              className="relative flex h-full w-full flex-col items-center rounded-2xl border border-[#E8ECF2] bg-white p-5 text-center shadow-[0_4px_24px_rgba(16,45,71,0.06)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_14px_40px_rgba(16,45,71,0.14)] dark:border-dark_border dark:bg-darklight sm:p-6"
             >
               <div className="theme-gradient-bg mb-4 rounded-full p-[2px]">
                 <div
@@ -70,7 +80,7 @@ export default function HowItWorksSection({ headingPrefix, headingHighlight, ste
                 {step.title}
               </h3>
 
-              <p className="mt-2.5 max-w-[230px] text-xs leading-relaxed text-gray dark:text-gray-400 sm:text-sm">
+              <p className="mt-2.5 w-full max-w-none text-xs leading-relaxed text-gray dark:text-gray-400 sm:text-sm">
                 {step.description}
               </p>
 

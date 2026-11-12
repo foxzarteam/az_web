@@ -16,6 +16,7 @@ export const CATEGORIES = [
   { value: "vehicle_loan", label: "Vehicle Loan" },
   { value: "business_loan", label: "Business Loan" },
   { value: "insurance", label: "Insurance" },
+  { value: "credit_card", label: "Credit Card" },
 ] as const;
 
 export const STATUSES = [
@@ -48,6 +49,35 @@ export const VIEW_FIELDS = [
   "created_at",
   "updated_at",
 ] as const;
+
+/** Loan-only fields collected on the public loan form — hide for insurance / credit card. */
+const LOAN_ONLY_VIEW_FIELDS = new Set([
+  "required_amount",
+  "employment_type",
+  "net_monthly_income",
+  "cibil_band",
+  "vehicle_category",
+  "has_existing_emi",
+  "total_monthly_emi",
+]);
+
+/** Keys shown in the lead details modal for this product. */
+export function viewFieldKeysForCategory(category: unknown): string[] {
+  const cat = String(category ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/-/g, "_");
+  const isLoan = /_loan$/.test(cat);
+  const keys: string[] = [];
+  for (const raw of VIEW_FIELDS) {
+    if (!isLoan && LOAN_ONLY_VIEW_FIELDS.has(raw)) {
+      if (raw === "required_amount" && cat === "insurance") keys.push("ins_type");
+      continue;
+    }
+    keys.push(raw);
+  }
+  return keys;
+}
 
 export const FIELD_LABELS: Record<string, string> = {
   id: "ID",
@@ -205,15 +235,20 @@ export function cellText(row: AdminLeadRow, key: "full_name" | "mobile_number" |
 }
 
 export function amountOrInsuranceText(row: AdminLeadRow): string {
-  const category = String(row.category ?? "");
+  const category = String(row.category ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/-/g, "_");
   if (category === "insurance") {
     return row.ins_type ? insuranceTypeLabel(String(row.ins_type)) : "—";
   }
-  if (category === "personal_loan") {
+  if (category === "credit_card") return "—";
+  if (category.endsWith("_loan")) {
     if (row.required_amount != null && row.required_amount !== "") {
       return formatCurrencyInr(row.required_amount);
     }
     if (row.loan_amt) return loanAmountLabel(String(row.loan_amt));
+    return "—";
   }
   if (row.required_amount != null && row.required_amount !== "") {
     return formatCurrencyInr(row.required_amount);

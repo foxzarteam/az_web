@@ -49,6 +49,12 @@ export const SITE_TREE: SiteTreeNode[] = [
         description:
           "Compare life, health and motor insurance online with guided digital applications.",
       },
+      {
+        name: "Credit Card",
+        path: "/products/credit-card",
+        description:
+          "Apply for credit cards online in India — HDFC, IDFC, SBI, Axis and more. Lifetime free fee options with Apni Zaroorat.",
+      },
     ],
   },
   {
@@ -127,6 +133,7 @@ export const INDEXABLE_ROUTES = [
   { path: "/products/vehicle-loan", changeFrequency: "daily" as const, priority: 0.96 },
   { path: "/products/business-loan", changeFrequency: "daily" as const, priority: 0.96 },
   { path: "/products/insurance", changeFrequency: "daily" as const, priority: 0.97 },
+  { path: "/products/credit-card", changeFrequency: "daily" as const, priority: 0.97 },
   { path: "/check-eligibility", changeFrequency: "daily" as const, priority: 0.96 },
   { path: "/emi-calculator", changeFrequency: "daily" as const, priority: 0.96 },
   { path: "/tax-saving-calculator", changeFrequency: "daily" as const, priority: 0.96 },

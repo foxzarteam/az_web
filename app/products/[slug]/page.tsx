@@ -16,7 +16,7 @@ import {
 
 export const revalidate = 60;
 
-const DEDICATED_SLUGS = new Set(["personal-loan", "insurance", "loans", "vehicle"]);
+const DEDICATED_SLUGS = new Set(["personal-loan", "insurance", "credit-card", "loans", "vehicle"]);
 
 function cardForSlug(
   slug: string,

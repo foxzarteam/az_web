@@ -35,7 +35,7 @@ import {
 import {
   COMMISSION_LIMITS,
   commissionPreviewRupees,
-  isInsuranceCategory,
+  isFixedCommissionCategory,
   lockedCommissionType,
 } from "./leadCommission";
 
@@ -464,7 +464,7 @@ function ApprovedCommissionFields({
   clearFieldError: (key: keyof FieldErrors) => void;
   disabled: boolean;
 }) {
-  const fixed = isInsuranceCategory(form.category);
+  const fixed = isFixedCommissionCategory(form.category);
   const preview = commissionPreviewRupees(form.category, form.requiredAmount, form.commissionValue);
   const { percentMin, percentMax, fixedMin, fixedMax } = COMMISSION_LIMITS;
 

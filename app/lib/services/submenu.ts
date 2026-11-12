@@ -13,17 +13,31 @@ const LOAN_ALIAS_MENU: SubmenuItem[] = [
 /** Shown in nav/footer when the services API is unreachable. */
 const LOAN_MENU_ITEM: SubmenuItem = { label: "Loan", href: "/products/loans/", slug: "loans" };
 const INSURANCE_MENU_ITEM: SubmenuItem = { label: "Insurance", href: "/products/insurance/", slug: "insurance" };
+const CREDIT_CARD_MENU_ITEM: SubmenuItem = {
+  label: "Credit Card",
+  href: "/products/credit-card/",
+  slug: "credit-card",
+};
 
 export const FALLBACK_PRODUCT_SUBMENU: SubmenuItem[] = [
   ...LOAN_ALIAS_MENU,
   INSURANCE_MENU_ITEM,
+  CREDIT_CARD_MENU_ITEM,
 ];
 
 export function serviceCardsToSubmenu(cards: ServiceSliderCard[], includeLoanHub = false): SubmenuItem[] {
   const mapped = cards.flatMap((c) => {
     const slug =
       c.href.replace(/^\/products\//, "").replace(/\/$/, "") || undefined;
-    if (slug && (isIndividualLoanSlug(slug) || slug === "loans" || slug === "insurance")) return [];
+    if (
+      slug &&
+      (isIndividualLoanSlug(slug) ||
+        slug === "loans" ||
+        slug === "insurance" ||
+        slug === "credit-card")
+    ) {
+      return [];
+    }
     const href = c.href.endsWith("/") || c.href.includes("#") ? c.href : `${c.href}/`;
     return [{ label: c.title, href, slug }];
   });
@@ -35,6 +49,14 @@ export function serviceCardsToSubmenu(cards: ServiceSliderCard[], includeLoanHub
         slug: "insurance",
       }
     : INSURANCE_MENU_ITEM;
+  const creditCardFromApi = cards.find((c) => c.href.replace(/\/+$/, "").endsWith("/credit-card"));
+  const creditCard = creditCardFromApi
+    ? {
+        label: creditCardFromApi.title || CREDIT_CARD_MENU_ITEM.label,
+        href: "/products/credit-card/",
+        slug: "credit-card",
+      }
+    : CREDIT_CARD_MENU_ITEM;
   const loans = includeLoanHub ? [...LOAN_ALIAS_MENU, LOAN_MENU_ITEM] : LOAN_ALIAS_MENU;
-  return [...loans, insurance, ...mapped];
+  return [...loans, insurance, creditCard, ...mapped];
 }

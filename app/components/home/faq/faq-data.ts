@@ -167,6 +167,33 @@ export const INSURANCE_FAQ_ITEMS: FaqItem[] = [
   },
 ];
 
+export const CREDIT_CARD_FAQ_ITEMS: FaqItem[] = [
+  {
+    id: "credit-card-benefits",
+    question: "What are the benefits of using a credit card?",
+    answer:
+      "Credit cards offer various benefits, including cashback, exclusive discounts, shopping and dining offers, travel benefits, and fuel surcharge waivers at selected petrol pumps.",
+  },
+  {
+    id: "credit-card-cibil",
+    question: "Can a credit card help improve my CIBIL score?",
+    answer:
+      "Yes. Using your credit card responsibly, paying bills on time, and maintaining a low credit utilisation ratio can help improve your CIBIL score over time.",
+  },
+  {
+    id: "credit-card-online-travel",
+    question: "Can I use my credit card for online shopping and travel?",
+    answer:
+      "Yes. You can use your credit card for online shopping, hotel bookings, flight tickets, dining, and other eligible purchases wherever your card network is accepted.",
+  },
+  {
+    id: "credit-card-apply-process",
+    question: "How do I apply for a credit card?",
+    answer:
+      "Open the Credit Card page, fill in your name, PAN, mobile and pincode, accept the terms, and submit. Our team and banking partners will guide you through the next steps.",
+  },
+];
+
 /** Hub `/tax-saving-calculator` FAQ */
 export const TAX_FAQ_ITEMS: FaqItem[] = [
   {

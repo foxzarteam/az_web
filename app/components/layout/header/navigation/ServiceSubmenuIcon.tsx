@@ -7,6 +7,7 @@ const MENU_GIFS: Record<string, string> = {
   "vehicle-loan": "/images/loans/car-loan-white.gif?v=12",
   "business-loan": "/images/loans/business-loan-white.gif",
   insurance: "/images/loans/insurance-white.gif",
+  "credit-card": "/images/loans/credit-card-white.gif",
 };
 
 export function submenuGifSrc(item: SubmenuItem): string {
@@ -18,6 +19,7 @@ export function submenuGifSrc(item: SubmenuItem): string {
   if (label.includes("vehicle loan") || label.includes("car loan")) return MENU_GIFS["vehicle-loan"];
   if (label.includes("business")) return MENU_GIFS["business-loan"];
   if (label.includes("insurance")) return MENU_GIFS.insurance;
+  if (label.includes("credit")) return MENU_GIFS["credit-card"];
   return MENU_GIFS["personal-loan"];
 }
 

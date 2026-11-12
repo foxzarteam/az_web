@@ -9,16 +9,29 @@ export const COMMISSION_LIMITS = {
 
 export type CommissionChoice = "" | "percentage" | "fixed";
 
+function normalizeCategory(category: unknown): string {
+  return String(category ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/-/g, "_");
+}
+
 export function isInsuranceCategory(category: unknown): boolean {
-  return String(category ?? "").trim().toLowerCase().replace(/-/g, "_") === "insurance";
+  return normalizeCategory(category) === "insurance";
+}
+
+/** Products with no loan amount — admin sets a fixed ₹ commission. */
+export function isFixedCommissionCategory(category: unknown): boolean {
+  const cat = normalizeCategory(category);
+  return cat === "insurance" || cat === "credit_card";
 }
 
 export function lockedCommissionType(category: unknown): Exclude<CommissionChoice, ""> {
-  return isInsuranceCategory(category) ? "fixed" : "percentage";
+  return isFixedCommissionCategory(category) ? "fixed" : "percentage";
 }
 
 export function formLoanAmount(category: unknown, requiredAmount: unknown): number {
-  if (isInsuranceCategory(category)) return 0;
+  if (isFixedCommissionCategory(category)) return 0;
   const n = Number(requiredAmount);
   return Number.isFinite(n) && n > 0 ? n : 0;
 }
@@ -44,18 +57,18 @@ export function partnerCommissionRupees(lead: {
   commission_type?: unknown;
   commission_value?: unknown;
 }): number {
-  const insurance = isInsuranceCategory(lead.category);
-  const base = insurance ? 0 : loanBase(lead.required_amount, lead.loan_amt);
+  const fixedProduct = isFixedCommissionCategory(lead.category);
+  const base = fixedProduct ? 0 : loanBase(lead.required_amount, lead.loan_amt);
   const type = String(lead.commission_type ?? "").trim().toLowerCase();
   const value = Number(lead.commission_value);
   const { percentMin, percentMax, fixedMin, fixedMax } = COMMISSION_LIMITS;
-  if (!insurance && type === "percentage" && value >= percentMin && value <= percentMax && base > 0) {
+  if (!fixedProduct && type === "percentage" && value >= percentMin && value <= percentMax && base > 0) {
     return Math.round(base * (value / 100) * 100) / 100;
   }
-  if (insurance && type === "fixed" && value >= fixedMin && value <= fixedMax) {
+  if (fixedProduct && type === "fixed" && value >= fixedMin && value <= fixedMax) {
     return Math.round(value * 100) / 100;
   }
-  if (insurance) return 1000;
+  if (fixedProduct) return 1000;
   if (base <= 0) return 0;
   return Math.round(base * 0.02 * 100) / 100;
 }
@@ -67,7 +80,7 @@ export function commissionValueError(
 ): string | undefined {
   const value = parseAmount(raw);
   const { percentMin, percentMax, fixedMin, fixedMax } = COMMISSION_LIMITS;
-  if (isInsuranceCategory(category)) {
+  if (isFixedCommissionCategory(category)) {
     if (!Number.isFinite(value) || value < fixedMin || value > fixedMax) {
       return `Enter a fixed amount from ₹${fixedMin.toLocaleString("en-IN")} to ₹${fixedMax.toLocaleString("en-IN")}`;
     }
@@ -89,7 +102,7 @@ export function commissionPreviewRupees(
 ): number | null {
   if (commissionValueError(category, requiredAmount, raw)) return null;
   const value = parseAmount(raw);
-  if (isInsuranceCategory(category)) return value;
+  if (isFixedCommissionCategory(category)) return value;
   const loan = formLoanAmount(category, requiredAmount);
   return Math.round(loan * (value / 100) * 100) / 100;
 }

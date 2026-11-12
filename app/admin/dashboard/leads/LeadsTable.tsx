@@ -23,7 +23,7 @@ import AddLeadProductPicker, { type AddLeadProduct } from "./AddLeadProductPicke
 import { buildLeadColumns } from "./leadColumns";
 import { downloadLeadsWorkbook } from "./leadsWorkbook";
 import {
-  VIEW_FIELDS,
+  viewFieldKeysForCategory,
   FIELD_LABELS,
   categoryLabel,
   cellText,
@@ -585,14 +585,10 @@ export default function LeadsTable({
       {viewLead && (
         <AdminModal title="Lead details" wide onClose={closeModals}>
           <ul className="grid grid-cols-1 gap-x-8 gap-y-5 p-6 sm:grid-cols-2 sm:p-8">
-            {VIEW_FIELDS.map((rawKey) => {
-              const key =
-                rawKey === "required_amount" && String(viewLead.category ?? "") === "insurance"
-                  ? "ins_type"
-                  : rawKey;
+            {viewFieldKeysForCategory(viewLead.category).map((key) => {
               return (
               <li
-                key={rawKey}
+                key={key}
                 className="flex flex-wrap items-baseline gap-1 text-sm"
               >
                 <span className="shrink-0 font-semibold text-midnight_text dark:text-white">

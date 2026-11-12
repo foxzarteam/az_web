@@ -169,6 +169,7 @@ export default function ServicePage({
     return { min, max };
   }, [cards, loanProducts, loanSlug, loanTabs]);
   const showInsuranceType = selectedCategory === "insurance";
+  const stackNamePan = selectedCategory === "credit_card";
   const vehicleLoan = isVehicleLoanCategory(selectedCategory);
   const insuranceTypeOptions = useInsuranceTypeOptions();
   const vehicleCategoryOptions = useVehicleCategoryOptions();
@@ -410,8 +411,14 @@ export default function ServicePage({
 
             <div id="apply-form" className="theme-gradient-bg scroll-mt-24 p-[1px] rounded-2xl sm:rounded-3xl shadow-xl w-full min-w-0 flex flex-col">
               <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-4 sm:py-6 lg:py-7 px-4 sm:px-6 md:px-7 flex flex-1 flex-col min-h-0 min-w-0">
-                <div className="mb-3 flex items-center gap-2">
-                  <h2 className={`min-w-0 flex-1 leading-snug ${loanTabs ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"} font-semibold text-midnight_text dark:text-white`}>
+                <div
+                  className={`mb-3 flex gap-2 ${
+                    selectedCategory === "credit_card"
+                      ? "flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3"
+                      : "items-center"
+                  }`}
+                >
+                  <h2 className={`min-w-0 leading-snug ${loanTabs ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"} font-semibold text-midnight_text dark:text-white ${selectedCategory === "credit_card" ? "" : "flex-1"}`}>
                     {loanTabs ? (
                       <>
                         Check{" "}
@@ -419,9 +426,22 @@ export default function ServicePage({
                         {" "}Eligibility
                       </>
                     ) : (
-                      `Apply for ${selectedLoanTitle}`
+                      <>
+                        Apply for{" "}
+                        <span className="theme-gradient-text font-extrabold">{selectedLoanTitle}</span>
+                      </>
                     )}
                   </h2>
+                  {selectedCategory === "credit_card" ? (
+                    <div className="flex flex-row flex-wrap items-center gap-2 sm:gap-3">
+                      <span className="inline-flex w-fit items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary sm:text-[13px]">
+                        Annual Fees: <span className="ml-1 font-bold theme-gradient-text">Free*</span>
+                      </span>
+                      <span className="inline-flex w-fit items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary sm:text-[13px]">
+                        Joining Fees: <span className="ml-1 font-bold theme-gradient-text">Free*</span>
+                      </span>
+                    </div>
+                  ) : null}
                 </div>
 
                 {ineligibleMessage && (
@@ -509,7 +529,15 @@ export default function ServicePage({
                         />
                       </div>
                     ) : null}
-                    <div className={vehicleLoan ? "order-2 min-w-0" : "min-w-0"}>
+                    <div
+                      className={[
+                        "min-w-0",
+                        vehicleLoan ? "order-2" : "",
+                        stackNamePan ? "sm:col-span-2" : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                    >
                       <label htmlFor="service-fullname" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
                         Full Name <span className="text-red-500">*</span>
                       </label>
@@ -523,7 +551,15 @@ export default function ServicePage({
                         required
                       />
                     </div>
-                    <div className={vehicleLoan ? "order-3 min-w-0" : "min-w-0"}>
+                    <div
+                      className={[
+                        "min-w-0",
+                        vehicleLoan ? "order-3" : "",
+                        stackNamePan ? "sm:col-span-2" : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                    >
                       <label htmlFor="service-pan" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
                         PAN Card number <span className="text-red-500">*</span>
                       </label>
@@ -826,7 +862,7 @@ export default function ServicePage({
                         ) : null}
                       </button>
                     </div>
-                    <LeadCreditDisclaimer className="mt-2 text-xs" />
+                    {showLoanAmount ? <LeadCreditDisclaimer className="mt-2 text-xs" /> : null}
                   </div>
                 </form>
               </div>
