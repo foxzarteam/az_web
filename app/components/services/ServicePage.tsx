@@ -21,7 +21,6 @@ import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { customerLogin } from "@/app/lib/customer/authApi";
 import { applyLead, isExistingApplicationError, mapServiceToCategory } from "@/app/lib/leads/leadApi";
 import {
-  firstLeadFieldError,
   personalLoanApplyPayload,
   validatePersonalLoanApplyForm,
 } from "@/app/lib/leads/personalLoanApply";
@@ -110,6 +109,8 @@ export default function ServicePage({
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
   const [pincode, setPincode] = useState("");
+  const [fullNameError, setFullNameError] = useState("");
+  const [panError, setPanError] = useState("");
   const [mobileError, setMobileError] = useState("");
   const [pincodeError, setPincodeError] = useState("");
   const [loanAmount, setLoanAmount] = useState(0);
@@ -126,10 +127,15 @@ export default function ServicePage({
   const [emiChoiceError, setEmiChoiceError] = useState("");
   const [emiAmountError, setEmiAmountError] = useState("");
   const [cibilBand, setCibilBand] = useState("");
+  const [cibilError, setCibilError] = useState("");
   const [vehicleCategory, setVehicleCategory] = useState("new_car");
+  const [vehicleCategoryError, setVehicleCategoryError] = useState("");
   const [totalMonthlyEmi, setTotalMonthlyEmi] = useState("0");
   const [pan, setPan] = useState("");
+  /** Non-field only (API / network). Field errors stay under inputs. */
   const [formError, setFormError] = useState("");
+  /** Loan apply only: 1 = basic details, 2 = eligibility. */
+  const [loanStep, setLoanStep] = useState<1 | 2>(1);
   const loanSelection = useLoanSelection();
   const [localLoanSlug, setLocalLoanSlug] = useState("personal-loan");
   const loanSlug = loanSelection?.slug ?? localLoanSlug;
@@ -200,12 +206,41 @@ export default function ServicePage({
     setNetMonthlyIncome("");
     setLoanAmount(0);
     setLoanAmountError("");
+    setFullNameError("");
+    setPanError("");
+    setMobileError("");
+    setPincodeError("");
     setCibilBand("");
+    setCibilError("");
     setEmploymentType("");
+    setEmploymentError("");
+    setIncomeError("");
     setEmiChoice("");
+    setEmiChoiceError("");
+    setEmiAmountError("");
     setVehicleCategory(isVehicleLoanCategory(selectedCategory) ? getVehicleCategoryPick() || "new_car" : "");
+    setVehicleCategoryError("");
     setTotalMonthlyEmi("0");
+    setLoanStep(1);
+    setFormError("");
   }, [pageServiceSlug, selectedCategory, setInsType, defaultInsType]);
+
+  useEffect(() => {
+    if (!loanTabs) return;
+    setLoanStep(1);
+    setFormError("");
+    setFullNameError("");
+    setPanError("");
+    setMobileError("");
+    setPincodeError("");
+    setLoanAmountError("");
+    setCibilError("");
+    setEmploymentError("");
+    setIncomeError("");
+    setEmiChoiceError("");
+    setEmiAmountError("");
+    setVehicleCategoryError("");
+  }, [loanSlug, loanTabs]);
 
   useEffect(() => {
     return subscribeVehicleCategoryPick((value) => {
@@ -222,34 +257,119 @@ export default function ServicePage({
     if (amount instanceof HTMLInputElement) amount.setCustomValidity("");
   }, [loanAmount]);
 
-  const handleSubmit = async (form: HTMLFormElement) => {
-    if (isSubmittingForm) return;
-    const amountError =
-      showLoanAmount && loanBounds && loanAmount > 0
-        ? loanAmount < loanBounds.min
-          ? `Enter at least ₹${loanBounds.min.toLocaleString("en-IN")}`
-          : loanAmount > loanBounds.max
-            ? `Enter up to ₹${loanBounds.max.toLocaleString("en-IN")}`
-            : ""
-        : "";
-    setLoanAmountError(amountError);
-    setPincodeError(validateLeadPincode(pincode) ?? "");
-    if (!reportFormValidity(form)) {
-      setFormError("");
-      return;
+  const clearInlineFieldErrors = () => {
+    setFullNameError("");
+    setPanError("");
+    setMobileError("");
+    setPincodeError("");
+    setLoanAmountError("");
+    setIncomeError("");
+    setEmploymentError("");
+    setEmiChoiceError("");
+    setEmiAmountError("");
+    setCibilError("");
+    setVehicleCategoryError("");
+  };
+
+  /** Blank → native browser popup. Filled but invalid → red text under the field. */
+  const goToLoanStep2 = (form?: HTMLFormElement | null) => {
+    if (!showLoanAmount) return;
+    setFormError("");
+    clearInlineFieldErrors();
+
+    const amountInput = document.getElementById("service-loan-amount");
+    if (amountInput instanceof HTMLInputElement) amountInput.setCustomValidity("");
+
+    // Empty required fields + terms: browser/Bootstrap-style tooltip.
+    if (form && !reportFormValidity(form)) return;
+
+    const nameMobile = validateLeadPanNameMobile({
+      pan,
+      mobileDigits: mobile.replace(/\D/g, ""),
+      fullName,
+    });
+    const pinDigits = pincode.replace(/\D/g, "");
+    const pinErr = pinDigits ? validateLeadPincode(pincode) : undefined;
+    const nameFilled = Boolean(fullName.trim());
+    const panFilled = Boolean(pan.trim());
+    const mobileFilled = Boolean(mobile.replace(/\D/g, ""));
+    const vehicleMsg =
+      vehicleLoan && vehicleCategory.trim() === "" ? "Select vehicle category" : "";
+
+    let amountMsg = "";
+    if (!vehicleLoan && loanAmount > 0) {
+      if (loanTabs && loanProducts.length > 0 && !loanBounds) {
+        amountMsg = "Amount range is not available for this loan.";
+      } else if (loanBounds) {
+        if (loanAmount < loanBounds.min) {
+          amountMsg = `Enter at least ₹${loanBounds.min.toLocaleString("en-IN")}`;
+        } else if (loanAmount > loanBounds.max) {
+          amountMsg = `Enter up to ₹${loanBounds.max.toLocaleString("en-IN")}`;
+        }
+      }
     }
-    if (!termsAccepted) {
-      setFormError("Please tick the checkbox to continue.");
+
+    setFullNameError(nameFilled ? nameMobile.fullName ?? "" : "");
+    setPanError(panFilled ? nameMobile.pan ?? "" : "");
+    setMobileError(mobileFilled ? nameMobile.mobile ?? "" : "");
+    setPincodeError(pinErr ?? "");
+    setVehicleCategoryError(vehicleMsg);
+    setLoanAmountError(amountMsg);
+
+    if (
+      (nameFilled && nameMobile.fullName) ||
+      (panFilled && nameMobile.pan) ||
+      (mobileFilled && nameMobile.mobile) ||
+      pinErr ||
+      vehicleMsg ||
+      amountMsg
+    ) {
       return;
     }
 
+    if (!termsAccepted) {
+      const termsEl = document.getElementById("service-terms");
+      if (termsEl instanceof HTMLInputElement) {
+        termsEl.setCustomValidity("Please tick the checkbox to continue.");
+        termsEl.reportValidity();
+      }
+      return;
+    }
+    setLoanStep(2);
+  };
+
+  const handleSubmit = async (form: HTMLFormElement) => {
+    if (isSubmittingForm) return;
+    // Multi-step: Continue never hits the API/DB — only advances UI after step-1 rules.
+    if (showLoanAmount && loanStep !== 2) {
+      goToLoanStep2(form);
+      return;
+    }
+    setFormError("");
+    clearInlineFieldErrors();
+    const amountInput = document.getElementById("service-loan-amount");
+    if (amountInput instanceof HTMLInputElement) amountInput.setCustomValidity("");
+
+    // Blank required fields → native popup (not red under-field text).
+    if (!reportFormValidity(form)) return;
+    if (!termsAccepted) {
+      const termsEl = document.getElementById("service-terms");
+      if (termsEl instanceof HTMLInputElement) {
+        termsEl.setCustomValidity("Please tick the checkbox to continue.");
+        termsEl.reportValidity();
+      }
+      return;
+    }
+
+    // Rule / format errors only when the user entered something invalid.
     const errors: LeadFieldErrors = validateLeadPanNameMobile({
       pan,
       mobileDigits: mobile.replace(/\D/g, ""),
       fullName,
     });
     if (!service.trim()) errors.service = "Product could not be detected for this page";
-    const pinErr = validateLeadPincode(pincode);
+    const pinDigits = pincode.replace(/\D/g, "");
+    const pinErr = pinDigits ? validateLeadPincode(pincode) : undefined;
     if (pinErr) errors.pincode = pinErr;
     if (showLoanAmount && loanTabs && loanProducts.length > 0 && !loanBounds) {
       errors.loanAmt = "Amount range is not available for this loan.";
@@ -273,22 +393,86 @@ export default function ServicePage({
     }
     if (showInsuranceType && !insType.trim()) errors.insType = "Please select insurance type";
 
-    setIncomeError(errors.netMonthlyIncome ?? "");
-    setEmploymentError(errors.employmentType ?? "");
-    setEmiChoiceError(errors.hasExistingEmi ?? "");
-    setEmiAmountError(errors.totalMonthlyEmi ?? "");
-    setPincodeError(errors.pincode ?? "");
-    if (errors.pincode) delete errors.pincode;
-    if (errors.netMonthlyIncome) delete errors.netMonthlyIncome;
-    if (errors.employmentType) delete errors.employmentType;
-    if (errors.hasExistingEmi) delete errors.hasExistingEmi;
-    if (errors.totalMonthlyEmi) delete errors.totalMonthlyEmi;
-    if (amountError) delete errors.loanAmt;
-    const bannerError = firstLeadFieldError(errors);
-    if (amountError || bannerError) {
-      setFormError(bannerError ?? "");
+    const nameFilled = Boolean(fullName.trim());
+    const panFilled = Boolean(pan.trim());
+    const mobileFilled = Boolean(mobile.replace(/\D/g, ""));
+    const incomeFilled = Boolean(String(netMonthlyIncome).replace(/\D/g, ""));
+    const amountFilled = loanAmount > 0;
+    const amountError =
+      showLoanAmount && amountFilled && loanBounds
+        ? loanAmount < loanBounds.min
+          ? `Enter at least ₹${loanBounds.min.toLocaleString("en-IN")}`
+          : loanAmount > loanBounds.max
+            ? `Enter up to ₹${loanBounds.max.toLocaleString("en-IN")}`
+            : ""
+        : "";
+    const loanAmtError = amountError || (amountFilled || loanStep === 2 ? errors.loanAmt ?? "" : "");
+    const emiFilled = Boolean(String(totalMonthlyEmi).replace(/\D/g, ""));
+
+    // Block API/DB on ANY field/rule failure (including hidden step-1 fields).
+    const hasFieldError = Boolean(
+      errors.fullName ||
+        errors.pan ||
+        errors.mobile ||
+        errors.pincode ||
+        loanAmtError ||
+        errors.loanAmt ||
+        errors.netMonthlyIncome ||
+        errors.employmentType ||
+        errors.hasExistingEmi ||
+        errors.totalMonthlyEmi ||
+        errors.cibilBand ||
+        errors.vehicleCategory ||
+        errors.insType,
+    );
+
+    // Red under-field only for filled-but-invalid; blank stay native when field is visible.
+    // If step-1 basics failed on step 2 (fields unmounted), show messages and return to step 1.
+    const step1Failed = Boolean(
+      errors.fullName ||
+        errors.pan ||
+        errors.mobile ||
+        errors.pincode ||
+        (!vehicleLoan && (loanAmtError || errors.loanAmt)) ||
+        (vehicleLoan && errors.vehicleCategory),
+    );
+    const showStep1Messages = !showLoanAmount || loanStep === 1 || step1Failed;
+
+    setFullNameError(
+      showStep1Messages && (nameFilled || step1Failed) ? errors.fullName ?? "" : "",
+    );
+    setPanError(showStep1Messages && (panFilled || step1Failed) ? errors.pan ?? "" : "");
+    setMobileError(
+      showStep1Messages && (mobileFilled || step1Failed) ? errors.mobile ?? "" : "",
+    );
+    setPincodeError(
+      showStep1Messages && (pinDigits || step1Failed) ? errors.pincode ?? "" : "",
+    );
+    setLoanAmountError(
+      showStep1Messages || vehicleLoan ? loanAmtError || errors.loanAmt || "" : "",
+    );
+    setIncomeError(incomeFilled ? errors.netMonthlyIncome ?? "" : "");
+    setEmploymentError(employmentType.trim() ? errors.employmentType ?? "" : "");
+    setEmiChoiceError(emiChoice ? errors.hasExistingEmi ?? "" : "");
+    setEmiAmountError(
+      hasExistingEmi === "yes" && emiFilled ? errors.totalMonthlyEmi ?? "" : "",
+    );
+    setCibilError(cibilBand.trim() ? errors.cibilBand ?? "" : "");
+    setVehicleCategoryError(
+      showStep1Messages && (vehicleCategory.trim() || step1Failed)
+        ? errors.vehicleCategory ?? ""
+        : "",
+    );
+
+    if (hasFieldError) {
+      if (showLoanAmount && loanStep === 2 && step1Failed) setLoanStep(1);
       return;
     }
+    if (errors.service) {
+      setFormError(errors.service);
+      return;
+    }
+    // Eligibility must pass before any DB write (server also rejects LOAN_NOT_ELIGIBLE).
     if (showLoanAmount) {
       const blocked = loanNotEligibleMessage({
         category: selectedCategory,
@@ -415,7 +599,7 @@ export default function ServicePage({
                   className={`mb-3 flex gap-2 ${
                     selectedCategory === "credit_card"
                       ? "flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3"
-                      : "items-center"
+                      : "items-center justify-between"
                   }`}
                 >
                   <h2 className={`min-w-0 leading-snug ${loanTabs ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"} font-semibold text-midnight_text dark:text-white ${selectedCategory === "credit_card" ? "" : "flex-1"}`}>
@@ -432,6 +616,21 @@ export default function ServicePage({
                       </>
                     )}
                   </h2>
+                  {showLoanAmount && loanStep === 2 ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormError("");
+                        setLoanStep(1);
+                      }}
+                      className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-midnight_text px-3.5 py-1.5 text-xs font-semibold text-white transition hover:opacity-90 sm:px-4 sm:text-sm"
+                    >
+                      <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" aria-hidden>
+                        <path d="M16 10H4M9 5l-5 5 5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      Back
+                    </button>
+                  ) : null}
                   {selectedCategory === "credit_card" ? (
                     <div className="flex flex-row flex-wrap items-center gap-2 sm:gap-3">
                       <span className="inline-flex w-fit items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary sm:text-[13px]">
@@ -484,6 +683,23 @@ export default function ServicePage({
                     </div>
                   )}
 
+                  {showLoanAmount ? (
+                    <div className="space-y-1.5" aria-label={`Step ${loanStep} of 2`}>
+                      <div className="flex items-center justify-between gap-2 text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">
+                        <span>
+                          Step {loanStep} of 2 — {loanStep === 1 ? "Basic details" : "Eligibility"}
+                        </span>
+                        <span className="tabular-nums">{loanStep}/2</span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark_border">
+                        <div
+                          className="theme-gradient-bg h-full rounded-full transition-[width] duration-300 ease-out"
+                          style={{ width: loanStep === 1 ? "50%" : "100%" }}
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+
                   {showInsuranceType && (
                     <div className="relative">
                       <label htmlFor="service-ins-type" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
@@ -511,146 +727,169 @@ export default function ServicePage({
                     </div>
                   )}
 
-                  <div className={vehicleLoan ? "grid grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4" : "grid grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4"}>
-                    {vehicleLoan ? (
-                      <div className="order-1 min-w-0 sm:col-span-2">
-                        <label htmlFor="service-vehicle-category" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                          Select vehicle category&nbsp;<span className="text-red-500">*</span>
+                  {/* Loan step 1 / non-loan full form: basics */}
+                  {(!showLoanAmount || loanStep === 1) ? (
+                    <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4">
+                      {showLoanAmount && !vehicleLoan ? (
+                        <div className="min-w-0 sm:col-span-2">
+                          <LoanAmountSlider
+                            id="service-loan-amount"
+                            value={loanAmount}
+                            onChange={(value) => {
+                              setLoanAmount(value);
+                              setLoanAmountError("");
+                            }}
+                            min={loanBounds?.min}
+                            max={loanBounds?.max}
+                            placeholder={
+                              loanBounds
+                                ? `₹${loanBounds.min.toLocaleString("en-IN")} – ₹${loanBounds.max.toLocaleString("en-IN")}`
+                                : ""
+                            }
+                            required
+                            error={loanAmountError}
+                          />
+                        </div>
+                      ) : null}
+                      {vehicleLoan ? (
+                        <div className="min-w-0 sm:col-span-2">
+                          <label htmlFor="service-vehicle-category" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                            Select vehicle category&nbsp;<span className="text-red-500">*</span>
+                          </label>
+                          <VehicleCategorySelect
+                            id="service-vehicle-category"
+                            value={vehicleCategory}
+                            onChange={(value) => {
+                              setVehicleCategory(value);
+                              setVehicleCategoryPick(value);
+                              setVehicleCategoryError("");
+                            }}
+                            options={vehicleCategoryOptions}
+                            className={inputClass}
+                          />
+                          {vehicleCategoryError ? (
+                            <p className="mt-1 text-xs text-red-600">{vehicleCategoryError}</p>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      <div className={["min-w-0", stackNamePan ? "sm:col-span-2" : ""].filter(Boolean).join(" ")}>
+                        <label htmlFor="service-fullname" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+                          Full Name <span className="text-red-500">*</span>
                         </label>
-                        <VehicleCategorySelect
-                          id="service-vehicle-category"
-                          value={vehicleCategory}
-                          onChange={(value) => {
-                            setVehicleCategory(value);
-                            setVehicleCategoryPick(value);
-                          }}
-                          options={vehicleCategoryOptions}
-                          className={inputClass}
-                        />
-                      </div>
-                    ) : null}
-                    <div
-                      className={[
-                        "min-w-0",
-                        vehicleLoan ? "order-2" : "",
-                        stackNamePan ? "sm:col-span-2" : "",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
-                    >
-                      <label htmlFor="service-fullname" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
-                        Full Name <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        id="service-fullname"
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => setFullName(sanitizeLeadNameInput(e.target.value))}
-                        placeholder="Full Name (As per PAN)"
-                        className={inputClass}
-                        required
-                      />
-                    </div>
-                    <div
-                      className={[
-                        "min-w-0",
-                        vehicleLoan ? "order-3" : "",
-                        stackNamePan ? "sm:col-span-2" : "",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
-                    >
-                      <label htmlFor="service-pan" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
-                        PAN Card number <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        id="service-pan"
-                        type="text"
-                        value={pan}
-                        onChange={(e) => setPan(sanitizeLeadPanInput(e.target.value))}
-                        maxLength={10}
-                        placeholder="e.g. ABCDE1234F"
-                        className={inputClass}
-                        required
-                      />
-                    </div>
-                    <div className={vehicleLoan ? "order-4 min-w-0" : "min-w-0"}>
-                      <label className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                        Mobile Number <span className="text-red-500">*</span>
-                      </label>
-                      <div className={mobileShellClass}>
-                        <span className="flex shrink-0 items-center pl-3" aria-hidden>
-                          <IndiaFlag />
-                        </span>
-                        <span className="px-2 text-base font-semibold text-midnight_text dark:text-white">
-                          +91
-                        </span>
-                        <span className="h-6 w-px shrink-0 bg-gray-300 dark:bg-dark_border" aria-hidden />
                         <input
-                          type="tel"
-                          inputMode="numeric"
-                          autoComplete="tel"
-                          maxLength={MOBILE_VALIDATION.MAX_LENGTH}
-                          placeholder="10-digit mobile"
-                          value={mobile}
-                          onChange={(e) => {
-                            setMobile(sanitizeMobileInput(e.target.value));
-                            setMobileError("");
-                          }}
-                          pattern="[0-9]*"
-                          className={mobileInputClass}
-                          required
-                        />
-                      </div>
-                      {mobileError ? <p className="mt-1 text-xs text-red-600">{mobileError}</p> : null}
-                    </div>
-                    <div className={vehicleLoan ? "order-5 min-w-0" : "min-w-0"}>
-                      <label
-                        htmlFor="service-pincode"
-                        className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
-                      >
-                        Current Residence Pincode <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <span className="pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2" aria-hidden>
-                          <svg viewBox="0 0 24 24" className="h-5 w-5">
-                            <defs>
-                              <linearGradient id="pincode-pin-gradient" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
-                                <stop offset="0%" stopColor="#4236FB" />
-                                <stop offset="100%" stopColor="#FF7E29" />
-                              </linearGradient>
-                            </defs>
-                            <path
-                              fill="url(#pincode-pin-gradient)"
-                              d="M12 2.2c-4.1 0-7.4 3.2-7.4 7.3 0 5.1 7.4 12.3 7.4 12.3s7.4-7.2 7.4-12.3c0-4.1-3.3-7.3-7.4-7.3z"
-                            />
-                            <circle cx="12" cy="9.4" r="2.5" fill="#fff" />
-                          </svg>
-                        </span>
-                        <input
-                          id="service-pincode"
+                          id="service-fullname"
                           type="text"
-                          inputMode="numeric"
-                          autoComplete="postal-code"
-                          maxLength={6}
-                          placeholder="e.g. 302002"
-                          value={pincode}
+                          value={fullName}
                           onChange={(e) => {
-                            setPincode(sanitizeLeadPincodeInput(e.target.value));
-                            setPincodeError("");
+                            setFullName(sanitizeLeadNameInput(e.target.value));
+                            setFullNameError("");
                           }}
-                          pattern="[0-9]*"
-                          className={`${inputClass} !pl-10`}
+                          placeholder="Full Name (As per PAN)"
+                          className={inputClass}
                           required
                         />
+                        {fullNameError ? <p className="mt-1 text-xs text-red-600">{fullNameError}</p> : null}
                       </div>
-                      {pincodeError ? <p className="mt-1 text-xs text-red-600">{pincodeError}</p> : null}
+                      <div className={["min-w-0", stackNamePan ? "sm:col-span-2" : ""].filter(Boolean).join(" ")}>
+                        <label htmlFor="service-pan" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+                          PAN Card number <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          id="service-pan"
+                          type="text"
+                          value={pan}
+                          onChange={(e) => {
+                            setPan(sanitizeLeadPanInput(e.target.value));
+                            setPanError("");
+                          }}
+                          maxLength={10}
+                          placeholder="e.g. ABCDE1234F"
+                          className={inputClass}
+                          required
+                        />
+                        {panError ? <p className="mt-1 text-xs text-red-600">{panError}</p> : null}
+                      </div>
+                      <div className="min-w-0">
+                        <label className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                          Mobile Number <span className="text-red-500">*</span>
+                        </label>
+                        <div className={mobileShellClass}>
+                          <span className="flex shrink-0 items-center pl-3" aria-hidden>
+                            <IndiaFlag />
+                          </span>
+                          <span className="px-2 text-base font-semibold text-midnight_text dark:text-white">
+                            +91
+                          </span>
+                          <span className="h-6 w-px shrink-0 bg-gray-300 dark:bg-dark_border" aria-hidden />
+                          <input
+                            type="tel"
+                            inputMode="numeric"
+                            autoComplete="tel"
+                            maxLength={MOBILE_VALIDATION.MAX_LENGTH}
+                            placeholder="10-digit mobile"
+                            value={mobile}
+                            onChange={(e) => {
+                              setMobile(sanitizeMobileInput(e.target.value));
+                              setMobileError("");
+                            }}
+                            pattern="[0-9]*"
+                            className={mobileInputClass}
+                            required
+                          />
+                        </div>
+                        {mobileError ? <p className="mt-1 text-xs text-red-600">{mobileError}</p> : null}
+                      </div>
+                      <div className="min-w-0">
+                        <label
+                          htmlFor="service-pincode"
+                          className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                        >
+                          Current Residence Pincode <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <span className="pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2" aria-hidden>
+                            <svg viewBox="0 0 24 24" className="h-5 w-5">
+                              <defs>
+                                <linearGradient id="pincode-pin-gradient" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+                                  <stop offset="0%" stopColor="#4236FB" />
+                                  <stop offset="100%" stopColor="#FF7E29" />
+                                </linearGradient>
+                              </defs>
+                              <path
+                                fill="url(#pincode-pin-gradient)"
+                                d="M12 2.2c-4.1 0-7.4 3.2-7.4 7.3 0 5.1 7.4 12.3 7.4 12.3s7.4-7.2 7.4-12.3c0-4.1-3.3-7.3-7.4-7.3z"
+                              />
+                              <circle cx="12" cy="9.4" r="2.5" fill="#fff" />
+                            </svg>
+                          </span>
+                          <input
+                            id="service-pincode"
+                            type="text"
+                            inputMode="numeric"
+                            autoComplete="postal-code"
+                            maxLength={6}
+                            placeholder="e.g. 302002"
+                            value={pincode}
+                            onChange={(e) => {
+                              setPincode(sanitizeLeadPincodeInput(e.target.value));
+                              setPincodeError("");
+                            }}
+                            pattern="[0-9]*"
+                            className={`${inputClass} !pl-10`}
+                            required
+                          />
+                        </div>
+                        {pincodeError ? <p className="mt-1 text-xs text-red-600">{pincodeError}</p> : null}
+                      </div>
                     </div>
-                  {showLoanAmount ? (
-                    <>
+                  ) : null}
+
+                  {/* Loan step 2: eligibility */}
+                  {showLoanAmount && loanStep === 2 ? (
+                    <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4">
                       {vehicleLoan ? (
                         <>
-                          <div className="order-6 min-w-0">
+                          <div className="min-w-0 sm:col-span-2">
                             <LoanAmountSlider
                               id="service-loan-amount"
                               value={loanAmount}
@@ -669,119 +908,96 @@ export default function ServicePage({
                               error={loanAmountError}
                             />
                           </div>
-                          <div className="order-8 min-w-0">
-                            <EmploymentTypeField
-                              id="service-employment"
-                              value={employmentType}
-                              options={LOAN_APPLY_EMPLOYMENT_OPTIONS}
-                              onChange={(value) => {
-                                setEmploymentType(value);
-                                setEmploymentError("");
-                              }}
-                              className={inputClass}
-                              labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
-                              error={
-                                employmentError ? <p className="mt-1 text-xs text-red-600">{employmentError}</p> : null
-                              }
-                            />
-                          </div>
-                          <div className="order-9 min-w-0">
-                            <EmploymentIncomeFields
-                              idPrefix="service"
-                              netMonthlyIncome={netMonthlyIncome}
-                              onIncomeChange={(value) => {
-                                setNetMonthlyIncome(value);
-                                setIncomeError("");
-                              }}
-                              inputClassName={inputClass}
-                              labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
-                              incomeWithRupee
-                              incomeError={
-                                incomeError ? <p className="mt-1 text-xs text-red-600">{incomeError}</p> : null
-                              }
-                            />
-                          </div>
-                          <div className="order-7 min-w-0">
+                          <div className="min-w-0 sm:col-span-2">
                             <label htmlFor="service-cibil" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
                               CIBIL score <span className="text-red-500">*</span>
                             </label>
                             <CibilBandSelect
                               id="service-cibil"
                               value={cibilBand}
-                              onChange={setCibilBand}
+                              onChange={(value) => {
+                                setCibilBand(value);
+                                setCibilError("");
+                              }}
                               options={VEHICLE_CIBIL_OPTIONS}
                               className={inputClass}
                             />
+                            {cibilError ? <p className="mt-1 text-xs text-red-600">{cibilError}</p> : null}
                           </div>
+                          <EmploymentTypeField
+                            id="service-employment"
+                            value={employmentType}
+                            options={LOAN_APPLY_EMPLOYMENT_OPTIONS}
+                            onChange={(value) => {
+                              setEmploymentType(value);
+                              setEmploymentError("");
+                            }}
+                            className={inputClass}
+                            labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                            error={
+                              employmentError ? <p className="mt-1 text-xs text-red-600">{employmentError}</p> : null
+                            }
+                          />
+                          <EmploymentIncomeFields
+                            idPrefix="service"
+                            netMonthlyIncome={netMonthlyIncome}
+                            onIncomeChange={(value) => {
+                              setNetMonthlyIncome(value);
+                              setIncomeError("");
+                            }}
+                            inputClassName={inputClass}
+                            labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                            incomeWithRupee
+                            incomeError={
+                              incomeError ? <p className="mt-1 text-xs text-red-600">{incomeError}</p> : null
+                            }
+                          />
                         </>
                       ) : (
                         <>
-                          <div className="grid grid-cols-1 items-start gap-3 sm:col-span-2 sm:grid-cols-2 sm:gap-4">
-                            <div className="min-w-0">
-                              <LoanAmountSlider
-                                id="service-loan-amount"
-                                value={loanAmount}
-                                onChange={(value) => {
-                                setLoanAmount(value);
-                                setLoanAmountError("");
-                              }}
-                                min={loanBounds?.min}
-                                max={loanBounds?.max}
-                                placeholder={
-                                  loanBounds
-                                    ? `₹${loanBounds.min.toLocaleString("en-IN")} – ₹${loanBounds.max.toLocaleString("en-IN")}`
-                                    : ""
-                                }
-                                required
-                                error={loanAmountError}
-                              />
-                            </div>
-                            <div className="min-w-0">
-                              <label htmlFor="service-cibil" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                                CIBIL score <span className="text-red-500">*</span>
-                              </label>
-                              <CibilBandSelect
-                                id="service-cibil"
-                                value={cibilBand}
-                                onChange={setCibilBand}
-                                className={inputClass}
-                              />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 items-start gap-3 sm:col-span-2 sm:grid-cols-2 sm:gap-4">
-                            <EmploymentTypeField
-                              id="service-employment"
-                              value={employmentType}
-                              options={LOAN_APPLY_EMPLOYMENT_OPTIONS}
+                          <div className="min-w-0 sm:col-span-2">
+                            <label htmlFor="service-cibil" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                              CIBIL score <span className="text-red-500">*</span>
+                            </label>
+                            <CibilBandSelect
+                              id="service-cibil"
+                              value={cibilBand}
                               onChange={(value) => {
-                                setEmploymentType(value);
-                                setEmploymentError("");
+                                setCibilBand(value);
+                                setCibilError("");
                               }}
                               className={inputClass}
-                              labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
-                              error={
-                                employmentError ? <p className="mt-1 text-xs text-red-600">{employmentError}</p> : null
-                              }
                             />
-                            <EmploymentIncomeFields
-                              idPrefix="service"
-                              netMonthlyIncome={netMonthlyIncome}
-                              onIncomeChange={(value) => {
-                                setNetMonthlyIncome(value);
-                                setIncomeError("");
-                              }}
-                              inputClassName={inputClass}
-                              labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
-                              incomeWithRupee
-                              incomeError={
-                                incomeError ? <p className="mt-1 text-xs text-red-600">{incomeError}</p> : null
-                              }
-                            />
+                            {cibilError ? <p className="mt-1 text-xs text-red-600">{cibilError}</p> : null}
                           </div>
-                        </>
-                      )}
-                      {vehicleLoan ? null : (
-                        <>
+                          <EmploymentTypeField
+                            id="service-employment"
+                            value={employmentType}
+                            options={LOAN_APPLY_EMPLOYMENT_OPTIONS}
+                            onChange={(value) => {
+                              setEmploymentType(value);
+                              setEmploymentError("");
+                            }}
+                            className={inputClass}
+                            labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                            error={
+                              employmentError ? <p className="mt-1 text-xs text-red-600">{employmentError}</p> : null
+                            }
+                          />
+                          <EmploymentIncomeFields
+                            idPrefix="service"
+                            netMonthlyIncome={netMonthlyIncome}
+                            onIncomeChange={(value) => {
+                              setNetMonthlyIncome(value);
+                              setIncomeError("");
+                            }}
+                            inputClassName={inputClass}
+                            labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                            incomeWithRupee
+                            incomeError={
+                              incomeError ? <p className="mt-1 text-xs text-red-600">{incomeError}</p> : null
+                            }
+                          />
                           <div className="min-w-0">
                             <label htmlFor="service-existing-emi" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
                               Do you pay an existing loan EMI? <span className="text-red-500">*</span>
@@ -835,9 +1051,8 @@ export default function ServicePage({
                           </div>
                         </>
                       )}
-                    </>
+                    </div>
                   ) : null}
-                  </div>
 
                   <TermsAgreementCheckbox
                     id="service-terms"
@@ -848,11 +1063,22 @@ export default function ServicePage({
                   />
 
                   <div className={showLoanAmount ? "w-full" : "mt-auto w-full pt-2 sm:pt-3"}>
-                    <div className="w-full">
+                    {showLoanAmount && loanStep === 1 ? (
+                      <button
+                        type="button"
+                        onClick={(e) => goToLoanStep2(e.currentTarget.form)}
+                        className={`inline-flex w-full min-w-0 items-center justify-center gap-2 whitespace-nowrap btn-gradient px-4 text-sm font-semibold text-white shadow-md sm:text-base ${loanTabs ? "min-h-12 rounded-full py-3" : "min-h-[44px] rounded-xl py-2.5 sm:rounded-2xl sm:py-3"}`}
+                      >
+                        Check Eligibility
+                        <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden>
+                          <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </button>
+                    ) : (
                       <button
                         type="submit"
                         disabled={isSubmittingForm}
-                        className={`inline-flex w-full min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap btn-gradient px-4 text-sm font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70 sm:text-base ${loanTabs ? "min-h-12 rounded-full py-3" : "min-h-[44px] rounded-xl py-2.5 sm:rounded-2xl sm:py-3"}`}
+                        className={`inline-flex w-full min-w-0 items-center justify-center gap-2 whitespace-nowrap btn-gradient px-4 text-sm font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70 sm:text-base ${loanTabs ? "min-h-12 rounded-full py-3" : "min-h-[44px] rounded-xl py-2.5 sm:rounded-2xl sm:py-3"}`}
                       >
                         {isSubmittingForm ? "Submitting…" : loanTabs ? "Check Eligibility" : "Apply Now"}
                         {!isSubmittingForm && loanTabs ? (
@@ -861,8 +1087,10 @@ export default function ServicePage({
                           </svg>
                         ) : null}
                       </button>
-                    </div>
-                    {showLoanAmount ? <LeadCreditDisclaimer className="mt-2 text-xs" /> : null}
+                    )}
+                    {showLoanAmount ? (
+                      <LeadCreditDisclaimer className="mt-2 text-xs" />
+                    ) : null}
                   </div>
                 </form>
               </div>
