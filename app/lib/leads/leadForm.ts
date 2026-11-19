@@ -170,6 +170,7 @@ export type LeadFieldErrors = Partial<{
   pan: string;
   mobile: string;
   fullName: string;
+  email: string;
   service: string;
   loanAmt: string;
   insType: string;
@@ -181,6 +182,17 @@ export type LeadFieldErrors = Partial<{
   pincode: string;
   vehicleCategory: string;
 }>;
+
+const LEAD_EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function validateLeadEmail(email: string): string | undefined {
+  const value = email.trim();
+  if (!value) return "Email is required";
+  if (value.length > 255 || !LEAD_EMAIL_PATTERN.test(value)) {
+    return "Enter a valid email address";
+  }
+  return undefined;
+}
 
 export function validateLeadPincode(pincode: string): string | undefined {
   const pin = pincode.replace(/\D/g, "");

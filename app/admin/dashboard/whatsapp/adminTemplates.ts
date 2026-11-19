@@ -6,6 +6,7 @@ export const ADMIN_TEMPLATES = [
   { id: "document_pending_reminder", label: "Reminder: Documents Pending", dot: "#d97706" },
   { id: "call_not_answered_followup", label: "Reminder: Call Not Answered", dot: "#7c3aed" },
   { id: "reject_template", label: "Reject Application", dot: "#dc2626" },
+  { id: "improve_cibil_score", label: "Improve CIBIL Score", dot: "#0f766e" },
 ] as const;
 
 export function isAdminTemplateId(value: string): boolean {

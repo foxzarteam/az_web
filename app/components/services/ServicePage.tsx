@@ -40,6 +40,7 @@ import {
   isVehicleLoanCategory,
   loanNotEligibleMessage,
   sanitizeLeadPincodeInput,
+  validateLeadEmail,
   validateLeadPanNameMobile,
   validateLeadPincode,
   type LeadFieldErrors,
@@ -109,8 +110,10 @@ export default function ServicePage({
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
   const [pincode, setPincode] = useState("");
+  const [email, setEmail] = useState("");
   const [fullNameError, setFullNameError] = useState("");
   const [panError, setPanError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [mobileError, setMobileError] = useState("");
   const [pincodeError, setPincodeError] = useState("");
   const [loanAmount, setLoanAmount] = useState(0);
@@ -208,6 +211,8 @@ export default function ServicePage({
     setLoanAmountError("");
     setFullNameError("");
     setPanError("");
+    setEmail("");
+    setEmailError("");
     setMobileError("");
     setPincodeError("");
     setCibilBand("");
@@ -260,6 +265,7 @@ export default function ServicePage({
   const clearInlineFieldErrors = () => {
     setFullNameError("");
     setPanError("");
+    setEmailError("");
     setMobileError("");
     setPincodeError("");
     setLoanAmountError("");
@@ -392,6 +398,10 @@ export default function ServicePage({
       if (vehicleLoan && !vehicleCategory.trim()) errors.vehicleCategory = "Select vehicle category";
     }
     if (showInsuranceType && !insType.trim()) errors.insType = "Please select insurance type";
+    if (selectedCategory === "credit_card") {
+      const emailErr = validateLeadEmail(email);
+      if (emailErr) errors.email = emailErr;
+    }
 
     const nameFilled = Boolean(fullName.trim());
     const panFilled = Boolean(pan.trim());
@@ -423,7 +433,8 @@ export default function ServicePage({
         errors.totalMonthlyEmi ||
         errors.cibilBand ||
         errors.vehicleCategory ||
-        errors.insType,
+        errors.insType ||
+        errors.email,
     );
 
     // Red under-field only for filled-but-invalid; blank stay native when field is visible.
@@ -463,6 +474,7 @@ export default function ServicePage({
         ? errors.vehicleCategory ?? ""
         : "",
     );
+    setEmailError(email.trim() ? errors.email ?? "" : "");
 
     if (hasFieldError) {
       if (showLoanAmount && loanStep === 2 && step1Failed) setLoanStep(1);
@@ -530,6 +542,7 @@ export default function ServicePage({
             }
           : {}),
         ...(category === "insurance" ? { insType } : {}),
+        ...(category === "credit_card" ? { email: email.trim() } : {}),
         consentAccepted: termsAccepted,
       };
       const res = await applyLead(payload);
@@ -790,7 +803,7 @@ export default function ServicePage({
                         />
                         {fullNameError ? <p className="mt-1 text-xs text-red-600">{fullNameError}</p> : null}
                       </div>
-                      <div className={["min-w-0", stackNamePan ? "sm:col-span-2" : ""].filter(Boolean).join(" ")}>
+                      <div className="min-w-0">
                         <label htmlFor="service-pan" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
                           PAN Card number <span className="text-red-500">*</span>
                         </label>
@@ -809,6 +822,28 @@ export default function ServicePage({
                         />
                         {panError ? <p className="mt-1 text-xs text-red-600">{panError}</p> : null}
                       </div>
+                      {stackNamePan ? (
+                        <div className="min-w-0">
+                          <label htmlFor="service-email" className="block text-sm font-medium text-midnight_text dark:text-gray-300 mb-1.5">
+                            Email <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            id="service-email"
+                            type="email"
+                            autoComplete="email"
+                            value={email}
+                            onChange={(e) => {
+                              setEmail(e.target.value);
+                              setEmailError("");
+                            }}
+                            placeholder="e.g. name@email.com"
+                            className={inputClass}
+                            required
+                            maxLength={255}
+                          />
+                          {emailError ? <p className="mt-1 text-xs text-red-600">{emailError}</p> : null}
+                        </div>
+                      ) : null}
                       <div className="min-w-0">
                         <label className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
                           Mobile Number <span className="text-red-500">*</span>
