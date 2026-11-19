@@ -55,11 +55,10 @@ export default function CibilBoostSection() {
           >
             Use FD Credit Card to Improve Your{" "}
             <span className="theme-gradient-text">CIBIL Score</span>
-            <br className="hidden sm:block" /> &amp; Get a{" "}
-            <span className="theme-gradient-text">Bigger Loan</span>
           </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-gray dark:text-gray-400 sm:text-base">
-            No Eligibility Issue! Just build your credit history with responsible usage.
+          <p className="mx-auto mt-3 max-w-3xl text-sm leading-relaxed text-gray dark:text-gray-400 sm:text-base">
+            No Eligibility Issues! Build your credit history through responsible usage, improve your
+            CIBIL score, and become eligible for a higher loan amount in just a few months.
           </p>
         </div>
 
