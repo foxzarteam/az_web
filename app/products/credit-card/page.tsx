@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import ServicePage from "@/app/components/services/ServicePage";
+import CibilBoostSection from "@/app/components/products/credit-card/CibilBoostSection";
 import CreditCardOffers from "@/app/components/products/credit-card/CreditCardOffers";
 import HowItWorks from "@/app/components/products/credit-card/HowItWorks";
 import FaqSection from "@/app/components/home/faq";
@@ -78,6 +79,7 @@ export default function CreditCardPage() {
         navBorder
         serviceSlug="credit-card"
       />
+      <CibilBoostSection />
       <CreditCardOffers />
       <HowItWorks />
       <FaqSection items={CREDIT_CARD_FAQ_ITEMS} />
