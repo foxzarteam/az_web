@@ -166,7 +166,7 @@ export default function WhatsappInbox({
           if (openIdRef.current === open && chatRes.ok && data.data) setDetail(data.data);
         })
         .catch(() => undefined);
-    }, 2_000);
+    }, 1_000);
     return () => {
       window.clearInterval(timer);
       window.clearInterval(chatTimer);

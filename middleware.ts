@@ -31,15 +31,20 @@ export function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
-  // Pages keep `/about/` . `/api/*` must not 308 — Meta webhook POST drops the body on redirect.
-  if (
-    !path.startsWith("/api/") &&
-    !path.startsWith("/_next") &&
-    path !== "/sitemap.xml" &&
-    path !== "/robots.txt" &&
-    !path.includes(".") &&
-    !path.endsWith("/")
-  ) {
+  // Public pages keep `/about/`. Never slash-redirect app shells — `/admin` ↔ `/admin/`
+  // was an infinite 308 (ERR_TOO_MANY_REDIRECTS). `/api/*` must not 308 either
+  // (Meta webhook POST would drop the body).
+  const skipTrailingSlash =
+    path.startsWith("/api/") ||
+    path.startsWith("/admin") ||
+    path.startsWith("/partner") ||
+    path.startsWith("/customer") ||
+    path.startsWith("/_next") ||
+    path.startsWith("/r/") ||
+    path === "/sitemap.xml" ||
+    path === "/robots.txt" ||
+    path.includes(".");
+  if (!skipTrailingSlash && !path.endsWith("/")) {
     const url = request.nextUrl.clone();
     url.pathname = `${path}/`;
     return NextResponse.redirect(url, 308);
