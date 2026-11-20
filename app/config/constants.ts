@@ -8,7 +8,7 @@ import {
   PUBLIC_INDIA_MAP_FALLBACK_SVG_URL,
   PUBLIC_INDIA_MAP_SVG_URL,
   PUBLIC_SITE_URL,
-} from "./publicEnv";
+} from "./publicEnv.ts";
 
 export const COLORS = {
   PRIMARY: "#4236FB",

@@ -20,10 +20,7 @@ import VehicleCategorySelect from "@/app/components/leads/VehicleCategorySelect"
 import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { customerLogin } from "@/app/lib/customer/authApi";
 import { applyLead, isExistingApplicationError, mapServiceToCategory } from "@/app/lib/leads/leadApi";
-import {
-  personalLoanApplyPayload,
-  validatePersonalLoanApplyForm,
-} from "@/app/lib/leads/personalLoanApply";
+import { personalLoanApplyPayload } from "@/app/lib/leads/personalLoanApply";
 import { useLoanProducts, useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
 import { fetchActiveServiceCards } from "@/app/lib/services/fetchActiveServiceCards";
 import type { LoanProductTab } from "@/app/lib/services/types";
@@ -40,11 +37,15 @@ import {
   isVehicleLoanCategory,
   loanNotEligibleMessage,
   sanitizeLeadPincodeInput,
-  validateLeadEmail,
   validateLeadPanNameMobile,
   validateLeadPincode,
-  type LeadFieldErrors,
 } from "@/app/lib/leads/leadForm";
+import {
+  collectServiceApplyErrors,
+  loanAmountRangeError,
+  reportTermsIfUnchecked,
+  serviceApplyHasFieldError,
+} from "@/app/lib/leads/serviceApplyValidate";
 import { getVehicleCategoryPick, setVehicleCategoryPick, subscribeVehicleCategoryPick } from "@/app/lib/leads/vehicleCategoryPick";
 import { sanitizeMobileInput } from "@/app/lib/validation";
 import { stashApplyThanks } from "@/app/lib/customer/applyThanks";
@@ -302,18 +303,12 @@ export default function ServicePage({
     const vehicleMsg =
       vehicleLoan && vehicleCategory.trim() === "" ? "Select vehicle category" : "";
 
-    let amountMsg = "";
-    if (!vehicleLoan && loanAmount > 0) {
-      if (loanTabs && loanProducts.length > 0 && !loanBounds) {
-        amountMsg = "Amount range is not available for this loan.";
-      } else if (loanBounds) {
-        if (loanAmount < loanBounds.min) {
-          amountMsg = `Enter at least ₹${loanBounds.min.toLocaleString("en-IN")}`;
-        } else if (loanAmount > loanBounds.max) {
-          amountMsg = `Enter up to ₹${loanBounds.max.toLocaleString("en-IN")}`;
-        }
-      }
-    }
+    const amountMsg =
+      !vehicleLoan && loanAmount > 0
+        ? loanAmountRangeError(loanAmount, loanBounds, {
+            missingRange: Boolean(loanTabs && loanProducts.length > 0 && !loanBounds),
+          })
+        : "";
 
     setFullNameError(nameFilled ? nameMobile.fullName ?? "" : "");
     setPanError(panFilled ? nameMobile.pan ?? "" : "");
@@ -333,14 +328,7 @@ export default function ServicePage({
       return;
     }
 
-    if (!termsAccepted) {
-      const termsEl = document.getElementById("service-terms");
-      if (termsEl instanceof HTMLInputElement) {
-        termsEl.setCustomValidity("Please tick the checkbox to continue.");
-        termsEl.reportValidity();
-      }
-      return;
-    }
+    if (!reportTermsIfUnchecked(termsAccepted)) return;
     setLoanStep(2);
   };
 
@@ -358,84 +346,46 @@ export default function ServicePage({
 
     // Blank required fields → native popup (not red under-field text).
     if (!reportFormValidity(form)) return;
-    if (!termsAccepted) {
-      const termsEl = document.getElementById("service-terms");
-      if (termsEl instanceof HTMLInputElement) {
-        termsEl.setCustomValidity("Please tick the checkbox to continue.");
-        termsEl.reportValidity();
-      }
-      return;
-    }
+    if (!reportTermsIfUnchecked(termsAccepted)) return;
 
-    // Rule / format errors only when the user entered something invalid.
-    const errors: LeadFieldErrors = validateLeadPanNameMobile({
+    const errors = collectServiceApplyErrors({
       pan,
-      mobileDigits: mobile.replace(/\D/g, ""),
+      mobile,
       fullName,
+      pincode,
+      email,
+      service,
+      showLoanAmount,
+      loanTabs,
+      loanProductsCount: loanProducts.length,
+      loanBounds,
+      loanAmount,
+      netMonthlyIncome,
+      cibilBand,
+      employmentType,
+      hasExistingEmi,
+      monthlyEmiAmount,
+      vehicleLoan,
+      vehicleCategory,
+      showInsuranceType,
+      insType,
+      selectedCategory,
     });
-    if (!service.trim()) errors.service = "Product could not be detected for this page";
-    const pinDigits = pincode.replace(/\D/g, "");
-    const pinErr = pinDigits ? validateLeadPincode(pincode) : undefined;
-    if (pinErr) errors.pincode = pinErr;
-    if (showLoanAmount && loanTabs && loanProducts.length > 0 && !loanBounds) {
-      errors.loanAmt = "Amount range is not available for this loan.";
-    } else if (showLoanAmount) {
-      Object.assign(
-        errors,
-        validatePersonalLoanApplyForm({
-          pan,
-          mobile,
-          fullName,
-          pincode,
-          loanAmount,
-          netMonthlyIncome,
-          cibilBand,
-          employmentType,
-          hasExistingEmi,
-          totalMonthlyEmi: vehicleLoan || hasExistingEmi === "no" ? "0" : String(monthlyEmiAmount),
-        }, loanBounds, vehicleLoan),
-      );
-      if (vehicleLoan && !vehicleCategory.trim()) errors.vehicleCategory = "Select vehicle category";
-    }
-    if (showInsuranceType && !insType.trim()) errors.insType = "Please select insurance type";
-    if (selectedCategory === "credit_card") {
-      const emailErr = validateLeadEmail(email);
-      if (emailErr) errors.email = emailErr;
-    }
 
     const nameFilled = Boolean(fullName.trim());
     const panFilled = Boolean(pan.trim());
     const mobileFilled = Boolean(mobile.replace(/\D/g, ""));
     const incomeFilled = Boolean(String(netMonthlyIncome).replace(/\D/g, ""));
     const amountFilled = loanAmount > 0;
-    const amountError =
-      showLoanAmount && amountFilled && loanBounds
-        ? loanAmount < loanBounds.min
-          ? `Enter at least ₹${loanBounds.min.toLocaleString("en-IN")}`
-          : loanAmount > loanBounds.max
-            ? `Enter up to ₹${loanBounds.max.toLocaleString("en-IN")}`
-            : ""
-        : "";
+    const pinDigits = pincode.replace(/\D/g, "");
+    const amountError = showLoanAmount
+      ? loanAmountRangeError(loanAmount, loanBounds, {
+          missingRange: Boolean(loanTabs && loanProducts.length > 0 && !loanBounds && amountFilled),
+        })
+      : "";
     const loanAmtError = amountError || (amountFilled || loanStep === 2 ? errors.loanAmt ?? "" : "");
     const emiFilled = Boolean(String(totalMonthlyEmi).replace(/\D/g, ""));
-
-    // Block API/DB on ANY field/rule failure (including hidden step-1 fields).
-    const hasFieldError = Boolean(
-      errors.fullName ||
-        errors.pan ||
-        errors.mobile ||
-        errors.pincode ||
-        loanAmtError ||
-        errors.loanAmt ||
-        errors.netMonthlyIncome ||
-        errors.employmentType ||
-        errors.hasExistingEmi ||
-        errors.totalMonthlyEmi ||
-        errors.cibilBand ||
-        errors.vehicleCategory ||
-        errors.insType ||
-        errors.email,
-    );
+    const hasFieldError = serviceApplyHasFieldError(errors, loanAmtError);
 
     // Red under-field only for filled-but-invalid; blank stay native when field is visible.
     // If step-1 basics failed on step 2 (fields unmounted), show messages and return to step 1.

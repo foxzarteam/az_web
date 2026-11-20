@@ -3,10 +3,10 @@
 import Image from "next/image";
 
 const STEPS = [
-  { src: "/images/cibil/1.png", alt: "Step 1 — Open an FD. Invest a fixed deposit with us." },
-  { src: "/images/cibil/2.png", alt: "Step 2 — Get your FD credit card and start using it responsibly." },
-  { src: "/images/cibil/3.png", alt: "Step 3 — Improve your CIBIL score in a few months." },
-  { src: "/images/cibil/4.png", alt: "Step 4 — Apply for a bigger loan with better terms." },
+  { src: "/images/cibil/1.webp", alt: "Step 1 — Open an FD. Invest a fixed deposit with us." },
+  { src: "/images/cibil/2.webp", alt: "Step 2 — Get your FD credit card and start using it responsibly." },
+  { src: "/images/cibil/3.webp", alt: "Step 3 — Improve your CIBIL score in a few months." },
+  { src: "/images/cibil/4.webp", alt: "Step 4 — Apply for a bigger loan with better terms." },
 ] as const;
 
 function scrollToApplyForm() {

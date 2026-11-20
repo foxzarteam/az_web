@@ -1,11 +1,11 @@
-import type { CreateLeadRequest } from "@/app/lib/leads/types";
+import type { CreateLeadRequest } from "./types.ts";
 import {
   validateLeadPanNameMobile,
   validateLeadPincode,
   validateLoanFinishStep,
   type LeadFieldErrors,
-} from "@/app/lib/leads/leadForm";
-import { PERSONAL_LOAN_EMI_LIMITS } from "@/app/config/constants";
+} from "./leadForm.ts";
+import { PERSONAL_LOAN_EMI_LIMITS } from "../../config/constants.ts";
 
 export type PersonalLoanFormValues = {
   pan: string;

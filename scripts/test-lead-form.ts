@@ -19,6 +19,11 @@ import {
   validateLeadPincode,
   validateLoanFinishStep,
 } from "../app/lib/leads/leadForm.ts";
+import {
+  collectServiceApplyErrors,
+  loanAmountRangeError,
+  serviceApplyHasFieldError,
+} from "../app/lib/leads/serviceApplyValidate.ts";
 
 assert.equal(LEAD_PAN_PATTERN.test("ABCDE1234F"), true);
 assert.equal(LEAD_PAN_PATTERN.test("ABCDE12345"), false);
@@ -159,5 +164,36 @@ if (existsSync(serverRulesPath)) {
   const vehicle = { ...sample, category: "vehicle_loan", cibilBand: "below_650" };
   assert.equal(api.loanNotEligibleMessage(vehicle), loanNotEligibleMessage(vehicle));
 }
+
+assert.equal(
+  loanAmountRangeError(40000, { min: 50000, max: 500000 }),
+  "Enter at least ₹50,000",
+);
+assert.equal(loanAmountRangeError(60000, { min: 50000, max: 500000 }), "");
+const applyErrors = collectServiceApplyErrors({
+  pan: "ABCDE1234F",
+  mobile: "9876543210",
+  fullName: "Raju Patel",
+  pincode: "302002",
+  email: "",
+  service: "Personal Loan",
+  showLoanAmount: true,
+  loanTabs: false,
+  loanProductsCount: 0,
+  loanBounds: { min: 50000, max: 500000 },
+  loanAmount: 10000,
+  netMonthlyIncome: "20000",
+  cibilBand: "above_680",
+  employmentType: "salaried_bank",
+  hasExistingEmi: "no",
+  monthlyEmiAmount: 0,
+  vehicleLoan: false,
+  vehicleCategory: "",
+  showInsuranceType: false,
+  insType: "",
+  selectedCategory: "personal_loan",
+});
+assert.ok(applyErrors.loanAmt);
+assert.equal(serviceApplyHasFieldError(applyErrors, applyErrors.loanAmt ?? ""), true);
 
 console.log("test-lead-form: ok");

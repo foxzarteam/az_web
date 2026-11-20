@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { nestApiBase } from "@/app/lib/server/nestBase";
 
+export const dynamic = "force-dynamic";
+export const maxDuration = 30;
+
 const NEST_PATH = "/api/whatsapp/webhook";
 
 /**
