@@ -28,10 +28,10 @@ async function proxyMetaWebhook(request: Request): Promise<NextResponse> {
   const signature = request.headers.get("x-hub-signature-256");
   if (signature) headers["x-hub-signature-256"] = signature;
 
-  let body: string | undefined;
+  let body: ArrayBuffer | undefined;
   if (method !== "GET" && method !== "HEAD") {
     try {
-      body = await request.text();
+      body = await request.arrayBuffer();
     } catch {
       return new NextResponse("Invalid request body", { status: 400, ...plain });
     }
@@ -41,9 +41,9 @@ async function proxyMetaWebhook(request: Request): Promise<NextResponse> {
     const res = await fetch(dest, {
       method,
       headers,
-      ...(body != null ? { body } : {}),
+      ...(body != null && body.byteLength ? { body } : {}),
       cache: "no-store",
-      signal: AbortSignal.timeout(method === "GET" ? 8_000 : 20_000),
+      signal: AbortSignal.timeout(method === "GET" ? 8_000 : 25_000),
     });
     const text = await res.text();
     return new NextResponse(text, {
