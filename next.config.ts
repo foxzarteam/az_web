@@ -9,6 +9,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /** Helps hosts that expect `/about/` → `about/index.html` style URLs. */
   trailingSlash: true,
+  /**
+   * Next's built-in slash 308 would turn Meta's POST /api/whatsapp/webhook into a
+   * redirect with no body. API routes stay as-is; HTML slash is in middleware.
+   */
+  skipTrailingSlashRedirect: true,
   experimental: {
     middlewareClientMaxBodySize: "300mb",
   },

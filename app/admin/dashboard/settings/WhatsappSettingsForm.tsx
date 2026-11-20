@@ -49,7 +49,7 @@ export default function WhatsappSettingsForm({ initial }: Props) {
   const [warning, setWarning] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const webhookUrl = `${PUBLIC_SITE_URL.replace(/\/+$/, "")}/api/whatsapp/webhook`;
+  const webhookUrl = `${PUBLIC_SITE_URL.replace(/\/+$/, "")}/api/whatsapp/webhook/`;
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();

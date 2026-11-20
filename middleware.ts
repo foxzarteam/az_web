@@ -31,6 +31,20 @@ export function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
+  // Pages keep `/about/` . `/api/*` must not 308 — Meta webhook POST drops the body on redirect.
+  if (
+    !path.startsWith("/api/") &&
+    !path.startsWith("/_next") &&
+    path !== "/sitemap.xml" &&
+    path !== "/robots.txt" &&
+    !path.includes(".") &&
+    !path.endsWith("/")
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = `${path}/`;
+    return NextResponse.redirect(url, 308);
+  }
+
   const pathRef = path.match(/^\/r\/([A-Za-z0-9]{6,12})\/?$/i);
   if (pathRef) {
     const code = normalizeAffiliateCode(pathRef[1]);
