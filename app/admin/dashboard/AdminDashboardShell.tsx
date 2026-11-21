@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import AdminSidebar from "./AdminSidebar";
 import { ADMIN_UI } from "@/app/components/shared/crm/ui";
+import WhatsappIncomingNotify from "./whatsapp/WhatsappIncomingNotify";
 
 const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
   "/admin/dashboard": {
@@ -179,6 +180,7 @@ export default function AdminDashboardShell({
           {children}
         </div>
       </div>
+      {basePath === "/admin" ? <WhatsappIncomingNotify /> : null}
     </div>
   );
 }

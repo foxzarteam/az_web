@@ -454,13 +454,30 @@ export default function LeadsTable({
           setError(null);
           setViewLead(row);
         },
+        onWhatsapp: (row) => {
+          const digits = String(row.mobile_number ?? "").replace(/\D/g, "");
+          const ten =
+            digits.length === 12 && digits.startsWith("91")
+              ? digits.slice(2)
+              : digits.length >= 10
+                ? digits.slice(-10)
+                : "";
+          if (ten.length !== 10) {
+            setError("This lead has no valid mobile number for WhatsApp.");
+            return;
+          }
+          const name = cellText(row, "full_name");
+          const qs = new URLSearchParams({ phone: ten });
+          if (name && name !== "—") qs.set("name", name);
+          router.push(`/admin/dashboard/whatsapp?${qs.toString()}`);
+        },
         onEdit: openEdit,
         onDelete: (row) => {
           setDeleteLead(row);
           setError(null);
         },
       }),
-    [readOnly, canDelete, canApprove, statusSavingId],
+    [readOnly, canDelete, canApprove, statusSavingId, router],
   );
 
   return (

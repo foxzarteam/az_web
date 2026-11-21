@@ -9,9 +9,17 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onStarted: (detail: WhatsappEnquiryDetail) => void;
+  initialPhone?: string;
+  initialName?: string;
 };
 
-export default function StartWhatsappChat({ open, onClose, onStarted }: Props) {
+export default function StartWhatsappChat({
+  open,
+  onClose,
+  onStarted,
+  initialPhone = "",
+  initialName = "",
+}: Props) {
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [text, setText] = useState("");
@@ -23,14 +31,14 @@ export default function StartWhatsappChat({ open, onClose, onStarted }: Props) {
 
   useEffect(() => {
     if (!open) return;
-    setPhone("");
-    setName("");
+    setPhone(initialPhone);
+    setName(initialName);
     setText("");
     setError(null);
     setTemplateOpen(false);
     const t = window.setTimeout(() => phoneRef.current?.focus(), 0);
     return () => window.clearTimeout(t);
-  }, [open]);
+  }, [open, initialPhone, initialName]);
 
   useEffect(() => {
     if (!open) return;

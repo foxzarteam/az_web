@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { WhatsappEnquiryDetail, WhatsappEnquiryRow } from "@/app/lib/admin/fetchWhatsapp";
 import { toPublicClientError } from "@/app/lib/publicClientError";
@@ -8,6 +8,7 @@ import { downloadCustomerDocuments } from "./customerDocuments";
 import { ADMIN_TEMPLATES } from "./adminTemplates";
 import StartWhatsappChat from "./StartWhatsappChat";
 import WhatsappThread from "./WhatsappThread";
+import { AZ_WHATSAPP_OPEN_EVENT, setOpenWhatsappChat, type WhatsappOpenDetail } from "./whatsappNotifyBus";
 
 const EMOJIS = [
   "😀", "😁", "😂", "🤣", "😊", "😍", "😘", "😎", "🤗", "🤔",
@@ -15,6 +16,19 @@ const EMOJIS = [
   "🔥", "💯", "🤝", "👋", "💪", "✨", "📌", "📞", "🏠", "💰",
   "🛡️", "📄",
 ];
+
+function tenDigitMobile(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length === 12 && digits.startsWith("91")) return digits.slice(2);
+  if (digits.length >= 10) return digits.slice(-10);
+  return "";
+}
+
+function sameWhatsappMobile(a: string, b: string): boolean {
+  const left = tenDigitMobile(a);
+  const right = tenDigitMobile(b);
+  return left.length === 10 && left === right;
+}
 
 function formatPhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
@@ -45,6 +59,8 @@ function ProfileIcon({ name }: { name: string }) {
 }
 
 const PAGE_SIZE = 100;
+const COMPOSER_MIN = 40;
+const COMPOSER_MAX = 420;
 
 export default function WhatsappInbox({
   initialRows,
@@ -63,6 +79,8 @@ export default function WhatsappInbox({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [composerH, setComposerH] = useState(COMPOSER_MIN);
+  const composerHRef = useRef(COMPOSER_MIN);
   const [file, setFile] = useState<File | null>(null);
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
@@ -71,6 +89,7 @@ export default function WhatsappInbox({
   const [exportingDocs, setExportingDocs] = useState(false);
   const [docsError, setDocsError] = useState<string | null>(null);
   const [startOpen, setStartOpen] = useState(false);
+  const [startPrefill, setStartPrefill] = useState({ phone: "", name: "" });
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [templateOpen, setTemplateOpen] = useState(false);
   const [templateAsk, setTemplateAsk] = useState<{ id: string; label: string } | null>(null);
@@ -87,6 +106,12 @@ export default function WhatsappInbox({
   openIdRef.current = openId;
   pageRef.current = page;
   searchRef.current = search;
+  composerHRef.current = composerH;
+
+  useEffect(() => {
+    setOpenWhatsappChat(openId);
+    return () => setOpenWhatsappChat(null);
+  }, [openId]);
 
   async function loadList(nextPage: number, q: string) {
     const params = new URLSearchParams({ page: String(nextPage) });
@@ -113,6 +138,52 @@ export default function WhatsappInbox({
     }
     void loadList(pageRef.current, searchRef.current);
   }, [initialRows, initialTotal]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ten = tenDigitMobile(params.get("phone") ?? "");
+    if (ten.length !== 10) return;
+    const name = (params.get("name") ?? "").trim();
+    setSearch(ten);
+    searchRef.current = ten;
+    pageRef.current = 1;
+    void (async () => {
+      const res = await fetch(`/api/admin/whatsapp/enquiries?page=1&q=${encodeURIComponent(ten)}`);
+      const body = (await res.json().catch(() => ({}))) as {
+        data?: { rows?: WhatsappEnquiryRow[]; total?: number; page?: number };
+      };
+      const packet = body.data;
+      if (!res.ok || !packet || !Array.isArray(packet.rows)) {
+        setStartPrefill({ phone: ten, name });
+        setStartOpen(true);
+        return;
+      }
+      setRows(packet.rows);
+      setTotal(Number(packet.total) || 0);
+      setPage(Number(packet.page) || 1);
+      const match = packet.rows.find((row) => sameWhatsappMobile(row.phone, ten));
+      if (match) {
+        setOpenId(match.id);
+        setRows((prev) => prev.map((item) => (item.id === match.id ? { ...item, unreadCount: 0 } : item)));
+        setDetail(null);
+        setError(null);
+        setDraft("");
+        setFile(null);
+        setSendError(null);
+        setConfirmDelete(false);
+        setEmojiOpen(false);
+        setTemplateOpen(false);
+        setTemplateAsk(null);
+        setTemplateName("");
+        setDocsError(null);
+        await loadChat(match.id);
+      } else {
+        setStartPrefill({ phone: ten, name });
+        setStartOpen(true);
+      }
+      router.replace("/admin/dashboard/whatsapp", { scroll: false });
+    })();
+  }, [router]);
 
   useEffect(() => {
     if (!emojiOpen && !templateOpen) return;
@@ -198,6 +269,43 @@ export default function WhatsappInbox({
       if (openIdRef.current === id && !silent) setLoading(false);
     }
   }
+
+  useEffect(() => {
+    function onOpen(event: Event) {
+      const detail = (event as CustomEvent<WhatsappOpenDetail>).detail;
+      if (!detail) return;
+      if (detail.id) {
+        setOpenId(detail.id);
+        setError(null);
+        setDraft("");
+        setFile(null);
+        setSendError(null);
+        setConfirmDelete(false);
+        void loadChat(detail.id);
+        return;
+      }
+      const ten = tenDigitMobile(detail.phone ?? "");
+      if (ten.length !== 10) return;
+      setSearch(ten);
+      searchRef.current = ten;
+      void (async () => {
+        const res = await fetch(`/api/admin/whatsapp/enquiries?page=1&q=${encodeURIComponent(ten)}`);
+        const body = (await res.json().catch(() => ({}))) as {
+          data?: { rows?: WhatsappEnquiryRow[]; total?: number; page?: number };
+        };
+        const packet = body.data;
+        if (!res.ok || !packet || !Array.isArray(packet.rows)) return;
+        setRows(packet.rows);
+        setTotal(Number(packet.total) || 0);
+        const match = packet.rows.find((row) => sameWhatsappMobile(row.phone, ten));
+        if (!match) return;
+        setOpenId(match.id);
+        await loadChat(match.id);
+      })();
+    }
+    window.addEventListener(AZ_WHATSAPP_OPEN_EVENT, onOpen);
+    return () => window.removeEventListener(AZ_WHATSAPP_OPEN_EVENT, onOpen);
+  }, []);
 
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const rangeStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
@@ -401,6 +509,31 @@ export default function WhatsappInbox({
     router.refresh();
   }
 
+  function onComposerResizeStart(event: ReactPointerEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    const startY = event.clientY;
+    const startH = composerHRef.current;
+    const handle = event.currentTarget;
+    handle.setPointerCapture(event.pointerId);
+    const previousUserSelect = document.body.style.userSelect;
+    document.body.style.userSelect = "none";
+
+    function onMove(ev: PointerEvent) {
+      const next = Math.min(COMPOSER_MAX, Math.max(COMPOSER_MIN, startH + (startY - ev.clientY)));
+      composerHRef.current = next;
+      setComposerH(next);
+    }
+    function onUp() {
+      document.body.style.userSelect = previousUserSelect;
+      handle.removeEventListener("pointermove", onMove);
+      handle.removeEventListener("pointerup", onUp);
+      handle.removeEventListener("pointercancel", onUp);
+    }
+    handle.addEventListener("pointermove", onMove);
+    handle.addEventListener("pointerup", onUp);
+    handle.addEventListener("pointercancel", onUp);
+  }
+
   return (
     <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden bg-white">
       <aside
@@ -420,7 +553,10 @@ export default function WhatsappInbox({
             className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#128C7E] text-xl leading-none text-white hover:bg-[#0f7a6e]"
             aria-label="New chat"
             title="New chat"
-            onClick={() => setStartOpen(true)}
+            onClick={() => {
+              setStartPrefill({ phone: "", name: "" });
+              setStartOpen(true);
+            }}
           >
             +
           </button>
@@ -562,7 +698,16 @@ export default function WhatsappInbox({
               {detail && !loading ? <WhatsappThread enquiryId={detail.id} messages={detail.messages} /> : null}
             </div>
 
-            <div className="relative shrink-0 border-t border-[#e9edef] bg-[#f0f2f5] p-2 sm:p-3">
+            <div className="relative shrink-0 border-t border-[#e9edef] bg-[#f0f2f5] p-2 pt-3 sm:p-3 sm:pt-4">
+              <button
+                type="button"
+                aria-label="Drag to resize the message box"
+                title="Drag up to make the message box taller"
+                onPointerDown={onComposerResizeStart}
+                className="absolute inset-x-0 top-0 z-10 flex h-3 cursor-ns-resize items-center justify-center"
+              >
+                <span className="h-1 w-10 rounded-full bg-[#c5c9cc]" />
+              </button>
               {file ? (
                 <p className="mb-2 px-1 text-xs text-[#667781]">
                   {file.name}
@@ -645,19 +790,38 @@ export default function WhatsappInbox({
                     </svg>
                   </button>
                 </div>
-                <textarea
-                  value={draft}
-                  onChange={(event) => setDraft(event.target.value)}
-                  rows={1}
-                  placeholder="Type a message"
-                  className="max-h-28 min-h-[40px] flex-1 resize-none rounded-2xl border-0 bg-white px-3 py-2 text-sm text-[#111b21] outline-none"
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" && !event.shiftKey) {
-                      event.preventDefault();
-                      void sendManual();
-                    }
-                  }}
-                />
+                <div className="relative min-w-0 flex-1">
+                  <textarea
+                    value={draft}
+                    onChange={(event) => setDraft(event.target.value)}
+                    rows={1}
+                    placeholder="Type a message"
+                    style={{ height: composerH }}
+                    className="w-full resize-none overflow-y-auto rounded-2xl border-0 bg-white px-3 py-2 pr-7 text-sm text-[#111b21] outline-none"
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" && !event.shiftKey) {
+                        event.preventDefault();
+                        void sendManual();
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    aria-label="Drag to resize the message box"
+                    title="Drag up to make the message box taller"
+                    onPointerDown={onComposerResizeStart}
+                    className="absolute right-1 top-1/2 z-10 flex h-9 w-4 -translate-y-1/2 cursor-ns-resize items-center justify-center rounded text-[#8696a0] hover:bg-[#f0f2f5]"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden>
+                      <circle cx="3" cy="3" r="1.1" />
+                      <circle cx="7" cy="3" r="1.1" />
+                      <circle cx="3" cy="8" r="1.1" />
+                      <circle cx="7" cy="8" r="1.1" />
+                      <circle cx="3" cy="13" r="1.1" />
+                      <circle cx="7" cy="13" r="1.1" />
+                    </svg>
+                  </button>
+                </div>
                 <button
                   type="button"
                   disabled={sending || (!draft.trim() && !file)}
@@ -671,7 +835,16 @@ export default function WhatsappInbox({
           </>
         )}
       </div>
-      <StartWhatsappChat open={startOpen} onClose={() => setStartOpen(false)} onStarted={onStarted} />
+      <StartWhatsappChat
+        open={startOpen}
+        initialPhone={startPrefill.phone}
+        initialName={startPrefill.name}
+        onClose={() => {
+          setStartOpen(false);
+          setStartPrefill({ phone: "", name: "" });
+        }}
+        onStarted={onStarted}
+      />
       {templateAsk ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onMouseDown={() => !sending && setTemplateAsk(null)}>
           <div
