@@ -11,7 +11,8 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   /**
    * Next's built-in slash 308 would turn Meta's POST /api/whatsapp/webhook into a
-   * redirect with no body. API routes stay as-is; HTML slash is in middleware.
+   * redirect with no body. Do not re-add slash 308s in middleware — that looped
+   * public pages (ERR_TOO_MANY_REDIRECTS on /banking-partners).
    */
   skipTrailingSlashRedirect: true,
   experimental: {

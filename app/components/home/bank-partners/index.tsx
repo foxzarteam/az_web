@@ -36,7 +36,7 @@ export default function BankPartners() {
         <BankLogoCarousel logos={logos} />
         <div className="mt-8 flex justify-center sm:mt-10">
           <Link
-            href="/banking-partners"
+            href="/banking-partners/"
             className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary/30 bg-white px-6 py-2.5 text-sm font-bold text-primary transition duration-300 hover:border-primary hover:bg-primary/5 dark:bg-darklight dark:text-white sm:px-8 sm:py-3 sm:text-base"
           >
             View all
