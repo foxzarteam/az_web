@@ -2,9 +2,22 @@ import { NextResponse } from "next/server";
 import { requireCrmAdminSession } from "@/app/lib/admin/requireAdminRole";
 import { adminInternalHeaders } from "@/app/lib/admin/adminInternalKey";
 import { nestApiBase } from "@/app/lib/server/nestBase";
-import { toPublicClientError } from "@/app/lib/publicClientError";
 
 const MAX_BYTES = 2 * 1024 * 1024;
+
+function exactError(status: number, rawText: string, data: Record<string, unknown>): string {
+  const message = data.message;
+  const error = data.error;
+  const parts = [
+    `HTTP ${status}`,
+    Array.isArray(message) ? message.map((x) => String(x)).join(", ") : message != null ? String(message) : "",
+    error != null && error !== message ? String(error) : "",
+    !message && !error ? rawText : "",
+  ]
+    .map((part) => part.trim())
+    .filter(Boolean);
+  return parts.join(" | ").slice(0, 800) || `HTTP ${status}`;
+}
 
 export async function POST(request: Request) {
   const session = await requireCrmAdminSession();
@@ -14,7 +27,7 @@ export async function POST(request: Request) {
 
   const base = nestApiBase();
   if (!base) {
-    return NextResponse.json({ error: "API not configured" }, { status: 503 });
+    return NextResponse.json({ error: "API not configured: NEXT_PUBLIC_API_URL empty" }, { status: 503 });
   }
 
   const form = await request.formData().catch(() => null);
@@ -46,20 +59,23 @@ export async function POST(request: Request) {
       }),
       cache: "no-store",
     });
-    const data = (await res.json().catch(() => ({}))) as {
-      success?: boolean;
-      path?: string;
-      error?: string;
-      message?: string;
-    };
-    if (!res.ok || !data.path) {
+    const rawText = await res.text();
+    let data: Record<string, unknown> = {};
+    try {
+      data = JSON.parse(rawText) as Record<string, unknown>;
+    } catch {
+      data = {};
+    }
+    const path = typeof data.path === "string" ? data.path : "";
+    if (!res.ok || !path) {
       return NextResponse.json(
-        { error: toPublicClientError(data.error ?? data.message, "Could not upload this image.") },
+        { error: exactError(res.status, rawText, data) },
         { status: res.ok ? 400 : res.status },
       );
     }
-    return NextResponse.json({ success: true, path: data.path });
-  } catch {
-    return NextResponse.json({ error: "Could not upload this image." }, { status: 503 });
+    return NextResponse.json({ success: true, path });
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: `fetch failed: ${detail}`.slice(0, 800) }, { status: 503 });
   }
 }

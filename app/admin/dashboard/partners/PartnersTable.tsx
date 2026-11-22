@@ -16,7 +16,7 @@ import {
   ADMIN_LABEL,
 } from "@/app/components/shared/crm/ui";
 import AggregatorDetailsModal from "./AggregatorDetailsModal";
-import { parsePartnerDocuments, partnerImageSrc, REQUIRED_DOCUMENTS } from "./aggregatorDisplay";
+import { parsePartnerDocuments, REQUIRED_DOCUMENTS } from "./aggregatorDisplay";
 
 function formatValue(key: string, value: unknown): string {
   if (value == null || value === "") return "—";
@@ -322,14 +322,6 @@ function PartnerFormFields({
             className={inputClass}
             onChange={(e) => onPickImage(e.target.files?.[0] ?? null)}
           />
-          {partnerImageSrc({ image_path: form.imagePath }) ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={partnerImageSrc({ image_path: form.imagePath })}
-              alt=""
-              className="mt-2 h-12 w-12 rounded-lg border border-slate-200 object-contain bg-white"
-            />
-          ) : null}
         </label>
       </div>
       <label className="block">
