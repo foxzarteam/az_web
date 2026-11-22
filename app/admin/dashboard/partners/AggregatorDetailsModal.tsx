@@ -73,7 +73,7 @@ export default function AggregatorDetailsModal({
               <span className="h-2 w-2 rounded-full bg-[#4236FB]" aria-hidden />
               <span className="text-xs font-semibold tracking-wide text-[#4236FB]">Policy document</span>
             </div>
-            <div className="px-5 py-4 text-sm leading-7 whitespace-pre-wrap text-slate-700 dark:text-gray-200">
+            <div className="bg-slate-100 px-5 py-4 text-sm leading-7 whitespace-pre-wrap text-slate-700 dark:bg-white/10 dark:text-gray-200">
               {policy || "—"}
             </div>
           </div>
