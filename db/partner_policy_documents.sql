@@ -9,6 +9,10 @@ COMMENT ON COLUMN public.partner.policy IS 'Aggregator policy / notes (long text
 COMMENT ON COLUMN public.partner.required_documents IS
   'Selected required documents, e.g. {AADHAR CARD,PAN CARD}';
 
+UPDATE public.partner
+SET required_documents = array_replace(required_documents, 'SALARY SLIP(OPTIONAL)', 'SALARY SLIP')
+WHERE 'SALARY SLIP(OPTIONAL)' = ANY (required_documents);
+
 ALTER TABLE public.partner
   DROP CONSTRAINT IF EXISTS partner_required_documents_check;
 
@@ -18,7 +22,7 @@ ALTER TABLE public.partner
       'AADHAR CARD',
       'PAN CARD',
       'BANK STATEMENT',
-      'SALARY SLIP(OPTIONAL)',
+      'SALARY SLIP',
       'CURRENT ADDRESS',
       'OFFICE ADDRESS'
     ]::text[]

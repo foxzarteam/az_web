@@ -353,7 +353,7 @@ CREATE TABLE public.partner (
         'AADHAR CARD'::text,
         'PAN CARD'::text,
         'BANK STATEMENT'::text,
-        'SALARY SLIP(OPTIONAL)'::text,
+        'SALARY SLIP'::text,
         'CURRENT ADDRESS'::text,
         'OFFICE ADDRESS'::text
       ]

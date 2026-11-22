@@ -25,7 +25,7 @@ const REQUIRED_DOCUMENTS = [
   "AADHAR CARD",
   "PAN CARD",
   "BANK STATEMENT",
-  "SALARY SLIP(OPTIONAL)",
+  "SALARY SLIP",
   "CURRENT ADDRESS",
   "OFFICE ADDRESS",
 ] as const;
@@ -329,22 +329,22 @@ function PartnerFormFields({
           required
         />
       </label>
-      <div className="block">
-        <span className={ADMIN_LABEL}>Products</span>
-        <ServiceMultiSelect
-          options={serviceOptions}
-          selected={form.selectedSortOrders}
-          onChange={(selectedSortOrders) => setForm({ ...form, selectedSortOrders })}
-        />
-        <p className="mt-1 text-xs text-gray dark:text-gray-400">Open dropdown and select one or more products</p>
-      </div>
-      <div className="block">
-        <span className={ADMIN_LABEL}>Required documents</span>
-        <DocumentMultiSelect
-          selected={form.requiredDocuments}
-          onChange={(requiredDocuments) => setForm({ ...form, requiredDocuments })}
-        />
-        <p className="mt-1 text-xs text-gray dark:text-gray-400">Open dropdown and select one or more documents</p>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div className="block min-w-0">
+          <span className={ADMIN_LABEL}>Products</span>
+          <ServiceMultiSelect
+            options={serviceOptions}
+            selected={form.selectedSortOrders}
+            onChange={(selectedSortOrders) => setForm({ ...form, selectedSortOrders })}
+          />
+        </div>
+        <div className="block min-w-0">
+          <span className={ADMIN_LABEL}>Required documents</span>
+          <DocumentMultiSelect
+            selected={form.requiredDocuments}
+            onChange={(requiredDocuments) => setForm({ ...form, requiredDocuments })}
+          />
+        </div>
       </div>
       <label className="block">
         <span className={ADMIN_LABEL}>Policy</span>
