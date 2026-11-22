@@ -21,5 +21,6 @@ export async function POST(request: Request) {
     method: "POST",
     body,
     fallbackError: "Create failed",
+    passThroughError: true,
   });
 }

@@ -21,6 +21,7 @@ export async function proxyAdminToNest(opts: {
   body?: unknown;
   fallbackError: string;
   successStatus?: number;
+  passThroughError?: boolean;
 }): Promise<NextResponse> {
   const base = nestApiBase();
   if (!base) {
@@ -47,7 +48,9 @@ export async function proxyAdminToNest(opts: {
     if (!res.ok || data.success === false) {
       const raw = data.message ?? data.error;
       const payload: Record<string, unknown> = {
-        error: toPublicClientError(raw, opts.fallbackError),
+        error: opts.passThroughError
+          ? String(Array.isArray(raw) ? raw.join(", ") : raw ?? opts.fallbackError).slice(0, 800)
+          : toPublicClientError(raw, opts.fallbackError),
       };
       if (data.code) payload.code = data.code;
       if (data.field) payload.field = data.field;

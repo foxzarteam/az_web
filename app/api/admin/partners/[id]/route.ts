@@ -22,6 +22,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     method: "PATCH",
     body,
     fallbackError: "Update failed",
+    passThroughError: true,
   });
 }
 

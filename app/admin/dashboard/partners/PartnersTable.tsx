@@ -462,7 +462,7 @@ export default function PartnersTable({
       });
       const data = (await res.json()) as { success?: boolean; data?: AdminPartnerRow; error?: string; message?: string };
       if (!res.ok) {
-        setError(toPublicClientError(data.error ?? data.message, "Could not add aggregator."));
+        setError(data.error ?? data.message ?? "Could not add aggregator.");
         return;
       }
       if (data.data) setPartners((prev) => [data.data!, ...prev]);
@@ -495,7 +495,7 @@ export default function PartnersTable({
       });
       const data = (await res.json()) as { success?: boolean; data?: AdminPartnerRow; error?: string; message?: string };
       if (!res.ok) {
-        setError(toPublicClientError(data.error ?? data.message, "Could not update aggregator."));
+        setError(data.error ?? data.message ?? "Could not update aggregator.");
         return;
       }
       if (data.data) setPartners((prev) => prev.map((p) => (p.id === data.data!.id ? data.data! : p)));
