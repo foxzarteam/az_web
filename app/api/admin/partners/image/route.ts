@@ -4,6 +4,8 @@ import { adminInternalHeaders } from "@/app/lib/admin/adminInternalKey";
 import { nestApiBase } from "@/app/lib/server/nestBase";
 import { toPublicClientError } from "@/app/lib/publicClientError";
 
+const MAX_BYTES = 2 * 1024 * 1024;
+
 export async function POST(request: Request) {
   const session = await requireCrmAdminSession();
   if (!session) {
@@ -16,19 +18,32 @@ export async function POST(request: Request) {
   }
 
   const form = await request.formData().catch(() => null);
-  if (!form) {
+  const file = form?.get("file");
+  if (!(file instanceof File) || file.size <= 0) {
+    return NextResponse.json({ error: "Choose an image to upload." }, { status: 400 });
+  }
+  if (file.size > MAX_BYTES) {
+    return NextResponse.json({ error: "Image must be 2 MB or smaller." }, { status: 400 });
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  if (!buffer.length) {
     return NextResponse.json({ error: "Choose an image to upload." }, { status: 400 });
   }
 
   try {
     const res = await fetch(`${base}/api/partners/admin/image`, {
       method: "POST",
-      headers: adminInternalHeaders(false, {
+      headers: adminInternalHeaders(true, {
         sub: session.sub,
         email: session.email,
         role: session.role,
       }),
-      body: form,
+      body: JSON.stringify({
+        filename: file.name || "logo.jpg",
+        mimeType: file.type || "application/octet-stream",
+        contentBase64: buffer.toString("base64"),
+      }),
       cache: "no-store",
     });
     const data = (await res.json().catch(() => ({}))) as {

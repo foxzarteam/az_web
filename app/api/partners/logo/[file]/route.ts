@@ -15,7 +15,7 @@ export async function GET(_request: Request, context: { params: Promise<{ file: 
   }
 
   const res = await fetch(`${base}/api/partners/logo/${encodeURIComponent(file)}`, {
-    cache: "force-cache",
+    cache: "no-store",
   }).catch(() => null);
   if (!res?.ok || !res.body) {
     return new NextResponse(null, { status: 404 });
