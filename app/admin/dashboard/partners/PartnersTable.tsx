@@ -21,18 +21,33 @@ const PAYOUT_TYPES = [
   { value: "FLAT", label: "Flat (Rs)" },
 ] as const;
 
-const VIEW_FIELDS = ["name", "service_names", "payout_type", "commission_value", "created_at"] as const;
+const REQUIRED_DOCUMENTS = [
+  "AADHAR CARD",
+  "PAN CARD",
+  "BANK STATEMENT",
+  "SALARY SLIP(OPTIONAL)",
+  "CURRENT ADDRESS",
+  "OFFICE ADDRESS",
+] as const;
+
+const VIEW_FIELDS = ["name", "service_names", "payout_type", "commission_value", "required_documents", "policy", "created_at"] as const;
 
 const FIELD_LABELS: Record<string, string> = {
   name: "Name",
   service_names: "Products",
   payout_type: "Payout type",
   commission_value: "Commission value",
+  required_documents: "Required documents",
+  policy: "Policy",
   created_at: "Created",
 };
 
 function formatValue(key: string, value: unknown): string {
   if (value == null || value === "") return "—";
+  if (Array.isArray(value)) {
+    const joined = value.map((item) => String(item).trim()).filter(Boolean).join(", ");
+    return joined || "—";
+  }
   const s = String(value);
   if (key === "payout_type") return s === "PERCENTAGE" ? "Percentage" : s === "FLAT" ? "Flat" : s;
   if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
@@ -74,6 +89,8 @@ type PartnerForm = {
   selectedSortOrders: number[];
   payoutType: string;
   commissionValue: string;
+  policy: string;
+  requiredDocuments: string[];
 };
 
 function parseSortOrdersCsv(csv: string): number[] {
@@ -88,7 +105,21 @@ const emptyForm = (): PartnerForm => ({
   selectedSortOrders: [],
   payoutType: "PERCENTAGE",
   commissionValue: "",
+  policy: "",
+  requiredDocuments: [],
 });
+
+function parseDocuments(raw: unknown): string[] {
+  const list = Array.isArray(raw) ? raw : typeof raw === "string" ? raw.split(",") : [];
+  const allowed = new Set<string>(REQUIRED_DOCUMENTS);
+  const out: string[] = [];
+  for (const item of list) {
+    const value = String(item ?? "").trim();
+    if (!allowed.has(value) || out.includes(value)) continue;
+    out.push(value);
+  }
+  return out;
+}
 
 function rowToForm(row: AdminPartnerRow): PartnerForm {
   return {
@@ -96,6 +127,8 @@ function rowToForm(row: AdminPartnerRow): PartnerForm {
     selectedSortOrders: parseSortOrdersCsv(String(row.service_id ?? "")),
     payoutType: String(row.payout_type ?? "PERCENTAGE"),
     commissionValue: row.commission_value != null ? String(row.commission_value) : "",
+    policy: String(row.policy ?? ""),
+    requiredDocuments: parseDocuments(row.required_documents),
   };
 }
 
@@ -190,6 +223,89 @@ function ServiceMultiSelect({
   );
 }
 
+function DocumentMultiSelect({
+  selected,
+  onChange,
+}: {
+  selected: string[];
+  onChange: (docs: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function handlePointerDown(e: PointerEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [open]);
+
+  function toggle(doc: string) {
+    if (selected.includes(doc)) {
+      onChange(selected.filter((item) => item !== doc));
+    } else {
+      onChange([...selected, doc]);
+    }
+  }
+
+  const triggerLabel = selected.length > 0 ? selected.join(", ") : "Select documents";
+  const triggerClass =
+    "flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-midnight_text focus:outline-none focus:ring-2 focus:ring-primary/80 dark:border-dark_border dark:bg-darkmode dark:text-white";
+
+  return (
+    <div ref={containerRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        className={triggerClass}
+      >
+        <span className={`min-w-0 flex-1 truncate text-left ${selected.length === 0 ? "text-gray dark:text-gray-400" : ""}`}>
+          {triggerLabel}
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          className={`shrink-0 text-gray transition dark:text-gray-400 ${open ? "rotate-180" : ""}`}
+          aria-hidden
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute z-30 mt-1 w-full max-h-52 overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg dark:border-dark_border dark:bg-darkmode">
+          <ul className="divide-y divide-gray-100 dark:divide-dark_border" role="listbox" aria-multiselectable>
+            {REQUIRED_DOCUMENTS.map((doc) => (
+              <li key={doc} role="option" aria-selected={selected.includes(doc)}>
+                <label className="flex cursor-pointer items-center gap-3 px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-white/5">
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(doc)}
+                    onChange={() => toggle(doc)}
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <span className="text-sm text-midnight_text dark:text-white">{doc}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PartnerFormFields({
   form,
   setForm,
@@ -222,6 +338,24 @@ function PartnerFormFields({
         />
         <p className="mt-1 text-xs text-gray dark:text-gray-400">Open dropdown and select one or more products</p>
       </div>
+      <div className="block">
+        <span className={ADMIN_LABEL}>Required documents</span>
+        <DocumentMultiSelect
+          selected={form.requiredDocuments}
+          onChange={(requiredDocuments) => setForm({ ...form, requiredDocuments })}
+        />
+        <p className="mt-1 text-xs text-gray dark:text-gray-400">Open dropdown and select one or more documents</p>
+      </div>
+      <label className="block">
+        <span className={ADMIN_LABEL}>Policy</span>
+        <textarea
+          className={`${inputClass} min-h-[8rem] resize-y`}
+          value={form.policy}
+          onChange={(e) => setForm({ ...form, policy: e.target.value })}
+          placeholder="Enter policy"
+          rows={6}
+        />
+      </label>
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="block min-w-0">
           <span className={ADMIN_LABEL}>Payout type</span>
@@ -313,6 +447,8 @@ export default function PartnersTable({
       serviceId: f.selectedSortOrders.join(","),
       payoutType: f.payoutType,
       commissionValue: Number(f.commissionValue),
+      policy: f.policy.trim(),
+      requiredDocuments: f.requiredDocuments,
     };
   }
 
@@ -518,9 +654,14 @@ export default function PartnersTable({
         <AdminModal title="Aggregator details" wide onClose={() => setViewRow(null)}>
           <ul className="grid grid-cols-1 gap-x-8 gap-y-5 p-6 sm:grid-cols-2 sm:p-8">
             {VIEW_FIELDS.map((key) => (
-              <li key={key} className="flex flex-wrap items-baseline gap-1 text-sm">
+              <li
+                key={key}
+                className={`flex flex-wrap items-baseline gap-1 text-sm ${key === "policy" ? "sm:col-span-2" : ""}`}
+              >
                 <span className="shrink-0 font-semibold text-midnight_text dark:text-white">{FIELD_LABELS[key] ?? key}:</span>
-                <span className="text-midnight_text dark:text-gray-200">{formatValue(key, viewRow[key])}</span>
+                <span className={`text-midnight_text dark:text-gray-200 ${key === "policy" ? "whitespace-pre-wrap" : ""}`}>
+                  {formatValue(key, viewRow[key])}
+                </span>
               </li>
             ))}
           </ul>
@@ -528,7 +669,7 @@ export default function PartnersTable({
       )}
 
       {createOpen && (
-        <AdminModal title="Add aggregator" onClose={closeModals}>
+        <AdminModal title="Add aggregator" wide onClose={closeModals}>
           <form onSubmit={handleCreate} className="space-y-6 p-6 sm:p-8">
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <PartnerFormFields form={form} setForm={setForm} inputClass={inputClass} serviceOptions={serviceOptions} />
@@ -545,7 +686,7 @@ export default function PartnersTable({
       )}
 
       {editRow && (
-        <AdminModal title="Edit aggregator" onClose={closeModals}>
+        <AdminModal title="Edit aggregator" wide onClose={closeModals}>
           <form onSubmit={handleSaveEdit} className="space-y-6 p-6 sm:p-8">
             {error && <p className={ADMIN_ERROR}>{error}</p>}
             <PartnerFormFields form={form} setForm={setForm} inputClass={inputClass} serviceOptions={serviceOptions} />

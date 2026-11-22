@@ -345,7 +345,19 @@ CREATE TABLE public.partner (
     payout_type text NOT NULL,
     commission_value numeric(12,2) NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT partner_payout_type_check CHECK ((payout_type = ANY (ARRAY['PERCENTAGE'::text, 'FLAT'::text])))
+    policy text DEFAULT ''::text NOT NULL,
+    required_documents text[] DEFAULT '{}'::text[] NOT NULL,
+    CONSTRAINT partner_payout_type_check CHECK ((payout_type = ANY (ARRAY['PERCENTAGE'::text, 'FLAT'::text]))),
+    CONSTRAINT partner_required_documents_check CHECK ((
+      required_documents <@ ARRAY[
+        'AADHAR CARD'::text,
+        'PAN CARD'::text,
+        'BANK STATEMENT'::text,
+        'SALARY SLIP(OPTIONAL)'::text,
+        'CURRENT ADDRESS'::text,
+        'OFFICE ADDRESS'::text
+      ]
+    ))
 );
 
 COMMENT ON COLUMN public.partner.service_id IS 'Comma-separated products.sort_order, e.g. 2,5';
