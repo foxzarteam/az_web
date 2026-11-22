@@ -6,6 +6,8 @@ import {
   partnerName,
   partnerProductLabel,
   partnerPolicyText,
+  partnerImageSrc,
+  partnerUtmLink,
 } from "./aggregatorDisplay";
 
 export default function AggregatorDetailsModal({
@@ -17,10 +19,16 @@ export default function AggregatorDetailsModal({
 }) {
   const docs = parsePartnerDocuments(row.required_documents);
   const policy = partnerPolicyText(row);
+  const imageSrc = partnerImageSrc(row);
+  const utm = partnerUtmLink(row);
 
   return (
     <AdminModal title="Aggregator details" wide onClose={onClose}>
       <div className="space-y-5 p-6 sm:p-8">
+        {imageSrc ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={imageSrc} alt="" className="h-14 w-14 rounded-xl border border-slate-200 bg-white object-contain p-1" />
+        ) : null}
         <ul className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
           <li className="flex flex-wrap items-baseline gap-1 text-sm">
             <span className="shrink-0 font-semibold text-midnight_text dark:text-white">Name:</span>
@@ -30,6 +38,14 @@ export default function AggregatorDetailsModal({
             <span className="shrink-0 font-semibold text-midnight_text dark:text-white">Products:</span>
             <span className="text-midnight_text dark:text-gray-200">{partnerProductLabel(row)}</span>
           </li>
+          {utm ? (
+            <li className="flex flex-wrap items-baseline gap-1 text-sm sm:col-span-2">
+              <span className="shrink-0 font-semibold text-midnight_text dark:text-white">UTM link:</span>
+              <a href={utm} target="_blank" rel="noopener noreferrer" className="break-all text-[#4236FB] hover:underline">
+                {utm}
+              </a>
+            </li>
+          ) : null}
         </ul>
 
         <div>

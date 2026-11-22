@@ -57,6 +57,8 @@ type PartnerForm = {
   selectedSortOrders: number[];
   policy: string;
   requiredDocuments: string[];
+  utmLink: string;
+  imagePath: string;
 };
 
 function parseSortOrdersCsv(csv: string): number[] {
@@ -71,6 +73,8 @@ const emptyForm = (): PartnerForm => ({
   selectedSortOrders: [],
   policy: "",
   requiredDocuments: [],
+  utmLink: "",
+  imagePath: "",
 });
 
 function rowToForm(row: AdminPartnerRow): PartnerForm {
@@ -79,6 +83,8 @@ function rowToForm(row: AdminPartnerRow): PartnerForm {
     selectedSortOrders: parseSortOrdersCsv(String(row.service_id ?? "")),
     policy: String(row.policy ?? ""),
     requiredDocuments: parsePartnerDocuments(row.required_documents),
+    utmLink: String(row.utm_link ?? ""),
+    imagePath: String(row.image_path ?? ""),
   };
 }
 
@@ -261,11 +267,13 @@ function PartnerFormFields({
   setForm,
   inputClass,
   serviceOptions,
+  onPickImage,
 }: {
   form: PartnerForm;
   setForm: (f: PartnerForm) => void;
   inputClass: string;
   serviceOptions: PartnerServiceOption[];
+  onPickImage: (file: File | null) => void;
 }) {
   return (
     <div className="grid gap-5">
@@ -295,6 +303,30 @@ function PartnerFormFields({
             onChange={(requiredDocuments) => setForm({ ...form, requiredDocuments })}
           />
         </div>
+      </div>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <label className="block min-w-0">
+          <span className={ADMIN_LABEL}>UTM link</span>
+          <input
+            className={inputClass}
+            value={form.utmLink}
+            onChange={(e) => setForm({ ...form, utmLink: e.target.value })}
+            placeholder="https://..."
+          />
+        </label>
+        <label className="block min-w-0">
+          <span className={ADMIN_LABEL}>Logo image</span>
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className={inputClass}
+            onChange={(e) => onPickImage(e.target.files?.[0] ?? null)}
+          />
+          {form.imagePath ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={form.imagePath} alt="" className="mt-2 h-12 w-12 rounded-lg border border-slate-200 object-contain bg-white" />
+          ) : null}
+        </label>
       </div>
       <label className="block">
         <span className={ADMIN_LABEL}>Policy</span>
@@ -326,6 +358,7 @@ export default function PartnersTable({
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteRow, setDeleteRow] = useState<AdminPartnerRow | null>(null);
   const [form, setForm] = useState<PartnerForm>(emptyForm());
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -341,6 +374,7 @@ export default function PartnersTable({
     setCreateOpen(false);
     setDeleteRow(null);
     setForm(emptyForm());
+    setImageFile(null);
     setError(null);
   }, []);
 
@@ -357,21 +391,46 @@ export default function PartnersTable({
   function openCreate() {
     setCreateOpen(true);
     setForm(emptyForm());
+    setImageFile(null);
     setError(null);
   }
 
   function openEdit(row: AdminPartnerRow) {
     setEditRow(row);
     setForm(rowToForm(row));
+    setImageFile(null);
     setError(null);
   }
 
-  function buildPayload(f: PartnerForm) {
+  function pickImage(file: File | null) {
+    setImageFile(file);
+    if (!file) return;
+    const preview = URL.createObjectURL(file);
+    setForm((prev) => ({ ...prev, imagePath: preview }));
+  }
+
+  async function uploadImageIfNeeded(f: PartnerForm): Promise<string> {
+    if (!imageFile) {
+      return f.imagePath.startsWith("/images/aggregators/") ? f.imagePath : "";
+    }
+    const body = new FormData();
+    body.append("file", imageFile);
+    const res = await fetch("/api/admin/partners/image", { method: "POST", body });
+    const data = (await res.json().catch(() => ({}))) as { path?: string; error?: string };
+    if (!res.ok || !data.path) {
+      throw new Error(data.error || "Could not upload this image.");
+    }
+    return data.path;
+  }
+
+  function buildPayload(f: PartnerForm, imagePath: string) {
     return {
       name: f.name.trim(),
       serviceId: f.selectedSortOrders.join(","),
       policy: f.policy.trim(),
       requiredDocuments: f.requiredDocuments,
+      utmLink: f.utmLink.trim(),
+      imagePath,
     };
   }
 
@@ -390,10 +449,11 @@ export default function PartnersTable({
     setSaving(true);
     setError(null);
     try {
+      const imagePath = await uploadImageIfNeeded(form);
       const res = await fetch("/api/admin/partners", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildPayload(form)),
+        body: JSON.stringify(buildPayload(form, imagePath)),
       });
       const data = (await res.json()) as { success?: boolean; data?: AdminPartnerRow; error?: string; message?: string };
       if (!res.ok) {
@@ -404,8 +464,8 @@ export default function PartnersTable({
       closeModals();
       setSuccessMsg("Aggregator added successfully.");
       router.refresh();
-    } catch {
-      setError("Network error. Try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Network error. Try again.");
     } finally {
       setSaving(false);
     }
@@ -422,10 +482,11 @@ export default function PartnersTable({
     setSaving(true);
     setError(null);
     try {
+      const imagePath = await uploadImageIfNeeded(form);
       const res = await fetch(`/api/admin/partners/${encodeURIComponent(String(editRow.id))}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildPayload(form)),
+        body: JSON.stringify(buildPayload(form, imagePath)),
       });
       const data = (await res.json()) as { success?: boolean; data?: AdminPartnerRow; error?: string; message?: string };
       if (!res.ok) {
@@ -436,8 +497,8 @@ export default function PartnersTable({
       closeModals();
       setSuccessMsg("Aggregator updated successfully.");
       router.refresh();
-    } catch {
-      setError("Network error. Try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Network error. Try again.");
     } finally {
       setSaving(false);
     }
@@ -571,7 +632,7 @@ export default function PartnersTable({
         <AdminModal title="Add aggregator" wide onClose={closeModals}>
           <form onSubmit={handleCreate} className="space-y-6 p-6 sm:p-8">
             {error && <p className={ADMIN_ERROR}>{error}</p>}
-            <PartnerFormFields form={form} setForm={setForm} inputClass={inputClass} serviceOptions={serviceOptions} />
+            <PartnerFormFields form={form} setForm={setForm} inputClass={inputClass} serviceOptions={serviceOptions} onPickImage={pickImage} />
             <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
               <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
                 Cancel
@@ -588,7 +649,7 @@ export default function PartnersTable({
         <AdminModal title="Edit aggregator" wide onClose={closeModals}>
           <form onSubmit={handleSaveEdit} className="space-y-6 p-6 sm:p-8">
             {error && <p className={ADMIN_ERROR}>{error}</p>}
-            <PartnerFormFields form={form} setForm={setForm} inputClass={inputClass} serviceOptions={serviceOptions} />
+            <PartnerFormFields form={form} setForm={setForm} inputClass={inputClass} serviceOptions={serviceOptions} onPickImage={pickImage} />
             <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 dark:border-dark_border">
               <button type="button" onClick={closeModals} className={ADMIN_BTN_SECONDARY}>
                 Cancel

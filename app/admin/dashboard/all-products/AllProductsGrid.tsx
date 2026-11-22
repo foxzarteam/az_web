@@ -4,11 +4,11 @@ import { useMemo, useState } from "react";
 import type { AdminPartnerRow } from "@/app/lib/admin/fetchPartners";
 import AggregatorDetailsModal from "@/app/admin/dashboard/partners/AggregatorDetailsModal";
 import {
-  parsePartnerDocuments,
   partnerName,
   partnerPolicyText,
   partnerProductLabel,
   partnerProductList,
+  partnerImageSrc,
 } from "@/app/admin/dashboard/partners/aggregatorDisplay";
 
 export default function AllProductsGrid({ partners }: { partners: AdminPartnerRow[] }) {
@@ -60,7 +60,7 @@ export default function AllProductsGrid({ partners }: { partners: AdminPartnerRo
             const name = partnerName(row);
             const product = partnerProductLabel(row);
             const policy = partnerPolicyText(row);
-            const docs = parsePartnerDocuments(row.required_documents);
+            const imageSrc = partnerImageSrc(row);
             const letter = name.trim().charAt(0).toUpperCase() || "A";
             return (
               <article
@@ -68,9 +68,18 @@ export default function AllProductsGrid({ partners }: { partners: AdminPartnerRo
                 className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
               >
                 <div className="flex items-start gap-3">
-                  <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#EEF0FF] text-sm font-bold text-[#4236FB]">
-                    {letter}
-                  </span>
+                  {imageSrc ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={imageSrc}
+                      alt=""
+                      className="h-11 w-11 shrink-0 rounded-xl border border-slate-100 bg-white object-contain p-1"
+                    />
+                  ) : (
+                    <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#EEF0FF] text-sm font-bold text-[#4236FB]">
+                      {letter}
+                    </span>
+                  )}
                   <div className="min-w-0">
                     <h2 className="truncate text-base font-semibold text-slate-900">{name}</h2>
                     <p className="truncate text-sm text-slate-500">{product}</p>
@@ -80,22 +89,6 @@ export default function AllProductsGrid({ partners }: { partners: AdminPartnerRo
                 <p className="mt-3 line-clamp-2 min-h-[2.5rem] text-sm leading-5 text-slate-500">
                   {policy || "No policy added yet."}
                 </p>
-
-                <div className="mt-3 flex min-h-[1.75rem] flex-wrap gap-1.5">
-                  {docs.slice(0, 4).map((doc) => (
-                    <span
-                      key={doc}
-                      className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-slate-500"
-                    >
-                      {doc}
-                    </span>
-                  ))}
-                  {docs.length > 4 ? (
-                    <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
-                      +{docs.length - 4}
-                    </span>
-                  ) : null}
-                </div>
 
                 <div className="mt-4">
                   <button

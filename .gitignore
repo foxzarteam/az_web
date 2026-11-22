@@ -40,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# aggregator logos uploaded from admin
+/public/images/aggregators/*
+!/public/images/aggregators/.gitkeep

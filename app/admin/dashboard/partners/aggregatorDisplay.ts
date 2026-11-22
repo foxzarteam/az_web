@@ -41,3 +41,13 @@ export function partnerProductList(row: Record<string, unknown>): string[] {
 export function partnerPolicyText(row: Record<string, unknown>): string {
   return String(row.policy ?? "").trim();
 }
+
+export function partnerUtmLink(row: Record<string, unknown>): string {
+  return String(row.utm_link ?? "").trim();
+}
+
+export function partnerImageSrc(row: Record<string, unknown>): string {
+  const value = String(row.image_path ?? "").trim();
+  if (!/^\/images\/aggregators\/[A-Za-z0-9._-]+$/.test(value)) return "";
+  return value;
+}

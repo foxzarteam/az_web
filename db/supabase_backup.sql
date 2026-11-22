@@ -345,6 +345,8 @@ CREATE TABLE public.partner (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     policy text DEFAULT ''::text NOT NULL,
     required_documents text[] DEFAULT '{}'::text[] NOT NULL,
+    utm_link text DEFAULT ''::text NOT NULL,
+    image_path text DEFAULT ''::text NOT NULL,
     CONSTRAINT partner_required_documents_check CHECK ((
       required_documents <@ ARRAY[
         'AADHAR CARD'::text,
