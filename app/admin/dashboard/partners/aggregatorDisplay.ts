@@ -48,6 +48,19 @@ export function partnerUtmLink(row: Record<string, unknown>): string {
 
 export function partnerImageSrc(row: Record<string, unknown>): string {
   const value = String(row.image_path ?? "").trim();
-  if (!/^\/images\/aggregators\/[A-Za-z0-9._-]+$/.test(value)) return "";
-  return value;
+  if (!value) return "";
+  if (value.startsWith("blob:") || value.startsWith("data:")) return value;
+  if (/^\/images\/aggregators\/[A-Za-z0-9._-]+$/.test(value)) return value;
+  if (/^https:\/\//i.test(value)) {
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:" ? value : "";
+    } catch {
+      return "";
+    }
+  }
+  const key = value.replace(/^\//, "");
+  const file = key.startsWith("aggregators/") ? key.slice("aggregators/".length) : "";
+  if (!file || !/^[A-Za-z0-9._-]+\.(jpe?g|png|webp|gif)$/i.test(file)) return "";
+  return `/api/partners/logo/${encodeURIComponent(file)}`;
 }

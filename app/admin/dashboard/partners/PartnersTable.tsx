@@ -16,7 +16,7 @@ import {
   ADMIN_LABEL,
 } from "@/app/components/shared/crm/ui";
 import AggregatorDetailsModal from "./AggregatorDetailsModal";
-import { parsePartnerDocuments, REQUIRED_DOCUMENTS } from "./aggregatorDisplay";
+import { parsePartnerDocuments, partnerImageSrc, REQUIRED_DOCUMENTS } from "./aggregatorDisplay";
 
 function formatValue(key: string, value: unknown): string {
   if (value == null || value === "") return "—";
@@ -322,9 +322,13 @@ function PartnerFormFields({
             className={inputClass}
             onChange={(e) => onPickImage(e.target.files?.[0] ?? null)}
           />
-          {form.imagePath ? (
+          {partnerImageSrc({ image_path: form.imagePath }) ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={form.imagePath} alt="" className="mt-2 h-12 w-12 rounded-lg border border-slate-200 object-contain bg-white" />
+            <img
+              src={partnerImageSrc({ image_path: form.imagePath })}
+              alt=""
+              className="mt-2 h-12 w-12 rounded-lg border border-slate-200 object-contain bg-white"
+            />
           ) : null}
         </label>
       </div>
@@ -411,7 +415,15 @@ export default function PartnersTable({
 
   async function uploadImageIfNeeded(f: PartnerForm): Promise<string> {
     if (!imageFile) {
-      return f.imagePath.startsWith("/images/aggregators/") ? f.imagePath : "";
+      const current = f.imagePath.trim();
+      if (
+        current.startsWith("/images/aggregators/") ||
+        current.startsWith("aggregators/") ||
+        current.startsWith("https://")
+      ) {
+        return current;
+      }
+      return "";
     }
     const body = new FormData();
     body.append("file", imageFile);
