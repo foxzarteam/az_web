@@ -60,7 +60,11 @@ export function partnerImageSrc(row: Record<string, unknown>): string {
     }
   }
   const key = value.replace(/^\//, "");
-  const file = key.startsWith("aggregators/") ? key.slice("aggregators/".length) : "";
+  const file = key.startsWith("cibil/")
+    ? key.slice("cibil/".length)
+    : key.startsWith("aggregators/")
+      ? key.slice("aggregators/".length)
+      : "";
   if (!file || !/^[A-Za-z0-9._-]+\.(jpe?g|png|webp|gif)$/i.test(file)) return "";
   return `/api/partners/logo/${encodeURIComponent(file)}`;
 }

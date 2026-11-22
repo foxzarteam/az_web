@@ -411,6 +411,7 @@ export default function PartnersTable({
       if (
         current.startsWith("/images/aggregators/") ||
         current.startsWith("aggregators/") ||
+        current.startsWith("cibil/") ||
         current.startsWith("https://")
       ) {
         return current;
