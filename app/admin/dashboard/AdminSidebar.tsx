@@ -36,6 +36,18 @@ const adminNavItems: NavItem[] = [
     ),
   },
   {
+    label: "All Products",
+    path: "/dashboard/all-products",
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
+      </svg>
+    ),
+  },
+  {
     label: "Partners",
     path: "/dashboard/users",
     icon: (
@@ -103,6 +115,7 @@ const adminNavItems: NavItem[] = [
 const partnerNavItems: NavItem[] = [
   adminNavItems[0],
   adminNavItems[1],
+  adminNavItems[2],
   {
     label: "Earning",
     path: "/dashboard/earnings",
@@ -149,8 +162,10 @@ export default function AdminSidebar({
     const ok =
       path === "/partner/dashboard" ||
       path === "/partner/dashboard/leads" ||
+      path === "/partner/dashboard/all-products" ||
       path === "/partner/dashboard/earnings" ||
       path.startsWith("/partner/dashboard/leads/") ||
+      path.startsWith("/partner/dashboard/all-products/") ||
       path.startsWith("/partner/dashboard/earnings/");
     if (!ok) router.replace("/partner/dashboard");
   }, [isPartner, basePath, pathname, router]);

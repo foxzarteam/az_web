@@ -15,6 +15,10 @@ const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
     title: "Leads",
     subtitle: "Manage and track all incoming leads",
   },
+  "/admin/dashboard/all-products": {
+    title: "All Products",
+    subtitle: "Aggregator catalog, policy and required documents",
+  },
   "/admin/dashboard/earnings": {
     title: "Earning",
     subtitle: "Your commission wallet",

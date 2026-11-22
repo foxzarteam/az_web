@@ -1,0 +1,43 @@
+export const REQUIRED_DOCUMENTS = [
+  "AADHAR CARD",
+  "PAN CARD",
+  "BANK STATEMENT",
+  "SALARY SLIP",
+  "CURRENT ADDRESS",
+  "OFFICE ADDRESS",
+] as const;
+
+export function parsePartnerDocuments(raw: unknown): string[] {
+  const list = Array.isArray(raw) ? raw : typeof raw === "string" ? raw.split(",") : [];
+  const allowed = new Set<string>(REQUIRED_DOCUMENTS);
+  const out: string[] = [];
+  for (const item of list) {
+    const value = String(item ?? "").trim();
+    if (!allowed.has(value) || out.includes(value)) continue;
+    out.push(value);
+  }
+  return out;
+}
+
+export function partnerName(row: Record<string, unknown>): string {
+  const name = String(row.name ?? "").trim();
+  return name || "Aggregator";
+}
+
+export function partnerProductLabel(row: Record<string, unknown>): string {
+  const names = String(row.service_names ?? "").trim();
+  if (names) return names;
+  const ids = String(row.service_id ?? "").trim();
+  return ids || "—";
+}
+
+export function partnerProductList(row: Record<string, unknown>): string[] {
+  return partnerProductLabel(row)
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item && item !== "—");
+}
+
+export function partnerPolicyText(row: Record<string, unknown>): string {
+  return String(row.policy ?? "").trim();
+}

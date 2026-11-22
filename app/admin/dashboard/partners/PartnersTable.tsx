@@ -15,23 +15,8 @@ import {
   ADMIN_INPUT,
   ADMIN_LABEL,
 } from "@/app/components/shared/crm/ui";
-
-const REQUIRED_DOCUMENTS = [
-  "AADHAR CARD",
-  "PAN CARD",
-  "BANK STATEMENT",
-  "SALARY SLIP",
-  "CURRENT ADDRESS",
-  "OFFICE ADDRESS",
-] as const;
-
-const FIELD_LABELS: Record<string, string> = {
-  name: "Name",
-  service_names: "Products",
-  required_documents: "Required documents",
-  policy: "Policy",
-  created_at: "Created",
-};
+import AggregatorDetailsModal from "./AggregatorDetailsModal";
+import { parsePartnerDocuments, REQUIRED_DOCUMENTS } from "./aggregatorDisplay";
 
 function formatValue(key: string, value: unknown): string {
   if (value == null || value === "") return "—";
@@ -88,24 +73,12 @@ const emptyForm = (): PartnerForm => ({
   requiredDocuments: [],
 });
 
-function parseDocuments(raw: unknown): string[] {
-  const list = Array.isArray(raw) ? raw : typeof raw === "string" ? raw.split(",") : [];
-  const allowed = new Set<string>(REQUIRED_DOCUMENTS);
-  const out: string[] = [];
-  for (const item of list) {
-    const value = String(item ?? "").trim();
-    if (!allowed.has(value) || out.includes(value)) continue;
-    out.push(value);
-  }
-  return out;
-}
-
 function rowToForm(row: AdminPartnerRow): PartnerForm {
   return {
     name: String(row.name ?? ""),
     selectedSortOrders: parseSortOrdersCsv(String(row.service_id ?? "")),
     policy: String(row.policy ?? ""),
-    requiredDocuments: parseDocuments(row.required_documents),
+    requiredDocuments: parsePartnerDocuments(row.required_documents),
   };
 }
 
@@ -592,45 +565,7 @@ export default function PartnersTable({
         }
       />
 
-      {viewRow && (
-        <AdminModal title="Aggregator details" wide onClose={() => setViewRow(null)}>
-          <div className="space-y-5 p-6 sm:p-8">
-            <ul className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
-              {(["name", "service_names", "created_at"] as const).map((key) => (
-                <li key={key} className="flex flex-wrap items-baseline gap-1 text-sm">
-                  <span className="shrink-0 font-semibold text-midnight_text dark:text-white">{FIELD_LABELS[key] ?? key}:</span>
-                  <span className="text-midnight_text dark:text-gray-200">{formatValue(key, viewRow[key])}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Required documents</p>
-              {parseDocuments(viewRow.required_documents).length > 0 ? (
-                <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1">
-                  {parseDocuments(viewRow.required_documents).map((doc) => (
-                    <span
-                      key={doc}
-                      className="inline-flex shrink-0 items-center rounded-full border border-[#C7C3FE] bg-[#EEF0FF] px-3 py-1 text-xs font-semibold whitespace-nowrap text-[#4236FB]"
-                    >
-                      {doc}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-slate-400">—</p>
-              )}
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Policy</p>
-              <div className="max-h-56 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-sm leading-6 whitespace-pre-wrap text-slate-700 shadow-inner dark:border-dark_border dark:bg-white/5 dark:text-gray-200">
-                {String(viewRow.policy ?? "").trim() || "—"}
-              </div>
-            </div>
-          </div>
-        </AdminModal>
-      )}
+      {viewRow ? <AggregatorDetailsModal row={viewRow} onClose={() => setViewRow(null)} /> : null}
 
       {createOpen && (
         <AdminModal title="Add aggregator" wide onClose={closeModals}>
