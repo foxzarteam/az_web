@@ -342,12 +342,9 @@ CREATE TABLE public.partner (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name text NOT NULL,
     service_id text NOT NULL,
-    payout_type text NOT NULL,
-    commission_value numeric(12,2) NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     policy text DEFAULT ''::text NOT NULL,
     required_documents text[] DEFAULT '{}'::text[] NOT NULL,
-    CONSTRAINT partner_payout_type_check CHECK ((payout_type = ANY (ARRAY['PERCENTAGE'::text, 'FLAT'::text]))),
     CONSTRAINT partner_required_documents_check CHECK ((
       required_documents <@ ARRAY[
         'AADHAR CARD'::text,
@@ -361,10 +358,6 @@ CREATE TABLE public.partner (
 );
 
 COMMENT ON COLUMN public.partner.service_id IS 'Comma-separated products.sort_order, e.g. 2,5';
-
-COMMENT ON COLUMN public.partner.payout_type IS 'PERCENTAGE or FLAT';
-
-COMMENT ON COLUMN public.partner.commission_value IS 'e.g. 2.5 (%) or 1500 (Rs)';
 
 CREATE TABLE public.payment_accounts (
     id uuid DEFAULT gen_random_uuid() NOT NULL,

@@ -16,11 +16,6 @@ import {
   ADMIN_LABEL,
 } from "@/app/components/shared/crm/ui";
 
-const PAYOUT_TYPES = [
-  { value: "PERCENTAGE", label: "Percentage (%)" },
-  { value: "FLAT", label: "Flat (Rs)" },
-] as const;
-
 const REQUIRED_DOCUMENTS = [
   "AADHAR CARD",
   "PAN CARD",
@@ -33,8 +28,6 @@ const REQUIRED_DOCUMENTS = [
 const FIELD_LABELS: Record<string, string> = {
   name: "Name",
   service_names: "Products",
-  payout_type: "Payout type",
-  commission_value: "Commission value",
   required_documents: "Required documents",
   policy: "Policy",
   created_at: "Created",
@@ -47,7 +40,6 @@ function formatValue(key: string, value: unknown): string {
     return joined || "—";
   }
   const s = String(value);
-  if (key === "payout_type") return s === "PERCENTAGE" ? "Percentage" : s === "FLAT" ? "Flat" : s;
   if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
     const d = new Date(s);
     if (!Number.isNaN(d.getTime())) {
@@ -71,13 +63,6 @@ function servicesText(row: AdminPartnerRow): string {
   return String(ids);
 }
 
-function payoutText(row: AdminPartnerRow): string {
-  const type = String(row.payout_type ?? "");
-  const val = row.commission_value;
-  if (val == null) return "—";
-  return type === "PERCENTAGE" ? `${val}%` : `₹${val}`;
-}
-
 function createdDateText(row: AdminPartnerRow): string {
   return formatValue("created_at", row.created_at);
 }
@@ -85,8 +70,6 @@ function createdDateText(row: AdminPartnerRow): string {
 type PartnerForm = {
   name: string;
   selectedSortOrders: number[];
-  payoutType: string;
-  commissionValue: string;
   policy: string;
   requiredDocuments: string[];
 };
@@ -101,8 +84,6 @@ function parseSortOrdersCsv(csv: string): number[] {
 const emptyForm = (): PartnerForm => ({
   name: "",
   selectedSortOrders: [],
-  payoutType: "PERCENTAGE",
-  commissionValue: "",
   policy: "",
   requiredDocuments: [],
 });
@@ -123,8 +104,6 @@ function rowToForm(row: AdminPartnerRow): PartnerForm {
   return {
     name: String(row.name ?? ""),
     selectedSortOrders: parseSortOrdersCsv(String(row.service_id ?? "")),
-    payoutType: String(row.payout_type ?? "PERCENTAGE"),
-    commissionValue: row.commission_value != null ? String(row.commission_value) : "",
     policy: String(row.policy ?? ""),
     requiredDocuments: parseDocuments(row.required_documents),
   };
@@ -354,31 +333,6 @@ function PartnerFormFields({
           rows={6}
         />
       </label>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <label className="block min-w-0">
-          <span className={ADMIN_LABEL}>Payout type</span>
-          <select className={inputClass} value={form.payoutType} onChange={(e) => setForm({ ...form, payoutType: e.target.value })}>
-            {PAYOUT_TYPES.map((p) => (
-              <option key={p.value} value={p.value}>
-                {p.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="block min-w-0">
-          <span className={ADMIN_LABEL}>Commission value</span>
-          <input
-            type="number"
-            min={0}
-            step="any"
-            className={inputClass}
-            value={form.commissionValue}
-            onChange={(e) => setForm({ ...form, commissionValue: e.target.value })}
-            placeholder={form.payoutType === "PERCENTAGE" ? "e.g. 2.5" : "e.g. 1500"}
-            required
-          />
-        </label>
-      </div>
     </div>
   );
 }
@@ -443,8 +397,6 @@ export default function PartnersTable({
     return {
       name: f.name.trim(),
       serviceId: f.selectedSortOrders.join(","),
-      payoutType: f.payoutType,
-      commissionValue: Number(f.commissionValue),
       policy: f.policy.trim(),
       requiredDocuments: f.requiredDocuments,
     };
@@ -574,14 +526,6 @@ export default function PartnersTable({
         cell: (row) => <span title={servicesText(row)}>{servicesText(row)}</span>,
       },
       {
-        id: "commission",
-        header: "Commission",
-        sortable: true,
-        sortValue: (row) => payoutText(row),
-        searchValue: (row) => payoutText(row),
-        cell: (row) => payoutText(row),
-      },
-      {
         id: "created_at",
         header: "Created date",
         sortable: true,
@@ -652,7 +596,7 @@ export default function PartnersTable({
         <AdminModal title="Aggregator details" wide onClose={() => setViewRow(null)}>
           <div className="space-y-5 p-6 sm:p-8">
             <ul className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
-              {(["name", "service_names", "payout_type", "commission_value", "created_at"] as const).map((key) => (
+              {(["name", "service_names", "created_at"] as const).map((key) => (
                 <li key={key} className="flex flex-wrap items-baseline gap-1 text-sm">
                   <span className="shrink-0 font-semibold text-midnight_text dark:text-white">{FIELD_LABELS[key] ?? key}:</span>
                   <span className="text-midnight_text dark:text-gray-200">{formatValue(key, viewRow[key])}</span>
