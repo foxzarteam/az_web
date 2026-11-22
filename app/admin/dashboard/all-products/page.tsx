@@ -20,13 +20,7 @@ export default async function AllProductsPage() {
         <p className="mb-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
           {error}
         </p>
-      ) : (
-        <p className="mb-4 text-sm text-slate-500">
-          {partners.length === 0
-            ? "No products added yet."
-            : `${partners.length} product${partners.length === 1 ? "" : "s"} from the catalog.`}
-        </p>
-      )}
+      ) : null}
       {canManage ? (
         <ProductCatalog
           initialPartners={partners}

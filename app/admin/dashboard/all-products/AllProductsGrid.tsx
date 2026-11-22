@@ -107,30 +107,8 @@ export default function AllProductsGrid({
                 <CatalogCardActions
                   row={row}
                   onViewPolicy={() => setOpen(row)}
-                  extra={
-                    onEdit || onDelete ? (
-                      <>
-                        {onEdit ? (
-                          <button
-                            type="button"
-                            onClick={() => onEdit(row)}
-                            className="inline-flex h-9 items-center rounded-full border border-slate-200 px-3.5 text-sm font-semibold text-slate-600 transition hover:border-[#4236FB]/40 hover:text-[#4236FB]"
-                          >
-                            Edit
-                          </button>
-                        ) : null}
-                        {onDelete ? (
-                          <button
-                            type="button"
-                            onClick={() => onDelete(row)}
-                            className="inline-flex h-9 items-center rounded-full border border-rose-200 px-3.5 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
-                          >
-                            Delete
-                          </button>
-                        ) : null}
-                      </>
-                    ) : null
-                  }
+                  onEdit={onEdit ? () => onEdit(row) : undefined}
+                  onDelete={onDelete ? () => onDelete(row) : undefined}
                 />
               </article>
             );
