@@ -57,10 +57,12 @@ function resolvePageMeta(pathname: string, basePath: "/admin" | "/partner") {
 export default function AdminDashboardShell({
   role,
   basePath = "/admin",
+  partnerCode = "",
   children,
 }: {
   role: string;
   basePath?: "/admin" | "/partner";
+  partnerCode?: string;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -160,13 +162,19 @@ export default function AdminDashboardShell({
               </p>
             </div>
 
-            <div className="hidden items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-indigo-50 md:flex">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            {basePath === "/partner" && partnerCode.trim() ? (
+              <span className="inline-flex max-w-[11rem] items-center truncate rounded-full bg-amber-100 px-3 py-1.5 text-xs font-semibold tracking-wide text-amber-900 sm:max-w-none">
+                Your Code : {partnerCode.trim().toUpperCase()}
               </span>
-              System online
-            </div>
+            ) : basePath === "/admin" ? (
+              <div className="hidden items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-indigo-50 md:flex">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                </span>
+                System online
+              </div>
+            ) : null}
           </div>
         </header>
 

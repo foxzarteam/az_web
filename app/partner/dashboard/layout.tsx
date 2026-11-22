@@ -8,7 +8,7 @@ export default async function PartnerDashboardLayout({ children }: { children: R
   if (!isAgentRole(session.role)) redirect("/admin/dashboard");
 
   return (
-    <AdminDashboardShell role={session.role} basePath="/partner">
+    <AdminDashboardShell role={session.role} basePath="/partner" partnerCode={session.code ?? ""}>
       {children}
     </AdminDashboardShell>
   );

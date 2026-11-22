@@ -374,11 +374,6 @@ export default function AffiliateShareKit({
         </div>
 
         <div className="w-full border-t border-slate-100 pt-3">
-          <div className="mb-2.5">
-            <span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold tracking-wide text-amber-900">
-              Your Code : {code.trim().toUpperCase()}
-            </span>
-          </div>
           <div className="flex flex-wrap gap-2">
             {socialLinks.map((item) =>
               item.id === "whatsapp" && isMobile ? (
