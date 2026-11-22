@@ -9,7 +9,7 @@ import WhatsappIncomingNotify from "./whatsapp/WhatsappIncomingNotify";
 const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
   "/admin/dashboard": {
     title: "Dashboard",
-    subtitle: "Overview of leads, partners and aggregators",
+    subtitle: "Overview of leads, partners and products",
   },
   "/admin/dashboard/leads": {
     title: "Leads",
@@ -17,7 +17,7 @@ const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
   },
   "/admin/dashboard/all-products": {
     title: "All Products",
-    subtitle: "Aggregator catalog, policy and required documents",
+    subtitle: "Product catalog, policy and required documents",
   },
   "/admin/dashboard/earnings": {
     title: "Earning",
@@ -32,8 +32,8 @@ const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
     subtitle: "Configure loan and insurance products",
   },
   "/admin/dashboard/partners": {
-    title: "Aggregators",
-    subtitle: "Manage lending and insurance aggregators",
+    title: "All Products",
+    subtitle: "Product catalog, policy and required documents",
   },
   "/admin/dashboard/contacts": {
     title: "Contact",

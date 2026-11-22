@@ -41,7 +41,7 @@ const quickLinks = [
   { href: "/admin/dashboard/leads", title: "Manage Leads", desc: "Review applications & follow-ups" },
   { href: "/admin/dashboard/users", title: "Partners", desc: "Add or update partner access" },
   { href: "/admin/dashboard/products", title: "Products", desc: "Loan & insurance catalogue" },
-  { href: "/admin/dashboard/partners", title: "Aggregators", desc: "Bank & insurer aggregators" },
+  { href: "/admin/dashboard/all-products", title: "All Products", desc: "Product catalog and policies" },
 ];
 
 export default async function AdminDashboardPage() {
@@ -131,7 +131,7 @@ export default async function AdminDashboardPage() {
               Welcome to Apni Zaroorat Admin
             </h2>
             <p className="mt-0.5 max-w-xl text-sm text-slate-500 dark:text-gray-400">
-              Monitor leads, partners and aggregators from one place.
+              Monitor leads, partners and products from one place.
             </p>
           </div>
           <Link href="/admin/dashboard/leads" className={ADMIN_BTN_PRIMARY}>
@@ -159,10 +159,10 @@ export default async function AdminDashboardPage() {
               icon={<AgentsIcon />}
             />
             <DashboardStatCard
-              label="Total Aggregators"
+              label="Total Products"
               value={stats.totalPartners}
-              description="Registered lending & insurance aggregators"
-              href="/admin/dashboard/partners"
+              description="Registered lending & insurance products"
+              href="/admin/dashboard/all-products"
               icon={<PartnersIcon />}
             />
           </div>

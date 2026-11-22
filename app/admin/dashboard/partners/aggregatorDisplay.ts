@@ -21,7 +21,7 @@ export function parsePartnerDocuments(raw: unknown): string[] {
 
 export function partnerName(row: Record<string, unknown>): string {
   const name = String(row.name ?? "").trim();
-  return name || "Aggregator";
+  return name || "Product";
 }
 
 export function partnerProductLabel(row: Record<string, unknown>): string {

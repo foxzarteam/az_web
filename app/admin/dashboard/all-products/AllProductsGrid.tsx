@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { AdminPartnerRow } from "@/app/lib/admin/fetchPartners";
 import AggregatorDetailsModal from "@/app/admin/dashboard/partners/AggregatorDetailsModal";
+import CatalogCardActions from "./CatalogCardActions";
 import {
   partnerName,
   partnerPolicyText,
@@ -11,7 +12,17 @@ import {
   partnerImageSrc,
 } from "@/app/admin/dashboard/partners/aggregatorDisplay";
 
-export default function AllProductsGrid({ partners }: { partners: AdminPartnerRow[] }) {
+export default function AllProductsGrid({
+  partners,
+  headerRight,
+  onEdit,
+  onDelete,
+}: {
+  partners: AdminPartnerRow[];
+  headerRight?: React.ReactNode;
+  onEdit?: (row: AdminPartnerRow) => void;
+  onDelete?: (row: AdminPartnerRow) => void;
+}) {
   const [filter, setFilter] = useState("All");
   const [open, setOpen] = useState<AdminPartnerRow | null>(null);
 
@@ -30,29 +41,32 @@ export default function AllProductsGrid({ partners }: { partners: AdminPartnerRo
 
   return (
     <>
-      <div className="mb-5 flex flex-wrap gap-2">
-        {filters.map((item) => {
-          const active = item === filter;
-          return (
-            <button
-              key={item}
-              type="button"
-              onClick={() => setFilter(item)}
-              className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
-                active
-                  ? "bg-[#4236FB] text-white shadow-sm"
-                  : "border border-slate-200 bg-white text-slate-600 hover:border-[#4236FB]/40 hover:text-[#4236FB]"
-              }`}
-            >
-              {item}
-            </button>
-          );
-        })}
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          {filters.map((item) => {
+            const active = item === filter;
+            return (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setFilter(item)}
+                className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+                  active
+                    ? "bg-[#4236FB] text-white shadow-sm"
+                    : "border border-slate-200 bg-white text-slate-600 hover:border-[#4236FB]/40 hover:text-[#4236FB]"
+                }`}
+              >
+                {item}
+              </button>
+            );
+          })}
+        </div>
+        {headerRight}
       </div>
 
       {rows.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-500">
-          No aggregators to show.
+          No products to show.
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -90,15 +104,34 @@ export default function AllProductsGrid({ partners }: { partners: AdminPartnerRo
                   {policy || "No policy added yet."}
                 </p>
 
-                <div className="mt-4">
-                  <button
-                    type="button"
-                    onClick={() => setOpen(row)}
-                    className="inline-flex h-9 items-center rounded-full border border-[#4236FB] px-4 text-sm font-semibold text-[#4236FB] transition hover:bg-[#EEF0FF]"
-                  >
-                    View Details
-                  </button>
-                </div>
+                <CatalogCardActions
+                  row={row}
+                  onViewPolicy={() => setOpen(row)}
+                  extra={
+                    onEdit || onDelete ? (
+                      <>
+                        {onEdit ? (
+                          <button
+                            type="button"
+                            onClick={() => onEdit(row)}
+                            className="inline-flex h-9 items-center rounded-full border border-slate-200 px-3.5 text-sm font-semibold text-slate-600 transition hover:border-[#4236FB]/40 hover:text-[#4236FB]"
+                          >
+                            Edit
+                          </button>
+                        ) : null}
+                        {onDelete ? (
+                          <button
+                            type="button"
+                            onClick={() => onDelete(row)}
+                            className="inline-flex h-9 items-center rounded-full border border-rose-200 px-3.5 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                          >
+                            Delete
+                          </button>
+                        ) : null}
+                      </>
+                    ) : null
+                  }
+                />
               </article>
             );
           })}

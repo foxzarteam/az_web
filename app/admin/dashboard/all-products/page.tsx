@@ -1,13 +1,18 @@
 import { redirect } from "next/navigation";
-import { getAdminSession } from "@/app/lib/admin/session";
-import { fetchAdminPartners } from "@/app/lib/admin/fetchPartners";
+import { getAdminSession, isAdminRole, isCrmAdminRole } from "@/app/lib/admin/session";
+import { fetchActiveServiceOptions, fetchAdminPartners } from "@/app/lib/admin/fetchPartners";
 import AllProductsGrid from "./AllProductsGrid";
+import ProductCatalog from "./ProductCatalog";
 
 export default async function AllProductsPage() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
 
-  const { partners, error } = await fetchAdminPartners();
+  const canManage = isCrmAdminRole(session.role);
+  const [{ partners, error }, serviceOptions] = await Promise.all([
+    fetchAdminPartners(),
+    canManage ? fetchActiveServiceOptions() : Promise.resolve([]),
+  ]);
 
   return (
     <main className="p-4 sm:p-5 lg:p-6">
@@ -18,11 +23,19 @@ export default async function AllProductsPage() {
       ) : (
         <p className="mb-4 text-sm text-slate-500">
           {partners.length === 0
-            ? "No aggregators added yet."
-            : `${partners.length} aggregator${partners.length === 1 ? "" : "s"} from the catalog.`}
+            ? "No products added yet."
+            : `${partners.length} product${partners.length === 1 ? "" : "s"} from the catalog.`}
         </p>
       )}
-      <AllProductsGrid partners={partners} />
+      {canManage ? (
+        <ProductCatalog
+          initialPartners={partners}
+          serviceOptions={serviceOptions}
+          canDelete={isAdminRole(session.role)}
+        />
+      ) : (
+        <AllProductsGrid partners={partners} />
+      )}
     </main>
   );
 }

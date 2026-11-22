@@ -23,7 +23,7 @@ export default function AggregatorDetailsModal({
   const utm = partnerUtmLink(row);
 
   return (
-    <AdminModal title="Aggregator details" wide onClose={onClose}>
+    <AdminModal title="Product details" wide onClose={onClose}>
       <div className="space-y-5 p-6 sm:p-8">
         {imageSrc ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -68,8 +68,14 @@ export default function AggregatorDetailsModal({
 
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Policy</p>
-          <div className="max-h-56 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-sm leading-6 whitespace-pre-wrap text-slate-700 shadow-inner dark:border-dark_border dark:bg-white/5 dark:text-gray-200">
-            {policy || "—"}
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-dark_border">
+            <div className="flex items-center gap-2 border-b border-slate-100 bg-gradient-to-r from-[#EEF0FF] to-white px-4 py-2.5">
+              <span className="h-2 w-2 rounded-full bg-[#4236FB]" aria-hidden />
+              <span className="text-xs font-semibold tracking-wide text-[#4236FB]">Policy document</span>
+            </div>
+            <div className="px-5 py-4 text-sm leading-7 whitespace-pre-wrap text-slate-700 dark:text-gray-200">
+              {policy || "—"}
+            </div>
           </div>
         </div>
       </div>

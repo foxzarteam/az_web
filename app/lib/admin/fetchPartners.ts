@@ -73,20 +73,20 @@ export async function fetchAdminPartners(): Promise<FetchAdminPartnersResult> {
 
     if (!res.ok) {
       if (res.status === 401) {
-        return { partners: [], error: "Could not load aggregators. Please sign in again." };
+        return { partners: [], error: "Could not load products. Please sign in again." };
       }
-      return { partners: [], error: "Could not load aggregators. Please try again." };
+      return { partners: [], error: "Could not load products. Please try again." };
     }
 
     if (!body.success || !Array.isArray(body.data)) {
-      return { partners: [], error: "Could not load aggregators. Please try again." };
+      return { partners: [], error: "Could not load products. Please try again." };
     }
 
     return { partners: body.data, error: null };
   } catch {
     return {
       partners: [],
-      error: "Could not load aggregators. Please try again.",
+      error: "Could not load products. Please try again.",
     };
   }
 }
