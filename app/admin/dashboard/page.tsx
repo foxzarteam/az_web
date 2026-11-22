@@ -4,8 +4,6 @@ import { fetchLeadsByAgent } from "@/app/lib/admin/fetchLeads";
 import Link from "next/link";
 import DashboardStatCard from "./DashboardStatCard";
 import AffiliateShareKit from "@/app/components/affiliate/AffiliateShareKit";
-import BankLogoCarousel from "@/app/components/home/bank-logo-carousel";
-import { bankLogos } from "@/app/components/home/bank-partners";
 import { ADMIN_BTN_PRIMARY, ADMIN_CARD, ADMIN_UI } from "@/app/components/shared/crm/ui";
 
 function LeadsIcon() {
@@ -89,18 +87,6 @@ export default async function AdminDashboardPage() {
               </div>
             </div>
           ) : null}
-
-          <div className={`${ADMIN_CARD} overflow-hidden px-4 py-4 sm:px-6`}>
-            <h2 className="text-base font-semibold text-slate-900 dark:text-white sm:text-lg">
-              Work with <span className="theme-gradient-text">100+</span> Financial Partners
-            </h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">
-              Offer more financial products. Serve more customers. Earn more money.
-            </p>
-            <div className="mt-4">
-              <BankLogoCarousel logos={bankLogos()} rows={1} />
-            </div>
-          </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
             <DashboardStatCard
