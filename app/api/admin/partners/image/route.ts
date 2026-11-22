@@ -5,14 +5,20 @@ import { nestApiBase } from "@/app/lib/server/nestBase";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 
-function exactError(status: number, rawText: string, data: Record<string, unknown>): string {
+function exactError(
+  status: number,
+  rawText: string,
+  data: Record<string, unknown>,
+  apiHost: string,
+): string {
   const message = data.message;
   const error = data.error;
   const parts = [
     `HTTP ${status}`,
+    apiHost,
     Array.isArray(message) ? message.map((x) => String(x)).join(", ") : message != null ? String(message) : "",
     error != null && error !== message ? String(error) : "",
-    !message && !error ? rawText : "",
+    !message && !error ? rawText.slice(0, 400) : "",
   ]
     .map((part) => part.trim())
     .filter(Boolean);
@@ -68,8 +74,14 @@ export async function POST(request: Request) {
     }
     const path = typeof data.path === "string" ? data.path : "";
     if (!res.ok || !path) {
+      let apiHost = base;
+      try {
+        apiHost = new URL(base).host;
+      } catch {
+        apiHost = base;
+      }
       return NextResponse.json(
-        { error: exactError(res.status, rawText, data) },
+        { error: exactError(res.status, rawText, data, apiHost) },
         { status: res.ok ? 400 : res.status },
       );
     }
