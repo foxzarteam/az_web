@@ -224,7 +224,7 @@ export default function IndiaMap({ children }: { children?: React.ReactNode }) {
       setMobile("");
       setPassword("");
       setTermsAccepted(false);
-      router.replace("/partner/dashboard");
+      router.replace("/partner/kyc");
     } catch {
       setFieldErrors({ submit: "Unable to submit right now. Please try again." });
     } finally {

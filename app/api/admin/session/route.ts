@@ -50,7 +50,11 @@ export async function POST(request: Request) {
         mobile: result.user.mobile,
         code: result.user.code,
       });
-      return NextResponse.json({ ok: true, role: "agent" });
+      return NextResponse.json({
+        ok: true,
+        role: "agent",
+        kycStatus: result.user.kycStatus ?? "",
+      });
     }
 
     if (!email || !password) {

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { normalizePartnerKycStatus, partnerPathForKyc } from "@/app/lib/partner/kyc";
 
 /** Dev-only prefill from NEXT_PUBLIC_ADMIN_LOGIN_PREFILL_* — never hardcode passwords. */
 const LOGIN_PREFILL = {
@@ -62,6 +63,7 @@ export default function LoginForm({ mode = "admin" }: { mode?: "admin" | "partne
         const sessionData = (await sessionRes.json().catch(() => ({}))) as {
           error?: string;
           role?: string;
+          kycStatus?: string;
         };
         if (!sessionRes.ok) {
           setError(sessionData.error?.trim() || "Invalid phone or PIN");
@@ -72,7 +74,12 @@ export default function LoginForm({ mode = "admin" }: { mode?: "admin" | "partne
           setError("This login is for partners only");
           return;
         }
-        router.push(role === "agent" ? "/partner/dashboard" : "/admin/dashboard");
+        router.push(
+          role === "agent"
+            ? partnerPathForKyc(normalizePartnerKycStatus(sessionData.kycStatus)) ??
+                "/partner/dashboard"
+            : "/admin/dashboard",
+        );
         router.refresh();
         return;
       }

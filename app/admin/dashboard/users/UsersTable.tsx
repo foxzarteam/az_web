@@ -17,6 +17,11 @@ import {
   ADMIN_LABEL,
 } from "@/app/components/shared/crm/ui";
 import { downloadPartnersWorkbook } from "./partnersWorkbook";
+import {
+  PARTNER_KYC_STATUSES,
+  normalizePartnerKycStatus,
+  type PartnerKycStatus,
+} from "@/app/lib/partner/kyc";
 
 type AdminUserRow = Record<string, unknown>;
 
@@ -25,6 +30,7 @@ const VIEW_FIELDS = [
   "email",
   "mobile_number",
   "referral_code",
+  "kyc_status",
   "is_active",
   "created_at",
 ] as const;
@@ -34,11 +40,27 @@ const FIELD_LABELS: Record<string, string> = {
   email: "Email",
   mobile_number: "Phone",
   referral_code: "Affiliate code",
+  kyc_status: "KYC",
   is_active: "Active",
   created_at: "Created",
 };
 
+const KYC_LABEL: Record<PartnerKycStatus, string> = {
+  pending: "Pending",
+  submitted: "Submitted",
+  approved: "Approved",
+  rejected: "Rejected",
+};
+
+function kycBadgeClass(status: PartnerKycStatus): string {
+  if (status === "approved") return "bg-emerald-50 text-emerald-700";
+  if (status === "submitted") return "bg-amber-50 text-amber-800";
+  if (status === "rejected") return "bg-rose-50 text-rose-700";
+  return "bg-slate-100 text-slate-600";
+}
+
 function formatValue(key: string, value: unknown): string {
+  if (key === "kyc_status") return KYC_LABEL[normalizePartnerKycStatus(value)];
   if (value == null || value === "") return "—";
   if (typeof value === "boolean") return value ? "Yes" : "No";
   const s = String(value);
@@ -78,6 +100,7 @@ type EditForm = {
   mobileNumber: string;
   isActive: boolean;
   isLoggedIn: boolean;
+  kycStatus: PartnerKycStatus;
 };
 
 function userToEditForm(user: AdminUserRow): EditForm {
@@ -87,8 +110,19 @@ function userToEditForm(user: AdminUserRow): EditForm {
     mobileNumber: String(user.mobile_number ?? ""),
     isActive: user.is_active !== false,
     isLoggedIn: user.is_logged_in === true,
+    kycStatus: normalizePartnerKycStatus(user.kyc_status),
   };
 }
+
+type AdminKycDetail = {
+  aadhaar_number?: string;
+  pan?: string;
+  bank_name?: string;
+  account_holder?: string;
+  account_number?: string;
+  ifsc?: string;
+  files?: Record<string, boolean>;
+};
 
 export default function UsersTable({
   initialUsers,
@@ -110,6 +144,7 @@ export default function UsersTable({
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [kycDetail, setKycDetail] = useState<AdminKycDetail | null>(null);
 
   useEffect(() => {
     setHydrated(true);
@@ -118,6 +153,26 @@ export default function UsersTable({
   useEffect(() => {
     setUsers(initialUsers);
   }, [initialUsers]);
+
+  useEffect(() => {
+    const id = String(viewUser?.id ?? "").trim();
+    if (!id) {
+      setKycDetail(null);
+      return;
+    }
+    let cancelled = false;
+    fetch(`/api/admin/users/${encodeURIComponent(id)}/kyc`)
+      .then(async (res) => {
+        const data = (await res.json().catch(() => ({}))) as { data?: AdminKycDetail | null };
+        if (!cancelled) setKycDetail(data.data ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setKycDetail(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [viewUser]);
 
   const closeModals = useCallback(() => {
     setViewUser(null);
@@ -172,6 +227,7 @@ export default function UsersTable({
       userName,
       mobileNumber,
       mpin: password,
+      kycStatus: "approved",
     };
     if (email) payload.email = email;
 
@@ -218,6 +274,7 @@ export default function UsersTable({
       mobileNumber: editForm.mobileNumber.trim(),
       isActive: editForm.isActive,
       isLoggedIn: editForm.isLoggedIn,
+      kycStatus: editForm.kycStatus,
     };
 
     try {
@@ -288,6 +345,21 @@ export default function UsersTable({
         sortValue: (row) => String(row.mobile_number ?? ""),
         searchValue: (row) => cellText(row, "mobile_number"),
         cell: (row) => cellText(row, "mobile_number"),
+      },
+      {
+        id: "kyc_status",
+        header: "KYC",
+        sortable: true,
+        sortValue: (row) => normalizePartnerKycStatus(row.kyc_status),
+        searchValue: (row) => KYC_LABEL[normalizePartnerKycStatus(row.kyc_status)],
+        cell: (row) => {
+          const status = normalizePartnerKycStatus(row.kyc_status);
+          return (
+            <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${kycBadgeClass(status)}`}>
+              {KYC_LABEL[status]}
+            </span>
+          );
+        },
       },
       {
         id: "created_at",
@@ -458,6 +530,34 @@ export default function UsersTable({
                 </li>
               ))}
             </ul>
+            {kycDetail ? (
+              <div className="border-t border-slate-200 pt-5 dark:border-dark_border">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">KYC documents</p>
+                <ul className="grid grid-cols-1 gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
+                  <li>Aadhaar: {kycDetail.aadhaar_number || "—"}</li>
+                  <li>PAN: {kycDetail.pan || "—"}</li>
+                  <li>Bank: {kycDetail.bank_name || "—"}</li>
+                  <li>Holder: {kycDetail.account_holder || "—"}</li>
+                  <li>Account: {kycDetail.account_number || "—"}</li>
+                  <li>IFSC: {kycDetail.ifsc || "—"}</li>
+                </ul>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {(["aadhaarFront", "aadhaarBack", "panCard", "selfie"] as const).map((kind) =>
+                    kycDetail.files?.[kind] ? (
+                      <a
+                        key={kind}
+                        href={`/api/admin/users/${encodeURIComponent(String(viewUser.id))}/kyc-file/${kind}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-slate-50"
+                      >
+                        Open {kind}
+                      </a>
+                    ) : null,
+                  )}
+                </div>
+              </div>
+            ) : null}
             <div className="border-t border-slate-200 pt-5 dark:border-dark_border">
               <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Affiliate link &amp; QR</p>
               <AffiliateShareKit code={String(viewUser.referral_code ?? "")} compact />
@@ -498,6 +598,25 @@ export default function UsersTable({
                   required
                   maxLength={10}
                 />
+              </label>
+              <label className="block sm:col-span-2">
+                <span className={ADMIN_LABEL}>KYC / portal access</span>
+                <select
+                  className={inputClass}
+                  value={editForm.kycStatus}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, kycStatus: e.target.value as PartnerKycStatus })
+                  }
+                >
+                  {PARTNER_KYC_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {KYC_LABEL[status]}
+                    </option>
+                  ))}
+                </select>
+                <span className="mt-1.5 block text-xs text-slate-500">
+                  Approved partners can open the portal. Submitted stays on the waiting page.
+                </span>
               </label>
               <label className="flex items-center gap-2 sm:col-span-2">
                 <input

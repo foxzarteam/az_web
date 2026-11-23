@@ -6,6 +6,7 @@ export type VerifiedAgent = {
   name: string;
   mobile: string;
   code: string;
+  kycStatus?: string;
 };
 
 export type VerifyAgentResult =
@@ -51,6 +52,7 @@ export async function verifyAgentCredentials(
         user_name?: string;
         mobile_number?: string;
         referral_code?: string;
+        kyc_status?: string;
       };
       message?: string;
     };
@@ -68,6 +70,7 @@ export async function verifyAgentCredentials(
         name: String(data.data.user_name ?? "Agent"),
         mobile: String(data.data.mobile_number ?? mobile),
         code: String(data.data.referral_code ?? ""),
+        kycStatus: String(data.data.kyc_status ?? ""),
       },
     };
   } catch {
