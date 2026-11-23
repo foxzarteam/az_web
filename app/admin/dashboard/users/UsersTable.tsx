@@ -47,6 +47,7 @@ const FIELD_LABELS: Record<string, string> = {
 
 const KYC_LABEL: Record<AdminKycStatus, string> = {
   pending: "Pending",
+  submitted: "Received",
   approved: "Approved",
   rejected: "Rejected",
 };
@@ -55,10 +56,12 @@ function kycSelectClass(status: AdminKycStatus): string {
   const color =
     status === "approved"
       ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-      : status === "rejected"
-        ? "border-rose-200 bg-rose-50 text-rose-700"
-        : "border-slate-200 bg-slate-50 text-slate-700";
-  return `min-w-[7.5rem] rounded-lg border px-2 py-1.5 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#4236FB]/20 disabled:opacity-60 ${color}`;
+      : status === "submitted"
+        ? "border-amber-200 bg-amber-50 text-amber-800"
+        : status === "rejected"
+          ? "border-rose-200 bg-rose-50 text-rose-700"
+          : "border-slate-200 bg-slate-50 text-slate-700";
+  return `min-w-[8.5rem] rounded-lg border px-2 py-1.5 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#4236FB]/20 disabled:opacity-60 ${color}`;
 }
 
 function formatValue(key: string, value: unknown): string {
@@ -663,7 +666,7 @@ export default function UsersTable({
                   ))}
                 </select>
                 <span className="mt-1.5 block text-xs text-slate-500">
-                  Portal opens only when status is Approved.
+                  Received = documents uploaded. Portal opens only on Approved.
                 </span>
               </label>
               <label className="flex items-center gap-2 sm:col-span-2">
