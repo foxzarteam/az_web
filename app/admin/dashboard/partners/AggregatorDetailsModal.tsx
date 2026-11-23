@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import AdminModal from "@/app/components/shared/crm/AppModal";
 import {
   parsePartnerDocuments,
@@ -9,6 +10,10 @@ import {
   partnerImageSrc,
   partnerUtmLink,
 } from "./aggregatorDisplay";
+
+function applyHref(raw: string): string {
+  return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+}
 
 export default function AggregatorDetailsModal({
   row,
@@ -21,41 +26,59 @@ export default function AggregatorDetailsModal({
   const policy = partnerPolicyText(row);
   const imageSrc = partnerImageSrc(row);
   const utm = partnerUtmLink(row);
+  const [copied, setCopied] = useState(false);
+
+  async function copyLink() {
+    if (!utm) return;
+    try {
+      await navigator.clipboard.writeText(utm);
+    } catch {
+      return;
+    }
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1600);
+  }
+
+  async function applyNow() {
+    if (!utm) return;
+    try {
+      await navigator.clipboard.writeText(utm);
+    } catch {
+      /* still open */
+    }
+    window.open(applyHref(utm), "_blank", "noopener,noreferrer");
+  }
 
   return (
     <AdminModal title="Product details" wide onClose={onClose}>
-      <div className="space-y-5 p-6 sm:p-8">
-        {imageSrc ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageSrc} alt="" className="h-14 w-14 rounded-xl border border-slate-200 bg-white object-contain p-1" />
-        ) : null}
-        <ul className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
-          <li className="flex flex-wrap items-baseline gap-1 text-sm">
-            <span className="shrink-0 font-semibold text-midnight_text dark:text-white">Name:</span>
-            <span className="text-midnight_text dark:text-gray-200">{partnerName(row)}</span>
-          </li>
-          <li className="flex flex-wrap items-baseline gap-1 text-sm">
-            <span className="shrink-0 font-semibold text-midnight_text dark:text-white">Products:</span>
-            <span className="text-midnight_text dark:text-gray-200">{partnerProductLabel(row)}</span>
-          </li>
-          {utm ? (
-            <li className="flex flex-wrap items-baseline gap-1 text-sm sm:col-span-2">
-              <span className="shrink-0 font-semibold text-midnight_text dark:text-white">UTM link:</span>
-              <a href={utm} target="_blank" rel="noopener noreferrer" className="break-all text-[#4236FB] hover:underline">
-                {utm}
-              </a>
-            </li>
-          ) : null}
-        </ul>
+      <div className="space-y-6 p-6 sm:p-8">
+        <div className="flex items-center gap-4">
+          {imageSrc ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imageSrc}
+              alt=""
+              className="h-16 w-16 shrink-0 rounded-2xl border border-slate-200 bg-white object-contain p-1.5"
+            />
+          ) : (
+            <div className="h-16 w-16 shrink-0 rounded-2xl border border-slate-200 bg-slate-50" />
+          )}
+          <div className="min-w-0">
+            <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+              {partnerName(row)}
+            </h3>
+            <p className="mt-0.5 text-sm font-medium text-slate-500">{partnerProductLabel(row)}</p>
+          </div>
+        </div>
 
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Required documents</p>
+          <p className="mb-2.5 text-sm font-semibold text-slate-900 dark:text-white">Required Documents</p>
           {docs.length > 0 ? (
-            <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1">
+            <div className="flex flex-wrap gap-2">
               {docs.map((doc) => (
                 <span
                   key={doc}
-                  className="inline-flex shrink-0 items-center rounded-full border border-[#C7C3FE] bg-[#EEF0FF] px-3 py-1 text-xs font-semibold whitespace-nowrap text-[#4236FB]"
+                  className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold tracking-wide text-slate-600 dark:border-dark_border dark:bg-white/5 dark:text-gray-300"
                 >
                   {doc}
                 </span>
@@ -67,7 +90,7 @@ export default function AggregatorDetailsModal({
         </div>
 
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Policy</p>
+          <p className="mb-2 text-sm font-semibold text-slate-900 dark:text-white">Policy</p>
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-dark_border">
             <div className="flex items-center gap-2 border-b border-slate-100 bg-gradient-to-r from-[#EEF0FF] to-white px-4 py-2.5">
               <span className="h-2 w-2 rounded-full bg-[#4236FB]" aria-hidden />
@@ -77,6 +100,26 @@ export default function AggregatorDetailsModal({
               {policy || "—"}
             </div>
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            disabled={!utm}
+            onClick={() => void copyLink()}
+            className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#2B3A9B] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#243286] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {copied ? "Copied" : "Copy Link"}
+          </button>
+          <button
+            type="button"
+            disabled={!utm}
+            onClick={() => void applyNow()}
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#2B3A9B] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#243286] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Apply Now
+            <span aria-hidden>↗</span>
+          </button>
         </div>
       </div>
     </AdminModal>
