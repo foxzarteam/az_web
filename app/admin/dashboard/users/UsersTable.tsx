@@ -18,9 +18,9 @@ import {
 } from "@/app/components/shared/crm/ui";
 import { downloadPartnersWorkbook } from "./partnersWorkbook";
 import {
-  PARTNER_KYC_STATUSES,
-  normalizePartnerKycStatus,
-  type PartnerKycStatus,
+  ADMIN_KYC_STATUSES,
+  adminKycStatus,
+  type AdminKycStatus,
 } from "@/app/lib/partner/kyc";
 
 type AdminUserRow = Record<string, unknown>;
@@ -45,22 +45,24 @@ const FIELD_LABELS: Record<string, string> = {
   created_at: "Created",
 };
 
-const KYC_LABEL: Record<PartnerKycStatus, string> = {
+const KYC_LABEL: Record<AdminKycStatus, string> = {
   pending: "Pending",
-  submitted: "Submitted",
   approved: "Approved",
   rejected: "Rejected",
 };
 
-function kycBadgeClass(status: PartnerKycStatus): string {
-  if (status === "approved") return "bg-emerald-50 text-emerald-700";
-  if (status === "submitted") return "bg-amber-50 text-amber-800";
-  if (status === "rejected") return "bg-rose-50 text-rose-700";
-  return "bg-slate-100 text-slate-600";
+function kycSelectClass(status: AdminKycStatus): string {
+  const color =
+    status === "approved"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+      : status === "rejected"
+        ? "border-rose-200 bg-rose-50 text-rose-700"
+        : "border-slate-200 bg-slate-50 text-slate-700";
+  return `min-w-[7.5rem] rounded-lg border px-2 py-1.5 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#4236FB]/20 disabled:opacity-60 ${color}`;
 }
 
 function formatValue(key: string, value: unknown): string {
-  if (key === "kyc_status") return KYC_LABEL[normalizePartnerKycStatus(value)];
+  if (key === "kyc_status") return KYC_LABEL[adminKycStatus(value)];
   if (value == null || value === "") return "—";
   if (typeof value === "boolean") return value ? "Yes" : "No";
   const s = String(value);
@@ -100,7 +102,7 @@ type EditForm = {
   mobileNumber: string;
   isActive: boolean;
   isLoggedIn: boolean;
-  kycStatus: PartnerKycStatus;
+  kycStatus: AdminKycStatus;
 };
 
 function userToEditForm(user: AdminUserRow): EditForm {
@@ -110,7 +112,7 @@ function userToEditForm(user: AdminUserRow): EditForm {
     mobileNumber: String(user.mobile_number ?? ""),
     isActive: user.is_active !== false,
     isLoggedIn: user.is_logged_in === true,
-    kycStatus: normalizePartnerKycStatus(user.kyc_status),
+    kycStatus: adminKycStatus(user.kyc_status),
   };
 }
 
@@ -145,6 +147,7 @@ export default function UsersTable({
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [kycDetail, setKycDetail] = useState<AdminKycDetail | null>(null);
+  const [updatingKycId, setUpdatingKycId] = useState<string | null>(null);
 
   useEffect(() => {
     setHydrated(true);
@@ -255,6 +258,36 @@ export default function UsersTable({
     }
   }
 
+  async function handleKycChange(row: AdminUserRow, kycStatus: AdminKycStatus) {
+    const id = String(row.id ?? "").trim();
+    if (!id || adminKycStatus(row.kyc_status) === kycStatus) return;
+
+    setUpdatingKycId(id);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/users/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kycStatus }),
+      });
+      const data = (await res.json()) as { success?: boolean; data?: AdminUserRow; error?: string; message?: string };
+      if (!res.ok) {
+        setError(toPublicClientError(data.error ?? data.message, "Could not update KYC status."));
+        return;
+      }
+      if (data.data) {
+        setUsers((prev) => prev.map((u) => (u.id === data.data!.id ? data.data! : u)));
+      } else {
+        setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, kyc_status: kycStatus } : u)));
+      }
+      router.refresh();
+    } catch {
+      setError("Network error. Try again.");
+    } finally {
+      setUpdatingKycId(null);
+    }
+  }
+
   function openEdit(user: AdminUserRow) {
     setEditUser(user);
     setEditForm(userToEditForm(user));
@@ -350,14 +383,26 @@ export default function UsersTable({
         id: "kyc_status",
         header: "KYC",
         sortable: true,
-        sortValue: (row) => normalizePartnerKycStatus(row.kyc_status),
-        searchValue: (row) => KYC_LABEL[normalizePartnerKycStatus(row.kyc_status)],
+        sortValue: (row) => adminKycStatus(row.kyc_status),
+        searchValue: (row) => KYC_LABEL[adminKycStatus(row.kyc_status)],
         cell: (row) => {
-          const status = normalizePartnerKycStatus(row.kyc_status);
+          const status = adminKycStatus(row.kyc_status);
+          const id = String(row.id ?? "");
           return (
-            <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${kycBadgeClass(status)}`}>
-              {KYC_LABEL[status]}
-            </span>
+            <select
+              className={kycSelectClass(status)}
+              value={status}
+              disabled={updatingKycId === id}
+              aria-label="KYC status"
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => void handleKycChange(row, e.target.value as AdminKycStatus)}
+            >
+              {ADMIN_KYC_STATUSES.map((option) => (
+                <option key={option} value={option}>
+                  {KYC_LABEL[option]}
+                </option>
+              ))}
+            </select>
           );
         },
       },
@@ -408,7 +453,7 @@ export default function UsersTable({
         ),
       },
     ],
-    [canDelete],
+    [canDelete, updatingKycId],
   );
 
   if (!hydrated) {
@@ -425,6 +470,9 @@ export default function UsersTable({
       {successMsg && (
         <SuccessPopup message={successMsg} onClose={() => setSuccessMsg(null)} />
       )}
+      {error && !editUser && !createOpen && !deleteUser ? (
+        <p className={`${ADMIN_ERROR} mb-3`}>{error}</p>
+      ) : null}
       <CrmDataTable
         rows={users}
         columns={columns}
@@ -605,17 +653,17 @@ export default function UsersTable({
                   className={inputClass}
                   value={editForm.kycStatus}
                   onChange={(e) =>
-                    setEditForm({ ...editForm, kycStatus: e.target.value as PartnerKycStatus })
+                    setEditForm({ ...editForm, kycStatus: e.target.value as AdminKycStatus })
                   }
                 >
-                  {PARTNER_KYC_STATUSES.map((status) => (
+                  {ADMIN_KYC_STATUSES.map((status) => (
                     <option key={status} value={status}>
                       {KYC_LABEL[status]}
                     </option>
                   ))}
                 </select>
                 <span className="mt-1.5 block text-xs text-slate-500">
-                  Approved partners can open the portal. Submitted stays on the waiting page.
+                  Portal opens only when status is Approved.
                 </span>
               </label>
               <label className="flex items-center gap-2 sm:col-span-2">

@@ -156,7 +156,7 @@ export default function KycForm({ rejected = false }: { rejected?: boolean }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-10">
+    <div className="mx-auto w-full max-w-5xl px-4 py-10">
       <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">
         Partner onboarding
       </p>
