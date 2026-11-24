@@ -42,7 +42,7 @@ const LOAN_PAGES: Record<LoanPageKey, LoanPageCopy> = {
     h1: "Loan",
     serviceName: "Loan",
     serviceDescription:
-      "Quick loans from Rs 25,000 to Rs 50 lakh with digital application and competitive rates.",
+      "Quick loans from Rs 50,000 to Rs 50 lakh with digital application and competitive rates.",
   },
   "personal-loan": {
     slug: "personal-loan",
@@ -54,7 +54,7 @@ const LOAN_PAGES: Record<LoanPageKey, LoanPageCopy> = {
     h1: "Personal Loan",
     serviceName: "Personal Loan",
     serviceDescription:
-      "Personal loans from Rs 25,000 to Rs 50 lakh with a digital application and competitive rates.",
+      "Personal loans from Rs 50,000 to Rs 50 lakh with a digital application and competitive rates.",
   },
   "home-loan": {
     slug: "home-loan",

@@ -332,7 +332,7 @@ export function serviceCatalogJsonLd() {
           "@type": "Service",
           name: "Personal Loan",
           description:
-            "Personal loans from Rs 25,000 to Rs 50 lakh with online application.",
+            "Personal loans from Rs 50,000 to Rs 50 lakh with online application.",
           url: absoluteSeoUrl("/products/loans"),
           provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
         },
@@ -446,7 +446,7 @@ export function personalLoanProductJsonLd() {
     "@id": `${absoluteSeoUrl("/products/loans")}#loan`,
     name: "Personal Loan",
     description:
-      "Unsecured personal loan online from Rs 25,000 to Rs 50 lakh via Apni Zaroorat partner lenders.",
+      "Unsecured personal loan online from Rs 50,000 to Rs 50 lakh via Apni Zaroorat partner lenders.",
     url: absoluteSeoUrl("/products/loans"),
     provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
     areaServed: { "@type": "Country", name: "India" },
@@ -454,7 +454,7 @@ export function personalLoanProductJsonLd() {
     amount: {
       "@type": "MonetaryAmount",
       currency: "INR",
-      minValue: 25000,
+      minValue: 50000,
       maxValue: 5000000,
     },
   };

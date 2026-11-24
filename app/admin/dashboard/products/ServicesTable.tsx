@@ -409,7 +409,7 @@ export default function ServicesTable({
                   inputMode="numeric"
                   className={inputClass}
                   value={editForm.limitStart}
-                  placeholder="25000"
+                  placeholder="50000"
                   onChange={(e) => setEditForm({ ...editForm, limitStart: e.target.value.replace(/\D/g, "") })}
                 />
               </label>

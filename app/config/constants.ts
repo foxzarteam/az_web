@@ -43,7 +43,7 @@ export {
  * STEP_AMOUNT must divide (MAX_AMOUNT - MIN_AMOUNT) exactly so the slider can reach ₹50L.
  */
 export const PERSONAL_LOAN_EMI_LIMITS = {
-  MIN_AMOUNT: 25_000,
+  MIN_AMOUNT: 50_000,
   MAX_AMOUNT: 50_00_000,
   MIN_RATE: 10,
   MAX_RATE: 26,
