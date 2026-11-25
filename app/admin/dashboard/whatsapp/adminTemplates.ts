@@ -1,5 +1,6 @@
 export const ADMIN_TEMPLATES = [
   { id: "car_loan_150", label: "Used Car Loan 150%", dot: "#f97316" },
+  { id: "fd_credit_card_request", label: "Credit Card Request", dot: "#1d4ed8" },
   { id: "vehicle_refinance_kyc", label: "Used vehicle (purchase) / Existing vehicle (refinanace)", dot: "#2563eb" },
   { id: "vehicle_purchase_kyc", label: "New vehicle loan (purchase)", dot: "#ea580c" },
   { id: "personal_loan_kyc", label: "Personal Loan (PL KYC)", dot: "#128C7E" },
