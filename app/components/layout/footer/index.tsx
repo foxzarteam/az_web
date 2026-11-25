@@ -12,6 +12,7 @@ const linkClass =
 const PRODUCT_LINKS = [
   { href: "/products/loans/", label: "Loan" },
   { href: "/products/vehicle/", label: "Vehicle" },
+  { href: "/used-car-loan/", label: "Used Car Loan" },
   { href: "/products/insurance/", label: "Insurance" },
   { href: "/products/credit-card/", label: "Credit Card" },
 ] as const;
