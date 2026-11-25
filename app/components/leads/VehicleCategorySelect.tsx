@@ -10,13 +10,18 @@ type Props = {
   onChange: (value: string) => void;
   options: InsuranceTypeOption[];
   className: string;
+  disabled?: boolean;
 };
 
-export default function VehicleCategorySelect({ id, value, onChange, options, className }: Props) {
+export default function VehicleCategorySelect({ id, value, onChange, options, className, disabled = false }: Props) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const listId = useId();
   const selected = options.find((option) => option.value === value);
+
+  useEffect(() => {
+    if (disabled) setOpen(false);
+  }, [disabled]);
 
   useEffect(() => {
     if (!open) return;
@@ -42,8 +47,15 @@ export default function VehicleCategorySelect({ id, value, onChange, options, cl
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listId}
-        onClick={() => setOpen((current) => !current)}
-        className={`${className} !h-10 overflow-hidden !py-0 flex items-center justify-between gap-2 text-left`}
+        aria-disabled={disabled}
+        disabled={disabled}
+        onClick={() => {
+          if (disabled) return;
+          setOpen((current) => !current);
+        }}
+        className={`${className} !h-10 overflow-hidden !py-0 flex items-center justify-between gap-2 text-left ${
+          disabled ? "cursor-not-allowed bg-gray-50 opacity-80 dark:bg-darkmode/60" : ""
+        }`}
       >
         <span className={`flex min-w-0 flex-1 items-center gap-2 overflow-hidden ${selected ? "" : "text-gray-400"}`}>
           {selected ? (
@@ -77,7 +89,7 @@ export default function VehicleCategorySelect({ id, value, onChange, options, cl
         }}
         className="pointer-events-none absolute inset-x-0 bottom-0 h-10 opacity-0"
       />
-      {open ? (
+      {open && !disabled ? (
         <ul
           id={listId}
           role="listbox"

@@ -25,6 +25,7 @@ export function validatePersonalLoanApplyForm(
   values: PersonalLoanFormValues,
   bounds?: { min: number; max: number },
   vehicle = false,
+  skipCibil = false,
 ): LeadFieldErrors {
   const errors: LeadFieldErrors = validateLeadPanNameMobile({
     pan: values.pan,
@@ -43,7 +44,7 @@ export function validatePersonalLoanApplyForm(
     errors.loanAmt = `Enter up to ₹${maxAmount.toLocaleString("en-IN")}`;
   }
 
-  Object.assign(errors, validateLoanFinishStep({ ...values, vehicle }));
+  Object.assign(errors, validateLoanFinishStep({ ...values, vehicle, skipCibil }));
 
   return errors;
 }

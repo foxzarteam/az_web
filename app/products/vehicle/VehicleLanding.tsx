@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import UsedCarBenefitCards from "@/app/components/products/vehicle/UsedCarBenefitCards";
+import UsedCarOfferSection from "@/app/components/products/vehicle/UsedCarOfferSection";
 import VehicleNeedSection from "@/app/components/products/vehicle/VehicleNeedSection";
 import ServicePage from "@/app/components/services/ServicePage";
 import HowItWorksSection, { type HowItWorksStep } from "@/app/components/products/HowItWorksSection";
 import { LoanSelectionProvider } from "@/app/components/products/loans/loanSelection";
-import { subscribeVehicleCategoryPick } from "@/app/lib/leads/vehicleCategoryPick";
+import { setVehicleCategoryPick, subscribeVehicleCategoryPick } from "@/app/lib/leads/vehicleCategoryPick";
 import FaqSection from "@/app/components/home/faq";
 import CtaBanner from "@/app/about/components/cta-banner";
 import { VEHICLE_FAQ } from "./copy";
+import type { FaqItem } from "@/app/components/home/faq/faq-data";
 
 type Offer = "loan" | "insurance";
 
@@ -114,24 +117,8 @@ const iconClass = "h-6 w-6 sm:h-7 sm:w-7";
 const STEPS: HowItWorksStep[] = [
   {
     num: 1,
-    title: "Choose Loan or Insurance",
-    description: "Select the loan or insurance that matches your need.",
-    iconWrapClass: "bg-[#FFF1E7] text-[#F97316]",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>
-        <path d="M12 3 5 6v6c0 4.2 2.9 7.9 7 9 4.1-1.1 7-4.8 7-9V6l-7-3Z" fill="currentColor" opacity="0.12" />
-        <path d="M12 3 5 6v6c0 4.2 2.9 7.9 7 9 4.1-1.1 7-4.8 7-9V6l-7-3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-        <path
-          d="M12 13.8c-1.6-1.3-3.2-2.5-3.2-4a1.9 1.9 0 0 1 3.2-1.3 1.9 1.9 0 0 1 3.2 1.3c0 1.5-1.6 2.7-3.2 4Z"
-          fill="currentColor"
-        />
-      </svg>
-    ),
-  },
-  {
-    num: 2,
-    title: "Fill Basic Details",
-    description: "Provide your basic information in simple steps.",
+    title: "Fill Application",
+    description: "Share your details",
     iconWrapClass: "bg-[#EEF0FF] text-[#4236FB]",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>
@@ -142,28 +129,43 @@ const STEPS: HowItWorksStep[] = [
     ),
   },
   {
+    num: 2,
+    title: "Vehicle Details",
+    description: "Provide information about your vehicle",
+    iconWrapClass: "bg-[#FFF1E7] text-[#F97316]",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>
+        <path d="M5 14h14l-1.2-4.2A2 2 0 0 0 16 8.5H8a2 2 0 0 0-1.8 1.3L5 14Z" fill="currentColor" opacity="0.12" />
+        <path d="M5 16.5h14M7.2 9.8 8.1 7.2A1.5 1.5 0 0 1 9.5 6.2h5a1.5 1.5 0 0 1 1.4 1L17 9.8 19 12.2v4.3H5v-4.3L7.2 9.8Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+        <circle cx="8" cy="16.5" r="1.4" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="16" cy="16.5" r="1.4" stroke="currentColor" strokeWidth="1.5" />
+      </svg>
+    ),
+  },
+  {
     num: 3,
-    title: "Verify & Submit",
-    description: "Verify your details and submit your loan or insurance application.",
+    title: "Get Approval",
+    description: "Receive instant approval",
     iconWrapClass: "bg-[#E7F8F1] text-[#10B981]",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>
-        <rect x="5.5" y="3.5" width="13" height="17" rx="2" fill="currentColor" opacity="0.12" />
-        <rect x="5.5" y="3.5" width="13" height="17" rx="2" stroke="currentColor" strokeWidth="1.5" />
-        <path d="m9 12.5 2.2 2.2 4.3-4.9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="12" cy="12" r="8" fill="currentColor" opacity="0.12" />
+        <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.5" />
+        <path d="m8.8 12.2 2.2 2.2 4.4-4.8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
   },
   {
     num: 4,
-    title: "Get Your Loan or Insurance",
-    description: "Once approved, your loan is disbursed or insurance coverage begins.",
+    title: "Get Your Loan",
+    description: "Directly in your account",
     iconWrapClass: "bg-[#F3EEFF] text-[#8B5CF6]",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden>
-        <path d="M4 9.5 12 4l8 5.5V20H4V9.5Z" fill="currentColor" opacity="0.12" />
-        <path d="M4 9.5 12 4l8 5.5V20H4V9.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-        <path d="M9.5 12h5M12 12v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <rect x="3.5" y="6.5" width="17" height="12" rx="2" fill="currentColor" opacity="0.12" />
+        <rect x="3.5" y="6.5" width="17" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M3.5 10h17" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M8 14.5h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
     ),
   },
@@ -173,9 +175,43 @@ function scrollToApplyForm() {
   document.getElementById("apply-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-export default function VehicleLanding() {
+type VehicleLandingProps = {
+  heading?: string;
+  loanTitle?: string;
+  loanSubtitle?: string;
+  imageSrc?: string;
+  imageClassName?: string;
+  loanBadge?: string;
+  initialVehicleCategory?: string;
+  lockVehicleCategory?: boolean;
+  ctaTitle?: string;
+  ctaDescription?: string;
+  needSection?: "categories" | "used-car-offer";
+  formHeading?: ReactNode;
+  faqItems?: FaqItem[];
+};
+
+export default function VehicleLanding({
+  heading = "Vehicle Loan and Vehicle Insurance",
+  loanTitle = "Vehicle Loan",
+  loanSubtitle = "Check vehicle loan options for a new car, used car, taxi, tractor, or commercial vehicle.",
+  imageSrc = "/images/service/personal.webp",
+  imageClassName,
+  loanBadge = "Vehicle loan",
+  initialVehicleCategory,
+  lockVehicleCategory = false,
+  ctaTitle = "Ready to apply for your vehicle?",
+  ctaDescription = "Choose Vehicle Loan or Vehicle Insurance, then share a few details. The process is short and secure.",
+  needSection = "categories",
+  formHeading,
+  faqItems = VEHICLE_FAQ,
+}: VehicleLandingProps) {
   const [offer, setOffer] = useState<Offer>("loan");
   const scrollAfterOffer = useRef(false);
+
+  useEffect(() => {
+    if (initialVehicleCategory) setVehicleCategoryPick(initialVehicleCategory);
+  }, [initialVehicleCategory]);
 
   useEffect(() => subscribeVehicleCategoryPick(() => setOffer("loan")), []);
 
@@ -207,25 +243,30 @@ export default function VehicleLanding() {
     setOffer(next);
   }
 
-  const mobileOffers = <OfferPicker offer={offer} onChange={selectOffer} compact />;
+  const usedCarPage = needSection === "used-car-offer";
+  const mobileOffers = usedCarPage ? undefined : <OfferPicker offer={offer} onChange={selectOffer} compact />;
 
   return (
     <>
-      <h1 className="sr-only">Vehicle Loan and Vehicle Insurance</h1>
+      <h1 className="sr-only">{heading}</h1>
       <div className="h-16 bg-white dark:bg-darkmode sm:h-20" aria-hidden />
 
-      {offer === "loan" ? (
+      {usedCarPage || offer === "loan" ? (
         <LoanSelectionProvider initialSlug="vehicle-loan">
           <ServicePage
             key="vehicle-loan"
-            title="Vehicle Loan"
-            subtitle="Check vehicle loan options for a new car, used car, taxi, tractor, or commercial vehicle."
-            imageSrc="/images/service/personal.webp"
-            badge="Vehicle loan"
+            title={loanTitle}
+            subtitle={loanSubtitle}
+            imageSrc={imageSrc}
+            imageClassName={imageClassName}
+            badge={loanBadge}
             hideHeader
             loanTabs
             compactTop
             aboveForm={mobileOffers}
+            initialVehicleCategory={initialVehicleCategory}
+            lockVehicleCategory={lockVehicleCategory}
+            formHeading={formHeading}
           />
         </LoanSelectionProvider>
       ) : (
@@ -233,7 +274,8 @@ export default function VehicleLanding() {
           key="vehicle-insurance"
           title="Vehicle Insurance"
           subtitle="Apply for cover for your car, taxi, tractor, or commercial vehicle."
-          imageSrc="/images/service/personal.webp"
+          imageSrc={imageSrc}
+          imageClassName={imageClassName}
           badge="Vehicle insurance"
           hideHeader
           navBorder
@@ -244,23 +286,31 @@ export default function VehicleLanding() {
         />
       )}
 
-      <section id="offers" className="hidden bg-white !pt-0 pb-10 dark:bg-darkmode lg:block">
-        <div className="container mx-auto max-w-full px-4 sm:px-6 md:max-w-screen-md lg:max-w-screen-xl lg:px-8">
-          <OfferPicker offer={offer} onChange={selectOffer} />
-        </div>
-      </section>
+      {usedCarPage ? (
+        <UsedCarBenefitCards />
+      ) : (
+        <section id="offers" className="hidden bg-white !pt-0 pb-10 dark:bg-darkmode lg:block">
+          <div className="container mx-auto max-w-full px-4 sm:px-6 md:max-w-screen-md lg:max-w-screen-xl lg:px-8">
+            <OfferPicker offer={offer} onChange={selectOffer} />
+          </div>
+        </section>
+      )}
 
-      <VehicleNeedSection />
+      {needSection === "used-car-offer" ? (
+        <UsedCarOfferSection />
+      ) : (
+        <VehicleNeedSection lockCategory={lockVehicleCategory ? initialVehicleCategory : undefined} />
+      )}
 
       <HowItWorksSection headingPrefix="Get Your Loan or Insurance in" headingHighlight="4 Simple Steps" steps={STEPS} />
-      <FaqSection items={VEHICLE_FAQ} />
+      <FaqSection items={faqItems} />
       <CtaBanner
-        title="Ready to apply for your vehicle?"
-        description="Choose Vehicle Loan or Vehicle Insurance, then share a few details. The process is short and secure."
+        title={ctaTitle}
+        description={ctaDescription}
         primaryHref="#apply"
         primaryLabel="Apply Now"
         secondaryHref="#offers"
-        secondaryLabel="See Both Options"
+        secondaryLabel={usedCarPage ? "See Benefits" : "See Both Options"}
       />
     </>
   );

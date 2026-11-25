@@ -37,6 +37,7 @@ import {
   isVehicleLoanCategory,
   loanNotEligibleMessage,
   sanitizeLeadPincodeInput,
+  sanitizeVehicleRc,
   validateLeadPanNameMobile,
   validateLeadPincode,
 } from "@/app/lib/leads/leadForm";
@@ -47,6 +48,12 @@ import {
   serviceApplyHasFieldError,
 } from "@/app/lib/leads/serviceApplyValidate";
 import { getVehicleCategoryPick, setVehicleCategoryPick, subscribeVehicleCategoryPick } from "@/app/lib/leads/vehicleCategoryPick";
+import {
+  getUsedCarEligibility,
+  subscribeUsedCarEligibility,
+  type UsedCarEligibility,
+} from "@/app/lib/leads/usedCarEligibilityPick";
+import { formatRupee } from "@/app/lib/format";
 import { sanitizeMobileInput } from "@/app/lib/validation";
 import { stashApplyThanks } from "@/app/lib/customer/applyThanks";
 
@@ -67,6 +74,12 @@ type ServicePageProps = {
   aboveForm?: ReactNode;
   /** Page already has its own hero, so the form sits directly under it. */
   compactTop?: boolean;
+  /** Vehicle loan form: preselect category (e.g. used_car). */
+  initialVehicleCategory?: string;
+  /** Keep the preselected category; dropdown stays closed and cannot change. */
+  lockVehicleCategory?: boolean;
+  imageClassName?: string;
+  formHeading?: ReactNode;
 };
 
 function slugFromPathname(pathname: string): string {
@@ -95,6 +108,10 @@ export default function ServicePage({
   navBorder = false,
   aboveForm,
   compactTop = false,
+  initialVehicleCategory,
+  lockVehicleCategory = false,
+  imageClassName,
+  formHeading,
 }: ServicePageProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -103,6 +120,9 @@ export default function ServicePage({
     [serviceSlugProp, pathname],
   );
 
+  const [usedCarEligibility, setUsedCarEligibility] = useState<UsedCarEligibility | null>(
+    lockVehicleCategory ? getUsedCarEligibility : null,
+  );
   const [existingAppMessage, setExistingAppMessage] = useState("");
   const [ineligibleMessage, setIneligibleMessage] = useState("");
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
@@ -132,8 +152,14 @@ export default function ServicePage({
   const [emiAmountError, setEmiAmountError] = useState("");
   const [cibilBand, setCibilBand] = useState("");
   const [cibilError, setCibilError] = useState("");
-  const [vehicleCategory, setVehicleCategory] = useState("new_car");
+  const [vehicleCategory, setVehicleCategory] = useState(initialVehicleCategory || "new_car");
   const [vehicleCategoryError, setVehicleCategoryError] = useState("");
+  const [carDetails, setCarDetails] = useState("");
+  const [carDetailsError, setCarDetailsError] = useState("");
+  const [vehicleRc, setVehicleRc] = useState("");
+  const [vehicleRcError, setVehicleRcError] = useState("");
+  const [existingCarLoan, setExistingCarLoan] = useState<"" | "yes" | "no">("");
+  const [existingCarLoanError, setExistingCarLoanError] = useState("");
   const [totalMonthlyEmi, setTotalMonthlyEmi] = useState("0");
   const [pan, setPan] = useState("");
   /** Non-field only (API / network). Field errors stay under inputs. */
@@ -224,12 +250,18 @@ export default function ServicePage({
     setEmiChoice("");
     setEmiChoiceError("");
     setEmiAmountError("");
-    setVehicleCategory(isVehicleLoanCategory(selectedCategory) ? getVehicleCategoryPick() || "new_car" : "");
+    setVehicleCategory(
+      isVehicleLoanCategory(selectedCategory)
+        ? lockVehicleCategory
+          ? initialVehicleCategory || "used_car"
+          : getVehicleCategoryPick() || initialVehicleCategory || "new_car"
+        : "",
+    );
     setVehicleCategoryError("");
     setTotalMonthlyEmi("0");
     setLoanStep(1);
     setFormError("");
-  }, [pageServiceSlug, selectedCategory, setInsType, defaultInsType]);
+  }, [pageServiceSlug, selectedCategory, setInsType, defaultInsType, initialVehicleCategory, lockVehicleCategory]);
 
   useEffect(() => {
     if (!loanTabs) return;
@@ -249,11 +281,32 @@ export default function ServicePage({
   }, [loanSlug, loanTabs]);
 
   useEffect(() => {
+    if (!lockVehicleCategory) return;
+    return subscribeUsedCarEligibility((value) => {
+      setUsedCarEligibility(value);
+      if (!value) return;
+      if (value.rc) {
+        setVehicleRc(sanitizeVehicleRc(value.rc));
+        setVehicleRcError("");
+      }
+      if (value.eligible && value.amount > 0) {
+        const next =
+          loanBounds != null
+            ? Math.min(Math.max(value.amount, loanBounds.min), loanBounds.max)
+            : value.amount;
+        setLoanAmount(next);
+        setLoanAmountError("");
+      }
+    });
+  }, [lockVehicleCategory, loanBounds]);
+
+  useEffect(() => {
+    if (lockVehicleCategory) return;
     return subscribeVehicleCategoryPick((value) => {
       if (loanTabs) setLoanSlug("vehicle-loan");
       setVehicleCategory(value);
     });
-  }, [loanTabs, setLoanSlug]);
+  }, [loanTabs, lockVehicleCategory, setLoanSlug]);
 
   const monthlyEmiAmount = Number(String(totalMonthlyEmi).replace(/\D/g, "") || "0");
   const hasExistingEmi: "" | "yes" | "no" = vehicleLoan ? "no" : emiChoice;
@@ -276,6 +329,9 @@ export default function ServicePage({
     setEmiAmountError("");
     setCibilError("");
     setVehicleCategoryError("");
+    setCarDetailsError("");
+    setVehicleRcError("");
+    setExistingCarLoanError("");
   };
 
   /** Blank → native browser popup. Filled but invalid → red text under the field. */
@@ -366,6 +422,10 @@ export default function ServicePage({
       hasExistingEmi,
       monthlyEmiAmount,
       vehicleLoan,
+      skipCibil: lockVehicleCategory,
+      carDetails,
+      vehicleRc,
+      existingCarLoan,
       vehicleCategory,
       showInsuranceType,
       insType,
@@ -418,7 +478,10 @@ export default function ServicePage({
     setEmiAmountError(
       hasExistingEmi === "yes" && emiFilled ? errors.totalMonthlyEmi ?? "" : "",
     );
-    setCibilError(cibilBand.trim() ? errors.cibilBand ?? "" : "");
+    setCibilError(lockVehicleCategory ? "" : cibilBand.trim() ? errors.cibilBand ?? "" : "");
+    setCarDetailsError(lockVehicleCategory && carDetails.trim() ? errors.carDetails ?? "" : "");
+    setVehicleRcError(lockVehicleCategory && vehicleRc.trim() ? errors.vehicleRc ?? "" : "");
+    setExistingCarLoanError(lockVehicleCategory && existingCarLoan ? errors.existingCarLoan ?? "" : "");
     setVehicleCategoryError(
       showStep1Messages && (vehicleCategory.trim() || step1Failed)
         ? errors.vehicleCategory ?? ""
@@ -481,9 +544,21 @@ export default function ServicePage({
           ? {
               requiredAmount: pl.requiredAmount,
               netMonthlyIncome: pl.netMonthlyIncome,
-              cibilBand: pl.cibilBand,
+              ...(lockVehicleCategory ? {} : { cibilBand: pl.cibilBand }),
               ...(vehicleLoan
-                ? { vehicleCategory, employmentType, hasExistingEmi: false, totalMonthlyEmi: 0 }
+                ? {
+                    vehicleCategory,
+                    employmentType,
+                    hasExistingEmi: false,
+                    totalMonthlyEmi: 0,
+                    ...(lockVehicleCategory
+                      ? {
+                          carDetails: carDetails.trim(),
+                          vehicleRc: sanitizeVehicleRc(vehicleRc),
+                          existingCarLoan: existingCarLoan === "yes",
+                        }
+                      : {}),
+                  }
                 : {
                     employmentType,
                     hasExistingEmi: pl.hasExistingEmi,
@@ -566,18 +641,19 @@ export default function ServicePage({
                   }`}
                 >
                   <h2 className={`min-w-0 leading-snug ${loanTabs ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"} font-semibold text-midnight_text dark:text-white ${selectedCategory === "credit_card" ? "" : "flex-1"}`}>
-                    {loanTabs ? (
-                      <>
-                        Check{" "}
-                        <span className="theme-gradient-text font-extrabold">{selectedLoanTitle}</span>
-                        {" "}Eligibility
-                      </>
-                    ) : (
-                      <>
-                        Apply for{" "}
-                        <span className="theme-gradient-text font-extrabold">{selectedLoanTitle}</span>
-                      </>
-                    )}
+                    {formHeading ??
+                      (loanTabs ? (
+                        <>
+                          Check{" "}
+                          <span className="theme-gradient-text font-extrabold">{selectedLoanTitle}</span>
+                          {" "}Eligibility
+                        </>
+                      ) : (
+                        <>
+                          Apply for{" "}
+                          <span className="theme-gradient-text font-extrabold">{selectedLoanTitle}</span>
+                        </>
+                      ))}
                   </h2>
                   {showLoanAmount && loanStep === 2 ? (
                     <button
@@ -605,6 +681,25 @@ export default function ServicePage({
                     </div>
                   ) : null}
                 </div>
+
+                {lockVehicleCategory && usedCarEligibility ? (
+                  <div
+                    className="theme-gradient-bg mb-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold leading-snug text-white sm:px-4 sm:py-3 sm:text-base"
+                    role="status"
+                  >
+                    {usedCarEligibility.eligible ? (
+                      <>
+                        You are eligible for a loan of{" "}
+                        <span className="font-extrabold underline decoration-white/70 underline-offset-2">
+                          {formatRupee(usedCarEligibility.amount)}
+                        </span>
+                        . Please fill information below.
+                      </>
+                    ) : (
+                      <>Cars older than 15 years usually do not qualify. Please fill information below for a lender review.</>
+                    )}
+                  </div>
+                ) : null}
 
                 {ineligibleMessage && (
                   <SuccessPopup
@@ -722,7 +817,9 @@ export default function ServicePage({
                           <VehicleCategorySelect
                             id="service-vehicle-category"
                             value={vehicleCategory}
+                            disabled={lockVehicleCategory}
                             onChange={(value) => {
+                              if (lockVehicleCategory) return;
                               setVehicleCategory(value);
                               setVehicleCategoryPick(value);
                               setVehicleCategoryError("");
@@ -874,6 +971,89 @@ export default function ServicePage({
                     <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4">
                       {vehicleLoan ? (
                         <>
+                          {lockVehicleCategory ? (
+                            <>
+                              <div className="min-w-0">
+                                <label htmlFor="service-car-details" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                                  Car details <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                  id="service-car-details"
+                                  type="text"
+                                  value={carDetails}
+                                  onChange={(e) => {
+                                    setCarDetails(e.target.value.slice(0, 120));
+                                    setCarDetailsError("");
+                                  }}
+                                  placeholder="e.g. Swift VXI 2018"
+                                  className={inputClass}
+                                  required
+                                />
+                                {carDetailsError ? <p className="mt-1 text-xs text-red-600">{carDetailsError}</p> : null}
+                              </div>
+                              <div className="min-w-0">
+                                <label htmlFor="service-vehicle-rc" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                                  RC number <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                  id="service-vehicle-rc"
+                                  type="text"
+                                  value={vehicleRc}
+                                  onChange={(e) => {
+                                    setVehicleRc(sanitizeVehicleRc(e.target.value));
+                                    setVehicleRcError("");
+                                  }}
+                                  placeholder="MH12AB1234"
+                                  className={`${inputClass} uppercase`}
+                                  required
+                                />
+                                {vehicleRcError ? <p className="mt-1 text-xs text-red-600">{vehicleRcError}</p> : null}
+                              </div>
+                              <div className="min-w-0">
+                                <LoanAmountSlider
+                                  id="service-loan-amount"
+                                  value={loanAmount}
+                                  onChange={(value) => {
+                                    setLoanAmount(value);
+                                    setLoanAmountError("");
+                                  }}
+                                  min={loanBounds?.min}
+                                  max={loanBounds?.max}
+                                  placeholder={
+                                    loanBounds
+                                      ? `₹${loanBounds.min.toLocaleString("en-IN")} – ₹${loanBounds.max.toLocaleString("en-IN")}`
+                                      : ""
+                                  }
+                                  required
+                                  error={loanAmountError}
+                                />
+                              </div>
+                              <div className="min-w-0">
+                                <label htmlFor="service-existing-car-loan" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                                  Loan running on this car? <span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                  id="service-existing-car-loan"
+                                  value={existingCarLoan}
+                                  onChange={(e) => {
+                                    const next = e.target.value === "yes" || e.target.value === "no" ? e.target.value : "";
+                                    setExistingCarLoan(next);
+                                    setExistingCarLoanError("");
+                                  }}
+                                  className={inputClass}
+                                  required
+                                >
+                                  <option value="">Select</option>
+                                  <option value="yes">Yes</option>
+                                  <option value="no">No</option>
+                                </select>
+                                {existingCarLoanError ? (
+                                  <p className="mt-1 text-xs text-red-600">{existingCarLoanError}</p>
+                                ) : null}
+                              </div>
+                            </>
+                          ) : (
+                            <>
                           <div className="min-w-0 sm:col-span-2">
                             <LoanAmountSlider
                               id="service-loan-amount"
@@ -909,6 +1089,8 @@ export default function ServicePage({
                             />
                             {cibilError ? <p className="mt-1 text-xs text-red-600">{cibilError}</p> : null}
                           </div>
+                            </>
+                          )}
                           <EmploymentTypeField
                             id="service-employment"
                             value={employmentType}
@@ -1054,7 +1236,7 @@ export default function ServicePage({
                         onClick={(e) => goToLoanStep2(e.currentTarget.form)}
                         className={`inline-flex w-full min-w-0 items-center justify-center gap-2 whitespace-nowrap btn-gradient px-4 text-sm font-semibold text-white shadow-md sm:text-base ${loanTabs ? "min-h-12 rounded-full py-3" : "min-h-[44px] rounded-xl py-2.5 sm:rounded-2xl sm:py-3"}`}
                       >
-                        Check Eligibility
+                        {lockVehicleCategory ? "Get Loan Offer" : "Check Eligibility"}
                         <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden>
                           <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
@@ -1065,7 +1247,13 @@ export default function ServicePage({
                         disabled={isSubmittingForm}
                         className={`inline-flex w-full min-w-0 items-center justify-center gap-2 whitespace-nowrap btn-gradient px-4 text-sm font-semibold text-white shadow-md transition-opacity disabled:cursor-not-allowed disabled:opacity-70 sm:text-base ${loanTabs ? "min-h-12 rounded-full py-3" : "min-h-[44px] rounded-xl py-2.5 sm:rounded-2xl sm:py-3"}`}
                       >
-                        {isSubmittingForm ? "Submitting…" : loanTabs ? "Check Eligibility" : "Apply Now"}
+                        {isSubmittingForm
+                          ? "Submitting…"
+                          : lockVehicleCategory
+                            ? "Get Loan Offer"
+                            : loanTabs
+                              ? "Check Eligibility"
+                              : "Apply Now"}
                         {!isSubmittingForm && loanTabs ? (
                           <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden>
                             <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -1089,7 +1277,10 @@ export default function ServicePage({
               alt={title}
               width={640}
               height={480}
-              className="block h-auto w-full max-w-[560px] object-contain lg:max-w-none"
+              className={
+                imageClassName ??
+                "block h-auto w-full max-w-[560px] object-contain lg:max-w-none"
+              }
               sizes="(max-width: 1024px) 100vw, 560px"
               priority
               unoptimized

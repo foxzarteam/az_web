@@ -15,6 +15,9 @@ export interface CreateLeadRequest {
   referralCode?: string;
   cibilBand?: string;
   vehicleCategory?: string;
+  carDetails?: string;
+  vehicleRc?: string;
+  existingCarLoan?: boolean;
   hasExistingEmi?: boolean;
   totalMonthlyEmi?: number;
   /** True only when the applicant checked the lead-form consent box. */

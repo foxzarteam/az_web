@@ -41,6 +41,9 @@ export const VIEW_FIELDS = [
   "net_monthly_income",
   "cibil_band",
   "vehicle_category",
+  "car_details",
+  "vehicle_rc",
+  "existing_car_loan",
   "has_existing_emi",
   "total_monthly_emi",
   "pincode",
@@ -57,6 +60,9 @@ const LOAN_ONLY_VIEW_FIELDS = new Set([
   "net_monthly_income",
   "cibil_band",
   "vehicle_category",
+  "car_details",
+  "vehicle_rc",
+  "existing_car_loan",
   "has_existing_emi",
   "total_monthly_emi",
 ]);
@@ -92,6 +98,9 @@ export const FIELD_LABELS: Record<string, string> = {
   net_monthly_income: "Net monthly income",
   cibil_band: "CIBIL score",
   vehicle_category: "Vehicle category",
+  car_details: "Car details",
+  vehicle_rc: "Vehicle RC",
+  existing_car_loan: "Existing car loan",
   has_existing_emi: "Existing loan EMI",
   total_monthly_emi: "Total monthly EMI",
   ip: "Location",
@@ -164,7 +173,7 @@ export function formatValue(key: string, value: unknown, row?: AdminLeadRow): st
     const label = vehicleCategoryLabel(value);
     return label === "—" ? "N/A" : label;
   }
-  if (key === "has_existing_emi") {
+  if (key === "existing_car_loan" || key === "has_existing_emi") {
     if (value === true || value === "true" || value === 1) return "Yes";
     if (value === false || value === "false" || value === 0) return "No";
     return "N/A";

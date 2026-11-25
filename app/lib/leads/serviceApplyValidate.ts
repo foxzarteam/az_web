@@ -2,6 +2,7 @@ import {
   validateLeadEmail,
   validateLeadPanNameMobile,
   validateLeadPincode,
+  validateUsedCarExtras,
   type LeadFieldErrors,
 } from "./leadForm.ts";
 import { validatePersonalLoanApplyForm } from "./personalLoanApply.ts";
@@ -48,6 +49,10 @@ export function collectServiceApplyErrors(input: {
   hasExistingEmi: "" | "yes" | "no";
   monthlyEmiAmount: number;
   vehicleLoan: boolean;
+  skipCibil?: boolean;
+  carDetails?: string;
+  vehicleRc?: string;
+  existingCarLoan?: "" | "yes" | "no";
   vehicleCategory: string;
   showInsuranceType: boolean;
   insType: string;
@@ -83,10 +88,21 @@ export function collectServiceApplyErrors(input: {
         },
         input.loanBounds,
         input.vehicleLoan,
+        input.skipCibil,
       ),
     );
     if (input.vehicleLoan && !input.vehicleCategory.trim()) {
       errors.vehicleCategory = "Select vehicle category";
+    }
+    if (input.skipCibil) {
+      Object.assign(
+        errors,
+        validateUsedCarExtras({
+          carDetails: input.carDetails,
+          vehicleRc: input.vehicleRc,
+          existingCarLoan: input.existingCarLoan,
+        }),
+      );
     }
   }
   if (input.showInsuranceType && !input.insType.trim()) errors.insType = "Please select insurance type";
@@ -113,6 +129,9 @@ export function serviceApplyHasFieldError(
       errors.hasExistingEmi ||
       errors.totalMonthlyEmi ||
       errors.cibilBand ||
+      errors.carDetails ||
+      errors.vehicleRc ||
+      errors.existingCarLoan ||
       errors.vehicleCategory ||
       errors.insType ||
       errors.email,

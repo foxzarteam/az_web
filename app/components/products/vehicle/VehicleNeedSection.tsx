@@ -11,10 +11,17 @@ function scrollToApplyForm() {
   }, 60);
 }
 
-export default function VehicleNeedSection() {
-  const [selected, setSelected] = useState(getVehicleCategoryPick);
+export default function VehicleNeedSection({ lockCategory }: { lockCategory?: string }) {
+  const [selected, setSelected] = useState(() => lockCategory || getVehicleCategoryPick());
 
-  useEffect(() => subscribeVehicleCategoryPick(setSelected), []);
+  useEffect(() => {
+    if (lockCategory) {
+      setSelected(lockCategory);
+      setVehicleCategoryPick(lockCategory);
+      return;
+    }
+    return subscribeVehicleCategoryPick(setSelected);
+  }, [lockCategory]);
 
   return (
     <section className="bg-[#F5F7FB] !py-10 dark:bg-darkmode lg:!py-14" aria-labelledby="vehicle-choices-heading">
@@ -35,6 +42,10 @@ export default function VehicleNeedSection() {
               <button
                 type="button"
                 onClick={() => {
+                  if (lockCategory) {
+                    scrollToApplyForm();
+                    return;
+                  }
                   setVehicleCategoryPick(item.value);
                   scrollToApplyForm();
                 }}

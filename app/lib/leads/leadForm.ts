@@ -181,6 +181,9 @@ export type LeadFieldErrors = Partial<{
   totalMonthlyEmi: string;
   pincode: string;
   vehicleCategory: string;
+  carDetails: string;
+  vehicleRc: string;
+  existingCarLoan: string;
 }>;
 
 const LEAD_EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -240,6 +243,30 @@ export function validatePersonalLoanEmployment(
   return errors;
 }
 
+export const VEHICLE_RC_PATTERN = /^[A-Z]{2}[0-9]{1,2}[A-Z]{1,3}[0-9]{4}$/;
+
+export function sanitizeVehicleRc(raw: string): string {
+  return raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11);
+}
+
+export function isValidVehicleRc(raw: string): boolean {
+  return VEHICLE_RC_PATTERN.test(sanitizeVehicleRc(raw));
+}
+
+export function validateUsedCarExtras(input: {
+  carDetails?: string;
+  vehicleRc?: string;
+  existingCarLoan?: string;
+}): Pick<LeadFieldErrors, "carDetails" | "vehicleRc" | "existingCarLoan"> {
+  const errors: Pick<LeadFieldErrors, "carDetails" | "vehicleRc" | "existingCarLoan"> = {};
+  if (!String(input.carDetails ?? "").trim()) errors.carDetails = "Enter car details";
+  if (!isValidVehicleRc(input.vehicleRc ?? "")) errors.vehicleRc = "Enter a valid vehicle RC number";
+  if (input.existingCarLoan !== "yes" && input.existingCarLoan !== "no") {
+    errors.existingCarLoan = "Select yes or no";
+  }
+  return errors;
+}
+
 /** Loan profile on the single apply form. Vehicle loans skip EMI and still ask employment. */
 export function validateLoanFinishStep(values: {
   netMonthlyIncome: string;
@@ -248,6 +275,7 @@ export function validateLoanFinishStep(values: {
   hasExistingEmi: string;
   totalMonthlyEmi: string;
   vehicle?: boolean;
+  skipCibil?: boolean;
 }): Pick<
   LeadFieldErrors,
   "netMonthlyIncome" | "employmentType" | "cibilBand" | "hasExistingEmi" | "totalMonthlyEmi"
@@ -262,9 +290,11 @@ export function validateLoanFinishStep(values: {
       values.vehicle ? MIN_VEHICLE_NET_MONTHLY_INCOME : MIN_NET_MONTHLY_INCOME,
     ),
   };
-  const bands = selectableCibilBands(values.vehicle ? "vehicle_loan" : "personal_loan");
-  if (!(bands as readonly string[]).includes(values.cibilBand)) {
-    errors.cibilBand = "Select your CIBIL score";
+  if (!values.skipCibil) {
+    const bands = selectableCibilBands(values.vehicle ? "vehicle_loan" : "personal_loan");
+    if (!(bands as readonly string[]).includes(values.cibilBand)) {
+      errors.cibilBand = "Select your CIBIL score";
+    }
   }
   const employment = values.employmentType ?? "";
   if (
