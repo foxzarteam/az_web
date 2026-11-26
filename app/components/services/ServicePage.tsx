@@ -43,6 +43,7 @@ import {
   loanNotEligibleMessage,
   sanitizeLeadPincodeInput,
   sanitizeVehicleRc,
+  CREDIT_CARD_KIND_LOCKED,
   CREDIT_CARD_KIND_OPTIONS,
   validateLeadEmail,
   validateLeadPanNameMobile,
@@ -159,7 +160,9 @@ export default function ServicePage({
   const [emiAmountError, setEmiAmountError] = useState("");
   const [cibilBand, setCibilBand] = useState("");
   const [cibilError, setCibilError] = useState("");
-  const [creditCardKind, setCreditCardKind] = useState<"" | "fd" | "normal">("");
+  const [creditCardKind, setCreditCardKind] = useState<"" | "fd" | "normal">(
+    CREDIT_CARD_KIND_LOCKED || "",
+  );
   const [creditCardKindError, setCreditCardKindError] = useState("");
   const [fdAmount, setFdAmount] = useState("");
   const [fdAmountError, setFdAmountError] = useState("");
@@ -220,6 +223,15 @@ export default function ServicePage({
   const showInsuranceType = selectedCategory === "insurance";
   const stackNamePan = selectedCategory === "credit_card";
   const vehicleLoan = isVehicleLoanCategory(selectedCategory);
+  const creditCardKindLocked = Boolean(isCreditCard && CREDIT_CARD_KIND_LOCKED);
+  const appliedCreditCardKind = creditCardKindLocked ? CREDIT_CARD_KIND_LOCKED : creditCardKind;
+
+  useEffect(() => {
+    if (!creditCardKindLocked) return;
+    setCreditCardKind(CREDIT_CARD_KIND_LOCKED);
+    setCibilBand("");
+    setCibilError("");
+  }, [creditCardKindLocked]);
   const insuranceTypeOptions = useInsuranceTypeOptions();
   const vehicleCategoryOptions = useVehicleCategoryOptions();
   const defaultInsType = initialInsType ?? "health_insurance";
@@ -452,7 +464,7 @@ export default function ServicePage({
       showInsuranceType,
       insType,
       selectedCategory,
-      creditCardKind,
+      creditCardKind: appliedCreditCardKind,
       fdAmount,
     });
 
@@ -504,17 +516,17 @@ export default function ServicePage({
       hasExistingEmi === "yes" && emiFilled ? errors.totalMonthlyEmi ?? "" : "",
     );
     setCibilError(
-      lockVehicleCategory || (selectedCategory === "credit_card" && creditCardKind !== "normal")
+      lockVehicleCategory || (selectedCategory === "credit_card" && appliedCreditCardKind !== "normal")
         ? ""
         : cibilBand.trim()
           ? errors.cibilBand ?? ""
           : "",
     );
     setCreditCardKindError(
-      selectedCategory === "credit_card" && creditCardKind ? errors.creditCardKind ?? "" : "",
+      selectedCategory === "credit_card" && appliedCreditCardKind ? errors.creditCardKind ?? "" : "",
     );
     setFdAmountError(
-      selectedCategory === "credit_card" && creditCardKind === "fd" && fdAmount.trim()
+      selectedCategory === "credit_card" && appliedCreditCardKind === "fd" && fdAmount.trim()
         ? errors.fdAmount ?? ""
         : "",
     );
@@ -543,7 +555,7 @@ export default function ServicePage({
         category: selectedCategory,
         netMonthlyIncome: Number(String(netMonthlyIncome).replace(/\D/g, "")),
         employmentType,
-        cibilBand: isCreditCard && creditCardKind !== "normal" ? "" : cibilBand,
+        cibilBand: isCreditCard && appliedCreditCardKind !== "normal" ? "" : cibilBand,
         hasExistingEmi: vehicleLoan ? false : hasExistingEmi === "yes",
         totalMonthlyEmi: vehicleLoan || hasExistingEmi !== "yes" ? 0 : monthlyEmiAmount,
       });
@@ -607,15 +619,15 @@ export default function ServicePage({
             }
           : {}),
         ...(category === "insurance" ? { insType } : {}),
-        ...(category === "credit_card" && (creditCardKind === "fd" || creditCardKind === "normal")
+        ...(category === "credit_card" && (appliedCreditCardKind === "fd" || appliedCreditCardKind === "normal")
           ? {
               email: email.trim(),
-              creditCardKind,
+              creditCardKind: appliedCreditCardKind,
               employmentType,
               netMonthlyIncome: Number(String(netMonthlyIncome).replace(/\D/g, "")),
               hasExistingEmi: emiChoice === "yes",
               totalMonthlyEmi: emiChoice === "no" ? 0 : monthlyEmiAmount,
-              ...(creditCardKind === "fd"
+              ...(appliedCreditCardKind === "fd"
                 ? { fdAmount: Number(fdAmount.replace(/\D/g, "")) }
                 : { cibilBand }),
             }
@@ -1275,8 +1287,10 @@ export default function ServicePage({
                         </label>
                         <VehicleCategorySelect
                           id="service-credit-card-kind"
-                          value={creditCardKind}
+                          value={creditCardKindLocked ? CREDIT_CARD_KIND_LOCKED : creditCardKind}
+                          disabled={creditCardKindLocked}
                           onChange={(value) => {
+                            if (creditCardKindLocked) return;
                             const next = value === "fd" || value === "normal" ? value : "";
                             setCreditCardKind(next);
                             setCreditCardKindError("");
@@ -1289,7 +1303,11 @@ export default function ServicePage({
                               setFdAmountError("");
                             }
                           }}
-                          options={[...CREDIT_CARD_KIND_OPTIONS]}
+                          options={
+                            creditCardKindLocked
+                              ? CREDIT_CARD_KIND_OPTIONS.filter((option) => option.value === CREDIT_CARD_KIND_LOCKED)
+                              : [...CREDIT_CARD_KIND_OPTIONS]
+                          }
                           className={inputClass}
                           placeholder="Select card type"
                           requiredMessage="Select Fixed Deposit Credit Card or Normal Credit Card"
@@ -1299,7 +1317,7 @@ export default function ServicePage({
                         ) : null}
                       </div>
                       <div className="min-w-0">
-                        {creditCardKind === "fd" ? (
+                        {appliedCreditCardKind === "fd" ? (
                           <>
                             <label
                               htmlFor="service-fd-amount"
@@ -1337,7 +1355,7 @@ export default function ServicePage({
                             </div>
                             {fdAmountError ? <p className="mt-1 text-xs text-red-600">{fdAmountError}</p> : null}
                           </>
-                        ) : creditCardKind === "normal" ? (
+                        ) : appliedCreditCardKind === "normal" ? (
                           <>
                             <label
                               htmlFor="service-credit-cibil"

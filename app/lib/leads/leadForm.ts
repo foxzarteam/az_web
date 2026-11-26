@@ -148,6 +148,9 @@ export const CREDIT_CARD_KIND_OPTIONS = [
   { value: "normal", label: "Normal Credit Card", image: "/images/credit-card/normal.svg" },
 ] as const;
 
+/** "" = client can pick. "fd" / "normal" locks the public dropdown (turn off later). */
+export const CREDIT_CARD_KIND_LOCKED: "" | "fd" | "normal" = "fd";
+
 export function creditCardKindLabel(value: unknown): string {
   const key = String(value ?? "").trim().toLowerCase();
   if (key === "fd") return "Fixed Deposit Credit Card";
