@@ -1280,7 +1280,7 @@ export default function ServicePage({
                           options={[...CREDIT_CARD_KIND_OPTIONS]}
                           className={inputClass}
                           placeholder="Select card type"
-                          requiredMessage="Select FD Credit Card or Normal Credit Card"
+                          requiredMessage="Select Fixed Deposit Credit Card or Normal Credit Card"
                         />
                         {creditCardKindError ? (
                           <p className="mt-1 text-xs text-red-600">{creditCardKindError}</p>
@@ -1311,12 +1311,23 @@ export default function ServicePage({
                                   setFdAmount(e.target.value.replace(/\D/g, "").slice(0, 10));
                                   setFdAmountError("");
                                 }}
-                                placeholder="e.g. 100000"
+                                onBlur={() => {
+                                  const amount = Number(fdAmount.replace(/\D/g, ""));
+                                  if (fdAmount.trim() && (!Number.isFinite(amount) || amount < 5000)) {
+                                    setFdAmountError("FD amount must be at least ₹5,000");
+                                  }
+                                }}
+                                placeholder="Minimum 5000"
                                 className="min-h-10 min-w-0 flex-1 bg-transparent py-2 pl-9 pr-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none dark:text-white"
                                 required
+                                min={5000}
                               />
                             </div>
-                            {fdAmountError ? <p className="mt-1 text-xs text-red-600">{fdAmountError}</p> : null}
+                            {fdAmountError ? (
+                              <p className="mt-1 text-xs text-red-600">{fdAmountError}</p>
+                            ) : (
+                              <p className="mt-1 text-xs text-slate-500">Minimum FD amount is ₹5,000.</p>
+                            )}
                           </>
                         ) : creditCardKind === "normal" ? (
                           <>

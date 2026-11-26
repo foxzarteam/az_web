@@ -197,8 +197,10 @@ const applyErrors = collectServiceApplyErrors({
 assert.ok(applyErrors.loanAmt);
 assert.equal(serviceApplyHasFieldError(applyErrors, applyErrors.loanAmt ?? ""), true);
 
-assert.equal(validateCreditCardExtras({ creditCardKind: "" }).creditCardKind, "Select FD Credit Card or Normal Credit Card");
+assert.equal(validateCreditCardExtras({ creditCardKind: "" }).creditCardKind, "Select Fixed Deposit Credit Card or Normal Credit Card");
 assert.equal(validateCreditCardExtras({ creditCardKind: "fd", fdAmount: "" }).fdAmount, "Enter FD amount");
+assert.equal(validateCreditCardExtras({ creditCardKind: "fd", fdAmount: "4999" }).fdAmount, "FD amount must be at least ₹5,000");
+assert.equal(validateCreditCardExtras({ creditCardKind: "fd", fdAmount: "5000" }).fdAmount, undefined);
 assert.equal(validateCreditCardExtras({ creditCardKind: "fd", fdAmount: "50000" }).fdAmount, undefined);
 assert.equal(validateCreditCardExtras({ creditCardKind: "normal", cibilBand: "" }).cibilBand, "Select your CIBIL score");
 assert.equal(Object.keys(validateCreditCardExtras({ creditCardKind: "normal", cibilBand: "above_680" })).length, 0);

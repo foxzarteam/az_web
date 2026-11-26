@@ -142,13 +142,13 @@ export function employmentTypeLabel(value: unknown, category?: unknown): string 
 }
 
 export const CREDIT_CARD_KIND_OPTIONS = [
-  { value: "fd", label: "FD Credit Card", image: "/images/credit-card/fd.svg" },
+  { value: "fd", label: "Fixed Deposit Credit Card", image: "/images/credit-card/fd.svg" },
   { value: "normal", label: "Normal Credit Card", image: "/images/credit-card/normal.svg" },
 ] as const;
 
 export function creditCardKindLabel(value: unknown): string {
   const key = String(value ?? "").trim().toLowerCase();
-  if (key === "fd") return "FD Credit Card";
+  if (key === "fd") return "Fixed Deposit Credit Card";
   if (key === "normal") return "Normal Credit Card";
   return "—";
 }
@@ -207,11 +207,12 @@ export function validateCreditCardExtras(input: {
 }): Pick<LeadFieldErrors, "creditCardKind" | "fdAmount" | "cibilBand"> {
   const kind = String(input.creditCardKind ?? "").trim().toLowerCase();
   if (kind !== "fd" && kind !== "normal") {
-    return { creditCardKind: "Select FD Credit Card or Normal Credit Card" };
+    return { creditCardKind: "Select Fixed Deposit Credit Card or Normal Credit Card" };
   }
   if (kind === "fd") {
     const amount = Number(String(input.fdAmount ?? "").replace(/\D/g, ""));
     if (!Number.isFinite(amount) || amount < 1) return { fdAmount: "Enter FD amount" };
+    if (amount < 5000) return { fdAmount: "FD amount must be at least ₹5,000" };
     return {};
   }
   if (!String(input.cibilBand ?? "").trim()) return { cibilBand: "Select your CIBIL score" };

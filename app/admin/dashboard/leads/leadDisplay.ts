@@ -280,7 +280,7 @@ export function amountOrInsuranceText(row: AdminLeadRow): string {
   if (category === "credit_card") {
     const kind = String(row.credit_card_kind ?? "").trim().toLowerCase();
     if (kind === "fd") {
-      return row.fd_amount != null && row.fd_amount !== "" ? formatCurrencyInr(row.fd_amount) : "FD Credit Card";
+      return row.fd_amount != null && row.fd_amount !== "" ? formatCurrencyInr(row.fd_amount) : "Fixed Deposit Credit Card";
     }
     if (kind === "normal") return "Normal Credit Card";
     return "—";
