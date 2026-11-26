@@ -715,7 +715,9 @@ export default function ServicePage({
                       ) : (
                         <>
                           Apply for{" "}
-                          <span className="theme-gradient-text font-extrabold">{selectedLoanTitle}</span>
+                          <span className="theme-gradient-text font-extrabold">
+                            {isCreditCard ? "Fixed Deposit Credit Card" : selectedLoanTitle}
+                          </span>
                         </>
                       ))}
                   </h2>
@@ -1323,7 +1325,7 @@ export default function ServicePage({
                               htmlFor="service-fd-amount"
                               className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
                             >
-                              FD amount <span className="text-red-500">*</span>
+                              Fixed deposit amount <span className="text-red-500">*</span>
                             </label>
                             <div className="relative flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80">
                               <span
