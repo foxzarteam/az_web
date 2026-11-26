@@ -119,6 +119,8 @@ function userToEditForm(user: AdminUserRow): EditForm {
   };
 }
 
+type KycFileKind = "aadhaarFront" | "aadhaarBack" | "panCard" | "selfie";
+
 type AdminKycDetail = {
   aadhaar_number?: string;
   pan?: string;
@@ -126,8 +128,33 @@ type AdminKycDetail = {
   account_holder?: string;
   account_number?: string;
   ifsc?: string;
-  files?: Record<string, boolean>;
+  submitted_at?: string;
+  files?: Partial<Record<KycFileKind, boolean>>;
 };
+
+function kycFileHref(userId: string, kind: KycFileKind): string {
+  return `/api/admin/users/${encodeURIComponent(userId)}/kyc-file/${kind}`;
+}
+
+function KycDownloadBtn({
+  userId,
+  kind,
+  label,
+}: {
+  userId: string;
+  kind: KycFileKind;
+  label: string;
+}) {
+  return (
+    <a
+      href={kycFileHref(userId, kind)}
+      download
+      className="inline-flex h-8 items-center rounded-lg bg-[#4236FB] px-2.5 text-xs font-semibold text-white hover:bg-[#3528E8]"
+    >
+      {label}
+    </a>
+  );
+}
 
 export default function UsersTable({
   initialUsers,
@@ -150,6 +177,7 @@ export default function UsersTable({
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [kycDetail, setKycDetail] = useState<AdminKycDetail | null>(null);
+  const [kycLoading, setKycLoading] = useState(false);
   const [updatingKycId, setUpdatingKycId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -164,9 +192,11 @@ export default function UsersTable({
     const id = String(viewUser?.id ?? "").trim();
     if (!id) {
       setKycDetail(null);
+      setKycLoading(false);
       return;
     }
     let cancelled = false;
+    setKycLoading(true);
     fetch(`/api/admin/users/${encodeURIComponent(id)}/kyc`)
       .then(async (res) => {
         const data = (await res.json().catch(() => ({}))) as { data?: AdminKycDetail | null };
@@ -174,6 +204,9 @@ export default function UsersTable({
       })
       .catch(() => {
         if (!cancelled) setKycDetail(null);
+      })
+      .finally(() => {
+        if (!cancelled) setKycLoading(false);
       });
     return () => {
       cancelled = true;
@@ -581,34 +614,88 @@ export default function UsersTable({
                 </li>
               ))}
             </ul>
-            {kycDetail ? (
-              <div className="border-t border-slate-200 pt-5 dark:border-dark_border">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">KYC documents</p>
-                <ul className="grid grid-cols-1 gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
-                  <li>Aadhaar: {kycDetail.aadhaar_number || "—"}</li>
-                  <li>PAN: {kycDetail.pan || "—"}</li>
-                  <li>Bank: {kycDetail.bank_name || "—"}</li>
-                  <li>Holder: {kycDetail.account_holder || "—"}</li>
-                  <li>Account: {kycDetail.account_number || "—"}</li>
-                  <li>IFSC: {kycDetail.ifsc || "—"}</li>
+            <div className="border-t border-slate-200 pt-5 dark:border-dark_border">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                KYC details
+              </p>
+              {kycLoading ? (
+                <p className="text-sm text-slate-500">Loading KYC…</p>
+              ) : (
+                <ul className="grid grid-cols-1 gap-x-8 gap-y-4 text-sm sm:grid-cols-2">
+                  <li className="flex flex-col gap-1.5">
+                    <span>
+                      <span className="font-semibold text-midnight_text dark:text-white">Aadhaar:</span>{" "}
+                      <span className="text-midnight_text dark:text-gray-200">
+                        {kycDetail?.aadhaar_number || "—"}
+                      </span>
+                    </span>
+                    <span className="flex flex-wrap gap-2">
+                      {kycDetail?.files?.aadhaarFront ? (
+                        <KycDownloadBtn
+                          userId={String(viewUser.id)}
+                          kind="aadhaarFront"
+                          label="Download front"
+                        />
+                      ) : (
+                        <span className="text-xs text-slate-400">Front not uploaded</span>
+                      )}
+                      {kycDetail?.files?.aadhaarBack ? (
+                        <KycDownloadBtn
+                          userId={String(viewUser.id)}
+                          kind="aadhaarBack"
+                          label="Download back"
+                        />
+                      ) : (
+                        <span className="text-xs text-slate-400">Back not uploaded</span>
+                      )}
+                    </span>
+                  </li>
+                  <li className="flex flex-col gap-1.5">
+                    <span>
+                      <span className="font-semibold text-midnight_text dark:text-white">PAN:</span>{" "}
+                      <span className="text-midnight_text dark:text-gray-200">
+                        {kycDetail?.pan || "—"}
+                      </span>
+                    </span>
+                    {kycDetail?.files?.panCard ? (
+                      <KycDownloadBtn userId={String(viewUser.id)} kind="panCard" label="Download PAN" />
+                    ) : (
+                      <span className="text-xs text-slate-400">PAN document not uploaded</span>
+                    )}
+                  </li>
+                  <li>
+                    <span className="font-semibold text-midnight_text dark:text-white">Bank:</span>{" "}
+                    {kycDetail?.bank_name || "—"}
+                  </li>
+                  <li>
+                    <span className="font-semibold text-midnight_text dark:text-white">Holder:</span>{" "}
+                    {kycDetail?.account_holder || "—"}
+                  </li>
+                  <li>
+                    <span className="font-semibold text-midnight_text dark:text-white">Account:</span>{" "}
+                    {kycDetail?.account_number || "—"}
+                  </li>
+                  <li>
+                    <span className="font-semibold text-midnight_text dark:text-white">IFSC:</span>{" "}
+                    {kycDetail?.ifsc || "—"}
+                  </li>
+                  <li className="flex flex-col gap-1.5">
+                    <span className="font-semibold text-midnight_text dark:text-white">Selfie</span>
+                    {kycDetail?.files?.selfie ? (
+                      <KycDownloadBtn userId={String(viewUser.id)} kind="selfie" label="Download selfie" />
+                    ) : (
+                      <span className="text-xs text-slate-400">Not uploaded</span>
+                    )}
+                  </li>
+                  {kycDetail?.submitted_at ? (
+                    <li>
+                      <span className="font-semibold text-midnight_text dark:text-white">Submitted:</span>{" "}
+                      {formatAdminDateTime(String(kycDetail.submitted_at))}
+                    </li>
+                  ) : null}
                 </ul>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {(["aadhaarFront", "aadhaarBack", "panCard", "selfie"] as const).map((kind) =>
-                    kycDetail.files?.[kind] ? (
-                      <a
-                        key={kind}
-                        href={`/api/admin/users/${encodeURIComponent(String(viewUser.id))}/kyc-file/${kind}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-slate-50"
-                      >
-                        Open {kind}
-                      </a>
-                    ) : null,
-                  )}
-                </div>
-              </div>
-            ) : null}
+              )}
+            </div>
             <div className="border-t border-slate-200 pt-5 dark:border-dark_border">
               <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Affiliate link &amp; QR</p>
               <AffiliateShareKit code={String(viewUser.referral_code ?? "")} compact />

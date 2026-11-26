@@ -37,10 +37,14 @@ export async function GET(
       return NextResponse.json({ error: "File not found" }, { status: res.status });
     }
     const buffer = await res.arrayBuffer();
+    const contentType = res.headers.get("content-type") || "application/octet-stream";
+    const disposition =
+      res.headers.get("content-disposition") || `attachment; filename="${kind}"`;
     return new NextResponse(buffer, {
       status: 200,
       headers: {
-        "Content-Type": res.headers.get("content-type") || "application/octet-stream",
+        "Content-Type": contentType,
+        "Content-Disposition": disposition,
         "Cache-Control": "private, max-age=60",
       },
     });
