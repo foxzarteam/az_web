@@ -666,14 +666,8 @@ export default function ServicePage({
 
             <div id="apply-form" className="theme-gradient-bg scroll-mt-24 p-[1px] rounded-2xl sm:rounded-3xl shadow-xl w-full min-w-0 flex flex-col">
               <div className="bg-white dark:bg-darklight rounded-2xl sm:rounded-3xl py-4 sm:py-6 lg:py-7 px-4 sm:px-6 md:px-7 flex flex-1 flex-col min-h-0 min-w-0">
-                <div
-                  className={`mb-3 flex gap-2 ${
-                    selectedCategory === "credit_card"
-                      ? "flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3"
-                      : "items-center justify-between"
-                  }`}
-                >
-                  <h2 className={`min-w-0 leading-snug ${loanTabs ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"} font-semibold text-midnight_text dark:text-white ${selectedCategory === "credit_card" ? "" : "flex-1"}`}>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <h2 className={`min-w-0 flex-1 leading-snug ${loanTabs ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"} font-semibold text-midnight_text dark:text-white`}>
                     {formHeading ??
                       (loanTabs ? (
                         <>
@@ -702,16 +696,6 @@ export default function ServicePage({
                       </svg>
                       Back
                     </button>
-                  ) : null}
-                  {selectedCategory === "credit_card" ? (
-                    <div className="flex flex-row flex-wrap items-center gap-2 sm:gap-3">
-                      <span className="inline-flex w-fit items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary sm:text-[13px]">
-                        Annual Fees: <span className="ml-1 font-bold theme-gradient-text">Free*</span>
-                      </span>
-                      <span className="inline-flex w-fit items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary sm:text-[13px]">
-                        Joining Fees: <span className="ml-1 font-bold theme-gradient-text">Free*</span>
-                      </span>
-                    </div>
                   ) : null}
                 </div>
 
