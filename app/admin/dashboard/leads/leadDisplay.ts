@@ -84,7 +84,16 @@ export function viewFieldKeysForCategory(category: unknown): string[] {
     if (CREDIT_CARD_ONLY_VIEW_FIELDS.has(raw) && cat !== "credit_card") continue;
     if (!isLoan && LOAN_ONLY_VIEW_FIELDS.has(raw)) {
       if (raw === "required_amount" && cat === "insurance") keys.push("ins_type");
-      if (cat === "credit_card" && raw === "cibil_band") keys.push(raw);
+      if (
+        cat === "credit_card" &&
+        (raw === "cibil_band" ||
+          raw === "employment_type" ||
+          raw === "net_monthly_income" ||
+          raw === "has_existing_emi" ||
+          raw === "total_monthly_emi")
+      ) {
+        keys.push(raw);
+      }
       continue;
     }
     keys.push(raw);

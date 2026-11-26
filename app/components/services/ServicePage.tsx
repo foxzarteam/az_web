@@ -39,6 +39,7 @@ import {
   sanitizeLeadPincodeInput,
   sanitizeVehicleRc,
   CREDIT_CARD_KIND_OPTIONS,
+  validateLeadEmail,
   validateLeadPanNameMobile,
   validateLeadPincode,
 } from "@/app/lib/leads/leadForm";
@@ -189,7 +190,9 @@ export default function ServicePage({
 
   const service = loanTabs ? loanSlug : pageServiceSlug;
   const selectedCategory = mapServiceToCategory(service);
+  const isCreditCard = selectedCategory === "credit_card";
   const showLoanAmount = loanTabs || selectedCategory === "personal_loan";
+  const multiStep = showLoanAmount || isCreditCard;
   const cards = useServiceCards();
   const selectedLoanTitle =
     loanTabs
@@ -341,11 +344,13 @@ export default function ServicePage({
     setCarDetailsError("");
     setVehicleRcError("");
     setExistingCarLoanError("");
+    setCreditCardKindError("");
+    setFdAmountError("");
   };
 
   /** Blank → native browser popup. Filled but invalid → red text under the field. */
   const goToLoanStep2 = (form?: HTMLFormElement | null) => {
-    if (!showLoanAmount) return;
+    if (!multiStep) return;
     setFormError("");
     clearInlineFieldErrors();
 
@@ -380,7 +385,9 @@ export default function ServicePage({
     setMobileError(mobileFilled ? nameMobile.mobile ?? "" : "");
     setPincodeError(pinErr ?? "");
     setVehicleCategoryError(vehicleMsg);
-    setLoanAmountError(amountMsg);
+    setLoanAmountError(isCreditCard ? "" : amountMsg);
+    const emailErr = isCreditCard ? validateLeadEmail(email) : undefined;
+    setEmailError(email.trim() && emailErr ? emailErr : "");
 
     if (
       (nameFilled && nameMobile.fullName) ||
@@ -388,7 +395,8 @@ export default function ServicePage({
       (mobileFilled && nameMobile.mobile) ||
       pinErr ||
       vehicleMsg ||
-      amountMsg
+      (!isCreditCard && amountMsg) ||
+      (isCreditCard && emailErr)
     ) {
       return;
     }
@@ -400,7 +408,7 @@ export default function ServicePage({
   const handleSubmit = async (form: HTMLFormElement) => {
     if (isSubmittingForm) return;
     // Multi-step: Continue never hits the API/DB — only advances UI after step-1 rules.
-    if (showLoanAmount && loanStep !== 2) {
+    if (multiStep && loanStep !== 2) {
       goToLoanStep2(form);
       return;
     }
@@ -465,10 +473,11 @@ export default function ServicePage({
         errors.pan ||
         errors.mobile ||
         errors.pincode ||
-        (!vehicleLoan && (loanAmtError || errors.loanAmt)) ||
+        (isCreditCard && errors.email) ||
+        (!isCreditCard && !vehicleLoan && (loanAmtError || errors.loanAmt)) ||
         (vehicleLoan && errors.vehicleCategory),
     );
-    const showStep1Messages = !showLoanAmount || loanStep === 1 || step1Failed;
+    const showStep1Messages = !multiStep || loanStep === 1 || step1Failed;
 
     setFullNameError(
       showStep1Messages && (nameFilled || step1Failed) ? errors.fullName ?? "" : "",
@@ -515,7 +524,7 @@ export default function ServicePage({
     setEmailError(email.trim() ? errors.email ?? "" : "");
 
     if (hasFieldError) {
-      if (showLoanAmount && loanStep === 2 && step1Failed) setLoanStep(1);
+      if (multiStep && loanStep === 2 && step1Failed) setLoanStep(1);
       return;
     }
     if (errors.service) {
@@ -596,6 +605,10 @@ export default function ServicePage({
           ? {
               email: email.trim(),
               creditCardKind,
+              employmentType,
+              netMonthlyIncome: Number(String(netMonthlyIncome).replace(/\D/g, "")),
+              hasExistingEmi: emiChoice === "yes",
+              totalMonthlyEmi: emiChoice === "no" ? 0 : monthlyEmiAmount,
               ...(creditCardKind === "fd"
                 ? { fdAmount: Number(fdAmount.replace(/\D/g, "")) }
                 : { cibilBand }),
@@ -682,7 +695,7 @@ export default function ServicePage({
                         </>
                       ))}
                   </h2>
-                  {showLoanAmount && loanStep === 2 ? (
+                  {multiStep && loanStep === 2 ? (
                     <button
                       type="button"
                       onClick={() => {
@@ -758,11 +771,12 @@ export default function ServicePage({
                     </div>
                   )}
 
-                  {showLoanAmount ? (
+                  {multiStep ? (
                     <div className="space-y-1.5" aria-label={`Step ${loanStep} of 2`}>
                       <div className="flex items-center justify-between gap-2 text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">
                         <span>
-                          Step {loanStep} of 2 — {loanStep === 1 ? "Basic details" : "Eligibility"}
+                          Step {loanStep} of 2 —{" "}
+                          {loanStep === 1 ? "Basic details" : isCreditCard ? "Card details" : "Eligibility"}
                         </span>
                         <span className="tabular-nums">{loanStep}/2</span>
                       </div>
@@ -803,109 +817,8 @@ export default function ServicePage({
                   )}
 
                   {/* Loan step 1 / non-loan full form: basics */}
-                  {(!showLoanAmount || loanStep === 1) ? (
+                  {(!multiStep || loanStep === 1) ? (
                     <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4">
-                      {selectedCategory === "credit_card" ? (
-                        <>
-                          <div className="min-w-0">
-                            <label
-                              htmlFor="service-credit-card-kind"
-                              className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
-                            >
-                              Card type <span className="text-red-500">*</span>
-                            </label>
-                            <VehicleCategorySelect
-                              id="service-credit-card-kind"
-                              value={creditCardKind}
-                              onChange={(value) => {
-                                const next = value === "fd" || value === "normal" ? value : "";
-                                setCreditCardKind(next);
-                                setCreditCardKindError("");
-                                if (next === "fd") {
-                                  setCibilBand("");
-                                  setCibilError("");
-                                }
-                                if (next === "normal") {
-                                  setFdAmount("");
-                                  setFdAmountError("");
-                                }
-                              }}
-                              options={[...CREDIT_CARD_KIND_OPTIONS]}
-                              className={inputClass}
-                              placeholder="Select card type"
-                              requiredMessage="Select FD Credit Card or Normal Credit Card"
-                            />
-                            {creditCardKindError ? (
-                              <p className="mt-1 text-xs text-red-600">{creditCardKindError}</p>
-                            ) : null}
-                          </div>
-                          <div className="min-w-0">
-                            {creditCardKind === "fd" ? (
-                              <>
-                                <label
-                                  htmlFor="service-fd-amount"
-                                  className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
-                                >
-                                  FD amount <span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80">
-                                  <span
-                                    className="theme-gradient-text pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-bold leading-none"
-                                    aria-hidden
-                                  >
-                                    ₹
-                                  </span>
-                                  <input
-                                    id="service-fd-amount"
-                                    type="text"
-                                    inputMode="numeric"
-                                    value={fdAmount}
-                                    onChange={(e) => {
-                                      setFdAmount(e.target.value.replace(/\D/g, "").slice(0, 10));
-                                      setFdAmountError("");
-                                    }}
-                                    placeholder="e.g. 100000"
-                                    className="min-h-10 min-w-0 flex-1 bg-transparent py-2 pl-9 pr-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none dark:text-white"
-                                    required
-                                  />
-                                </div>
-                                {fdAmountError ? <p className="mt-1 text-xs text-red-600">{fdAmountError}</p> : null}
-                              </>
-                            ) : creditCardKind === "normal" ? (
-                              <>
-                                <label
-                                  htmlFor="service-credit-cibil"
-                                  className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
-                                >
-                                  CIBIL score <span className="text-red-500">*</span>
-                                </label>
-                                <CibilBandSelect
-                                  id="service-credit-cibil"
-                                  value={cibilBand}
-                                  onChange={(value) => {
-                                    setCibilBand(value);
-                                    setCibilError("");
-                                  }}
-                                  className={inputClass}
-                                />
-                                {cibilError ? <p className="mt-1 text-xs text-red-600">{cibilError}</p> : null}
-                              </>
-                            ) : (
-                              <>
-                                <label className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
-                                  FD amount / CIBIL score
-                                </label>
-                                <input
-                                  type="text"
-                                  disabled
-                                  placeholder="Select card type first"
-                                  className={`${inputClass} cursor-not-allowed opacity-70`}
-                                />
-                              </>
-                            )}
-                          </div>
-                        </>
-                      ) : null}
                       {showLoanAmount && !vehicleLoan ? (
                         <div className="min-w-0 sm:col-span-2">
                           <LoanAmountSlider
@@ -1339,6 +1252,187 @@ export default function ServicePage({
                     </div>
                   ) : null}
 
+                  {isCreditCard && loanStep === 2 ? (
+                    <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4">
+                      <div className="min-w-0">
+                        <label
+                          htmlFor="service-credit-card-kind"
+                          className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                        >
+                          Card type <span className="text-red-500">*</span>
+                        </label>
+                        <VehicleCategorySelect
+                          id="service-credit-card-kind"
+                          value={creditCardKind}
+                          onChange={(value) => {
+                            const next = value === "fd" || value === "normal" ? value : "";
+                            setCreditCardKind(next);
+                            setCreditCardKindError("");
+                            if (next === "fd") {
+                              setCibilBand("");
+                              setCibilError("");
+                            }
+                            if (next === "normal") {
+                              setFdAmount("");
+                              setFdAmountError("");
+                            }
+                          }}
+                          options={[...CREDIT_CARD_KIND_OPTIONS]}
+                          className={inputClass}
+                          placeholder="Select card type"
+                          requiredMessage="Select FD Credit Card or Normal Credit Card"
+                        />
+                        {creditCardKindError ? (
+                          <p className="mt-1 text-xs text-red-600">{creditCardKindError}</p>
+                        ) : null}
+                      </div>
+                      <div className="min-w-0">
+                        {creditCardKind === "fd" ? (
+                          <>
+                            <label
+                              htmlFor="service-fd-amount"
+                              className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                            >
+                              FD amount <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80">
+                              <span
+                                className="theme-gradient-text pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-bold leading-none"
+                                aria-hidden
+                              >
+                                ₹
+                              </span>
+                              <input
+                                id="service-fd-amount"
+                                type="text"
+                                inputMode="numeric"
+                                value={fdAmount}
+                                onChange={(e) => {
+                                  setFdAmount(e.target.value.replace(/\D/g, "").slice(0, 10));
+                                  setFdAmountError("");
+                                }}
+                                placeholder="e.g. 100000"
+                                className="min-h-10 min-w-0 flex-1 bg-transparent py-2 pl-9 pr-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none dark:text-white"
+                                required
+                              />
+                            </div>
+                            {fdAmountError ? <p className="mt-1 text-xs text-red-600">{fdAmountError}</p> : null}
+                          </>
+                        ) : creditCardKind === "normal" ? (
+                          <>
+                            <label
+                              htmlFor="service-credit-cibil"
+                              className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                            >
+                              CIBIL score <span className="text-red-500">*</span>
+                            </label>
+                            <CibilBandSelect
+                              id="service-credit-cibil"
+                              value={cibilBand}
+                              onChange={(value) => {
+                                setCibilBand(value);
+                                setCibilError("");
+                              }}
+                              className={inputClass}
+                            />
+                            {cibilError ? <p className="mt-1 text-xs text-red-600">{cibilError}</p> : null}
+                          </>
+                        ) : (
+                          <>
+                            <label className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                              FD amount / CIBIL score
+                            </label>
+                            <input
+                              type="text"
+                              disabled
+                              placeholder="Select card type first"
+                              className={`${inputClass} cursor-not-allowed opacity-70`}
+                            />
+                          </>
+                        )}
+                      </div>
+                      <EmploymentTypeField
+                        id="service-employment"
+                        value={employmentType}
+                        options={LOAN_APPLY_EMPLOYMENT_OPTIONS}
+                        onChange={(value) => {
+                          setEmploymentType(value);
+                          setEmploymentError("");
+                        }}
+                        className={inputClass}
+                        labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                        error={
+                          employmentError ? <p className="mt-1 text-xs text-red-600">{employmentError}</p> : null
+                        }
+                      />
+                      <EmploymentIncomeFields
+                        idPrefix="service"
+                        netMonthlyIncome={netMonthlyIncome}
+                        onIncomeChange={(value) => {
+                          setNetMonthlyIncome(value);
+                          setIncomeError("");
+                        }}
+                        inputClassName={inputClass}
+                        labelClassName="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                        incomeWithRupee
+                        incomeError={
+                          incomeError ? <p className="mt-1 text-xs text-red-600">{incomeError}</p> : null
+                        }
+                      />
+                      <div className="min-w-0">
+                        <label htmlFor="service-existing-emi" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                          Do you pay an existing loan EMI? <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          id="service-existing-emi"
+                          value={emiChoice}
+                          onChange={(e) => {
+                            const next = e.target.value === "yes" || e.target.value === "no" ? e.target.value : "";
+                            setEmiChoice(next);
+                            setTotalMonthlyEmi(next === "yes" ? "" : "0");
+                            setEmiChoiceError("");
+                            setEmiAmountError("");
+                          }}
+                          className={inputClass}
+                          required
+                        >
+                          <option value="">Select</option>
+                          <option value="yes">Yes</option>
+                          <option value="no">No</option>
+                        </select>
+                        {emiChoiceError ? <p className="mt-1 text-xs text-red-600">{emiChoiceError}</p> : null}
+                      </div>
+                      <div className="min-w-0">
+                        <label htmlFor="service-total-emi" className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                          Total monthly EMI you already pay ? <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80">
+                          <span
+                            className="theme-gradient-text pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-bold leading-none"
+                            aria-hidden
+                          >
+                            ₹
+                          </span>
+                          <input
+                            id="service-total-emi"
+                            type="text"
+                            inputMode="numeric"
+                            value={emiChoice === "no" ? "0" : totalMonthlyEmi}
+                            onChange={(e) => {
+                              setTotalMonthlyEmi(e.target.value.replace(/\D/g, ""));
+                              setEmiAmountError("");
+                            }}
+                            placeholder={emiChoice === "yes" ? "e.g. 8000" : "0"}
+                            readOnly={emiChoice !== "yes"}
+                            className="min-h-10 min-w-0 flex-1 bg-transparent py-2 pl-9 pr-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none read-only:text-gray-500 dark:text-white"
+                            required
+                          />
+                        </div>
+                        {emiAmountError ? <p className="mt-1 text-xs text-red-600">{emiAmountError}</p> : null}
+                      </div>
+                    </div>
+                  ) : null}
+
                   <TermsAgreementCheckbox
                     id="service-terms"
                     variant="lead"
@@ -1347,14 +1441,14 @@ export default function ServicePage({
                     textClassName="text-xs leading-snug text-gray-600 dark:text-gray-400 sm:text-sm"
                   />
 
-                  <div className={showLoanAmount ? "w-full" : "mt-auto w-full pt-2 sm:pt-3"}>
-                    {showLoanAmount && loanStep === 1 ? (
+                  <div className={multiStep ? "w-full" : "mt-auto w-full pt-2 sm:pt-3"}>
+                    {multiStep && loanStep === 1 ? (
                       <button
                         type="button"
                         onClick={(e) => goToLoanStep2(e.currentTarget.form)}
                         className={`inline-flex w-full min-w-0 items-center justify-center gap-2 whitespace-nowrap btn-gradient px-4 text-sm font-semibold text-white shadow-md sm:text-base ${loanTabs ? "min-h-12 rounded-full py-3" : "min-h-[44px] rounded-xl py-2.5 sm:rounded-2xl sm:py-3"}`}
                       >
-                        {lockVehicleCategory ? "Get Loan Offer" : "Check Eligibility"}
+                        {isCreditCard ? "Continue" : lockVehicleCategory ? "Get Loan Offer" : "Check Eligibility"}
                         <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden>
                           <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>

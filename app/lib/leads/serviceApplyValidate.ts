@@ -3,6 +3,7 @@ import {
   validateLeadPanNameMobile,
   validateLeadPincode,
   validateCreditCardExtras,
+  validateLoanFinishStep,
   validateUsedCarExtras,
   type LeadFieldErrors,
 } from "./leadForm.ts";
@@ -118,6 +119,18 @@ export function collectServiceApplyErrors(input: {
         creditCardKind: input.creditCardKind,
         fdAmount: input.fdAmount,
         cibilBand: input.cibilBand,
+      }),
+    );
+    Object.assign(
+      errors,
+      validateLoanFinishStep({
+        netMonthlyIncome: input.netMonthlyIncome,
+        employmentType: input.employmentType,
+        cibilBand: input.cibilBand,
+        hasExistingEmi: input.hasExistingEmi,
+        totalMonthlyEmi:
+          input.hasExistingEmi === "no" ? "0" : String(input.monthlyEmiAmount),
+        skipCibil: input.creditCardKind !== "normal",
       }),
     );
   }
