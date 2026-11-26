@@ -36,7 +36,8 @@ export const SITE_TREE: SiteTreeNode[] = [
       {
         name: "Used Car Loan",
         path: "/used-car-loan",
-        description: "Apply for a used car loan online with Apni Zaroorat and partner lenders.",
+        description:
+          "Apply used car loan online in India — check eligibility and get up to 150% of old / pre-owned car value.",
       },
       {
         name: "Business Loan",
@@ -58,7 +59,7 @@ export const SITE_TREE: SiteTreeNode[] = [
         name: "Credit Card",
         path: "/products/credit-card",
         description:
-          "Apply for credit cards online in India — HDFC, IDFC, SBI, Axis and more. Lifetime free fee options with Apni Zaroorat.",
+          "Apply FD credit card and lifetime-free cards online in India — improve CIBIL, shopping offers, interest on FD. HDFC, SBI, Axis and more.",
       },
     ],
   },

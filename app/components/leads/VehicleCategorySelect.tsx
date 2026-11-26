@@ -11,9 +11,20 @@ type Props = {
   options: InsuranceTypeOption[];
   className: string;
   disabled?: boolean;
+  placeholder?: string;
+  requiredMessage?: string;
 };
 
-export default function VehicleCategorySelect({ id, value, onChange, options, className, disabled = false }: Props) {
+export default function VehicleCategorySelect({
+  id,
+  value,
+  onChange,
+  options,
+  className,
+  disabled = false,
+  placeholder = "Select vehicle category",
+  requiredMessage = "Select vehicle category",
+}: Props) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const listId = useId();
@@ -71,7 +82,7 @@ export default function VehicleCategorySelect({ id, value, onChange, options, cl
               <span className="truncate whitespace-nowrap">{selected.label}</span>
             </>
           ) : (
-            <span className="truncate whitespace-nowrap">Select vehicle category</span>
+            <span className="truncate whitespace-nowrap">{placeholder}</span>
           )}
         </span>
         <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-gray-400">
@@ -85,7 +96,7 @@ export default function VehicleCategorySelect({ id, value, onChange, options, cl
         required
         onChange={() => undefined}
         ref={(node) => {
-          node?.setCustomValidity(value ? "" : "Select vehicle category");
+          node?.setCustomValidity(value ? "" : requiredMessage);
         }}
         className="pointer-events-none absolute inset-x-0 bottom-0 h-10 opacity-0"
       />

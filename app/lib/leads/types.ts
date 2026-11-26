@@ -14,6 +14,8 @@ export interface CreateLeadRequest {
   employmentType?: string;
   referralCode?: string;
   cibilBand?: string;
+  creditCardKind?: "fd" | "normal";
+  fdAmount?: number;
   vehicleCategory?: string;
   carDetails?: string;
   vehicleRc?: string;

@@ -38,6 +38,7 @@ import {
   loanNotEligibleMessage,
   sanitizeLeadPincodeInput,
   sanitizeVehicleRc,
+  CREDIT_CARD_KIND_OPTIONS,
   validateLeadPanNameMobile,
   validateLeadPincode,
 } from "@/app/lib/leads/leadForm";
@@ -152,6 +153,10 @@ export default function ServicePage({
   const [emiAmountError, setEmiAmountError] = useState("");
   const [cibilBand, setCibilBand] = useState("");
   const [cibilError, setCibilError] = useState("");
+  const [creditCardKind, setCreditCardKind] = useState<"" | "fd" | "normal">("");
+  const [creditCardKindError, setCreditCardKindError] = useState("");
+  const [fdAmount, setFdAmount] = useState("");
+  const [fdAmountError, setFdAmountError] = useState("");
   const [vehicleCategory, setVehicleCategory] = useState(initialVehicleCategory || "new_car");
   const [vehicleCategoryError, setVehicleCategoryError] = useState("");
   const [carDetails, setCarDetails] = useState("");
@@ -244,6 +249,10 @@ export default function ServicePage({
     setPincodeError("");
     setCibilBand("");
     setCibilError("");
+    setCreditCardKind("");
+    setCreditCardKindError("");
+    setFdAmount("");
+    setFdAmountError("");
     setEmploymentType("");
     setEmploymentError("");
     setIncomeError("");
@@ -430,6 +439,8 @@ export default function ServicePage({
       showInsuranceType,
       insType,
       selectedCategory,
+      creditCardKind,
+      fdAmount,
     });
 
     const nameFilled = Boolean(fullName.trim());
@@ -478,7 +489,21 @@ export default function ServicePage({
     setEmiAmountError(
       hasExistingEmi === "yes" && emiFilled ? errors.totalMonthlyEmi ?? "" : "",
     );
-    setCibilError(lockVehicleCategory ? "" : cibilBand.trim() ? errors.cibilBand ?? "" : "");
+    setCibilError(
+      lockVehicleCategory || (selectedCategory === "credit_card" && creditCardKind !== "normal")
+        ? ""
+        : cibilBand.trim()
+          ? errors.cibilBand ?? ""
+          : "",
+    );
+    setCreditCardKindError(
+      selectedCategory === "credit_card" && creditCardKind ? errors.creditCardKind ?? "" : "",
+    );
+    setFdAmountError(
+      selectedCategory === "credit_card" && creditCardKind === "fd" && fdAmount.trim()
+        ? errors.fdAmount ?? ""
+        : "",
+    );
     setCarDetailsError(lockVehicleCategory && carDetails.trim() ? errors.carDetails ?? "" : "");
     setVehicleRcError(lockVehicleCategory && vehicleRc.trim() ? errors.vehicleRc ?? "" : "");
     setExistingCarLoanError(lockVehicleCategory && existingCarLoan ? errors.existingCarLoan ?? "" : "");
@@ -567,7 +592,15 @@ export default function ServicePage({
             }
           : {}),
         ...(category === "insurance" ? { insType } : {}),
-        ...(category === "credit_card" ? { email: email.trim() } : {}),
+        ...(category === "credit_card" && (creditCardKind === "fd" || creditCardKind === "normal")
+          ? {
+              email: email.trim(),
+              creditCardKind,
+              ...(creditCardKind === "fd"
+                ? { fdAmount: Number(fdAmount.replace(/\D/g, "")) }
+                : { cibilBand }),
+            }
+          : {}),
         consentAccepted: termsAccepted,
       };
       const res = await applyLead(payload);
@@ -788,6 +821,107 @@ export default function ServicePage({
                   {/* Loan step 1 / non-loan full form: basics */}
                   {(!showLoanAmount || loanStep === 1) ? (
                     <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4">
+                      {selectedCategory === "credit_card" ? (
+                        <>
+                          <div className="min-w-0">
+                            <label
+                              htmlFor="service-credit-card-kind"
+                              className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                            >
+                              Card type <span className="text-red-500">*</span>
+                            </label>
+                            <VehicleCategorySelect
+                              id="service-credit-card-kind"
+                              value={creditCardKind}
+                              onChange={(value) => {
+                                const next = value === "fd" || value === "normal" ? value : "";
+                                setCreditCardKind(next);
+                                setCreditCardKindError("");
+                                if (next === "fd") {
+                                  setCibilBand("");
+                                  setCibilError("");
+                                }
+                                if (next === "normal") {
+                                  setFdAmount("");
+                                  setFdAmountError("");
+                                }
+                              }}
+                              options={[...CREDIT_CARD_KIND_OPTIONS]}
+                              className={inputClass}
+                              placeholder="Select card type"
+                              requiredMessage="Select FD Credit Card or Normal Credit Card"
+                            />
+                            {creditCardKindError ? (
+                              <p className="mt-1 text-xs text-red-600">{creditCardKindError}</p>
+                            ) : null}
+                          </div>
+                          <div className="min-w-0">
+                            {creditCardKind === "fd" ? (
+                              <>
+                                <label
+                                  htmlFor="service-fd-amount"
+                                  className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                                >
+                                  FD amount <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative flex min-h-10 items-center overflow-hidden rounded-xl border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-primary/70 dark:border-dark_border dark:bg-darkmode/80">
+                                  <span
+                                    className="theme-gradient-text pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-bold leading-none"
+                                    aria-hidden
+                                  >
+                                    ₹
+                                  </span>
+                                  <input
+                                    id="service-fd-amount"
+                                    type="text"
+                                    inputMode="numeric"
+                                    value={fdAmount}
+                                    onChange={(e) => {
+                                      setFdAmount(e.target.value.replace(/\D/g, "").slice(0, 10));
+                                      setFdAmountError("");
+                                    }}
+                                    placeholder="e.g. 100000"
+                                    className="min-h-10 min-w-0 flex-1 bg-transparent py-2 pl-9 pr-3 text-base text-midnight_text placeholder:text-gray-400 focus:outline-none dark:text-white"
+                                    required
+                                  />
+                                </div>
+                                {fdAmountError ? <p className="mt-1 text-xs text-red-600">{fdAmountError}</p> : null}
+                              </>
+                            ) : creditCardKind === "normal" ? (
+                              <>
+                                <label
+                                  htmlFor="service-credit-cibil"
+                                  className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300"
+                                >
+                                  CIBIL score <span className="text-red-500">*</span>
+                                </label>
+                                <CibilBandSelect
+                                  id="service-credit-cibil"
+                                  value={cibilBand}
+                                  onChange={(value) => {
+                                    setCibilBand(value);
+                                    setCibilError("");
+                                  }}
+                                  className={inputClass}
+                                />
+                                {cibilError ? <p className="mt-1 text-xs text-red-600">{cibilError}</p> : null}
+                              </>
+                            ) : (
+                              <>
+                                <label className="mb-1.5 block text-sm font-medium text-midnight_text dark:text-gray-300">
+                                  FD amount / CIBIL score
+                                </label>
+                                <input
+                                  type="text"
+                                  disabled
+                                  placeholder="Select card type first"
+                                  className={`${inputClass} cursor-not-allowed opacity-70`}
+                                />
+                              </>
+                            )}
+                          </div>
+                        </>
+                      ) : null}
                       {showLoanAmount && !vehicleLoan ? (
                         <div className="min-w-0 sm:col-span-2">
                           <LoanAmountSlider

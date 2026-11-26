@@ -10,7 +10,7 @@ export { INDEXABLE_ROUTES, SITE_TREE, SITELINK_PAGES } from "@/app/lib/seo-site-
  * Bump this date (YYYY-MM-DD) whenever public titles/meta/content ship.
  * Sitemap lastmod uses it so crawlers re-prioritize after deploy.
  */
-export const SEO_CONTENT_VERSION = "2026-11-12";
+export const SEO_CONTENT_VERSION = "2026-11-26";
 
 /** Official social profiles — wired to Organization sameAs + footer + AEO/GEO docs. */
 export const SOCIAL_PROFILES = [
@@ -376,6 +376,28 @@ export function serviceCatalogJsonLd() {
           description:
             "Life, health and motor insurance plans — compare and apply online.",
           url: absoluteSeoUrl("/products/insurance"),
+          provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
+        },
+      },
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "Used Car Loan",
+          description:
+            "Used car loan online — finance a pre-owned car and get up to 150% of vehicle value.",
+          url: absoluteSeoUrl("/used-car-loan"),
+          provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
+        },
+      },
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "Credit Card",
+          description:
+            "Apply FD credit card and lifetime-free credit cards online in India.",
+          url: absoluteSeoUrl("/products/credit-card"),
           provider: { "@id": `${PUBLIC_SITE_URL}/#organization` },
         },
       },

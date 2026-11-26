@@ -2,6 +2,7 @@ import {
   validateLeadEmail,
   validateLeadPanNameMobile,
   validateLeadPincode,
+  validateCreditCardExtras,
   validateUsedCarExtras,
   type LeadFieldErrors,
 } from "./leadForm.ts";
@@ -57,6 +58,8 @@ export function collectServiceApplyErrors(input: {
   showInsuranceType: boolean;
   insType: string;
   selectedCategory: string;
+  creditCardKind?: string;
+  fdAmount?: string;
 }): LeadFieldErrors {
   const errors: LeadFieldErrors = validateLeadPanNameMobile({
     pan: input.pan,
@@ -109,6 +112,14 @@ export function collectServiceApplyErrors(input: {
   if (input.selectedCategory === "credit_card") {
     const emailErr = validateLeadEmail(input.email);
     if (emailErr) errors.email = emailErr;
+    Object.assign(
+      errors,
+      validateCreditCardExtras({
+        creditCardKind: input.creditCardKind,
+        fdAmount: input.fdAmount,
+        cibilBand: input.cibilBand,
+      }),
+    );
   }
   return errors;
 }
@@ -134,6 +145,8 @@ export function serviceApplyHasFieldError(
       errors.existingCarLoan ||
       errors.vehicleCategory ||
       errors.insType ||
-      errors.email,
+      errors.email ||
+      errors.creditCardKind ||
+      errors.fdAmount,
   );
 }

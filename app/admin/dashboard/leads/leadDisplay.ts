@@ -2,6 +2,7 @@ import type { AdminLeadRow } from "@/app/lib/admin/fetchLeads";
 import { formatIpLocationDisplay } from "@/app/lib/admin/formatIpLocation";
 import {
   cibilBandLabel,
+  creditCardKindLabel,
   employmentTypeLabel,
   vehicleCategoryLabel,
   insuranceTypeLabel,
@@ -40,6 +41,8 @@ export const VIEW_FIELDS = [
   "employment_type",
   "net_monthly_income",
   "cibil_band",
+  "credit_card_kind",
+  "fd_amount",
   "vehicle_category",
   "car_details",
   "vehicle_rc",
@@ -67,6 +70,8 @@ const LOAN_ONLY_VIEW_FIELDS = new Set([
   "total_monthly_emi",
 ]);
 
+const CREDIT_CARD_ONLY_VIEW_FIELDS = new Set(["credit_card_kind", "fd_amount"]);
+
 /** Keys shown in the lead details modal for this product. */
 export function viewFieldKeysForCategory(category: unknown): string[] {
   const cat = String(category ?? "")
@@ -76,8 +81,10 @@ export function viewFieldKeysForCategory(category: unknown): string[] {
   const isLoan = /_loan$/.test(cat);
   const keys: string[] = [];
   for (const raw of VIEW_FIELDS) {
+    if (CREDIT_CARD_ONLY_VIEW_FIELDS.has(raw) && cat !== "credit_card") continue;
     if (!isLoan && LOAN_ONLY_VIEW_FIELDS.has(raw)) {
       if (raw === "required_amount" && cat === "insurance") keys.push("ins_type");
+      if (cat === "credit_card" && raw === "cibil_band") keys.push(raw);
       continue;
     }
     keys.push(raw);
@@ -97,6 +104,8 @@ export const FIELD_LABELS: Record<string, string> = {
   employment_type: "Employment type",
   net_monthly_income: "Net monthly income",
   cibil_band: "CIBIL score",
+  credit_card_kind: "Card type",
+  fd_amount: "FD amount",
   vehicle_category: "Vehicle category",
   car_details: "Car details",
   vehicle_rc: "Vehicle RC",
@@ -167,6 +176,14 @@ export function formatValue(key: string, value: unknown, row?: AdminLeadRow): st
     if (value == null || String(value).trim() === "") return "N/A";
     const label = cibilBandLabel(value);
     return label === "—" ? "N/A" : label;
+  }
+  if (key === "credit_card_kind") {
+    const label = creditCardKindLabel(value);
+    return label === "—" ? "N/A" : label;
+  }
+  if (key === "fd_amount") {
+    if (value == null || value === "") return "N/A";
+    return formatCurrencyInr(value);
   }
   if (key === "vehicle_category") {
     if (value == null || String(value).trim() === "") return "N/A";
@@ -251,7 +268,14 @@ export function amountOrInsuranceText(row: AdminLeadRow): string {
   if (category === "insurance") {
     return row.ins_type ? insuranceTypeLabel(String(row.ins_type)) : "—";
   }
-  if (category === "credit_card") return "—";
+  if (category === "credit_card") {
+    const kind = String(row.credit_card_kind ?? "").trim().toLowerCase();
+    if (kind === "fd") {
+      return row.fd_amount != null && row.fd_amount !== "" ? formatCurrencyInr(row.fd_amount) : "FD Credit Card";
+    }
+    if (kind === "normal") return "Normal Credit Card";
+    return "—";
+  }
   if (category.endsWith("_loan")) {
     if (row.required_amount != null && row.required_amount !== "") {
       return formatCurrencyInr(row.required_amount);

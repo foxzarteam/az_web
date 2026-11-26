@@ -169,6 +169,12 @@ export const INSURANCE_FAQ_ITEMS: FaqItem[] = [
 
 export const CREDIT_CARD_FAQ_ITEMS: FaqItem[] = [
   {
+    id: "fd-credit-card-benefits",
+    question: "What are the benefits of an FD Credit Card?",
+    answer:
+      "An FD Credit Card helps you build credit without eligibility stress. Regular, on-time use can improve your CIBIL score. You also get offers and rewards on everyday shopping and bill payments, and the bank pays interest on the fixed deposit that backs your card — so your money keeps earning while you spend.",
+  },
+  {
     id: "credit-card-benefits",
     question: "What are the benefits of using a credit card?",
     answer:
@@ -185,12 +191,6 @@ export const CREDIT_CARD_FAQ_ITEMS: FaqItem[] = [
     question: "Can I use my credit card for online shopping and travel?",
     answer:
       "Yes. You can use your credit card for online shopping, hotel bookings, flight tickets, dining, and other eligible purchases wherever your card network is accepted.",
-  },
-  {
-    id: "credit-card-apply-process",
-    question: "How do I apply for a credit card?",
-    answer:
-      "Open the Credit Card page, fill in your name, PAN, mobile and pincode, accept the terms, and submit. Our team and banking partners will guide you through the next steps.",
   },
 ];
 

@@ -13,20 +13,24 @@ import {
   pageSeoGlue,
 } from "@/app/lib/seo";
 
-const PAGE_TITLE = "Apply Credit Card Online in India | Free Lifetime Fees | Apni Zaroorat";
+const PAGE_TITLE = "Apply FD Credit Card Online in India | Lifetime Free | Apni Zaroorat";
 const PAGE_DESC =
-  "Apply for a credit card online in India with Apni Zaroorat. Compare HDFC, IDFC, SBI, Axis and more partner cards — zero joining fee, zero annual fee options, quick guided application.";
+  "Apply FD credit card online in India — no eligibility stress, improve CIBIL with regular use, shopping & payment offers, and earn interest on your FD. Also apply lifetime-free cards from HDFC, SBI, Axis & more with Apni Zaroorat.";
 
 const PAGE_KEYWORDS = [
-  "apply credit card online",
-  "credit card apply India",
-  "best credit card India",
-  "HDFC credit card apply",
-  "IDFC credit card",
-  "SBI credit card apply online",
+  "apply FD credit card online",
+  "FD credit card India",
+  "credit card against FD",
+  "secured credit card India",
+  "credit card for low CIBIL",
+  "apply credit card online India",
   "lifetime free credit card",
   "zero joining fee credit card",
-  "credit card without annual fees",
+  "HDFC credit card apply online",
+  "SBI credit card apply",
+  "Axis credit card apply",
+  "IDFC credit card apply",
+  "best credit card India 2026",
   "Apni Zaroorat credit card",
 ];
 
@@ -36,7 +40,7 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/products/credit-card",
   absoluteTitle: true,
   image: "/images/service/card.webp",
-  imageAlt: "Apply for credit cards online with Apni Zaroorat — partner bank cards",
+  imageAlt: "Apply FD credit card and lifetime-free credit cards online in India — Apni Zaroorat",
   keywords: PAGE_KEYWORDS,
 });
 
@@ -55,7 +59,7 @@ const structuredData = pageSeoGlue({
     financialServiceJsonLd({
       name: "Credit Card Application",
       description:
-        "Apply for lifetime-free and low-fee credit cards online in India through Apni Zaroorat. Partner banks include HDFC, IDFC FIRST, SBI, Axis, and more.",
+        "Apply for FD credit cards and lifetime-free credit cards online in India through Apni Zaroorat. Improve CIBIL, get shopping offers, and earn interest on your FD. Partner banks include HDFC, IDFC FIRST, SBI, Axis, and more.",
       path: "/products/credit-card",
       serviceType: "Credit Card",
     }),
@@ -68,11 +72,11 @@ export default function CreditCardPage() {
     <>
       <JsonLd data={structuredData} />
       <h1 className="sr-only">
-        Apply Credit Card Online in India — Lifetime Free Joining & Annual Fees Options
+        Apply FD Credit Card Online in India — Lifetime Free Cards, Improve CIBIL, Earn Interest on FD
       </h1>
       <ServicePage
         title="Credit Card"
-        subtitle="Apply for a credit card with a simple form — no loan amount required."
+        subtitle="Apply FD credit card or lifetime-free cards online. Improve CIBIL, get shopping offers, and earn interest on your FD."
         imageSrc="/images/service/card.webp"
         badge="Cards from partner banks"
         hideHeader

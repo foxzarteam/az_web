@@ -58,7 +58,7 @@ export default function CibilBoostSection() {
           </h2>
           <p className="mx-auto mt-3 max-w-3xl text-sm leading-relaxed text-gray dark:text-gray-400 sm:text-base">
             No Eligibility Issues! Build your credit history through responsible usage, improve your
-            CIBIL score, and become eligible for a higher loan amount in just a few months.
+            CIBIL score, and earn interest on your FD.
           </p>
         </div>
 
