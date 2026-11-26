@@ -21,11 +21,12 @@ function firstName(name: string): string {
   return name.trim().split(/\s+/)[0] || "ji";
 }
 
-export function stashApplyThanks(payload: ApplyThanksPayload): void {
+export function stashApplyThanks(payload: ApplyThanksPayload & { leadId: string }): void {
   if (typeof sessionStorage === "undefined") return;
   const name = payload.name.trim();
   const product = payload.product.trim();
-  if (!product) return;
+  const leadId = payload.leadId.trim();
+  if (!product || !leadId) return;
   sessionStorage.setItem(KEY, JSON.stringify({ name, product }));
   trackApplyConversion(product);
 }

@@ -19,7 +19,12 @@ import CibilBandSelect, { VEHICLE_CIBIL_OPTIONS } from "@/app/components/leads/C
 import VehicleCategorySelect from "@/app/components/leads/VehicleCategorySelect";
 import { MOBILE_VALIDATION } from "@/app/config/constants";
 import { customerLogin } from "@/app/lib/customer/authApi";
-import { applyLead, isExistingApplicationError, mapServiceToCategory } from "@/app/lib/leads/leadApi";
+import {
+  applyLead,
+  isExistingApplicationError,
+  leadIdFromResponse,
+  mapServiceToCategory,
+} from "@/app/lib/leads/leadApi";
 import { personalLoanApplyPayload } from "@/app/lib/leads/personalLoanApply";
 import { useLoanProducts, useServiceCards } from "@/app/components/providers/ServiceCardsProvider";
 import { fetchActiveServiceCards } from "@/app/lib/services/fetchActiveServiceCards";
@@ -532,12 +537,13 @@ export default function ServicePage({
       return;
     }
     // Eligibility must pass before any DB write (server also rejects LOAN_NOT_ELIGIBLE).
-    if (showLoanAmount) {
+    // Credit card uses the same CIBIL/EMI popup so junk leads never hit Meta.
+    if (showLoanAmount || isCreditCard) {
       const blocked = loanNotEligibleMessage({
         category: selectedCategory,
         netMonthlyIncome: Number(String(netMonthlyIncome).replace(/\D/g, "")),
         employmentType,
-        cibilBand,
+        cibilBand: isCreditCard && creditCardKind !== "normal" ? "" : cibilBand,
         hasExistingEmi: vehicleLoan ? false : hasExistingEmi === "yes",
         totalMonthlyEmi: vehicleLoan || hasExistingEmi !== "yes" ? 0 : monthlyEmiAmount,
       });
@@ -629,15 +635,21 @@ export default function ServicePage({
         }
         return;
       }
-      const login = await customerLogin(digits);
-      if (!login.ok) {
-        setFormError(login.message || "Application saved. Open Check Status to continue.");
+      const savedId = leadIdFromResponse(res.data);
+      if (!savedId) {
+        setFormError("Could not submit application.");
         return;
       }
       stashApplyThanks({
         name: fullName.trim(),
         product: selectedLoanTitle.trim() || "application",
+        leadId: savedId,
       });
+      const login = await customerLogin(digits);
+      if (!login.ok) {
+        setFormError(login.message || "Application saved. Open Check Status to continue.");
+        return;
+      }
       router.replace("/customer/dashboard");
     } catch {
       setFormError("Network error. Please try again.");
@@ -1323,11 +1335,7 @@ export default function ServicePage({
                                 min={5000}
                               />
                             </div>
-                            {fdAmountError ? (
-                              <p className="mt-1 text-xs text-red-600">{fdAmountError}</p>
-                            ) : (
-                              <p className="mt-1 text-xs text-slate-500">Minimum FD amount is ₹5,000.</p>
-                            )}
+                            {fdAmountError ? <p className="mt-1 text-xs text-red-600">{fdAmountError}</p> : null}
                           </>
                         ) : creditCardKind === "normal" ? (
                           <>

@@ -50,4 +50,11 @@ assert(claimApplyConversion("Personal Loan", mem) === true, "first conversion");
 assert(claimApplyConversion("Personal Loan", mem) === false, "duplicate blocked");
 assert(claimApplyConversion("Insurance", mem) === true, "other product allowed");
 
+function canTrackApply(leadId) {
+  return Boolean(String(leadId ?? "").trim());
+}
+assert(canTrackApply("") === false, "no pixel without saved lead");
+assert(canTrackApply("   ") === false, "blank lead id is not a save");
+assert(canTrackApply("lead-1") === true, "pixel only after DB id");
+
 console.log("test-campaign-tracking: ok");

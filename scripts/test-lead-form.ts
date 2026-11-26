@@ -14,6 +14,7 @@ import {
   MSG_CIBIL_BELOW_650,
   MSG_EMI_HALF,
   MSG_SALARY_CASH,
+  SELECTABLE_CIBIL_BANDS,
   netMonthlyIncomeError,
   validateCreditCardExtras,
   validateLeadPanNameMobile,
@@ -51,26 +52,31 @@ const name = validateLeadPanNameMobile({
 });
 assert.ok(name.fullName);
 
+assert.deepEqual([...SELECTABLE_CIBIL_BANDS], ["above_700", "below_700"]);
 assert.equal(MIN_NET_MONTHLY_INCOME, 18000);
 assert.equal(netMonthlyIncomeError("17999"), "Net monthly income must be at least ₹18,000");
 assert.equal(netMonthlyIncomeError("18000"), undefined);
+assert.equal(
+  loanNotEligibleMessage({ netMonthlyIncome: 50000, cibilBand: "below_700", hasExistingEmi: false, totalMonthlyEmi: 0 }),
+  MSG_CIBIL_BELOW,
+);
 assert.equal(
   loanNotEligibleMessage({ netMonthlyIncome: 50000, cibilBand: "below_680", hasExistingEmi: false, totalMonthlyEmi: 0 }),
   MSG_CIBIL_BELOW,
 );
 assert.equal(
-  loanNotEligibleMessage({ netMonthlyIncome: 40000, cibilBand: "above_680", hasExistingEmi: true, totalMonthlyEmi: 20000 }),
+  loanNotEligibleMessage({ netMonthlyIncome: 40000, cibilBand: "above_700", hasExistingEmi: true, totalMonthlyEmi: 20000 }),
   MSG_EMI_HALF,
 );
 assert.equal(
   loanNotEligibleMessage({ netMonthlyIncome: 40000, cibilBand: "unknown", hasExistingEmi: true, totalMonthlyEmi: 19999 }),
-  null,
+  MSG_CIBIL_BELOW,
 );
 assert.equal(
   loanNotEligibleMessage({
     netMonthlyIncome: 50000,
     employmentType: "salaried_cash",
-    cibilBand: "above_680",
+    cibilBand: "above_700",
     hasExistingEmi: false,
     totalMonthlyEmi: 0,
   }),
@@ -80,7 +86,27 @@ assert.equal(
   loanNotEligibleMessage({
     netMonthlyIncome: 50000,
     employmentType: "salaried_bank",
-    cibilBand: "above_680",
+    cibilBand: "above_700",
+    hasExistingEmi: false,
+    totalMonthlyEmi: 0,
+  }),
+  null,
+);
+assert.equal(
+  loanNotEligibleMessage({
+    category: "credit_card",
+    netMonthlyIncome: 20000,
+    cibilBand: "below_700",
+    hasExistingEmi: false,
+    totalMonthlyEmi: 0,
+  }),
+  MSG_CIBIL_BELOW,
+);
+assert.equal(
+  loanNotEligibleMessage({
+    category: "credit_card",
+    netMonthlyIncome: 20000,
+    cibilBand: "above_700",
     hasExistingEmi: false,
     totalMonthlyEmi: 0,
   }),
@@ -89,6 +115,30 @@ assert.equal(
 assert.equal(MIN_VEHICLE_NET_MONTHLY_INCOME, 10000);
 assert.equal(netMonthlyIncomeError("9999", 10000), "Net monthly income must be at least ₹10,000");
 assert.equal(netMonthlyIncomeError("10000", 10000), undefined);
+assert.equal(
+  validateLoanFinishStep({
+    netMonthlyIncome: "10000",
+    employmentType: "salaried_bank",
+    cibilBand: "above_700",
+    hasExistingEmi: "no",
+    totalMonthlyEmi: "0",
+    skipCibil: true,
+    category: "credit_card",
+  }).netMonthlyIncome,
+  undefined,
+);
+assert.equal(
+  validateLoanFinishStep({
+    netMonthlyIncome: "9999",
+    employmentType: "salaried_bank",
+    cibilBand: "above_700",
+    hasExistingEmi: "no",
+    totalMonthlyEmi: "0",
+    skipCibil: true,
+    category: "credit_card",
+  }).netMonthlyIncome,
+  "Net monthly income must be at least ₹10,000",
+);
 assert.equal(
   loanNotEligibleMessage({
     category: "vehicle_loan",
@@ -130,7 +180,7 @@ assert.equal(vehicleMissingJob.employmentType, "Select employment type");
 const finish = validateLoanFinishStep({
   netMonthlyIncome: "20000",
   employmentType: "salaried_bank",
-  cibilBand: "above_680",
+  cibilBand: "above_700",
   hasExistingEmi: "no",
   totalMonthlyEmi: "",
 });
@@ -184,7 +234,7 @@ const applyErrors = collectServiceApplyErrors({
   loanBounds: { min: 50000, max: 500000 },
   loanAmount: 10000,
   netMonthlyIncome: "20000",
-  cibilBand: "above_680",
+  cibilBand: "above_700",
   employmentType: "salaried_bank",
   hasExistingEmi: "no",
   monthlyEmiAmount: 0,
@@ -203,6 +253,8 @@ assert.equal(validateCreditCardExtras({ creditCardKind: "fd", fdAmount: "4999" }
 assert.equal(validateCreditCardExtras({ creditCardKind: "fd", fdAmount: "5000" }).fdAmount, undefined);
 assert.equal(validateCreditCardExtras({ creditCardKind: "fd", fdAmount: "50000" }).fdAmount, undefined);
 assert.equal(validateCreditCardExtras({ creditCardKind: "normal", cibilBand: "" }).cibilBand, "Select your CIBIL score");
-assert.equal(Object.keys(validateCreditCardExtras({ creditCardKind: "normal", cibilBand: "above_680" })).length, 0);
+assert.equal(validateCreditCardExtras({ creditCardKind: "normal", cibilBand: "unknown" }).cibilBand, "Select your CIBIL score");
+assert.equal(Object.keys(validateCreditCardExtras({ creditCardKind: "normal", cibilBand: "above_700" })).length, 0);
+assert.equal(Object.keys(validateCreditCardExtras({ creditCardKind: "normal", cibilBand: "below_700" })).length, 0);
 
 console.log("test-lead-form: ok");

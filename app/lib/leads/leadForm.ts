@@ -13,6 +13,7 @@ export {
   MSG_VEHICLE_NET_INCOME_MIN,
   SELECTABLE_CIBIL_BANDS,
   SELECTABLE_VEHICLE_CIBIL_BANDS,
+  incomeFloor,
   isVehicleLoanCategory,
   loanNotEligibleMessage,
   selectableCibilBands,
@@ -23,6 +24,7 @@ import {
   MIN_VEHICLE_NET_MONTHLY_INCOME,
   MSG_NET_INCOME_MIN,
   MSG_VEHICLE_NET_INCOME_MIN,
+  incomeFloor,
   selectableCibilBands,
 } from "./loan-rules.ts";
 
@@ -154,6 +156,8 @@ export function creditCardKindLabel(value: unknown): string {
 }
 
 export function cibilBandLabel(value: unknown): string {
+  if (value === "above_700") return "Above 700";
+  if (value === "below_700") return "Below 700";
   if (value === "above_680") return "Above 680";
   if (value === "below_680") return "Below 680";
   if (value === "above_650") return "Above 650";
@@ -215,7 +219,8 @@ export function validateCreditCardExtras(input: {
     if (amount < 5000) return { fdAmount: "FD amount must be at least ₹5,000" };
     return {};
   }
-  if (!String(input.cibilBand ?? "").trim()) return { cibilBand: "Select your CIBIL score" };
+  const band = String(input.cibilBand ?? "").trim().toLowerCase();
+  if (band !== "above_700" && band !== "below_700") return { cibilBand: "Select your CIBIL score" };
   return {};
 }
 
@@ -309,6 +314,7 @@ export function validateLoanFinishStep(values: {
   totalMonthlyEmi: string;
   vehicle?: boolean;
   skipCibil?: boolean;
+  category?: string;
 }): Pick<
   LeadFieldErrors,
   "netMonthlyIncome" | "employmentType" | "cibilBand" | "hasExistingEmi" | "totalMonthlyEmi"
@@ -320,7 +326,7 @@ export function validateLoanFinishStep(values: {
     ...validatePersonalLoanEmployment(
       values.netMonthlyIncome,
       values.employmentType ?? "",
-      values.vehicle ? MIN_VEHICLE_NET_MONTHLY_INCOME : MIN_NET_MONTHLY_INCOME,
+      incomeFloor(values.vehicle ? "vehicle_loan" : values.category),
     ),
   };
   if (!values.skipCibil) {

@@ -131,6 +131,7 @@ export function collectServiceApplyErrors(input: {
         totalMonthlyEmi:
           input.hasExistingEmi === "no" ? "0" : String(input.monthlyEmiAmount),
         skipCibil: input.creditCardKind !== "normal",
+        category: "credit_card",
       }),
     );
   }
